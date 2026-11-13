@@ -9,6 +9,7 @@ const { startAxeMutationObserver } = ChromeUtils.importESModule(
 );
 
 let browser;
+let redux;
 let doc;
 let dialog;
 let row;
@@ -29,6 +30,7 @@ add_setup(async function () {
   );
   await SimpleTest.promiseFocus(browser);
 
+  redux = browser.contentWindow.ReduxTestUtils;
   doc = browser.contentWindow.document;
   dialog = doc.querySelector('[is="calendar-event-create-edit-dialog"]');
   row = dialog.querySelector(".calendar-event-category-row");
@@ -58,86 +60,64 @@ add_setup(async function () {
 });
 
 /**
- * Creates a category chip for the test.
+ * Sets draft categories and waits for the translated controls.
+ * If `remaining` has names, opens More when some names do not fit the summary.
  *
- * @param {string} name - The sample category label.
- *
- * @returns {HTMLLIElement} The detached chip with localization attributes.
- */
-function makeChip(name) {
-  const template = row.querySelector(".calendar-event-category-chip-template");
-  const chip = template.content.firstElementChild.cloneNode(true);
-  const label = chip.querySelector(".calendar-event-category-label");
-  const remove = chip.querySelector(".calendar-event-remove-category");
-
-  label.textContent = name;
-  doc.l10n.setAttributes(remove, "calendar-event-remove-category", {
-    category: name,
-  });
-
-  return chip;
-}
-
-/**
- * Shows sample category chips and clears category choices.
- *
- * @param {string[]} names - Chips to show in the summary.
- * @param {string[]} [remaining=[]] - Chips to show in the remaining list.
- *
- * @returns {Promise<void>} Resolves after translation and layout.
+ * @param {string[]} names - The selected names.
+ * @param {string[]} [remaining=[]] - Additional selected names.
+ * @returns {Promise<void>} Resolves after rendering and layout.
  */
 async function showSamples(names, remaining = []) {
-  const list = row.querySelector(".calendar-event-category-list");
   const choices = row.querySelector(".calendar-event-category-choices");
   const overflow = row.querySelector(".calendar-event-category-overflow");
-  const body = dialog.querySelector(".calendar-event-create-edit-dialog-body");
-  const more = row.querySelector(".calendar-event-more-categories");
 
-  const selectedChips = doc.createDocumentFragment();
-  const remainingChips = doc.createDocumentFragment();
+  if (!choices.hidden) {
+    row.querySelector(".calendar-event-add-category").click();
+  }
 
-  selectedChips.append(...names.map(makeChip));
-  remainingChips.append(...remaining.map(makeChip));
+  if (!overflow.hidden) {
+    row.querySelector(".calendar-event-more-categories").click();
+  }
 
-  // Translate before inserting the chips so each remove button has a name
-  // for screen readers.
-  await doc.l10n.translateFragment(selectedChips);
-  await doc.l10n.translateFragment(remainingChips);
-
-  choices.replaceChildren();
-  choices.hidden = true;
-  list.replaceChildren(selectedChips);
-  overflow.replaceChildren(remainingChips);
-  body.scrollTop = 0;
-  overflow.hidden = !remaining.length;
-  more.hidden = !remaining.length;
-  doc.l10n.setAttributes(more, "calendar-event-more-categories", {
-    count: remaining.length,
+  dialog.updateDraftSection("categories", {
+    categories: [...names, ...remaining],
   });
+  await row.renderComplete;
 
-  await doc.l10n.translateFragment(row);
+  const more = row.querySelector(".calendar-event-more-categories");
+  const body = dialog.querySelector(".calendar-event-create-edit-dialog-body");
+
+  if (remaining.length && !more.hidden) {
+    more.click();
+  }
+
+  body.scrollTop = 0;
+
   await waitForDialogWithinContainer();
 }
 
 /**
- * Shows sample category choices without changing the event draft.
+ * Supplies sample category options and opens Add category.
  *
  * @param {string[]} names - The sample category names.
- * @returns {Promise<void>} Resolves after the dialog fits inside its container.
+ * @returns {Promise<void>} Resolves after rendering and layout.
  */
 async function showChoices(names) {
   const choices = row.querySelector(".calendar-event-category-choices");
-  const items = doc.createDocumentFragment();
 
-  for (const name of names) {
-    const item = doc.createElement("li");
+  await redux.dispatchAction(
+    "moz-src:///comm/mail/components/calendar/content/state/calendarEventCategorySlice.mjs",
+    "setCategoryOptions",
+    {
+      sessionKey: dialog.calendarEventSessionKey,
+      options: names.map(name => ({ name, color: "", textColor: "" })),
+    }
+  );
+  await row.renderComplete;
 
-    item.textContent = name;
-    items.append(item);
+  if (choices.hidden) {
+    row.querySelector(".calendar-event-add-category").click();
   }
-
-  choices.replaceChildren(items);
-  choices.hidden = !names.length;
 
   await waitForDialogWithinContainer();
 }
@@ -187,6 +167,10 @@ add_task(async function test_emptyMarkupAndLabels() {
     fixtureTemplateRow.outerHTML.replace(/\s+/g, " "),
     dialogTemplateRow.outerHTML.replace(/\s+/g, " "),
     "The fixture and dialog templates should have the same category markup"
+  );
+  Assert.ok(
+    !row.shadowRoot.querySelector(".toggle-checkbox"),
+    "Categories should have no row toggle"
   );
   Assert.equal(
     addCategoryButton.type,
@@ -262,22 +246,7 @@ add_task(async function test_chipsAndKeyboardControls() {
     "The focused remove button should have an outline"
   );
 
-  const clicked = BrowserTestUtils.waitForEvent(remove, "click");
-
-  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
-  await clicked;
-
-  Assert.deepEqual(
-    dialog.draft,
-    initialDraft,
-    "Static controls should not patch the draft"
-  );
-  Assert.equal(
-    row.querySelector(".calendar-event-category-list").childElementCount,
-    2,
-    "Static remove markup should leave selection actions to the follow-up bug"
-  );
-
+  // Check the names and roles that screen readers receive.
   const service = Cc["@mozilla.org/accessibilityService;1"].getService(
     Ci.nsIAccessibilityService
   );
@@ -312,11 +281,43 @@ add_task(async function test_chipsAndKeyboardControls() {
     "calendar-event-selected-categories",
     "The selected list should use the localized name"
   );
+
+  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
+
+  await BrowserTestUtils.waitForMutationCondition(
+    row,
+    { childList: true, subtree: true },
+    () => row.querySelectorAll(".calendar-event-category-label").length == 1
+  );
+
+  Assert.deepEqual(
+    dialog.draft.categories,
+    ["Personal"],
+    "Enter on the remove button should remove only its draft category"
+  );
+
+  Assert.equal(
+    row.querySelector(".calendar-event-category-list").childElementCount,
+    1,
+    "Keyboard removal should update the visible chips"
+  );
+
+  Assert.equal(
+    doc.activeElement,
+    row.querySelector(".calendar-event-remove-category"),
+    "Removal should move focus to the next chip"
+  );
+
+  Assert.deepEqual(
+    initialDraft.categories,
+    ["Work", "Personal"],
+    "The previous draft copy should retain its category names"
+  );
 });
 
 add_task(async function test_overflowLabels() {
   for (const remaining of [["Work"], ["Work", "Personal"]]) {
-    await showSamples(["Travel"], remaining);
+    await showSamples(["A", "B", "C"], remaining);
 
     const more = row.querySelector(".calendar-event-more-categories");
     const count = remaining.length;
@@ -339,14 +340,17 @@ add_task(async function test_longLabelsRemainReadable() {
   let previousHeight = dialog.getBoundingClientRect().height;
 
   for (const count of [2, 3]) {
-    await showSamples(Array(count).fill(longName));
+    const names = Array(count).fill(longName);
+
+    // Open More for the third long name because only two fit in the summary.
+    await showSamples(names.slice(0, 2), names.slice(2));
 
     const height = dialog.getBoundingClientRect().height;
 
     Assert.greater(
       height,
       previousHeight,
-      "The dialog should grow when another row of category chips is added"
+      "The dialog should grow when another row of category content appears"
     );
     previousHeight = height;
 
@@ -409,12 +413,12 @@ add_task(async function test_remainingCategoriesGrowAndScrollDialog() {
   );
   const overflow = row.querySelector(".calendar-event-category-overflow");
 
-  await showSamples(["Work"]);
+  await showSamples(["A", "B", "C"]);
 
   const initialHeight = dialog.getBoundingClientRect().height;
   const followingTop = followingRow.getBoundingClientRect().top;
 
-  await showSamples(["Work"], ["Personal", "Travel"]);
+  await showSamples(["A", "B", "C"], ["Personal", "Travel"]);
 
   Assert.greater(
     dialog.getBoundingClientRect().height,
@@ -469,7 +473,7 @@ add_task(async function test_remainingCategoriesGrowAndScrollDialog() {
     (_, index) => `Category ${index}`
   );
 
-  await showSamples(["Work"], remaining);
+  await showSamples(["A", "B", "C"], remaining);
 
   Assert.lessOrEqual(
     dialog.getBoundingClientRect().height,
@@ -544,8 +548,10 @@ add_task(async function test_remainingCategoriesGrowAndScrollDialog() {
   Assert.equal(
     doc.l10n.getAttributes(row.querySelector(".calendar-event-more-categories"))
       .args.count,
-    20,
-    "The sample overflow control should receive the translated count"
+    remaining.length +
+      3 -
+      row.querySelector(".calendar-event-category-list").childElementCount,
+    "The overflow control should receive the actual remaining count"
   );
 });
 

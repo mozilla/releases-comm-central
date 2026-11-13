@@ -1354,3 +1354,47 @@ add_task(async function test_positionedDialogPosition() {
     );
   }
 });
+
+add_task(function test_preparesLayoutBeforeShowing() {
+  const original = dialogElement.prepareLayout;
+  let prepared = false;
+
+  registerCleanupFunction(() => {
+    dialogElement.prepareLayout = original;
+    dialogElement.close();
+  });
+
+  dialogElement.close();
+  // Check that layout runs while the dialog has a size but is still hidden.
+  dialogElement.prepareLayout = function () {
+    Assert.equal(
+      this.style.visibility,
+      "hidden",
+      "Initial layout should finish before the dialog becomes visible"
+    );
+
+    Assert.greater(
+      this.getBoundingClientRect().width,
+      0,
+      "Initial layout should have measurable dimensions"
+    );
+
+    prepared = true;
+  };
+
+  dialogElement.show();
+
+  Assert.ok(
+    prepared,
+    "Showing the dialog should run its field layout hook synchronously"
+  );
+
+  Assert.equal(
+    dialogElement.style.visibility,
+    "visible",
+    "The dialog should become visible after field layout"
+  );
+
+  dialogElement.prepareLayout = original;
+  dialogElement.close();
+});

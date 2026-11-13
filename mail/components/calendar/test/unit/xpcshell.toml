@@ -8,6 +8,8 @@
 
 ["test_calendarEventCalendarState.js"]
 
+["test_calendarEventCategoryOptions.js"]
+
 ["test_calendarEventCreateEditState.js"]
 
 ["test_calendarEventCreateSave.js"]

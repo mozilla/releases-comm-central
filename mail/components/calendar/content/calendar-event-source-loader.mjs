@@ -41,6 +41,8 @@ const { cal } = ChromeUtils.importESModule(
  * @property {?CalendarEventDateTimeSnapshot} start - The start data.
  * @property {?CalendarEventDateTimeSnapshot} end - The end data.
  * @property {string} title - The event title.
+ * @property {string[]} categories - A copy of all selected names, including
+ *   names absent from category preferences.
  */
 
 /**
@@ -116,6 +118,9 @@ function snapshotDateTime(dateTime) {
  * The returned `event` values become the draft's starting values. The draft's
  * calendar can change while `identity` keeps the original IDs.
  *
+ * Category names come from the event, not the available choices. Copying all
+ * names preserves selections absent from preferences.
+ *
  * @param {CalendarEventSourceIdentity} identity - The route used to load the
  *   event, including the occurrence ID if present.
  * @param {calIEvent} event - The loaded event or occurrence.
@@ -137,6 +142,7 @@ function snapshotEvent(identity, event) {
       start: snapshotDateTime(event.startDate),
       end: snapshotDateTime(event.endDate),
       title: event.title,
+      categories: [...event.getCategories()],
     },
   };
 }

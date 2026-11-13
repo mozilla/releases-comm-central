@@ -52,13 +52,14 @@ import "./calendar-dialog-row.mjs"; // eslint-disable-line import-x/no-unassigne
 import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-dialog-toggleable-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-dialog-subview.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-event-category-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
 
 /**
- * Displays editable event values and a calendar selector in a dialog.
+ * Displays editable event values, calendar choices, and category controls.
  *
  * A draft contains the user's unsaved values. Redux holds these values in a
  * store, an object shared by the components in this document. Each dialog has
@@ -71,12 +72,16 @@ const { cal } = ChromeUtils.importESModule(
  * number. A result from an old route must not replace the new route's data.
  *
  * `CalendarEventDialogSourceMixin` watches route attributes and loads events.
- * This dialog supplies methods that turn loaded data into a draft and calendar
- * choices. An action is an object that describes a state change. Dispatching
- * sends that action to a reducer, the function that updates the stored data.
+ * This dialog turns loaded event data into a draft and calendar choices.
+ * The category row loads its own options and observes selected draft names.
+ * An action describes a state change.
+ * Dispatching sends that action to a reducer, which updates the stored data.
  * A selector reads values for a control without changing stored data. The
  * store observer calls `handleStateChange` when a selected value changes.
  * Public getters return copies so callers cannot change the stored draft.
+ *
+ * The category row observes the draft for this dialog's session. The dialog
+ * waits for the translated category controls before opening.
  *
  * Save uses the top-level window's `doTransaction` function to write the event
  * and support Undo and meeting messages. These Calendar transactions are
@@ -296,13 +301,14 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Starts create mode with an empty draft for field code to add defaults.
+   * Starts create mode with no selected categories.
+   * Field code adds other defaults.
    */
   #initializeDraft() {
     this.dispatch(
       startCreateSession({ sessionKey: this.calendarEventSessionKey })
     );
-    this.resetCreateDraft({});
+    this.resetCreateDraft({ categories: [] });
   }
 
   /**
@@ -316,6 +322,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
         "calendarEventCreateEditDialogTemplate"
       );
       this.append(template.content.cloneNode(true));
+      this.#categoryRow.bindEventSession(this.calendarEventSessionKey);
       this.#calendarSelect = this.querySelector(".calendar-selector");
       this.#availabilitySelect = this.querySelector(".availability-selector");
       this.addEventListener("cancel", this);
@@ -1078,6 +1085,18 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     }
   }
 
+  get #categoryRow() {
+    return this.querySelector("calendar-event-category-row");
+  }
+
+  /**
+   * Arranges translated category chips before the dialog measures itself.
+   */
+  prepareLayout() {
+    // A resize can be reported while the category row is temporarily removed.
+    this.#categoryRow?.prepareLayout();
+  }
+
   /**
    * Applies calendar options and the selected value.
    *
@@ -1282,12 +1301,14 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Starts create mode and adds the calendar default to its draft.
+   * Starts create mode, waits for the category row, and adds the calendar default.
    *
    * @param {CalendarEventDialogRouteRequest} route - The route number and a
    *   check that this request still belongs to the dialog.
-   * @returns {Promise<void>} Resolves after setting the source data and default,
-   *   or after an old route stops without applying its remaining results.
+   * @returns {Promise<void>} Resolves after translating category controls and
+   *   applying an available calendar default, or after an old route stops
+   *   without applying its remaining results. Loading or translation errors
+   *   reject it.
    */
   async onEmptyCalendarEventRoute(route) {
     // Reject an old request before it resets the draft.
@@ -1298,9 +1319,13 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     this.#initializeDraft();
     this.#renderSave();
 
+    // Wait for translated controls before opening and measuring the dialog.
+    await this.#categoryRow.renderComplete;
+
     // Apply the queued choice refresh before choosing this route's default.
     await Promise.resolve();
 
+    // If the route changed during translation, do not apply these defaults.
     if (!route.isCurrent()) {
       return;
     }
@@ -1356,12 +1381,14 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Sets source permission and starts a draft from the loaded event snapshot.
+   * Copies the saved event into a draft.
+   * Waits for category controls and dialog text before enabling edit Save.
    *
    * @param {CalendarEventDialogSource} source - The loaded source data and a
    *   check that the source still belongs to the current route.
-   * @returns {Promise<void>} Resolves after setting source and draft values,
+   * @returns {Promise<void>} Resolves after the current edit display is ready,
    *   or after an old route stops without applying its remaining results.
+   *   Loading or translation errors reject it.
    */
   async onCalendarEventSourceLoaded({ snapshot, isCurrent, generation }) {
     if (!isCurrent()) {
@@ -1389,6 +1416,14 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       })
     );
 
+    // Wait for choices to render even when the event has no selected names.
+    await this.#categoryRow.renderComplete;
+
+    // If the route changed during translation, leave the new route alone.
+    if (!isCurrent()) {
+      return;
+    }
+
     // Localize the dialog before enabling Save.
     await document.l10n.translateFragment(this);
 
@@ -1400,13 +1435,13 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Removes source data, draft values, and mode for this dialog.
-   * Calendar choices remain cached until the dialog disconnects.
+   * Clears this dialog's calendar choices, draft values, and mode.
    * The source mixin calls this hook when the route changes or closes. The
    * session key stays fixed so the next route uses the same dialog entries.
    */
   onCalendarEventRouteCleared() {
     this.#editReady = false;
+
     this.dispatch(
       clearCalendarSelection({ sessionKey: this.calendarEventSessionKey })
     );

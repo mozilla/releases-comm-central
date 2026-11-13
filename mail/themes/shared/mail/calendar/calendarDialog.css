@@ -493,7 +493,7 @@ li[is="calendar-dialog-attachment"] {
   overflow-block: auto;
   border-block-start: 1px solid var(--color-surface-border);
 
-  :is(calendar-dialog-row, calendar-dialog-toggleable-row, calendar-dialog-navigation-row) {
+  :is(calendar-dialog-row, calendar-dialog-toggleable-row, calendar-dialog-navigation-row, calendar-event-category-row) {
     border-block-end: 1px solid var(--color-surface-border);
     padding-block: var(--calendar-dialog-gap);
   }
@@ -583,7 +583,7 @@ li[is="calendar-dialog-attachment"] {
     font-size: 10px;
     font-weight: 700;
     line-height: 12px;
-    /* Use neutral colors when a category has no color. */
+    /* Use neutral colors when the row supplies no usable category color. */
     color: var(--item-text-color, var(--color-text-base));
     background-color: var(--item-color, var(--color-surface-subtle));
 
@@ -594,8 +594,8 @@ li[is="calendar-dialog-attachment"] {
   }
 
   & .calendar-event-category-label {
-    /* Limit long labels so shorter labels still have room.
-     * Clip only the text so the remove button and its focus ring stay visible. */
+    /* Limit long labels before flex layout so shorter labels still have room.
+     * Clip only label text. Keep the Remove button and its focus outline visible. */
     max-inline-size: 20ch;
     min-inline-size: 0;
     overflow: hidden;
@@ -640,6 +640,14 @@ li[is="calendar-dialog-attachment"] {
       outline: var(--focus-outline);
       outline-offset: calc(-1 * var(--focus-outline-offset));
     }
+  }
+
+  & .calendar-event-category-choices label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-step);
+    padding-block: var(--space-step);
+    overflow-wrap: anywhere;
   }
 
   & .calendar-event-category-overflow:not([hidden]) {

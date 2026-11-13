@@ -143,8 +143,7 @@ export class PositionedDialog extends HTMLDialogElement {
       this.trigger = event.target.closest(this.triggerSelector);
     }
 
-    // Visibly hide the dialog but show it, this allows us to get the true
-    // dimensions.
+    // Keep the dialog hidden until #update() measures and positions it.
     this.style.visibility = "hidden";
 
     super.show();
@@ -157,6 +156,8 @@ export class PositionedDialog extends HTMLDialogElement {
    * Updates the position and size of the dialog.
    */
   #update() {
+    this.prepareLayout();
+
     // Pass the DomRects and dialog information to position function.
     const dialogRect = this.getBoundingClientRect();
     const containerRect = this.container.getBoundingClientRect();
@@ -179,6 +180,15 @@ export class PositionedDialog extends HTMLDialogElement {
     this.style.left = position.x;
     this.style.top = position.y;
   }
+
+  /**
+   * Prepares controls before the dialog is measured and positioned.
+   * Runs while opening the hidden dialog and after window resizes.
+   *
+   * Subclasses must finish synchronously because #update() measures the dialog
+   * next. Finish asynchronous work before calling this class's show() method.
+   */
+  prepareLayout() {}
 
   close() {
     this.#resizeObserver.disconnect();

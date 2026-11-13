@@ -640,6 +640,11 @@
       border-color: color-mix(in srgb, var(--selected-item-color) 80%, black);
     }
 
+    /* In right-to-left layouts, move the thumb left from its starting edge. */
+    &:dir(rtl)::before {
+      translate: -23px;
+    }
+
     &:is(:hover, :active) {
       background-color: color-mix(in srgb, var(--selected-item-color) 90%, black);
       border-color: color-mix(in srgb, var(--selected-item-color) 80%, black);
@@ -667,6 +672,10 @@
 
     &:checked::before {
       translate: 20px;
+    }
+
+    &:checked:dir(rtl)::before {
+      translate: -20px;
     }
   }
 }

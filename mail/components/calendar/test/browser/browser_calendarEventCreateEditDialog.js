@@ -245,7 +245,9 @@ add_task(async function test_sharedRowAndSubviewScaffolding() {
   const rows = subview.querySelector(".calendar-event-create-edit-dialog-rows");
   Assert.ok(rows, "The main subview should provide the shared row container.");
   Assert.ok(
-    rows.querySelector("calendar-dialog-row.calendar-event-category-row"),
+    rows.querySelector(
+      "calendar-event-category-row.calendar-event-category-row"
+    ),
     "The main subview should contain the shared category row."
   );
 });
@@ -1272,9 +1274,10 @@ add_task(async function test_createAndEditDraftLifecycle() {
 
   Assert.deepEqual(
     dialog.draft,
-    { calendarId: calendar.id },
+    { calendarId: calendar.id, categories: [] },
     "Create mode should start with the selected calendar default"
   );
+
   dialog.resetCreateDraft({
     calendarId: calendar.id,
     title: "Field provider title",
@@ -1302,12 +1305,14 @@ add_task(async function test_createAndEditDraftLifecycle() {
     dialog.draft,
     {
       calendarId: calendar.id,
+      categories: source.snapshot.event.categories,
       end: source.snapshot.event.end,
       start: source.snapshot.event.start,
       title: calendarEvent.title,
     },
-    "Edit mode copies source data into a draft"
+    "Edit mode should copy source data into a draft"
   );
+
   Assert.ok(!dialog.isDirty, "A newly loaded edit draft is clean");
 
   dialog.updateDraftSection("title", { title: "Unsaved title" });
@@ -1340,7 +1345,7 @@ add_task(async function test_createAndEditDraftLifecycle() {
   await resetToCreateMode();
   Assert.deepEqual(
     dialog.draft,
-    { calendarId: calendar.id },
+    { calendarId: calendar.id, categories: [] },
     "Clearing an edit route should remove its draft and restore the calendar default"
   );
 });
@@ -2103,6 +2108,7 @@ add_task(async function test_saveButtonDisabledValidityState() {
     dialog.draft,
     {
       calendarId: calendar.id,
+      categories: source.snapshot.event.categories,
       end: source.snapshot.event.end,
       start: source.snapshot.event.start,
       title: calendarEvent.title,

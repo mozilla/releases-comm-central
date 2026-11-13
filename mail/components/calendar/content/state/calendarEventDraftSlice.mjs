@@ -32,6 +32,9 @@ import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
  * @property {Record<string, boolean>} [enabledRows] - Optional row enabled state.
  * @property {"default"|"busy"|"free"} [availability] - Unsaved availability.
  * @property {string} [title] - The event title.
+ * @property {string[]} [categories] - Selected category names in draft order.
+ *   Names need not appear in category preferences.
+ *   Category order does not count as a change.
  * @property {?CalendarEventDateTimeSnapshot} [start] - The start date and time.
  * @property {?CalendarEventDateTimeSnapshot} [end] - The end date and time.
  */
@@ -102,14 +105,16 @@ function valuesAreEqual(first, second) {
  * Returns a copy of the loaded event values that the dialog can edit.
  * The source session keeps the event and occurrence IDs. The draft has its own
  * calendar ID so a selection can change the destination without changing the
- * identity of the saved event.
+ * identity of the saved event. Copies category names, or uses an empty array
+ * if the source has none.
  *
  * @param {CalendarEventSourceSnapshot} snapshot - The loaded source data.
  * @returns {CalendarEventDraft} A separate copy of the editable values.
  */
 export function cloneDraftFromSourceSnapshot(snapshot) {
-  const { calendarId, end, start, title } = snapshot.event;
-  return structuredClone({ calendarId, end, start, title });
+  const { calendarId, categories = [], end, start, title } = snapshot.event;
+
+  return structuredClone({ calendarId, categories, end, start, title });
 }
 
 /**
@@ -288,6 +293,7 @@ export const calendarEventDraftSlice = createSlice({
      * Updates a field section and records whether its values changed.
      * A section groups related fields, such as the start and end times.
      * `dirtySections` lists sections that differ from their starting values.
+     * This comparison ignores category order.
      *
      * The caller must supply every draft property for the section. The section
      * has no user changes when all supplied values match their starting values.
@@ -337,6 +343,15 @@ export const calendarEventDraftSlice = createSlice({
               draft.baseline?.enabledRows?.[row]
           );
         }
+
+        // Compare sorted copies so category order does not count as a change.
+        if (key == "categories") {
+          return !valuesAreEqual(
+            draft.value.categories?.toSorted(),
+            draft.baseline?.categories?.toSorted()
+          );
+        }
+
         return !valuesAreEqual(draft.value[key], draft.baseline?.[key]);
       });
 

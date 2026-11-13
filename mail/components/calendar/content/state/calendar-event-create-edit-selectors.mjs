@@ -10,6 +10,7 @@ import {
 } from "./calendarEventDraftSlice.mjs";
 import { selectCalendarEventCreateEditSession } from "./calendarEventCreateEditSessionSlice.mjs";
 import { selectCalendarSelection } from "./calendarEventCalendarSlice.mjs";
+import { selectCategoryOptions } from "./calendarEventCategorySlice.mjs";
 
 /**
  * A selector is a function that reads a value from the Redux application state.
@@ -446,4 +447,71 @@ const selectAvailabilityDisabled = createSelector(
 export const selectAvailabilityControl = createSelector(
   [selectAvailability, selectAvailabilityBaseline, selectAvailabilityDisabled],
   (value, baseline, disabled) => ({ value, baseline, disabled })
+);
+
+/**
+ * Reuses one empty array so `createSelector` can keep its cached result.
+ *
+ * @type {ReadonlyArray<string>}
+ */
+const EMPTY_CATEGORIES = Object.freeze([]);
+
+/**
+ * Returns a copy of selected names without observing other draft fields.
+ * Reuses the previous array when names and order match, so the store observer
+ * does not rebuild category controls for an unchanged selection.
+ *
+ * @type {CalendarEventCreateEditSelector<string[]>}
+ */
+export const selectCategories = createSelector(
+  [
+    (state, sessionKey) =>
+      selectCurrentDraft(state, sessionKey)?.categories ?? EMPTY_CATEGORIES,
+  ],
+  categories => [...categories],
+  {
+    memoizeOptions: {
+      resultEqualityCheck: (previous, current) =>
+        previous.length == current.length &&
+        previous.every((category, index) => category == current[index]),
+    },
+  }
+);
+
+/**
+ * Values that the category row reads through the session mixin.
+ *
+ * @typedef {object} CalendarEventCategoryViewModel
+ * @property {string[]} categories - The selected names in draft order.
+ * @property {"create"|"edit"|null} mode - The current route mode, or null after cleanup.
+ * @property {boolean} hasDraft - True when editable values are present.
+ * @property {?CalendarEventCategoryOption[]} options - Available names and
+ *   colors. An empty array is a completed load; null means no options loaded.
+ * @property {boolean} disabled - True if the draft or options are absent, or
+ *   Save is pending. The row disables its controls and ignores change requests
+ *   while this is true.
+ */
+
+/**
+ * Returns the category row's display data and whether changes are disabled.
+ * Observes options separately so loading choices also updates an empty row.
+ *
+ * @type {CalendarEventCreateEditSelector<CalendarEventCategoryViewModel>}
+ */
+export const selectCategoryViewModel = createSelector(
+  [
+    selectCategories,
+    selectCategoryOptions,
+    selectDialogMode,
+    (state, sessionKey) => selectCurrentDraft(state, sessionKey) !== null,
+    (state, sessionKey) =>
+      selectCurrentOperation(state, sessionKey)?.status == "pending",
+  ],
+  (categories, options, mode, hasDraft, saving) => ({
+    categories,
+    options,
+    mode,
+    hasDraft,
+    disabled: !hasDraft || options === null || saving,
+  })
 );

@@ -12,6 +12,7 @@
 
 const {
   calendarEventDraftSlice,
+  clearCalendarEventDraft,
   resetForCreate,
   resetFromSource,
   initializeFields,
@@ -25,6 +26,7 @@ const {
   clearCalendarEventCreateEditSession,
   operationFailed,
   operationStarted,
+  operationReleased,
   operationSucceeded,
   startEditSession,
 } = ChromeUtils.importESModule(
@@ -35,6 +37,8 @@ const { store } = ChromeUtils.importESModule(
 );
 const {
   selectCanSave,
+  selectCategories,
+  selectCategoryViewModel,
   selectCurrentDraft,
   selectDirtySections,
   selectIsDirty,
@@ -42,7 +46,29 @@ const {
   "moz-src:///comm/mail/components/calendar/content/state/calendar-event-create-edit-selectors.mjs"
 );
 
+const {
+  changeCategory,
+  clearCategoryOptions,
+  selectCategoryOptions,
+  setCategoryOptions,
+} = ChromeUtils.importESModule(
+  "moz-src:///comm/mail/components/calendar/content/state/calendarEventCategorySlice.mjs"
+);
+
 const sessionKey = "calendar-event-create-edit-state-test";
+// Separate keys model two dialogs sharing the document's Redux store.
+const categorySessionKey = `${sessionKey}-categories`;
+const otherCategorySessionKey = `${categorySessionKey}-other`;
+
+add_setup(function () {
+  registerCleanupFunction(() => {
+    for (const key of [categorySessionKey, otherCategorySessionKey]) {
+      store.dispatch(clearCategoryOptions({ sessionKey: key }));
+      store.dispatch(clearCalendarEventDraft({ sessionKey: key }));
+      store.dispatch(clearCalendarEventCreateEditSession({ sessionKey: key }));
+    }
+  });
+});
 
 /**
  * Returns the source fields used by draft reducers. This fixture omits calendar
@@ -55,6 +81,7 @@ function sourceSnapshot() {
   return {
     event: {
       calendarId: "calendar-id",
+      categories: [],
       end: {
         icalString: "20260824T110000Z",
         isDate: false,
@@ -105,12 +132,14 @@ add_task(function test_sourceSnapshotStartsAnIsolatedDraft() {
     draft.baseline,
     {
       calendarId: "calendar-id",
+      categories: [],
       end: snapshot.event.end,
       start: snapshot.event.start,
       title: "Original title",
     },
-    "The draft copies editable source values"
+    "The draft should copy editable source values"
   );
+
   Assert.notStrictEqual(
     draft.value,
     snapshot.event,
@@ -563,5 +592,344 @@ add_task(function test_rowDefaultsAndDirtyStateStaySeparate() {
     draft.dirtySections,
     [],
     "Restoring enabled state should clear its change."
+  );
+});
+
+add_task(function test_categoryDraftIsIsolatedAndNarrowlyObserved() {
+  const snapshot = sourceSnapshot();
+
+  snapshot.event.categories = ["Work", "Not in preferences"];
+  store.dispatch(resetFromSource({ sessionKey, snapshot }));
+
+  const baseline =
+    store.getState().calendarEventDraft.sessions[sessionKey].baseline;
+  // Keep the array reference to check that unrelated edits reuse it.
+  const selected = selectCategories(store.getState(), sessionKey);
+
+  Assert.deepEqual(
+    selected,
+    snapshot.event.categories,
+    "The draft should include selected names absent from preferences"
+  );
+
+  Assert.notStrictEqual(
+    selected,
+    snapshot.event.categories,
+    "The draft should copy the source category array"
+  );
+
+  Assert.notStrictEqual(
+    selected,
+    baseline.categories,
+    "The draft and baseline should own separate category arrays"
+  );
+
+  store.dispatch(
+    updateSection({
+      sessionKey,
+      section: "title",
+      patch: { title: "Unsaved title" },
+    })
+  );
+
+  Assert.strictEqual(
+    selectCategories(store.getState(), sessionKey),
+    selected,
+    "Unrelated draft changes should preserve the category selector result"
+  );
+
+  store.dispatch(
+    updateSection({
+      sessionKey,
+      section: "categories",
+      patch: { categories: ["Work"] },
+    })
+  );
+
+  Assert.deepEqual(
+    snapshot.event.categories,
+    ["Work", "Not in preferences"],
+    "Removing a draft category should preserve the source snapshot"
+  );
+
+  Assert.deepEqual(
+    baseline.categories,
+    snapshot.event.categories,
+    "Removing a draft category should preserve the baseline"
+  );
+
+  Assert.deepEqual(
+    selectDirtySections(store.getState(), sessionKey),
+    ["title", "categories"],
+    "Category changes should mark only the category section beside existing changes"
+  );
+
+  store.dispatch(
+    updateSection({
+      sessionKey,
+      section: "categories",
+      patch: { categories: [...selected] },
+    })
+  );
+
+  Assert.deepEqual(
+    selectDirtySections(store.getState(), sessionKey),
+    ["title"],
+    "Restoring selected categories should clear only the category dirty state"
+  );
+});
+
+add_task(function test_categoryOrderDoesNotCountAsChange() {
+  const baseline = ["Work", "Personal"];
+
+  for (const [categories, changed] of [
+    [["Personal", "Work"], false],
+    [["Work"], true],
+    [["Work", "Personal", "Team"], true],
+    [["Work", "Team"], true],
+    [["Work", "Work"], true],
+    [["Work", "Personal", "Work"], true],
+    [["work", "Personal"], true],
+    [[], true],
+  ]) {
+    let state = reduceDraft(
+      undefined,
+      resetForCreate({
+        sessionKey,
+        initialDraft: { categories: baseline, title: "Original title" },
+      })
+    );
+
+    state = reduceDraft(
+      state,
+      updateSection({
+        sessionKey,
+        section: "title",
+        patch: { title: "Changed title" },
+      })
+    );
+    state = reduceDraft(
+      state,
+      updateSection({
+        sessionKey,
+        section: "categories",
+        patch: { categories },
+      })
+    );
+
+    const draft = state.sessions[sessionKey];
+
+    Assert.deepEqual(
+      draft.dirtySections,
+      changed ? ["title", "categories"] : ["title"],
+      changed
+        ? "Changing selected names should mark categories beside the existing title change"
+        : "Reordering categories should preserve only the existing title change"
+    );
+    Assert.deepEqual(
+      draft.value.categories,
+      categories,
+      "Checking category changes should preserve the current selection order"
+    );
+    Assert.deepEqual(
+      draft.baseline.categories,
+      baseline,
+      "Checking category changes should preserve the baseline order"
+    );
+  }
+});
+
+add_task(function test_equalCategoryValuesReuseSelectorResult() {
+  store.dispatch(
+    resetForCreate({ sessionKey, initialDraft: { categories: ["Work"] } })
+  );
+
+  const selected = selectCategories(store.getState(), sessionKey);
+
+  // A new array with the same names must still reuse the previous result.
+  store.dispatch(
+    updateSection({
+      sessionKey,
+      section: "categories",
+      patch: { categories: ["Work"] },
+    })
+  );
+
+  Assert.strictEqual(
+    selectCategories(store.getState(), sessionKey),
+    selected,
+    "Equal category values should reuse the selector result after a copied patch"
+  );
+});
+
+add_task(function test_categoryOptionsAreIsolatedBySession() {
+  const options = [{ name: "Work", color: "#000080", textColor: "white" }];
+
+  store.dispatch(
+    setCategoryOptions({ sessionKey: categorySessionKey, options })
+  );
+  options[0].name = "Changed outside Redux";
+
+  Assert.deepEqual(
+    selectCategoryOptions(store.getState(), categorySessionKey),
+    [{ name: "Work", color: "#000080", textColor: "white" }],
+    "Stored options should be separate from the loader result"
+  );
+  Assert.equal(
+    selectCategoryOptions(store.getState(), otherCategorySessionKey),
+    null,
+    "Another session should have no category options"
+  );
+
+  store.dispatch(
+    setCategoryOptions({ sessionKey: otherCategorySessionKey, options: [] })
+  );
+  store.dispatch(clearCategoryOptions({ sessionKey: categorySessionKey }));
+
+  Assert.equal(
+    selectCategoryOptions(store.getState(), categorySessionKey),
+    null,
+    "Clearing a session should remove its category options"
+  );
+  Assert.deepEqual(
+    selectCategoryOptions(store.getState(), otherCategorySessionKey),
+    [],
+    "Clearing one session should preserve another session's options"
+  );
+});
+
+add_task(function test_categoryOptionsUpdateAnEmptySelection() {
+  const key = categorySessionKey;
+
+  store.dispatch(
+    resetForCreate({ sessionKey: key, initialDraft: { categories: [] } })
+  );
+
+  const loading = selectCategoryViewModel(store.getState(), key);
+
+  Assert.ok(
+    loading.disabled,
+    "Categories should be disabled before options load"
+  );
+
+  store.dispatch(
+    setCategoryOptions({
+      sessionKey: key,
+      options: [{ name: "Work", color: "", textColor: "" }],
+    })
+  );
+
+  const loaded = selectCategoryViewModel(store.getState(), key);
+
+  Assert.strictEqual(
+    loaded.categories,
+    loading.categories,
+    "Loading options should preserve the empty selection result"
+  );
+  Assert.notStrictEqual(
+    loaded,
+    loading,
+    "New options should update the row even when its selection stays empty"
+  );
+  Assert.ok(!loaded.disabled, "Loaded options should permit category changes");
+
+  store.dispatch(
+    updateSection({
+      sessionKey: key,
+      section: "title",
+      patch: { title: "Unsaved" },
+    })
+  );
+
+  Assert.strictEqual(
+    selectCategoryViewModel(store.getState(), key),
+    loaded,
+    "An unrelated draft change should preserve the category view model"
+  );
+});
+
+add_task(function test_categoryChangesCheckCurrentDraftAndSave() {
+  const key = categorySessionKey;
+
+  store.dispatch(startEditSession({ sessionKey: key }));
+  store.dispatch(
+    resetForCreate({
+      sessionKey: key,
+      initialDraft: { categories: ["Work"], title: "Unsaved title" },
+    })
+  );
+  store.dispatch(setCategoryOptions({ sessionKey: key, options: [] }));
+  store.dispatch(
+    changeCategory({ sessionKey: key, categoryName: "Unknown", selected: true })
+  );
+
+  Assert.deepEqual(
+    selectCurrentDraft(store.getState(), key),
+    { categories: ["Work", "Unknown"], title: "Unsaved title" },
+    "A category change should preserve other draft fields and unknown names"
+  );
+  Assert.deepEqual(
+    selectDirtySections(store.getState(), key),
+    ["categories"],
+    "A category change should mark only the category section dirty"
+  );
+
+  const operation = {
+    sessionKey: key,
+    kind: "save",
+    requestId: "category-save",
+  };
+
+  store.dispatch(operationStarted(operation));
+  store.dispatch(
+    changeCategory({ sessionKey: key, categoryName: "Work", selected: false })
+  );
+
+  Assert.deepEqual(
+    selectCurrentDraft(store.getState(), key).categories,
+    ["Work", "Unknown"],
+    "Pending Save should prevent category changes"
+  );
+  Assert.ok(
+    selectCategoryViewModel(store.getState(), key).disabled,
+    "Pending Save should disable category changes in the view model"
+  );
+
+  store.dispatch(operationReleased(operation));
+  store.dispatch(
+    changeCategory({
+      sessionKey: key,
+      categoryName: "Unknown",
+      selected: false,
+    })
+  );
+
+  Assert.deepEqual(
+    selectDirtySections(store.getState(), key),
+    [],
+    "Restoring baseline categories should clear the category dirty state"
+  );
+
+  store.dispatch(clearCategoryOptions({ sessionKey: key }));
+  store.dispatch(
+    changeCategory({ sessionKey: key, categoryName: "Team", selected: true })
+  );
+
+  Assert.deepEqual(
+    selectCurrentDraft(store.getState(), key).categories,
+    ["Work"],
+    "A route without options should reject category changes"
+  );
+
+  store.dispatch(setCategoryOptions({ sessionKey: key, options: [] }));
+  store.dispatch(clearCalendarEventDraft({ sessionKey: key }));
+  store.dispatch(
+    changeCategory({ sessionKey: key, categoryName: "Team", selected: true })
+  );
+
+  Assert.equal(
+    selectCurrentDraft(store.getState(), key),
+    null,
+    "A category action should not recreate a cleared draft"
   );
 });

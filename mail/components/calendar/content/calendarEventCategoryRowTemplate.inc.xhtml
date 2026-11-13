@@ -2,15 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<calendar-dialog-row
+<calendar-event-category-row
   class="calendar-event-category-row labelless full-width"
 >
   <div slot="content" class="calendar-event-category-content">
-    <ul
-      class="calendar-event-category-choices"
-      data-l10n-id="calendar-event-category-choices"
-      hidden="hidden"
-    ></ul>
+    <!--
+      The row shows chips that fit here and puts the rest
+      in the More list.
+    -->
     <div class="calendar-event-category-summary">
       <ul
         class="calendar-event-category-list"
@@ -29,6 +28,14 @@
       type="button"
       data-l10n-id="calendar-event-add-category"
     ></button>
+    <!--
+      Choices also include saved names absent from preferences.
+    -->
+    <ul
+      class="calendar-event-category-choices"
+      data-l10n-id="calendar-event-category-choices"
+      hidden="hidden"
+    ></ul>
     <ul
       class="calendar-event-category-overflow"
       data-l10n-id="calendar-event-remaining-categories"
@@ -48,4 +55,4 @@
       </li>
     </template>
   </div>
-</calendar-dialog-row>
+</calendar-event-category-row>

@@ -142,6 +142,7 @@ add_task(async function test_storeUpdatesBeforeConnection() {
     previous.remove();
     container.remove();
   };
+
   registerCleanupFunction(cleanupDialogs);
 
   previous.setCalendarEventRoute({
@@ -201,8 +202,8 @@ add_task(async function test_storeUpdatesBeforeConnection() {
     "The replacement should load the stored event instead of the discarded edit."
   );
 
-  // The harness runs registered cleanup after the file. Remove these dialogs
-  // before the next task.
+  // Harness cleanup runs after this file's tasks. Close the extra dialog now
+  // so the next task can use the fixture dialog without another dialog open.
   const closed = BrowserTestUtils.waitForMutationCondition(
     replacement,
     {
