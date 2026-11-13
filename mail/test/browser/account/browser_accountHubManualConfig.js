@@ -90,6 +90,9 @@ add_task(async function test_account_email_advanced_setup_incoming() {
   );
 
   // Edit configuration button should lead to incoming config template.
+  configFoundTemplate
+    .querySelector("#editConfiguration")
+    .scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     configFoundTemplate.querySelector("#editConfiguration"),
     {}
@@ -107,6 +110,7 @@ add_task(async function test_account_email_advanced_setup_incoming() {
   // Update the port number and click advanced config to confirm that the
   // account being created takes the updated incoming field.
   const incomingPort = incomingConfigTemplate.querySelector("#incomingPort");
+  incomingPort.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(incomingPort, {});
   incomingPort.value = "";
   const inputEvent = BrowserTestUtils.waitForEvent(
@@ -121,6 +125,7 @@ add_task(async function test_account_email_advanced_setup_incoming() {
   const advancedConfigButton = incomingConfigTemplate.querySelector(
     "#advancedConfigurationIncoming"
   );
+  advancedConfigButton.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(advancedConfigButton, {});
 
   const tabmail = document.getElementById("tabmail");
@@ -174,6 +179,9 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
   const configFoundTemplate = dialog.querySelector("email-config-found");
 
   // Edit configuration button should lead to incoming config template.
+  configFoundTemplate
+    .querySelector("#editConfiguration")
+    .scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     configFoundTemplate.querySelector("#editConfiguration"),
     {}
@@ -192,6 +200,7 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
   // advanced config to confirm that the account being created takes the
   // updated incoming and outgoing fields.
   const incomingPort = incomingConfigTemplate.querySelector("#incomingPort");
+  incomingPort.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(incomingPort, {});
   incomingPort.value = "";
   let inputEvent = BrowserTestUtils.waitForEvent(
@@ -216,6 +225,7 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
   await isOutgoingVisible;
 
   const outgoingPort = outgoingConfigTemplate.querySelector("#outgoingPort");
+  outgoingPort.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(outgoingPort, {});
   outgoingPort.value = "";
   inputEvent = BrowserTestUtils.waitForEvent(
@@ -231,6 +241,7 @@ add_task(async function test_account_email_advanced_setup_outgoing() {
   const advancedConfigButton = outgoingConfigTemplate.querySelector(
     "#advancedConfigurationOutgoing"
   );
+  advancedConfigButton.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(advancedConfigButton, {});
 
   const tabmail = document.getElementById("tabmail");
@@ -289,6 +300,9 @@ add_task(async function test_account_email_manual_form() {
   );
 
   // Edit configuration button should lead to incoming config template.
+  configFoundTemplate
+    .querySelector("#editConfiguration")
+    .scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     configFoundTemplate.querySelector("#editConfiguration"),
     {},
@@ -353,6 +367,7 @@ add_task(async function test_account_email_manual_form() {
 
   const incomingHostname =
     incomingConfigTemplate.querySelector("#incomingHostname");
+  incomingHostname.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(incomingHostname, {});
   const inputEvent = BrowserTestUtils.waitForEvent(
     incomingHostname,
@@ -421,6 +436,9 @@ add_task(async function test_pop3_manual_config_flow() {
     "The POP3 config option should be visible"
   );
 
+  configFoundTemplate
+    .querySelector("#pop3")
+    .scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     configFoundTemplate.querySelector("#pop3"),
     {}
@@ -433,6 +451,9 @@ add_task(async function test_pop3_manual_config_flow() {
   );
 
   // Edit configuration button should lead to incoming config template.
+  configFoundTemplate
+    .querySelector("#editConfiguration")
+    .scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     configFoundTemplate.querySelector("#editConfiguration"),
     {}
@@ -526,6 +547,7 @@ add_task(async function test_invalid_manual_config_flow() {
   );
 
   // Fixing the hostname should enable the continue button.
+  incomingHostname.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(incomingHostname, {});
   EventUtils.synthesizeKey("KEY_Home", { shiftKey: true });
   EventUtils.synthesizeKey("KEY_ArrowLeft", {});
@@ -555,6 +577,11 @@ add_task(async function test_invalid_manual_config_flow() {
 
   const incomingConnectionPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
+
+  incomingConnectionSecurity.scrollIntoView({
+    block: "center",
+    behavior: "instant",
+  });
 
   await EventUtils.synthesizeMouseAtCenter(incomingConnectionSecurity, {});
 
@@ -605,6 +632,7 @@ add_task(async function test_invalid_manual_config_flow() {
 
   // Updating the hostname to be valid should not enable the continue button
   // as the incoming config was edited.
+  outgoingHostname.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(outgoingHostname, {});
   EventUtils.synthesizeKey("KEY_Home", { shiftKey: true });
   EventUtils.synthesizeKey("KEY_ArrowLeft", {});
@@ -720,6 +748,8 @@ add_task(async function test_account_email_manual_to_ews() {
   const protocolSelectorPromise =
     BrowserTestUtils.waitForSelectPopupShown(window);
 
+  protocolSelector.scrollIntoView({ block: "center", behavior: "instant" });
+
   await EventUtils.synthesizeMouseAtCenter(protocolSelector, {});
 
   const protocolSelectorPopup = await protocolSelectorPromise;
@@ -741,6 +771,8 @@ add_task(async function test_account_email_manual_to_ews() {
     "#incomingExchangeUrl"
   );
   const focusEvent = BrowserTestUtils.waitForEvent(ewsURLInput, "focus");
+
+  ewsURLInput.scrollIntoView({ block: "center", behavior: "instant" });
 
   EventUtils.synthesizeMouseAtCenter(ewsURLInput, {});
   await focusEvent;
@@ -860,6 +892,7 @@ add_task(async function test_account_invalid_email_advanced_setup_incoming() {
   const advancedConfigButton = incomingConfigTemplate.querySelector(
     "#advancedConfigurationIncoming"
   );
+  advancedConfigButton.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(advancedConfigButton, {});
 
   const tabmail = document.getElementById("tabmail");
@@ -981,6 +1014,7 @@ add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
 
   const incomingHostname =
     incomingConfigTemplate.querySelector("#incomingHostname");
+  incomingHostname.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(incomingHostname, {});
   incomingHostname.select();
   let inputEvent = BrowserTestUtils.waitForEvent(
@@ -994,6 +1028,7 @@ add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
   await inputEvent;
 
   const incomingPort = incomingConfigTemplate.querySelector("#incomingPort");
+  incomingPort.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(incomingPort, {});
   incomingPort.select();
   inputEvent = BrowserTestUtils.waitForEvent(
@@ -1010,6 +1045,10 @@ add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
     "#incomingConnectionSecurity"
   );
   let selectPopupShown = BrowserTestUtils.waitForSelectPopupShown(window);
+  incomingConnectionSecurity.scrollIntoView({
+    block: "center",
+    behavior: "instant",
+  });
   await EventUtils.synthesizeMouseAtCenter(incomingConnectionSecurity, {});
   let selectPopup = await selectPopupShown;
   let selectItems = selectPopup.querySelectorAll("menuitem");
@@ -1021,6 +1060,7 @@ add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
     "#incomingAuthMethod"
   );
   selectPopupShown = BrowserTestUtils.waitForSelectPopupShown(window);
+  incomingAuthMethod.scrollIntoView({ block: "center", behavior: "instant" });
   await EventUtils.synthesizeMouseAtCenter(incomingAuthMethod, {});
   selectPopup = await selectPopupShown;
   selectItems = selectPopup.querySelectorAll("menuitem");
@@ -1043,6 +1083,7 @@ add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
 
   const outgoingHostname =
     outgoingConfigTemplate.querySelector("#outgoingHostname");
+  outgoingHostname.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(outgoingHostname, {});
   outgoingHostname.select();
   inputEvent = BrowserTestUtils.waitForEvent(
@@ -1056,6 +1097,7 @@ add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
   await inputEvent;
 
   const outgoingPort = outgoingConfigTemplate.querySelector("#outgoingPort");
+  outgoingPort.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(outgoingPort, {});
   outgoingPort.select();
   inputEvent = BrowserTestUtils.waitForEvent(
@@ -1072,6 +1114,10 @@ add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
     "#outgoingConnectionSecurity"
   );
   selectPopupShown = BrowserTestUtils.waitForSelectPopupShown(window);
+  outgoingConnectionSecurity.scrollIntoView({
+    block: "center",
+    behavior: "instant",
+  });
   await EventUtils.synthesizeMouseAtCenter(outgoingConnectionSecurity, {});
   selectPopup = await selectPopupShown;
   selectItems = selectPopup.querySelectorAll("menuitem");
@@ -1083,6 +1129,7 @@ add_task(async function test_direct_to_manual_gssapi_skips_password_step() {
     "#outgoingAuthMethod"
   );
   selectPopupShown = BrowserTestUtils.waitForSelectPopupShown(window);
+  outgoingAuthMethod.scrollIntoView({ block: "center", behavior: "instant" });
   await EventUtils.synthesizeMouseAtCenter(outgoingAuthMethod, {});
   selectPopup = await selectPopupShown;
   selectItems = selectPopup.querySelectorAll("menuitem");
@@ -1161,6 +1208,9 @@ add_task(async function test_config_found_manual_config_pref_enabled() {
     "The IMAP config option should be visible"
   );
 
+  configFoundTemplate
+    .querySelector("#editConfiguration")
+    .scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(
     configFoundTemplate.querySelector("#editConfiguration"),
     {}
@@ -1401,6 +1451,7 @@ add_task(async function test_exchange_type_submission_pref_enabled() {
     false,
     event => event.detail.completed
   );
+  serviceURLInput.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(serviceURLInput, {});
   EventUtils.sendString(
     "https://outlook.office365.com/EWS/Exchange.asmx",
@@ -1448,6 +1499,8 @@ add_task(async function test_exchange_type_submission_pref_enabled() {
     BrowserTestUtils.isHidden(dialog.querySelector("#emailPasswordSubview")),
     "The password step should remain hidden while Connect is disabled"
   );
+
+  ewsCard.scrollIntoView({ block: "center", behavior: "instant" });
 
   EventUtils.synthesizeMouseAtCenter(ewsCard, {});
   authenticationSelect.value = String(Ci.nsMsgAuthMethod.passwordCleartext);
@@ -1560,6 +1613,7 @@ add_task(
         false,
         event => event.detail.completed
       );
+      serviceURLInput.scrollIntoView({ block: "center", behavior: "instant" });
       EventUtils.synthesizeMouseAtCenter(serviceURLInput, {});
       EventUtils.sendString(EXCHANGE_TEST_URL, window);
       await exchangeSettingsCompleted;
@@ -1586,6 +1640,7 @@ add_task(
       const ewsCard = exchangeTypeSubview.querySelector(
         'account-hub-radio-card-large[value="ews"]'
       );
+      ewsCard.scrollIntoView({ block: "center", behavior: "instant" });
       EventUtils.synthesizeMouseAtCenter(ewsCard, {});
 
       const authenticationSelect = exchangeTypeSubview.querySelector(
@@ -1720,6 +1775,7 @@ add_task(
         false,
         event => event.detail.completed
       );
+      serviceURLInput.scrollIntoView({ block: "center", behavior: "instant" });
       EventUtils.synthesizeMouseAtCenter(serviceURLInput, {});
       EventUtils.sendString(
         "https://outlook.office365.com/EWS/Exchange.asmx",
@@ -1742,6 +1798,7 @@ add_task(
       const ewsCard = exchangeTypeSubview.querySelector(
         'account-hub-radio-card-large[value="ews"]'
       );
+      ewsCard.scrollIntoView({ block: "center", behavior: "instant" });
       EventUtils.synthesizeMouseAtCenter(ewsCard, {});
 
       const authenticationSelect = exchangeTypeSubview.querySelector(
@@ -1845,6 +1902,7 @@ async function fillInvalidUserInfo(nameInput, emailInput) {
 }
 
 async function fillUserInfo(nameInput, emailInput, name, email) {
+  nameInput.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(nameInput, {});
 
   let inputEvent = BrowserTestUtils.waitForEvent(
@@ -1857,6 +1915,7 @@ async function fillUserInfo(nameInput, emailInput, name, email) {
   await inputEvent;
 
   const focusEvent = BrowserTestUtils.waitForEvent(emailInput, "focus");
+  emailInput.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(emailInput, {});
   await focusEvent;
 
@@ -1877,6 +1936,7 @@ async function fillPasswordInput(passwordStep, password) {
     () => BrowserTestUtils.isVisible(passwordInput),
     "The password form input should be visible."
   );
+  passwordInput.scrollIntoView({ block: "center", behavior: "instant" });
   EventUtils.synthesizeMouseAtCenter(passwordInput, {});
 
   const inputEvent = BrowserTestUtils.waitForEvent(
@@ -1945,6 +2005,8 @@ async function subtest_select_protocol(dialog, protocol) {
   const protocolInput = protocolSelectTemplate.querySelector(
     `input[name="protocol-select"][value="${protocol}"]`
   );
+
+  protocolInput.scrollIntoView({ block: "center", behavior: "instant" });
 
   EventUtils.synthesizeMouseAtCenter(protocolInput, {});
   Assert.ok(protocolInput.checked, `${protocol} should be selected`);
