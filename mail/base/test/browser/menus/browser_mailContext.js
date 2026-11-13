@@ -861,6 +861,7 @@ add_task(async function testSyntheticFolder() {
 
   // Open the menu from the thread pane.
 
+  threadTree.scrollToIndex(9, true);
   const row9 = await TestUtils.waitForCondition(
     () => threadTree.getRowAtIndex(9),
     "waiting for rows to be added"
@@ -894,6 +895,7 @@ add_task(async function testSyntheticFolder() {
 
   // Open the menu from the thread pane.
 
+  threadTree.scrollToIndex(4, true);
   const row4 = await TestUtils.waitForCondition(
     () => threadTree.getRowAtIndex(4),
     "waiting for rows to be added"
@@ -903,6 +905,7 @@ add_task(async function testSyntheticFolder() {
 
   // Open the menu from an unselected row of the thread pane.
 
+  threadTree.scrollToIndex(3, true);
   const row3 = await TestUtils.waitForCondition(
     () => threadTree.getRowAtIndex(3),
     "waiting for rows to be added"
