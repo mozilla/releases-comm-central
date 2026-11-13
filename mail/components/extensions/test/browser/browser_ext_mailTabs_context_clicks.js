@@ -325,6 +325,7 @@ add_task(async function test_context_click_in_threadpane() {
       `The menu "mailContext" should still be closed`
     );
 
+    gDefaultAbout3Pane.threadTree.scrollToIndex(+rowNr, true);
     const row = gDefaultAbout3Pane.document.getElementById(
       `threadTree-row${rowNr}`
     );
