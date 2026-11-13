@@ -11,10 +11,10 @@
 var {
   assert_not_shown,
   assert_selected_and_displayed,
-  assert_visible,
   be_in_folder,
   create_folder,
   expand_all_threads,
+  get_about_3pane,
   make_display_threaded,
   select_click_row,
 } = ChromeUtils.importESModule(
@@ -89,7 +89,12 @@ add_task(async function test_ignore_thread() {
   await assert_selected_and_displayed(t2root);
 
   // The ignored thread should still be visible (with an ignored icon).
-  assert_visible(t1root);
+  const { gDBView } = get_about_3pane();
+  Assert.less(
+    gDBView.findIndexOfMsgHdr(t1root, false),
+    gDBView.rowCount,
+    "The ignored thread should still be in the view"
+  );
 
   // Go to another folder then back. Ignored messages should now be hidden.
   await be_in_folder(inboxFolder);
