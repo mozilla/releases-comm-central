@@ -125,7 +125,15 @@ add_task(async function test_account_hub_first_run_open_address_book_setup() {
     "The email setup first step view should be visible"
   );
 
-  await subtest_close_account_hub_dialog(dialog, emailAutoFormTemplate);
+  const header =
+    emailAutoFormTemplate.shadowRoot.querySelector("account-hub-header");
+  await header.ready;
+
+  const closeEvent = BrowserTestUtils.waitForEvent(dialog, "close");
+  minimizeButton = header.shadowRoot.getElementById("minimizeButton");
+  EventUtils.synthesizeMouseAtCenter(minimizeButton, {});
+  await closeEvent;
+
   IMAPServer.close();
   SMTPServer.close();
 });
