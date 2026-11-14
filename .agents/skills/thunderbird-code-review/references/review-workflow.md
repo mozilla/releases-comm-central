@@ -8,15 +8,14 @@
 | Working tree | Staged and unstaged changes |
 | Both | Capture each unit independently |
 | Range or branch | Use the user-supplied merge-base range |
-| Revision | Retrieve the Phabricator revision and its diff |
 
 Resolve an explicit ref and confirm the diff is non-empty before review. For a
 combined target, never attribute uncommitted code to the commit.
 
 ## Markdown report location
 
-After resolving the target, MUST propose this report path outside the working
-tree:
+For Markdown output, after resolving the target, MUST propose this report path
+outside the working tree:
 
 ```text
 ~/code-reviews/<repository>-<safe-branch-or-target>-<YYYY-MM-DD>-review.md
@@ -25,7 +24,7 @@ tree:
 For example, branch `work/code-review-skill` in repository `comm` becomes
 `~/code-reviews/comm-work-code-review-skill-2026-10-30-review.md`. Replace path
 separators and other unsafe branch-name characters with `-`. Use a short commit
-ID, `working-tree`, or `D<number>` when no branch name is useful. If the
+ID or `working-tree` when no branch name is useful. If the
 proposed file exists, add a timestamp or numeric suffix. Ask the user to
 confirm the exact path before creating its parent directory or writing the
 report. Do not choose a temporary directory or a working-tree path unless the
@@ -33,9 +32,10 @@ user explicitly chooses one.
 
 ## Context and intent
 
-Extract issue IDs from each selected commit. Use Bugzilla and Phabricator to
-write a 3–6 sentence summary: user problem, expected behavior, affected area,
-and relevant constraints. Include the summary in each specialist review prompt.
+Extract bug IDs from each selected commit. Use available Bugzilla records and
+user-provided context to write a 3–6 sentence summary: user problem, expected
+behavior, affected area, and relevant constraints. Include the summary in each
+specialist review prompt.
 If no context source exists, mark Expected behavior as unavailable; do not infer a
 specification from a filename.
 
@@ -52,8 +52,9 @@ specification from a filename.
 
 Use the risk categories in `SKILL.md`. A High-risk or large mixed patch gets a
 recommendation for Adversarial review. Wait for explicit confirmation before
-spawning its additional reviewers. Balanced is the default; recommend Focused
-when the user asks to minimize token use.
+spawning the additional adversarial reviewers. This does not prevent authorized
+specialist or patch-section reviews at the selected depth. Balanced is the
+default; recommend Focused when the user asks to minimize token use.
 
 ## Review axes
 
@@ -66,8 +67,10 @@ Keep these results separate:
    checks.
 
 Read surrounding source or direct consumers when needed to prove a consequence.
-Treat readability smells as advisory. Skip issues automated formatting or lint
-will reliably detect.
+Check applicable guidelines for readability, naming, comments, and test
+standards. Report specific guideline violations as standards findings, even
+without runtime impact. Skip issues automated formatting or lint reliably
+detects.
 
 ## Adversarial roles
 
@@ -80,8 +83,10 @@ and this requirement:
 > this bar.
 
 The verifier receives all candidates and deciding source. It removes duplicates,
-style-only notes, claims without a contract or failure path, and issues already
-fixed in the selected diff. It labels any relevant older code `Pre-existing`.
+preference-only notes, claims without supporting evidence, and issues already
+fixed in the selected diff. It retains evidence-backed standards violations,
+including readability and naming findings. It labels any relevant older code
+`Pre-existing`.
 
 ## Report template
 
@@ -100,7 +105,7 @@ fixed in the selected diff. It labels any relevant older code `Pre-existing`.
 ## Latest commit
 
 ### Expected behavior
-- [ ] R-1 Important — `path`: `symbol` — impact and evidence
+- [ ] R-1 Major — `path`: `symbol` — impact and evidence
 
 ### Standards and correctness
 - [ ] R-2 Nit — `path`: `symbol` — impact and evidence

@@ -25,9 +25,9 @@ $ ../mach test --headless [file paths...]
 Do NOT include the 'comm' directory in the path in this instance.
 
 Also, note that on some systems, some tests don't execute properly in headless
-mode. For example, dragging on Linux will fail if run headlessly. If a test is 
+mode. For example, dragging on Linux will fail if run headlessly. If a test is
 continously failing, try running without the 'headless' flag, to see if it still
-fails. Confirm with the user before taking this approach. 
+fails. Confirm with the user before taking this approach.
 
 ## Test Verification
 
@@ -254,8 +254,9 @@ EventUtils.synthesizeKey("KEY_Tab", {}, element.ownerGlobal);
 Guidelines:
 
 - Pass a content global for content element clicks, key events, and typing.
-- For longer tests, add short comments before groups of steps that mimic a user
-  action. For example: `// The user clicks the "Submit" button.`
+- When useful, add short comments before groups of steps to explain the test
+  flow from the user's perspective. For example:
+  `// The user returns to the form to correct the address.`
 - Avoid the chrome `window` unless intentionally interacting with chrome UI.
 - Focus the relevant browser, document, or input before focus-sensitive typing.
 - For headless-sensitive user-like clicks, wait for visible/enabled state and
@@ -362,16 +363,21 @@ Assertion guidelines:
 - `ok`, `is`, and `isnot` are valid mochitest globals, but they are older style
   here. Do not introduce or preserve them when touching Thunderbird frontend
   tests; convert touched assertions to `Assert`.
-- Assert public behavior before implementation details when practical.
+- Prefer black-box assertions about behavior and results the user can observe.
+  Assert implementation details when they are part of the contract under test.
 - Assert emitted event details when custom events are part of the contract.
 - For accessibility, assert ARIA relationships, labels, roles, and focus
   behavior that the UI owns.
 - Use `Assert.deepEqual(...)` for full object/state capture when comparing the
   complete state is the point of the test.
-- When a selected element is required by the fixture or component contract,
-  assert that the element exists before reading its properties. Avoid optional
-  chaining in these assertions because it turns a missing required element into
-  a less-specific `undefined` value comparison.
+- Assert that a required element exists when establishing the fixture or
+  component contract. Avoid repeating existence assertions when another test
+  covers the same stable fixture or contract. Each test must set up the state it
+  needs and must not depend on another test's execution or results. Avoid
+  optional chaining when reading a required element's properties.
+- Do not add a separate check for a condition that an assertion already checks,
+  such as an `if` and `return` immediately after a throwing `Assert.ok` for the
+  same value.
 
 ```js
 const title = banner.querySelector("[slot='title']");

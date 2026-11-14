@@ -68,22 +68,56 @@ present:
 - Flag direct `className` assignment, string concatenation, and string appends
   in review.
 - Use `classList` to modify element class names.
+- For selectors with attribute values, use single quotes for the JavaScript
+  string and double quotes for the attribute value: `'slot[name="title"]'`.
 - Pay attention to how the file is loaded before you add imports.
 - Prefer lazy loading for code that is not needed during startup or initial UI
   load.
 - Verify JavaScript comments. For JSDoc, also verify text, params, return
   values, types, side effects, and examples.
+- When updating existing code, review related inline comments for additions,
+  removal, or improvements. Preserve unrelated comments.
 
 ### Readability
 
 - Use blank lines between distinct function phases, such as getting input or
   state values, preparing data, updating the DOM, and handling focus.
+- Group related actions together and separate distinct groups with blank lines.
+- Use descriptive variable names, usually more than one word. Prefer
+  `isFailureMode`, `selectedOption`, `messageCount`, and `sortOrder` over `fail`,
+  `selected`, `count`, and `order`.
+- Name boolean variables and boolean values with predicates. For example, use
+  `isEditing` instead of `editing`, and use `callShouldFail` instead of `fail`
+  for the values in `[true, false]`.
+- Avoid overloaded words in names and comments when a clearer word exists.
+  For example, use "Text for the event" instead of "Copy for the event", where
+  "copy" can be read as a verb.
+- Define collection literals in named variables before iterating over them,
+  rather than putting them in loop headers.
+- Compute conditional values in named variables before passing them as
+  function arguments.
+- Avoid excessive nesting. Extract nested expressions into named variables
+  when that makes the code easier to follow.
 - Flag a long function when its work cannot be described as one named
   responsibility or lifecycle operation, such as initialization, reset, or
   cleanup.
 - Use a named boolean when it makes a compound condition clearer.
 - Keep an `if` block focused on one decision. Prepare data before the block
   when this makes the decision easier to read.
+
+For example, use names that identify the values and their purpose:
+
+```js
+// Less clear:
+const limit = 5;
+const count = messages.filter(message => !message.read).length;
+const reached = count >= limit;
+
+// Clearer:
+const unreadMessageLimit = 5;
+const unreadMessageCount = messages.filter(message => !message.read).length;
+const isUnreadLimitReached = unreadMessageCount >= unreadMessageLimit;
+```
 
 ## HTML
 
@@ -158,6 +192,13 @@ Correct:
 - Did you flag every `setAttribute("data-*")`, `getAttribute("data-*")`,
   and `className` mutation?
 - Do long functions use blank lines between distinct phases?
+- Are related actions grouped and distinct groups separated by blank lines?
+- Are variable names descriptive and free of confusing overloaded words?
+- Are collection literals defined before loops and conditional arguments
+  computed before calls?
+- Can nested expressions be extracted into named variables for clarity?
+- Were relevant existing inline comments checked for addition, removal, or
+  improvement?
 - Can each long function be described as one responsibility or lifecycle
   operation?
 - Would a named boolean make any compound condition clearer?

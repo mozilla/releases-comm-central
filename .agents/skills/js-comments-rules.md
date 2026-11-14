@@ -229,6 +229,9 @@ Apply the following rules only to JSDoc comments.
   simple event plumbing, obvious one-line helpers, tiny callbacks, or
   conventional `connectedCallback` / `handleEvent` methods unless behavior is
   non-obvious.
+- **`toString` methods:** Require JSDoc only when the output has a special
+  contract, such as a format intended for a specific use beyond logging.
+  Document that contract and any format callers rely on.
 - **Consumer usage:** For exported, shared, component, or otherwise
   caller-facing functions, inspect imports, call sites, tests, or component
   consumers before writing or approving JSDoc. Document behavior, fields,
