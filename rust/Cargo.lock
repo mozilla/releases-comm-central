@@ -6009,6 +6009,7 @@ dependencies = [
  "camino",
  "error-support",
  "firefox-versioning",
+ "glean-build",
  "jexl-eval",
  "parking_lot",
  "regex",
