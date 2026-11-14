@@ -140,10 +140,7 @@ mochitest-thunderbird:
     description: "Mochitest browser-chrome-thunderbird run"
     suite:
         category: mochitest
-        name:
-            by-variant:
-                a11y-checks: mochitest-browser-chrome-thunderbird-a11y
-                default: mochitest-browser-chrome-thunderbird
+        name: mochitest-browser-chrome-thunderbird
     try-name: mochitest-browser-chrome-thunderbird
     target:
         by-test-platform:
@@ -167,16 +164,11 @@ mochitest-thunderbird:
                     default: 3600
     variants:
         - msix
-        - a11y-checks
     run-on-projects:
         by-variant:
             msix:
                 by-test-platform:
                     windows11-64.*: built-projects
-                    default: []
-            a11y-checks:
-                by-test-platform:
-                    linux.*64/opt: built-projects
                     default: []
             default: built-projects
     tier:
@@ -199,6 +191,11 @@ mochitest-thunderbird:
         script: desktop_unittest.py
         mochitest-flavor: browser
         chunked: true
+        extra-options:
+            by-test-platform:
+                linux2404-64/opt:
+                    - --enable-a11y-checks
+                default: []
         config:
             by-test-platform:
                 windows.*:
