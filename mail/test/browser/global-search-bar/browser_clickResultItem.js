@@ -136,8 +136,13 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
     const target = document.querySelector(
       "#PopupGlodaAutocomplete > richlistbox > richlistitem"
     );
-    Assert.ok(target, "target item to click found");
+    Assert.ok(target, "The search results should contain an item to click");
+
+    // Mouseup activates the result and closes the popup before the click check.
+    AccessibilityUtils.assertCanBeClicked(target);
+    AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
     EventUtils.synthesizeMouseAtCenter(target, {}, target.documentGlobal);
+    AccessibilityUtils.resetEnv();
 
     // Give any potentially extra tabs time to appear.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
