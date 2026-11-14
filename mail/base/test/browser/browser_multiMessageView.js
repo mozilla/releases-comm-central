@@ -241,7 +241,7 @@ add_task(async function testStarredButtonReactivity() {
 });
 
 add_task(async function test_selectThreadFromSummary() {
-  for (const index of [0, 1]) {
+  for (const [index, useKeyboard] of [false, true].entries()) {
     about3Pane.gDBView.doCommand(Ci.nsMsgViewCommandType.collapseAll);
     threadTree.reset();
     threadTree.selectedIndices = [0, 1];
@@ -250,21 +250,23 @@ add_task(async function test_selectThreadFromSummary() {
     const items =
       multiMessageBrowser.contentDocument.querySelectorAll("#messageList > li");
     Assert.equal(items.length, 2, "The summary should contain two threads");
-    EventUtils.synthesizeMouseAtCenter(
-      items[index].querySelector(".subject"),
-      {},
-      multiMessageBrowser.contentWindow
-    );
+    const subject = items[index].querySelector(".subject");
+    if (useKeyboard) {
+      subject.focus();
+      EventUtils.synthesizeKey("KEY_Enter", {}, subject.documentGlobal);
+    } else {
+      EventUtils.synthesizeMouseAtCenter(subject, {}, subject.documentGlobal);
+    }
 
     Assert.deepEqual(
       threadTree.selectedIndices,
       [index, index + 1, index + 2, index + 3, index + 4],
-      "All messages in the clicked thread should be selected"
+      "All messages in the activated thread should be selected"
     );
     Assert.equal(
       threadTree.currentIndex,
       index,
-      "The first message in the clicked thread should be current"
+      "The first message in the activated thread should be current"
     );
     Assert.deepEqual(
       [...threadTree.querySelectorAll("tr.current")].map(row => row.index),

@@ -158,6 +158,20 @@ body {
       cursor: pointer;
     }
   }
+
+  & button.subject {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    min-block-size: 0;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    text-align: start;
+  }
 }
 
 .unread .primary {
