@@ -592,9 +592,12 @@ add_task(async function test_bodyScrollsWhenContentIsTooTall() {
       headerRectBeforeScroll.bottom,
       "The header bottom edge stays fixed when the body scrolls"
     );
+    // The header and footer are flush with the dialog edges, and fractional
+    // layout positions can put them a tiny fraction of a pixel outside.
+    const tolerance = 0.1;
     Assert.greaterOrEqual(
       headerRectAfterScroll.top,
-      tallDialogRect.top,
+      tallDialogRect.top - tolerance,
       "The header top edge stays inside the dialog after the body scrolls"
     );
     Assert.lessOrEqual(
@@ -619,7 +622,7 @@ add_task(async function test_bodyScrollsWhenContentIsTooTall() {
     );
     Assert.lessOrEqual(
       footerRectAfterScroll.bottom,
-      tallDialogRect.bottom,
+      tallDialogRect.bottom + tolerance,
       "The footer bottom edge stays inside the dialog after the body scrolls"
     );
   } finally {
