@@ -33,6 +33,9 @@ add_setup(async function () {
       if (/\r(?!\n)|(?<!\r)\n/.test(message)) {
         return "NO Message contains bare newlines";
       }
+      if (message.startsWith("From ")) {
+        return "NO Message contains invalid header";
+      }
       appendedMessages.push(message);
       const response = IMAP_RFC4315_extension.APPEND.call(this, args);
       if (response.startsWith("OK")) {
@@ -74,14 +77,20 @@ function hashMessage(message) {
 }
 
 add_task(async function test_importBugFixtures() {
-  // Original attachment 385175 from bug 500479. The expected digest covers
-  // CRLF conversion.
+  // Original attachments 385175 and 385176 from bug 500479. The expected
+  // digests cover CRLF conversion and removal of the second file's envelope.
   const fixtures = [
     {
       name: "bug500479-bare-newlines.eml",
       messageId: "45CF585D.1030400@nospam.xyz",
       size: 1239,
       digest: "m98il1E3t+yrmiOsz9Ttf8CmB2BRlw5FthsI8BiVzB4=",
+    },
+    {
+      name: "bug500479-invalid-header.eml",
+      messageId: "20071013112804.18231290FCC94@trashmail.net",
+      size: 3713,
+      digest: "7SwhUpaK8Saf2Kq28ldESubi3HTeBfMx7nK7kIKgRt8=",
     },
   ];
   for (const [index, fixture] of fixtures.entries()) {

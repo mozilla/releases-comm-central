@@ -1,0 +1,63 @@
+From evnzrqsx-bugzilla-mozilla@trashmail.net Sa Okt 13 13:34:31 2007
+Return-Path: <apache@trashmail.net>
+Received: from murder ([unix socket])
+	 by email-server.info (Cyrus v2.2.12-Gentoo) with LMTPA;
+	 Sat, 13 Oct 2007 13:34:25 +0200
+X-Sieve: CMU Sieve 2.2
+X-Spam-Tests: BAYES_00=-2.599,FROM_LOCAL_NOVOWEL=3.196
+X-Spam-Contact: Contact Address <the administrator of that system>
+X-Spam-Checker-Version: SpamAssassin 3.2.3-gr0 (2007-08-08) on
+	hetzner.email-server.info
+X-Spam-Relays: Trusted=, Untrusted=[ ip=213.155.82.90 rdns=trashmail.net
+	helo=trashmail.net by=hetzner.email-server.info ident= envfrom= intl=0
+	id=DC1C4CFF41 auth= msa=0 ]
+X-Spam-Level: 
+X-Spam-Bayes: =?ISO-8859-1?Q?Score=0.0000, Tokens=Tokens: new, 22; hammy, 136; neutral, 51;
+	spammy, 5., Hammy=0.000-+--Passwort, 0.000-+--wnschen, 0.000-+--geschickt,
+	0.000-+--indem, 0.000-+--=c3=a4ndern, Spammy=0.961-+--H*r:sk:askwar@,
+	0.954-+--HTo:U*askwar, 0.931-+--HTo:D*digitalprojects.com,
+	0.854-+--HX-Spam-Relays-External:msa, 0.854-+--H*RU:msa?=
+X-Spam-Status: No, score=0.6 required=5.0 tests=BAYES_00,FROM_LOCAL_NOVOWEL
+	autolearn=no version=3.2.3-gr0
+X-Spam-Externals: DCC Brand "_DCCB_", Result _DCCR_ - Pyzor=, RBL <dns:trashmail.net> [213.155.82.90]
+	<dns:trashmail.net?type=MX> [0 smtp.trashmail.net.]
+X-Original-To: askwar@digitalprojects.com
+Received: from trashmail.net (trashmail.net [213.155.82.90])
+	by hetzner.email-server.info (Postfix) with ESMTP id DC1C4CFF41
+	for <askwar@digitalprojects.com>; Sat, 13 Oct 2007 13:34:24 +0200 (CEST)
+Received: by trashmail.net (Postfix, from userid 81)
+	id 18231290FCC94; Sat, 13 Oct 2007 13:28:04 +0200 (CEST)
+To: askwar@digitalprojects.com
+Subject: [TrashMail] Wegwerfbare E-Mail Adresse
+ erfolgreich erstellt.
+From: TrashMail.net <evnzrqsx-bugzilla-mozilla@trashmail.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: BASE64
+Message-Id: <20071013112804.18231290FCC94@trashmail.net>
+Date: Sat, 13 Oct 2007 13:28:04 +0200 (CEST)
+
+MTMgT2N0b2JlciAyMDA3IC0gMTM6Mjg6MDQgQ0VUCgpIYWxsbywKClNpZSBvZGVyIGplbWFuZCBh
+bmRlcmVzIGhhYmVuIGVpbiBLb250byBhdWYgdW5zZXJlciBXZWJzaXRlCmh0dHA6Ly9kZS50cmFz
+aG1haWwubmV0LyBlcnN0ZWxsdC4KCklocmUgb2RlciBzZWluZSBJUCBBZHJlc3NlIHdlbGNoZSBi
+ZWkgZGVyIEVyc3RlbGx1bmcgZGVzIEtvbnRvcyBhdWZnZW5vbW1lbgp3dXJkZSB3YXI6IDg4LjEz
+MC4xMTIuMTM2CgpOdXIgZWluZSBFLU1haWwgZGllIGFuIGV2bnpycXN4LWJ1Z3ppbGxhLW1vemls
+bGFAdHJhc2htYWlsLm5ldCBnZXNjaGlja3Qgd2lyZCAvIHdlcmRlbiwKd2lyZCAvIHdlcmRlbiB3
+ZWl0ZXJnZWxlaXRldCB6dSBhc2t3YXJAZGlnaXRhbHByb2plY3RzLmNvbSwgYW5zY2hsaWXDn2Vu
+ZCB3aXJkIGlocgpLb250byBnZWzDtnNjaHQuIERpZSBXZWl0ZXJsZWl0dW5nIGlzdCAxIFRhZyhl
+KSBnw7xsdGlnLgoKU2llIGvDtm5uZW4genUgamVkZXIgWmVpdCBkaWUgRWluc3RlbGx1bmdlbiBh
+biBJaHJlciBXZWl0ZXJsZWl0dW5nIMOkbmRlcm4sCmluZGVtIFNpZSBzaWNoIGVpbmZhY2ggYmVp
+IHVucyBlaW5sb2dnZW4gdW50ZXI6Cmh0dHBzOi8vc3NsLnRyYXNobWFpbC5uZXQvP2xvZ2luPTEm
+bGFuZz1kZQpMb2dpbjogZXZuenJxc3gtYnVnemlsbGEtbW96aWxsYQpQYXNzd29ydDogTlN1cDdy
+Z1VBUjBDYUsKCk9kZXIgYmVpIEJlbnV0enVuZyBkZXMgZGlyZWt0ZW4gTGluazoKaHR0cHM6Ly9z
+c2wudHJhc2htYWlsLm5ldC8/bG9naW49MSZsYW5nPWRlJmlucHV0X2xvZ2luPWV2bnpycXN4LWJ1
+Z3ppbGxhLW1vemlsbGEmaW5wdXRfcGFzc3dkPVFVWm9ZemRsZEVoT1JUQlFibGc9CgpEaWUgVHJh
+c2htYWlsIEFkcmVzc2Uga2FubiBqZWRlcnplaXQgd2llZGVyIGdlbMO2c2NodCB3ZXJkZW4sIGlu
+ZGVtIG1hbiBhdWYKZm9sZ2VuZGVuIExpbmsgZ2VodDoKaHR0cHM6Ly9zc2wudHJhc2htYWlsLm5l
+dC8/bGFuZz1kZSZkZWw9MSZ1c2VyPWV2bnpycXN4LWJ1Z3ppbGxhLW1vemlsbGEmcGFzc3dkPU5T
+dXA3cmdVQVIwQ2FLCgpXZW5uIFNpZSBzaWNoIG5ldWUgRnVua3Rpb25lbiB3w7xuc2NoZW4sIG9k
+ZXIgaXJnZW5kd2VsY2hlIEtvbW1lbnRhcmUgaGFiZW4sCmRhbm4gYmVzdWNoZW4gU2llIGJpdHRl
+IHVuc2VyIEZvcnVtIGF1ZjoKaHR0cHM6Ly9zc2wudHJhc2htYWlsLm5ldC9mb3J1bS8KCkbDvHIg
+RnJhZ2VuIG9kZXIgTWlzc2JyYXVjaHNtZWxkdW5nZW4sIGJlc3VjaGVuIFNpZSB1bnMgYXVmOgpo
+dHRwOi8vZGUudHJhc2htYWlsLm5ldC8K
+

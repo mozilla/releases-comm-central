@@ -387,7 +387,8 @@ export class AttachmentInfo {
   /**
    * Import this message/rfc822 attachment into a mail folder.
    * Fetches the raw data and writes to a temp file. Imports the file via
-   * copyFileMessageAsync(), which normalizes line endings to CRLF.
+   * copyFileMessageAsync(), which removes a leading mbox envelope line and
+   * normalizes line endings to CRLF.
    *
    * @param {nsIMsgFolder} targetFolder - The folder to import into.
    */

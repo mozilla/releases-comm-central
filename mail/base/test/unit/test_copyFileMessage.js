@@ -136,6 +136,36 @@ add_task(async function test_preserveMessageBytes() {
   );
 });
 
+add_task(async function test_removeEnvelope() {
+  const expected =
+    "From: sender@example.invalid\r\nSubject: Test\r\n\r\nFrom body\r\n>From escaped\r\nLast";
+  for (const [envelope, ending] of [
+    ["From - Sat Oct 13 13:34:31 2007", "\r\n"],
+    ["From sender@example.invalid Sa Okt 13 13:34:31 2007", "\n"],
+    ["From ", "\r"],
+  ]) {
+    const input = `${envelope}${ending}${expected.replace(/\r\n/g, ending)}`;
+    await checkCopy(input, expected);
+  }
+});
+
+add_task(async function test_preserveOtherFromLines() {
+  for (const firstLine of [
+    "From: sender@example.invalid",
+    ">From sender@example.invalid Sat Oct 13 13:34:31 2007",
+    " From sender@example.invalid Sat Oct 13 13:34:31 2007",
+    "X-Note: From sender@example.invalid",
+  ]) {
+    const input = `${firstLine}\r\nSubject: Test\r\n\r\nFrom body\r\n`;
+    await checkCopy(input, input);
+  }
+  await checkCopy("From unterminated", "From unterminated");
+  await checkCopy(
+    "From - first\r\nFrom - second\r\nSubject: Test\r\n\r\nBody",
+    "From - second\r\nSubject: Test\r\n\r\nBody"
+  );
+});
+
 add_task(async function test_copyFailure() {
   for (const input of [
     "Subject: Test\n\nBody\n",

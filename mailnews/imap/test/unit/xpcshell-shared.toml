@@ -103,6 +103,7 @@ tags = ["foldernames"]
 prefs = ["mail.server.default.autosync_offline_stores=false"]
 support-files = [
   "data/bug500479-bare-newlines.eml",
+  "data/bug500479-invalid-header.eml",
 ]
 
 ["test_imapLongLine.js"]

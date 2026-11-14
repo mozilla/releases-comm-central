@@ -1350,7 +1350,8 @@ export var MailUtils = {
 
   /**
    * Copy a file message into a message folder and mark it read.
-   * Normalize bare CR or LF line endings in a temporary copy when needed.
+   * Remove a leading mbox envelope line and normalize line endings to CRLF
+   * in a temporary copy when needed.
    *
    * @param {nsIFile} msgFile - The .eml file to copy..
    * @param {nsIMsgFolder} targetFolder - The message to replace.
@@ -1382,7 +1383,10 @@ export var MailUtils = {
     const raw = lazy.MailStringUtils.uint8ArrayToByteString(
       await IOUtils.read(msgFile.path)
     );
-    const normalized = raw.replace(/\r\n?|\n/g, "\r\n");
+    // Older Thunderbird versions saved EML files with a leading mbox envelope.
+    const normalized = raw
+      .replace(/\r\n?|\n/g, "\r\n")
+      .replace(/^From [^\r\n]*\r\n/, "");
     let tempPath;
     try {
       let fileToCopy = msgFile;
