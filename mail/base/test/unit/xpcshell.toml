@@ -21,6 +21,8 @@ tags = ["archive"]
 
 ["test_columns.js"]
 
+["test_copyFileMessage.js"]
+
 ["test_darkReader.js"]
 
 ["test_devtools_url.js"]

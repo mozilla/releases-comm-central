@@ -1,0 +1,44 @@
+Return-Path: <mail@nospam.xyz>
+Delivery-Date: Sun, 11 Feb 2007 18:54:39 +0100
+Message-ID: <45CF585D.1030400@nospam.xyz>
+Date: Sun, 11 Feb 2007 18:54:37 +0100
+From: Bob Spameater <mail@nospam.xyz>
+User-Agent: Thunderbird 1.5.0.9 (Macintosh/20061207)
+MIME-Version: 1.0
+To: Bob Spameater <mail@nospam.xyz>
+Subject: Re: test msg
+References: <45CF5828.4000207@nospam.xyz>
+In-Reply-To: <45CF5828.4000207@nospam.xyz>
+Content-Type: multipart/alternative;
+ boundary="------------000507020407010205030407"
+Envelope-To: mail@nospam.xyz
+
+This is a multi-part message in MIME format.
+--------------000507020407010205030407
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Bob Spameater wrote:
+> blockquote
+blaba
+
+--------------000507020407010205030407
+Content-Type: text/html; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-15"
+ http-equiv="Content-Type">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+Bob Spameater wrote:
+<blockquote>
+blockquote<br>
+</blockquote>
+blaba<br>
+</body>
+</html>
+
+--------------000507020407010205030407--

@@ -7,6 +7,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
   MailConsts: "resource:///modules/MailConsts.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
+  MailStringUtils: "resource:///modules/MailStringUtils.sys.mjs",
   MimeParser: "resource:///modules/mimeParser.sys.mjs",
   NetUtil: "resource://gre/modules/NetUtil.sys.mjs",
   NntpUtils: "resource:///modules/NntpUtils.sys.mjs",
@@ -1349,6 +1350,7 @@ export var MailUtils = {
 
   /**
    * Copy a file message into a message folder and mark it read.
+   * Normalize bare CR or LF line endings in a temporary copy when needed.
    *
    * @param {nsIFile} msgFile - The .eml file to copy..
    * @param {nsIMsgFolder} targetFolder - The message to replace.
@@ -1377,17 +1379,41 @@ export var MailUtils = {
       },
     };
 
-    lazy.MailServices.copy.copyFileMessage(
-      msgFile,
-      targetFolder,
-      null,
-      false,
-      Ci.nsMsgMessageFlags.Read,
-      "",
-      copyServiceListener,
-      interactive
+    const raw = lazy.MailStringUtils.uint8ArrayToByteString(
+      await IOUtils.read(msgFile.path)
     );
-    await promise;
+    const normalized = raw.replace(/\r\n?|\n/g, "\r\n");
+    let tempPath;
+    try {
+      let fileToCopy = msgFile;
+      if (normalized !== raw) {
+        tempPath = await IOUtils.createUniqueFile(
+          PathUtils.tempDir,
+          "imported-message.eml",
+          0o600
+        );
+        await IOUtils.write(
+          tempPath,
+          lazy.MailStringUtils.byteStringToUint8Array(normalized)
+        );
+        fileToCopy = await IOUtils.getFile(tempPath);
+      }
+      lazy.MailServices.copy.copyFileMessage(
+        fileToCopy,
+        targetFolder,
+        null,
+        false,
+        Ci.nsMsgMessageFlags.Read,
+        "",
+        copyServiceListener,
+        interactive
+      );
+      await promise;
+    } finally {
+      if (tempPath) {
+        await IOUtils.remove(tempPath).catch(console.warn);
+      }
+    }
   },
 
   /**
