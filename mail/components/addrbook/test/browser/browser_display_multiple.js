@@ -60,7 +60,7 @@ add_task(async function testSelectMultiple() {
   Assert.ok(detailsPane.hidden);
 
   // Select list 1 and check the list display.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
   await checkHeader({ listName: "list 1" });
   await checkActionButtons(
     ["list 1 <list 1>"],
@@ -82,33 +82,21 @@ add_task(async function testSelectMultiple() {
   ]);
 
   // list 1 and list 2.
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(1),
-    { shiftKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(1), { shiftKey: true }, abWindow);
   await checkHeader({ selectionCount: 2, selectionType: "lists" });
   await checkActionButtons(["list 1 <list 1>", "list 2 <list 2>"]);
   await checkList(["list 1", "list 2"]);
 
   // list 1 and mike (no address).
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(2),
-    { accelKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(2), { accelKey: true }, abWindow);
   await checkHeader({ selectionCount: 2, selectionType: "mixed" });
   await checkActionButtons(["list 1 <list 1>"]);
   await checkList(["list 1", "mike test"]);
 
   // list 1 and oscar.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(3),
-    { accelKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(3), { accelKey: true }, abWindow);
   await checkHeader({ selectionCount: 2, selectionType: "mixed" });
   await checkActionButtons(
     ["list 1 <list 1>"],
@@ -117,22 +105,14 @@ add_task(async function testSelectMultiple() {
   await checkList(["list 1", "oscar test"]);
 
   // mike (no address) and oscar.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(3),
-    { shiftKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(2), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(3), { shiftKey: true }, abWindow);
   await checkHeader({ selectionCount: 2, selectionType: "contacts" });
   await checkActionButtons([], ["oscar test <oscar.test@invalid>"]);
   await checkList(["mike test", "oscar test"]);
 
   // mike (no address), oscar, romeo (no address) and victor.
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(5),
-    { shiftKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(5), { shiftKey: true }, abWindow);
   await checkHeader({ selectionCount: 4, selectionType: "contacts" });
   await checkActionButtons(
     [],
@@ -141,23 +121,15 @@ add_task(async function testSelectMultiple() {
   await checkList(["mike test", "oscar test", "romeo test", "victor test"]);
 
   // mike and romeo (no addresses).
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(4),
-    { accelKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(2), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(4), { accelKey: true }, abWindow);
   await checkHeader({ selectionCount: 2, selectionType: "contacts" });
   await checkActionButtons();
   await checkList(["mike test", "romeo test"]);
 
   // Everything.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(5),
-    { shiftKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(5), { shiftKey: true }, abWindow);
   await checkHeader({ selectionCount: 6, selectionType: "mixed" });
   await checkActionButtons(
     ["list 1 <list 1>", "list 2 <list 2>"],
@@ -192,12 +164,8 @@ add_task(async function testDeleteMultiple() {
 
   // Select victor and yankee.
   await TestUtils.waitForTick();
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(3),
-    { accelKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(1), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(3), { accelKey: true }, abWindow);
   await checkHeader({ selectionCount: 2, selectionType: "contacts" });
   await checkList(["victor test", "yankee test"]);
 
@@ -214,12 +182,8 @@ add_task(async function testDeleteMultiple() {
 
   // Select all contacts.
   await TestUtils.waitForTick();
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(2),
-    { shiftKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(2), { shiftKey: true }, abWindow);
   await checkHeader({ selectionCount: 3, selectionType: "contacts" });
   await checkList(["oscar test", "xray test", "zulu test"]);
 
@@ -243,12 +207,8 @@ add_task(async function testDeleteMultiple() {
 
   // Select list 2 and victor.
   await TestUtils.waitForTick();
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(5),
-    { accelKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(1), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(5), { accelKey: true }, abWindow);
   await checkHeader({ selectionCount: 2, selectionType: "mixed" });
   await checkList(["list 2", "victor test"]);
 
@@ -265,12 +225,8 @@ add_task(async function testDeleteMultiple() {
 
   // Select all contacts.
   await TestUtils.waitForTick();
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(6),
-    { shiftKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(6), { shiftKey: true }, abWindow);
   await checkHeader({ selectionCount: 7, selectionType: "mixed" });
   await checkList([
     "list 1",

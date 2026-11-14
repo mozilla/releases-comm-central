@@ -80,7 +80,7 @@ add_task(async () => {
   await checkPlaceholders();
 
   // Check that displaying an LDAP card works without error.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(detailsPane)
   );

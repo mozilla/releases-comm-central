@@ -272,11 +272,27 @@ add_task(async function test_drag() {
 
   // Drag just contact1.
 
+  if (SimpleTest.harnessParameters.a11y_checks) {
+    const service = Cc["@mozilla.org/accessibilityService;1"].getService(
+      Ci.nsIAccessibilityService
+    );
+
+    await TestUtils.waitForCondition(() => {
+      const row = cardsList.getRowAtIndex(0);
+      const accessible = row && service.getAccessibleFor(row);
+
+      return (
+        accessible?.role == Ci.nsIAccessibleRole.ROLE_ROW &&
+        accessible.parent?.DOMNode == cardsList.table.body
+      );
+    }, "The first contact row should be available to the accessibility checker");
+  }
+
   dragService.startDragSessionForTests(
     abWindow,
     Ci.nsIDragService.DRAGDROP_ACTION_NONE
   );
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
   let [, dataTransfer] = doDrag(0, null, {}, "none");
   await check([contact1]);
   dragService.getCurrentSession().endDragSession(true);
@@ -297,11 +313,7 @@ add_task(async function test_drag() {
     abWindow,
     Ci.nsIDragService.DRAGDROP_ACTION_NONE
   );
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(2),
-    { shiftKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(2), { shiftKey: true }, abWindow);
   [, dataTransfer] = doDrag(0, null, {}, "none");
   await check([contact1, contact2, contact3]);
   dragService.getCurrentSession().endDragSession(true);
@@ -336,7 +348,7 @@ add_task(async function test_drop_on_books_list() {
   // Check drag effect set correctly for dragging a card.
 
   Assert.equal(cardsList.view.rowCount, 4);
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
 
   dragService.startDragSessionForTests(
     abWindow,
@@ -369,7 +381,7 @@ add_task(async function test_drop_on_books_list() {
   // Check drag effect set correctly for dragging a list.
 
   Assert.equal(cardsList.view.rowCount, 4);
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(3), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(3), {}, abWindow);
 
   dragService.startDragSessionForTests(
     abWindow,
@@ -402,7 +414,7 @@ add_task(async function test_drop_on_books_list() {
   // Drag contact1 into sourceList.
 
   Assert.equal(cardsList.view.rowCount, 4);
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
 
   doDragToBooksList(0, 5, {}, "link");
   checkCardsInDirectory(sourceBook, [contact1, contact2, contact3, sourceList]);
@@ -426,7 +438,7 @@ add_task(async function test_drop_on_books_list() {
   // It should be copied into destBook.
 
   Assert.equal(cardsList.view.rowCount, 3);
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
 
   doDragToBooksList(0, 2, { ctrlKey: true }, "copy");
   checkCardsInDirectory(sourceBook, [contact2, contact3, sourceList]);
@@ -441,12 +453,8 @@ add_task(async function test_drop_on_books_list() {
   // Drag contact2 and contact3 to destBook.
 
   Assert.equal(cardsList.view.rowCount, 3);
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(1),
-    { shiftKey: true },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(1), { shiftKey: true }, abWindow);
 
   doDragToBooksList(0, 2, {}, "move");
   checkCardsInDirectory(sourceBook, [sourceList]);
@@ -458,13 +466,13 @@ add_task(async function test_drop_on_books_list() {
 
   await openDirectory(destBook);
   Assert.equal(cardsList.view.rowCount, 3);
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
   doDragToBooksList(0, 2, {}, "none");
   checkCardsInDirectory(destBook, [contact2, contact3, destList]);
 
   // Drag destList to the book it's already in. Nothing should happen.
 
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(2), {}, abWindow);
   doDragToBooksList(2, 2, {}, "none");
   checkCardsInDirectory(destBook, [contact2, contact3, destList]);
 

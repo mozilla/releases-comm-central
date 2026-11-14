@@ -272,7 +272,7 @@ add_task(async function testModificationUpdatesUI() {
   const row0 = await TestUtils.waitForCondition(() =>
     cardsList.getRowAtIndex(0)
   );
-  EventUtils.synthesizeMouseAtCenter(row0, {}, abWindow);
+  click_contact_row(row0, {}, abWindow);
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(detailsPane)
   );

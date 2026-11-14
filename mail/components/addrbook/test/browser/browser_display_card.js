@@ -114,7 +114,7 @@ add_task(async function testDisplay() {
 
   // Card 0: an empty card.
 
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(detailsPane)
   );
@@ -136,7 +136,7 @@ add_task(async function testDisplay() {
 
   // Card 1: a basic card.
 
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(1), {}, abWindow);
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(detailsPane)
   );
@@ -192,7 +192,7 @@ add_task(async function testDisplay() {
 
   // Card 2: a complex card.
 
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(2), {}, abWindow);
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(detailsPane)
   );
@@ -415,7 +415,7 @@ add_task(async function testDisplay() {
 
   // Card 0, again, just to prove that everything was cleared properly.
 
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(detailsPane)
   );
@@ -665,7 +665,7 @@ add_task(async function testReadOnlyActions() {
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
   // Without email.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(1), {}, abWindow);
   Assert.ok(
     BrowserTestUtils.isVisible(contactView),
     "contact view should be shown"
@@ -676,22 +676,14 @@ add_task(async function testReadOnlyActions() {
   );
 
   // With email.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(2), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(2), {}, abWindow);
   Assert.ok(BrowserTestUtils.isVisible(actions), "actions section is shown");
   await checkActionButtons("read.only@invalid", "read-only person with email");
   Assert.ok(BrowserTestUtils.isHidden(editButton), "editButton is hidden");
 
   // Double clicking on the item will select but not edit it.
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(1),
-    { clickCount: 1 },
-    abWindow
-  );
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(1),
-    { clickCount: 2 },
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(1), { clickCount: 1 }, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(1), { clickCount: 2 }, abWindow);
   // Wait one loop to see if edit form was opened.
   await TestUtils.waitForTick();
   Assert.ok(
@@ -763,7 +755,7 @@ add_task(async function testReadOnlyActions() {
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
   // With email.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
   Assert.ok(BrowserTestUtils.isVisible(contactView));
   Assert.ok(BrowserTestUtils.isVisible(actions), "actions section is shown");
   await checkActionButtons("read.only@invalid", "read-only person with email");
@@ -776,25 +768,25 @@ add_task(async function testReadOnlyActions() {
   Assert.ok(BrowserTestUtils.isHidden(detailsPane));
 
   // Basic person from Personal Address Books.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(1), {}, abWindow);
   Assert.ok(BrowserTestUtils.isVisible(contactView));
   Assert.ok(BrowserTestUtils.isVisible(actions), "actions section is shown");
   await checkActionButtons("basic@invalid", "basic person");
   Assert.ok(BrowserTestUtils.isVisible(editButton), "edit button is shown");
 
   // Without email.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(4), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(4), {}, abWindow);
   Assert.ok(BrowserTestUtils.isVisible(contactView));
   Assert.ok(BrowserTestUtils.isHidden(actions), "actions section is hidden");
 
   // With email.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(5), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(5), {}, abWindow);
   Assert.ok(BrowserTestUtils.isVisible(actions), "actions section is shown");
   await checkActionButtons("read.only@invalid", "read-only person with email");
   Assert.ok(BrowserTestUtils.isHidden(editButton), "editButton is hidden");
 
   // Basic person again, to prove the buttons aren't hidden forever.
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(1), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(1), {}, abWindow);
   Assert.ok(BrowserTestUtils.isVisible(contactView));
   Assert.ok(BrowserTestUtils.isVisible(actions), "actions section is shown");
   await checkActionButtons("basic@invalid", "basic person");
@@ -851,7 +843,7 @@ add_task(async function testGoogleEscaping() {
   const row = await TestUtils.waitForCondition(() =>
     cardsList.getRowAtIndex(0)
   );
-  EventUtils.synthesizeMouseAtCenter(row, {}, abWindow);
+  click_contact_row(row, {}, abWindow);
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(detailsPane)
   );
@@ -947,11 +939,7 @@ async function addAndDisplayCard(card) {
   const detailsPane = abDocument.getElementById("detailsPane");
 
   const index = cardsList.view.getIndexForUID(card.UID);
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(index),
-    {},
-    abWindow
-  );
+  click_contact_row(cardsList.getRowAtIndex(index), {}, abWindow);
   await TestUtils.waitForCondition(() =>
     BrowserTestUtils.isVisible(detailsPane)
   );

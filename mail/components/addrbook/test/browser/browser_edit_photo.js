@@ -456,7 +456,7 @@ async function subtest_discard_photo(book, checkPhotoCallback) {
 
   await openDirectory(book);
 
-  EventUtils.synthesizeMouseAtCenter(cardsList.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cardsList.getRowAtIndex(0), {}, abWindow);
   Assert.ok(
     checkPhotoCallback(viewPhoto.src),
     "saved photo shown in contact view"

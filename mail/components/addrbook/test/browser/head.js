@@ -5,6 +5,20 @@
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { synthesize_managed_row_click } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
+/**
+ * Clicks an Address Book contact row with the specified mouse options.
+ *
+ * @param {HTMLTableRowElement} row - The contact row to click.
+ * @param {object} event - Options for the mouse event.
+ * @param {Window} win - The Address Book window.
+ */
+function click_contact_row(row, event, win) {
+  synthesize_managed_row_click(row, event, win, EventUtils, AccessibilityUtils);
+}
 
 const personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
 const historyBook = MailServices.ab.getDirectoryFromId(

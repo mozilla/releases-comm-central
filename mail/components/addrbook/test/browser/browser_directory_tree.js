@@ -983,7 +983,7 @@ add_task(async function test_total_address_book_count() {
   const promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   const deletedPromise = TestUtils.topicObserved("addrbook-contact-deleted");
   const cards = abWindow.cardsPane.cardsList;
-  EventUtils.synthesizeMouseAtCenter(cards.getRowAtIndex(0), {}, abWindow);
+  click_contact_row(cards.getRowAtIndex(0), {}, abWindow);
   EventUtils.synthesizeKey("KEY_Delete", {}, abWindow);
   await promptPromise;
   await deletedPromise;
