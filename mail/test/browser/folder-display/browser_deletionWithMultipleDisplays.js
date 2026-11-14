@@ -158,7 +158,7 @@ async function _open_message_in_all_four_display_mechanisms_helper(
 ) {
   // - Select the message in this tab.
   tabFolder = await be_in_folder(aFolder);
-  curMessage = await select_click_row(aIndex);
+  curMessage = await select_click_row(aIndex, AccessibilityUtils);
   await assert_selected_and_displayed(curMessage);
 
   // - Open the tab with the message
@@ -437,7 +437,7 @@ add_task(async function test_delete_one_before_message_in_folder_tab() {
   await _open_message_in_all_four_display_mechanisms_helper(oneBeforeFolder, 4);
 
   const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(4);
-  const msg3 = await select_click_row(3);
+  const msg3 = await select_click_row(3, AccessibilityUtils);
   await performDelete(mc, msg3);
 
   // The message tab, background message tab and window shouldn't have changed
@@ -459,9 +459,9 @@ add_task(async function test_delete_one_before_message_in_folder_tab() {
 add_task(async function test_delete_one_before_message_in_message_tab() {
   // Open up 3 in a message tab, then select and open up 4 in a background tab
   // and window.
-  const msg3 = await select_click_row(3);
+  const msg3 = await select_click_row(3, AccessibilityUtils);
   tabMessage = await open_selected_message_in_new_tab(true);
-  const expectedMessage = await select_click_row(4);
+  const expectedMessage = await select_click_row(4, AccessibilityUtils);
   tabMessageBackground = await open_selected_message_in_new_tab(true);
   msgc = await open_selected_message_in_new_window(true);
 
@@ -488,9 +488,9 @@ add_task(async function test_delete_one_before_message_in_message_tab() {
 add_task(async function test_delete_one_before_message_in_message_window() {
   // Open up 3 in a message window, then select and open up 4 in a background
   // and a foreground tab.
-  const msg3 = await select_click_row(3);
+  const msg3 = await select_click_row(3, AccessibilityUtils);
   msgc = await open_selected_message_in_new_window();
-  const expectedMessage = await select_click_row(4);
+  const expectedMessage = await select_click_row(4, AccessibilityUtils);
   tabMessage = await open_selected_message_in_new_tab();
   await switch_tab(tabFolder);
   tabMessageBackground = await open_selected_message_in_new_tab(true);
@@ -524,7 +524,7 @@ add_task(async function test_delete_one_after_message_in_folder_tab() {
   await _open_message_in_all_four_display_mechanisms_helper(oneAfterFolder, 4);
 
   const expectedMessage = get_about_3pane().gDBView.getMsgHdrAt(4);
-  const msg5 = await select_click_row(5);
+  const msg5 = await select_click_row(5, AccessibilityUtils);
   await performDelete(mc, msg5);
 
   // The message tab, background message tab and window shouldn't have changed
@@ -546,9 +546,9 @@ add_task(async function test_delete_one_after_message_in_folder_tab() {
 add_task(async function test_delete_one_after_message_in_message_tab() {
   // Open up 5 in a message tab, then select and open up 4 in a background tab
   // and window.
-  const msg5 = await select_click_row(5);
+  const msg5 = await select_click_row(5, AccessibilityUtils);
   tabMessage = await open_selected_message_in_new_tab(true);
-  const expectedMessage = await select_click_row(4);
+  const expectedMessage = await select_click_row(4, AccessibilityUtils);
   tabMessageBackground = await open_selected_message_in_new_tab(true);
   msgc = await open_selected_message_in_new_window(true);
 
@@ -575,9 +575,9 @@ add_task(async function test_delete_one_after_message_in_message_tab() {
 add_task(async function test_delete_one_after_message_in_message_window() {
   // Open up 5 in a message window, then select and open up 4 in a background
   // and a foreground tab.
-  const msg5 = await select_click_row(5);
+  const msg5 = await select_click_row(5, AccessibilityUtils);
   msgc = await open_selected_message_in_new_window();
-  const expectedMessage = await select_click_row(4);
+  const expectedMessage = await select_click_row(4, AccessibilityUtils);
   tabMessage = await open_selected_message_in_new_tab();
   await switch_tab(tabFolder);
   tabMessageBackground = await open_selected_message_in_new_tab(true);
@@ -618,7 +618,7 @@ add_task(
 
     // We'll select 2-5, 8, 9 and 10. We expect 11 to be the next displayed
     // message in the folder tab.
-    await select_click_row(2);
+    await select_click_row(2, AccessibilityUtils);
     await select_shift_click_row(5);
     await select_control_click_row(8);
     await select_control_click_row(9);
@@ -666,7 +666,7 @@ add_task(
 
     // We'll select 2-5, 8, 9 and 10. We expect 11 to be the next displayed
     // message.
-    await select_click_row(2);
+    await select_click_row(2, AccessibilityUtils);
     await select_shift_click_row(5);
     await select_control_click_row(8);
     await select_control_click_row(9);
@@ -709,7 +709,7 @@ add_task(
 
     // We'll select 2-5, 8, 9 and 10. We expect 11 to be the next displayed
     // message.
-    await select_click_row(2);
+    await select_click_row(2, AccessibilityUtils);
     await select_shift_click_row(5);
     await select_control_click_row(8);
     await select_control_click_row(9);
@@ -751,7 +751,7 @@ add_task(
 
     // We'll select 1-4, 7, 8 and 9. We expect 6 to be the next displayed
     // message in the folder pane.
-    await select_click_row(1);
+    await select_click_row(1, AccessibilityUtils);
     await select_shift_click_row(4);
     await select_control_click_row(7);
     await select_control_click_row(8);
@@ -798,7 +798,7 @@ add_task(
     );
 
     // We'll select 1-4, 7, 8 and 9. We expect 6 to be the next displayed message.
-    await select_click_row(1);
+    await select_click_row(1, AccessibilityUtils);
     await select_shift_click_row(4);
     await select_control_click_row(7);
     await select_control_click_row(8);
@@ -840,7 +840,7 @@ add_task(
     );
 
     // We'll select 1-4, 7, 8 and 9. We expect 6 to be the next displayed message.
-    await select_click_row(1);
+    await select_click_row(1, AccessibilityUtils);
     await select_shift_click_row(4);
     await select_control_click_row(7);
     await select_control_click_row(8);
@@ -891,7 +891,7 @@ add_task(async function test_delete_hidden_thread_child_then_sort() {
   tabFolder = await be_in_folder(structFolder);
   await make_display_threaded();
   await expand_all_threads();
-  curMessage = await select_click_row(1);
+  curMessage = await select_click_row(1, AccessibilityUtils);
   tabMessage = await open_selected_message_in_new_tab();
   await assert_selected_and_displayed(curMessage);
 

@@ -98,7 +98,7 @@ async function forwardViaFolder(aFilePath) {
     "waiting for copy to folder to complete"
   );
 
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   await SpecialPowers.spawn(

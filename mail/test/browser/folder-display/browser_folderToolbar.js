@@ -118,7 +118,7 @@ add_task(async function test_folder_toolbar_disappears_on_message_tab() {
   Assert.ok(!folderLoc.disabled, "The toolbar button should be enabled.");
 
   // Select one message
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   // Open it
   const messageTab = await open_selected_message_in_new_tab();
 

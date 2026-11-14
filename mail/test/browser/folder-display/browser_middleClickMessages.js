@@ -157,7 +157,7 @@ async function _middle_click_with_nothing_selected_helper(shiftPressed) {
 async function _middle_click_with_one_thing_selected_helper(shiftPressed) {
   await be_in_folder(folder);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(0);
 
   await _middle_click_helper(shiftPressed, 1, 1);
@@ -174,7 +174,7 @@ async function _middle_click_with_one_thing_selected_helper(shiftPressed) {
 async function _middle_click_with_many_things_selected_helper(shiftPressed) {
   await be_in_folder(folder);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await select_shift_click_row(5);
   await assert_selected_and_displayed([0, 5]);
 
@@ -192,7 +192,7 @@ async function _middle_click_with_many_things_selected_helper(shiftPressed) {
 async function _middle_click_on_existing_single_selection_helper(shiftPressed) {
   await be_in_folder(folder);
 
-  await select_click_row(3);
+  await select_click_row(3, AccessibilityUtils);
   await assert_selected_and_displayed(3);
 
   await _middle_click_helper(shiftPressed, 3, 1);
@@ -209,7 +209,7 @@ async function _middle_click_on_existing_single_selection_helper(shiftPressed) {
 async function _middle_click_on_existing_multi_selection_helper(shiftPressed) {
   await be_in_folder(folder);
 
-  await select_click_row(3);
+  await select_click_row(3, AccessibilityUtils);
   await select_shift_click_row(6);
   await assert_selected_and_displayed([3, 6]);
 
@@ -239,7 +239,7 @@ async function _middle_click_on_expanded_thread_root_helper(shiftPressed) {
   // Since reflowing a tree (eg when switching tabs) ensures that the current
   // index is brought into view, we need to set the current index so that we
   // don't scroll because of it. So click on the first visible row.
-  await select_click_row(preFirstRow);
+  await select_click_row(preFirstRow, AccessibilityUtils);
 
   // Middle-click on the root of the expanded thread, which is the row with
   // index (number of rows - number of messages in thread).
@@ -294,7 +294,7 @@ async function _middle_click_on_collapsed_thread_root_helper(shiftPressed) {
   // Since reflowing a tree (eg when switching tabs) ensures that the current
   // index is brought into view, we need to set the current index so that we
   // don't scroll because of it. So click on the first visible row.
-  await select_click_row(preFirstRow);
+  await select_click_row(preFirstRow, AccessibilityUtils);
 
   await middle_click_on_row(tree.view.rowCount - 1, shiftPressed);
   await Promise.all(

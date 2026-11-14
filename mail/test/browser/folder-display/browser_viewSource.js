@@ -72,7 +72,7 @@ add_task(async function toggleWrappingFromOn() {
   await SpecialPowers.pushPrefEnv({
     set: [["view_source.wrap_long_lines", true]],
   });
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   const viewSourcePromise = promise_new_window("navigator:view-source");
   EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
@@ -109,7 +109,7 @@ add_task(async function wrapLongLinesMenuItem() {
   await SpecialPowers.pushPrefEnv({
     set: [["view_source.wrap_long_lines", false]],
   });
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   let viewSourceWin = await openViewSource();
   let viewMenu = viewSourceWin.document.getElementById("menu_view");
@@ -190,7 +190,7 @@ async function openViewSource() {
 }
 
 async function subtest(row, expectedDisplayed, expectedSource) {
-  await select_click_row(row);
+  await select_click_row(row, AccessibilityUtils);
 
   const aboutMessage = get_about_message();
   const displayContent =

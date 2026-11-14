@@ -54,12 +54,12 @@ add_task(async function test_selection_extension() {
   await be_in_folder(folder);
 
   // https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c79 (was good)
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   await select_control_click_row(2);
   await press_delete();
   await assert_selected_and_displayed(1);
   // https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c79 (was bad)
-  await select_click_row(2);
+  await select_click_row(2, AccessibilityUtils);
   await select_control_click_row(1);
   await press_delete();
   await assert_selected_and_displayed(1);
@@ -104,7 +104,7 @@ add_task(async function test_selection_select_column_deselection() {
 
 add_task(async function test_selection_last_message_deleted() {
   await be_in_folder(folder);
-  await select_click_row(-1);
+  await select_click_row(-1, AccessibilityUtils);
   await press_delete();
   await assert_selected_and_displayed(-1);
 });
@@ -113,7 +113,7 @@ add_task(async function test_selection_persists_through_threading_changes() {
   await be_in_folder(folder);
 
   await make_display_unthreaded();
-  const message = await select_click_row(3);
+  const message = await select_click_row(3, AccessibilityUtils);
   await make_display_threaded();
   await assert_selected_and_displayed(message);
   await make_display_grouped();
@@ -136,7 +136,7 @@ add_task(async function test_no_selection_persists_through_threading_changes() {
 add_task(async function test_selection_persists_through_folder_tab_changes() {
   const tab1 = await be_in_folder(folder);
 
-  await select_click_row(2);
+  await select_click_row(2, AccessibilityUtils);
 
   const tab2 = await open_folder_in_new_tab(folder2);
   await wait_for_blank_content_pane();
@@ -147,7 +147,7 @@ add_task(async function test_selection_persists_through_folder_tab_changes() {
 
   await switch_tab(tab2);
   await assert_nothing_selected();
-  await select_click_row(3);
+  await select_click_row(3, AccessibilityUtils);
 
   await switch_tab(tab1);
   await assert_selected_and_displayed(2);
@@ -172,7 +172,7 @@ add_task(async function test_enter_scroll_to_new() {
   });
   await be_in_folder(folder);
   get_about_3pane().sortController.sortAscending();
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   await enter_folder(folder2);
   // When a folder is switched to, a new message should be visible and
   // selections are not restored:

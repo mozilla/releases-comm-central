@@ -128,7 +128,7 @@ async function help_test_display_name(message, field, expectedValue) {
   // looking at in order to update information changed in address book entries.
   await be_in_folder(decoyFolder);
   await be_in_folder(folder);
-  await select_click_row(message);
+  await select_click_row(message, AccessibilityUtils);
 
   Assert.equal(
     get_about_message().document.querySelector(

@@ -89,7 +89,7 @@ async function subtest_replyEditAsNewForward_charset(
   );
   await BrowserTestUtils.closeWindow(msgc);
 
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   if (aViewed) {
     // Only if the preview pane is on, we can check the following.
     await assert_selected_and_displayed(window, msg);

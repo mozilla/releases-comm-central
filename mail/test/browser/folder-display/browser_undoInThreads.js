@@ -85,7 +85,7 @@ add_task(async function test_undo_expanded_root() {
   );
 
   // 1. Delete the root of the first thread.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await press_delete();
 
   Assert.equal(

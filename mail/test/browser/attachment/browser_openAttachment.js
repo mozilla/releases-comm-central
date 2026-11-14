@@ -171,7 +171,7 @@ async function createAndLoadMessage(
       attachments: [attachment],
     })
   );
-  await select_click_row(messageIndex);
+  await select_click_row(messageIndex, AccessibilityUtils);
 }
 
 async function singleClickAttachmentAndWaitForDialog(

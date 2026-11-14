@@ -128,7 +128,7 @@ add_task(async function test_basic_multipart_related() {
 
   // Make sure that the headers are right on this one.
   await be_in_folder(gDrafts);
-  const draftMsg = await select_click_row(0);
+  const draftMsg = await select_click_row(0, AccessibilityUtils);
   const { headers, text } = await getMsgHeaders(draftMsg, true);
   Assert.equal(headers.get("").contentType.type, "multipart/related");
   Assert.equal(headers.get("1").contentType.type, "text/html");

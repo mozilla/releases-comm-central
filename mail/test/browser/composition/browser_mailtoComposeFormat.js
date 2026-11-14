@@ -120,7 +120,7 @@ add_task(async function test_mailto_links() {
   const subTest = async (formatA0, formatB0, formatB1) => {
     const selectMessageInFolder = async (folder, row = 0) => {
       await be_in_folder(folder);
-      const msg = await select_click_row(row);
+      const msg = await select_click_row(row, AccessibilityUtils);
       await assert_selected_and_displayed(window, msg);
     };
 

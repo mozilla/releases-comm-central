@@ -82,7 +82,7 @@ add_task(async function test_send_inline_image() {
     get_about_message(),
     "MsgLoaded"
   );
-  const outMsg = await select_click_row(0);
+  const outMsg = await select_click_row(0, AccessibilityUtils);
   await msgLoaded;
   const outMsgContent = await get_msg_source(outMsg);
 

@@ -63,7 +63,7 @@ add_setup(async function () {
 add_task(async function test_open_draft_again() {
   await make_message_sets_in_folders([draftsFolder], [{ count: 1 }]);
   await be_in_folder(draftsFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
@@ -109,7 +109,7 @@ add_task(async function test_open_draft_again() {
   await close_compose_window(cwc);
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await press_delete(window); // clean up after ourselves
 });
 
@@ -173,7 +173,7 @@ async function internal_check_delivery_format(editDraft) {
   await close_compose_window(cwc);
 
   await be_in_folder(draftsFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
@@ -218,7 +218,7 @@ add_task(async function test_edit_as_new_in_draft() {
 
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
@@ -239,7 +239,7 @@ add_task(async function test_edit_as_new_in_draft() {
 
   // Clean up the created drafts and count again.
   await press_delete(window);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await press_delete(window);
   Assert.equal(draftsFolder.getTotalMessages(false), 0);
 });
@@ -286,7 +286,7 @@ add_task(async function test_edit_draft_mime_from() {
     "should have one draft"
   );
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
@@ -341,7 +341,7 @@ add_task(async function test_content_language_header() {
   );
 
   await be_in_folder(draftsFolder);
-  const draftMsg = await select_click_row(0);
+  const draftMsg = await select_click_row(0, AccessibilityUtils);
   const draftMsgContent = await get_msg_source(draftMsg);
 
   // Check for a single line that contains our header.
@@ -383,7 +383,7 @@ add_task(async function test_content_language_header_suppression() {
   );
 
   await be_in_folder(draftsFolder);
-  const draftMsg = await select_click_row(0);
+  const draftMsg = await select_click_row(0, AccessibilityUtils);
   const draftMsgContent = await get_msg_source(draftMsg);
 
   // Check no line contains our Content-Language.
@@ -426,7 +426,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
 
   await be_in_folder(draftsFolder);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
@@ -497,7 +497,7 @@ add_task(async function test_news_uris() {
   );
 
   await be_in_folder(draftsFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   // Clean up the created draft.
   await press_delete(window);
 });

@@ -105,7 +105,7 @@ add_task(async function test_sig_strip_false_nonff() {
  */
 async function check_sig_strip_works(aRow, aShouldStrip) {
   await be_in_folder(folder);
-  const msg = await select_click_row(aRow);
+  const msg = await select_click_row(aRow, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const rwc = await open_compose_with_reply();

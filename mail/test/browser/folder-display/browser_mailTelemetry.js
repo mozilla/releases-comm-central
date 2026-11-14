@@ -133,7 +133,7 @@ add_task(async function test_secure_mails_read() {
       win.addEventListener(eventName, resolve, { once: true })
     );
     info(`Selecting message at index ${i}`);
-    await select_click_row(i);
+    await select_click_row(i, AccessibilityUtils);
     info(`Awaiting ${eventName} event for message at index ${i}`);
     await eventPromise;
     info(`Seen ${eventName} event for message at index ${i}`);

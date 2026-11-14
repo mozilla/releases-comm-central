@@ -598,7 +598,7 @@ async function check_menu_states_all(expected) {
 
 async function help_test_attachment_menus(index) {
   await be_in_folder(folder);
-  await select_click_row(index);
+  await select_click_row(index, AccessibilityUtils);
   const expectedStates = messages[index].menuStates;
 
   aboutMessage.toggleAttachmentList(true);
@@ -637,7 +637,10 @@ for (let i = 0; i < messages.length; i++) {
 async function select_message_with_attachments(name) {
   await be_in_folder(folder);
   aboutMessage = get_about_message();
-  await select_click_row(messages.findIndex(m => m.name == name));
+  await select_click_row(
+    messages.findIndex(m => m.name == name),
+    AccessibilityUtils
+  );
   aboutMessage.toggleAttachmentList(true);
   for (const attachment of aboutMessage.currentAttachments) {
     await attachment.isEmpty();
@@ -708,7 +711,8 @@ add_task(async function test_all_commands_with_deleted_attachment() {
   await be_in_folder(folder);
   aboutMessage = get_about_message();
   await select_click_row(
-    messages.findIndex(m => m.name == "multiple_attachments_one_deleted")
+    messages.findIndex(m => m.name == "multiple_attachments_one_deleted"),
+    AccessibilityUtils
   );
   aboutMessage.toggleAttachmentList(true);
   for (const attachment of aboutMessage.currentAttachments) {
@@ -878,7 +882,7 @@ add_task(async function test_detach_all_decline_replace() {
   );
   await be_in_folder(detachFolder);
   aboutMessage = get_about_message();
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   aboutMessage.toggleAttachmentList(true);
   for (const attachment of aboutMessage.currentAttachments) {
     await attachment.isEmpty();

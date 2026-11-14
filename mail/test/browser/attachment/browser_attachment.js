@@ -221,7 +221,7 @@ async function setUnifiedToolbarState(state) {
 add_task(async function test_attachment_view_collapsed() {
   await be_in_folder(folder);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(0);
 
   if (
@@ -235,7 +235,7 @@ add_task(async function test_attachment_view_expanded() {
   await be_in_folder(folder);
 
   for (let i = 1; i < messages.length; i++) {
-    await select_click_row(i);
+    await select_click_row(i, AccessibilityUtils);
     await assert_selected_and_displayed(i);
 
     if (
@@ -256,7 +256,7 @@ add_task(async function test_attachment_name_sanitization() {
 
   for (let i = 0; i < messages.length; i++) {
     if ("attachments" in messages[i]) {
-      await select_click_row(i);
+      await select_click_row(i, AccessibilityUtils);
       await assert_selected_and_displayed(i);
 
       const attachments = messages[i].attachments;
@@ -280,7 +280,7 @@ add_task(async function test_attachment_name_sanitization() {
 add_task(async function test_long_attachment_name() {
   await be_in_folder(folder);
 
-  await select_click_row(4);
+  await select_click_row(4, AccessibilityUtils);
   await assert_selected_and_displayed(4);
 
   const aboutMessage = get_about_message();
@@ -332,7 +332,7 @@ add_task(async function test_attached_message_attachments() {
 add_task(async function test_attachment_name_click() {
   await be_in_folder(folder);
 
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   await assert_selected_and_displayed(1);
 
   const aboutMessage = get_about_message();
@@ -400,7 +400,7 @@ async function subtest_attachment_right_click(elementId, contextMenuId) {
 add_task(async function test_attachment_right_click_single() {
   await be_in_folder(folder);
 
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   await assert_selected_and_displayed(1);
 
   await subtest_attachment_right_click(
@@ -437,7 +437,7 @@ add_task(async function test_attachment_right_click_single() {
 add_task(async function test_attachment_right_click_multiple() {
   await be_in_folder(folder);
 
-  await select_click_row(3);
+  await select_click_row(3, AccessibilityUtils);
   await assert_selected_and_displayed(3);
 
   await subtest_attachment_right_click(
@@ -576,7 +576,7 @@ add_task(async function test_attachment_list_starts_expanded() {
   await ensure_starts_expanded(true);
   await be_in_folder(folder);
 
-  await select_click_row(2);
+  await select_click_row(2, AccessibilityUtils);
   await assert_selected_and_displayed(2);
 
   Assert.ok(
@@ -589,7 +589,7 @@ add_task(async function test_selected_attachments_are_cleared() {
   await ensure_starts_expanded(false);
   await be_in_folder(folder);
   // First, select the message with two attachments.
-  await select_click_row(3);
+  await select_click_row(3, AccessibilityUtils);
 
   // Expand the attachment list.
   const aboutMessage = get_about_message();
@@ -630,7 +630,7 @@ add_task(async function test_selected_attachments_are_cleared() {
 
   // Switch to the message with one attachment, and make sure there are no
   // selected attachments.
-  await select_click_row(2);
+  await select_click_row(2, AccessibilityUtils);
 
   // Expand the attachment list again.
   EventUtils.synthesizeMouseAtCenter(
@@ -651,7 +651,7 @@ add_task(async function test_select_all_attachments_key() {
 
   // First, select the message with two attachments.
   await select_none();
-  await select_click_row(3);
+  await select_click_row(3, AccessibilityUtils);
 
   // Expand the attachment list.
   const aboutMessage = get_about_message();
@@ -714,7 +714,7 @@ add_task(async function test_attachments_compose_menu() {
 
   // First, select the message with two attachments.
   await select_none();
-  await select_click_row(3);
+  await select_click_row(3, AccessibilityUtils);
 
   const cwc = await open_compose_with_forward();
   const attachment = cwc.document.getElementById("attachmentBucket");
@@ -821,7 +821,7 @@ add_task(async function test_delete_from_toolbar_buttons() {
 
     // First, select a message with attachments.
     await select_none();
-    await select_click_row(3);
+    await select_click_row(3, AccessibilityUtils);
     // Expand the attachment list.
     await assert_selected_and_displayed(3);
     const aboutMessage = get_about_message();

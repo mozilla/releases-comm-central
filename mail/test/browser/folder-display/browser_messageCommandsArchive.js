@@ -112,7 +112,13 @@ async function yearly_archive(srcFolder, expectedSubfolderName = "") {
     () => win.threadTree.getRowAtIndex(0),
     "Row 0 scrolled into view"
   );
+  // Unthreaded folders can expose a listbox instead of a treegrid.
+  AccessibilityUtils.setEnv({
+    mustHaveAccessibleRule: false,
+    focusableRule: false,
+  });
   await select_click_row(0);
+  AccessibilityUtils.resetEnv();
   win.threadTree.scrollToIndex(12, true);
   await TestUtils.waitForCondition(
     () => win.threadTree.getRowAtIndex(12),

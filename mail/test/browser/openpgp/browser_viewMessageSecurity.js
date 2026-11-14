@@ -142,7 +142,7 @@ add_task(async function testSmimeOpenPgpSelection() {
   await copyListener.promise;
 
   // Select the second row, which should contain the S/MIME message.
-  await select_click_row(-2);
+  await select_click_row(-2, AccessibilityUtils);
 
   const aboutMessage = get_about_message();
   Assert.equal(
@@ -161,7 +161,7 @@ add_task(async function testSmimeOpenPgpSelection() {
     "openpgpprocessed"
   );
   // Select the first row, which should contain the OpenPGP message.
-  await select_click_row(-1);
+  await select_click_row(-1, AccessibilityUtils);
   await openpgpprocessed;
 
   Assert.equal(
@@ -183,7 +183,7 @@ add_task(async function testSmimeOpenPgpSelection() {
 
   // Delete the two generated messages.
   await press_delete();
-  await select_click_row(-1);
+  await select_click_row(-1, AccessibilityUtils);
   await press_delete();
 });
 
@@ -213,7 +213,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
   await copyListener.promise;
 
   // Select the first row, which should contain the OpenPGP message.
-  await select_click_row(-1);
+  await select_click_row(-1, AccessibilityUtils);
 
   // Assert the "corrupted by MS-Exchange" notification is visible.
   const aboutMessage = get_about_message();
@@ -281,7 +281,7 @@ add_task(async function testMessageSecurityShortcut() {
   await copyListener.promise;
 
   // Select the first row, which should contain the S/MIME message.
-  await select_click_row(-1);
+  await select_click_row(-1, AccessibilityUtils);
 
   const aboutMessage = get_about_message();
   Assert.equal(
@@ -325,7 +325,7 @@ add_task(async function testMessageSecurityShortcut() {
   );
 
   // Select the row again since the focus moved to the popup panel.
-  await select_click_row(-1);
+  await select_click_row(-1, AccessibilityUtils);
   // Delete the message.
   await press_delete();
 });

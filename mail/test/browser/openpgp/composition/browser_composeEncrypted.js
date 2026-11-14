@@ -158,7 +158,7 @@ async function testEncryptedMessageComposition(
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   await TestUtils.waitForCondition(
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
@@ -266,7 +266,7 @@ async function testEncryptedMessageWithKeyComposition(
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   await TestUtils.waitForCondition(
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
@@ -433,7 +433,7 @@ add_task(async function testEncryptedRecipientKeyNotAvailabeAutoDisable() {
 
   await sendMessage(composeWin);
   await be_in_folder(gOutbox);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   await TestUtils.waitForCondition(
     () => OpenPGPTestUtils.hasNoEncryptedIconState(aboutMessage.document),
@@ -598,7 +598,7 @@ async function testEncryptedRecipientKeyUnverifiedMessageComposition(
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   await TestUtils.waitForCondition(
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
@@ -877,7 +877,7 @@ async function testEncryptedOneRecipientKeyUnverifiedMessageComposition(
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   await TestUtils.waitForCondition(
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
@@ -957,7 +957,7 @@ async function testEncryptedMessageReplyIsEncrypted(
   );
 
   await be_in_folder(gDrafts);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   await TestUtils.waitForCondition(
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),

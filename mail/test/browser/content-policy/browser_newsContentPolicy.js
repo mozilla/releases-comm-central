@@ -84,7 +84,7 @@ function receivedCommands(server) {
  */
 async function displayMessage(folder) {
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const doc = get_about_message().getMessagePaneBrowser().contentDocument;
   const img = doc.getElementById("testelement");
   await TestUtils.waitForCondition(() => img.complete, "image should settle");
@@ -290,7 +290,7 @@ add_task(async function testNewsLinkTargetsInMailMessage() {
       .toMessageString()
   );
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const messagePane = get_about_message().getMessagePaneBrowser();
   const tabmail = document.getElementById("tabmail");
 
@@ -339,7 +339,7 @@ add_task(async function testNntpLinkInMailMessage() {
       .toMessageString()
   );
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   await BrowserTestUtils.synthesizeMouseAtCenter(
     "#nntp",
@@ -354,7 +354,7 @@ add_task(async function testNntpLinkInMailMessage() {
   Assert.equal(tabmail.tabInfo.length, 1, "no tab should be opened");
 
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const tabPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
   const loadedPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   await BrowserTestUtils.synthesizeMouseAtCenter(

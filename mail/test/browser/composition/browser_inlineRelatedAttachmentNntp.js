@@ -80,7 +80,7 @@ add_setup(async function () {
  */
 add_task(async function test_edit_as_new_keeps_news_article() {
   await be_in_folder(newsFolder);
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const cwc = await open_compose_with_edit_as_new();
@@ -127,7 +127,7 @@ add_task(async function test_edit_as_new_keeps_news_article() {
  */
 add_task(async function test_forward_keeps_inline_related_attachment() {
   await be_in_folder(newsFolder);
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
   checkPreviewImage();
 
@@ -138,7 +138,10 @@ add_task(async function test_forward_keeps_inline_related_attachment() {
   await close_compose_window(cwc);
 
   await be_in_folder(draftsFolder);
+  // Drafts can use a listbox, with keyboard access on the list itself.
+  AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
   const draftMsg = await select_click_row(0);
+  AccessibilityUtils.resetEnv();
   await assert_selected_and_displayed(window, draftMsg);
   await wait_for_notification_to_show(
     get_about_message(),

@@ -203,7 +203,7 @@ add_task(async function test_customHeaders() {
   );
 
   await be_in_folder(draftsFolder);
-  const draftMsg = await select_click_row(0);
+  const draftMsg = await select_click_row(0, AccessibilityUtils);
   const draftMsgLines = (await get_msg_source(draftMsg)).split("\n");
 
   // Check header values are set and encoded correctly.

@@ -80,7 +80,8 @@ add_task(async function test_unreferenced_related_attachments() {
   );
   const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   const msg = await select_click_row(
-    about3Pane.gDBView.findIndexOfMsgHdr(hdr, false)
+    about3Pane.gDBView.findIndexOfMsgHdr(hdr, false),
+    AccessibilityUtils
   );
   await assert_selected_and_displayed(window, msg);
   Assert.deepEqual(

@@ -142,7 +142,7 @@ add_task(async function testSignedMessageComposition() {
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(0);
   const src = await get_msg_source(msg);
   const lines = src.split("\n");
@@ -218,7 +218,7 @@ add_task(async function testSignedMessageWithKeyComposition() {
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(0);
 
   Assert.ok(
@@ -339,7 +339,7 @@ add_task(async function testSignedEncryptedMessageComposition() {
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  const encryptedMsg = await select_click_row(0);
+  const encryptedMsg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(0);
 
   Assert.ok(
@@ -370,7 +370,7 @@ add_task(async function testSignedEncryptedMessageComposition() {
     null
   );
 
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   const src = await get_msg_source(msg);
   const lines = src.split("\r\n");
 
@@ -434,7 +434,7 @@ add_task(async function testSignedEncryptedMessageWithKeyComposition() {
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(0);
 
   Assert.ok(

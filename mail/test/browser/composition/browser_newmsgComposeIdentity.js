@@ -250,7 +250,7 @@ add_task(async function test_display_of_identities() {
 
   const identity3 = MailServices.accounts.getIdentity(identityKey3);
   await be_in_folder(await identity3.getOrCreateDraftsFolderAsync());
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
   Assert.equal(curMessage.author, identity3From);
   // Remove the saved draft.
   await press_delete(window);

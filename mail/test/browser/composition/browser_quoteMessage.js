@@ -53,7 +53,7 @@ add_task(async function test_quoteMessage() {
   );
 
   // Select message and click reply.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const cwc = await open_compose_with_reply();
   let composeBody = get_compose_body(cwc);
   Assert.equal(

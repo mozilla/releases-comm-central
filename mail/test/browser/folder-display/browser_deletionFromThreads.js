@@ -113,7 +113,7 @@ add_task(async function delete_from_collapsed_thread() {
   await switch_tab(tab1);
   await expand_all_threads();
 
-  let curMessage = await select_click_row(3);
+  let curMessage = await select_click_row(3, AccessibilityUtils);
   await assert_selected_and_displayed(curMessage);
   await assertReplyCount(8);
   await verify_message_read_status(
@@ -126,7 +126,7 @@ add_task(async function delete_from_collapsed_thread() {
     "after 1st delete"
   );
   await assertReplyCount(7);
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
   await verify_message_read_status(
     [true, false, false, true, false, false, false, false],
     "before 2nd delete"
@@ -145,7 +145,7 @@ add_task(async function delete_from_expanded_thread() {
   await switch_tab(tab1);
   await expand_all_threads();
 
-  let curMessage = await select_click_row(3);
+  let curMessage = await select_click_row(3, AccessibilityUtils);
   await assert_selected_and_displayed(curMessage);
   await assertReplyCount(6);
   await verify_message_read_status(
@@ -158,7 +158,7 @@ add_task(async function delete_from_expanded_thread() {
     "after 3rd delete"
   );
   await assertReplyCount(5);
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
   await verify_message_read_status(
     [true, false, true, true, false, false],
     "before 4th delete"
@@ -179,7 +179,7 @@ add_task(async function delete_from_collapsed_xfthread() {
   await be_in_folder(multiFolder);
   await expand_all_threads();
 
-  let curMessage = await select_click_row(3);
+  let curMessage = await select_click_row(3, AccessibilityUtils);
   await assert_selected_and_displayed(curMessage);
   await assertReplyCount(6);
   await verify_message_read_status(
@@ -192,7 +192,7 @@ add_task(async function delete_from_collapsed_xfthread() {
     "after 5th delete"
   );
   await assertReplyCount(5);
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
   await verify_message_read_status(
     [true, false, false, true, false, false],
     "before 6th delete"
@@ -213,7 +213,7 @@ add_task(async function delete_from_expanded_xfthread() {
   await be_in_folder(multiFolder);
   await expand_all_threads();
 
-  let curMessage = await select_click_row(3);
+  let curMessage = await select_click_row(3, AccessibilityUtils);
   await assert_selected_and_displayed(curMessage);
   await assertReplyCount(4);
   await verify_message_read_status(
@@ -226,7 +226,7 @@ add_task(async function delete_from_expanded_xfthread() {
     "after 7th delete"
   );
   await assertReplyCount(3);
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
   await verify_message_read_status(
     [true, false, true, true],
     "before 8th delete"
@@ -263,7 +263,7 @@ add_task(async function delete_from_expanded_group() {
   await switch_tab(tab1);
   await be_in_folder(singleFolder);
 
-  const curMessage = await select_click_row(3);
+  const curMessage = await select_click_row(3, AccessibilityUtils);
   await assert_selected_and_displayed(curMessage);
   await verify_message_read_status(
     [false, false, false, true, true, true],
@@ -286,7 +286,7 @@ add_task(async function delete_from_collapsed_group() {
   await switch_tab(tab1);
   await be_in_folder(singleFolder);
 
-  const curMessage = await select_click_row(3);
+  const curMessage = await select_click_row(3, AccessibilityUtils);
   await assert_selected_and_displayed(curMessage);
   await verify_message_read_status(
     [false, false, false, true, true],
@@ -328,7 +328,7 @@ add_task(async function test_expanded_root_deletion_indentation() {
   Assert.greater(dbView.getLevel(1), 0, "Child 1 should be indented");
 
   // Delete the root message.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await press_delete();
 
   // Verify there are no ghost rows and indentation is recalculated correctly.
@@ -371,7 +371,7 @@ add_task(async function test_non_root_deletion_indentation_shift() {
   // Delete the first child (Row 1).
   // This forces the DB to reparent Row 2 and Row 3 to the Root.
   const oldLevelRow2 = dbView.getLevel(2);
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   await press_delete();
 
   // Verify the batched NoteChange logic correctly shifted the remaining
@@ -420,7 +420,7 @@ add_task(async function test_cross_tab_phantom_twisty() {
   await expand_all_threads();
 
   // Delete the child (row 1) in the foreground tab.
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   await press_delete();
 
   // Switch back to Tab 2 to verify the background sync.
@@ -474,7 +474,7 @@ add_task(async function test_delete_only_child_then_sort() {
   // Expand, delete the child (row 1), leaving only the root.
   await expand_all_threads();
   Assert.equal(dbView.rowCount, 2, "Expanded thread should show 2 rows");
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   await press_delete();
 
   Assert.equal(dbView.rowCount, 1, "Only the root should remain");

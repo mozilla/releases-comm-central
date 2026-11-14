@@ -195,7 +195,7 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   // Open the "sent" message.
   await be_in_folder(outboxFolder);
   // Should be the last message in the tree.
-  const clickedMessage = await select_click_row(0);
+  const clickedMessage = await select_click_row(0, AccessibilityUtils);
 
   await assert_selected_and_displayed(0);
 

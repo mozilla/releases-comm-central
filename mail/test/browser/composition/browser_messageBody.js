@@ -46,7 +46,7 @@ add_task(async function test_invalid_data_uri() {
     get_about_message(),
     "MsgLoaded"
   );
-  const outMsg = await select_click_row(0);
+  const outMsg = await select_click_row(0, AccessibilityUtils);
   await msgLoaded;
   const outMsgContent = await get_msg_source(outMsg);
 
@@ -89,7 +89,7 @@ add_task(async function test_freeTextLink() {
     get_about_message(),
     "MsgLoaded"
   );
-  const outMsg = await select_click_row(0);
+  const outMsg = await select_click_row(0, AccessibilityUtils);
   await msgLoaded;
   const outMsgContent = await get_msg_source(outMsg);
 

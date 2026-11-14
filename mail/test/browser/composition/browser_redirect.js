@@ -172,7 +172,7 @@ add_task(async function testRedirectToMe() {
   await add_message_to_folder([folder], msg0);
 
   await be_in_folder(folder);
-  const msg = await select_click_row(i++);
+  const msg = await select_click_row(i++, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   // Open Other Actions.

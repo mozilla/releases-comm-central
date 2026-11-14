@@ -193,7 +193,10 @@ add_task(async function test_create_virtual_folders() {
 async function _open_first_message() {
   // Enter the folder and open a message
   tabFolder = await be_in_folder(folder);
+  // The unthreaded listbox takes keyboard focus for its rows.
+  AccessibilityUtils.setEnv({ focusableRule: false });
   curMessage = await select_click_row(0);
+  AccessibilityUtils.resetEnv();
   await assert_selected_and_displayed(curMessage);
 
   // Open the tab with the message

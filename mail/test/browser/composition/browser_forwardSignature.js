@@ -54,7 +54,7 @@ async function check_forward_signature(sigBottom) {
   });
 
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   const cw = await open_compose_with_forward();
   const body = get_compose_body(cw);

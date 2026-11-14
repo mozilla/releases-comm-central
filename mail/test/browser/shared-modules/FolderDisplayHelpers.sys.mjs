@@ -24,7 +24,10 @@ import { VirtualFolderHelper } from "resource:///modules/VirtualFolderWrapper.sy
 
 import { Assert } from "resource://testing-common/Assert.sys.mjs";
 import { BrowserTestUtils } from "resource://testing-common/BrowserTestUtils.sys.mjs";
-import { prepare_thread_row_descendant_click } from "resource://testing-common/MailViewHelpers.sys.mjs";
+import {
+  prepare_thread_row_descendant_click,
+  synthesize_managed_row_click,
+} from "resource://testing-common/MailViewHelpers.sys.mjs";
 import { TestUtils } from "resource://testing-common/TestUtils.sys.mjs";
 
 import * as EventUtils from "resource://testing-common/mail/EventUtils.sys.mjs";
@@ -738,7 +741,8 @@ export async function select_control_click_row(aViewIndex) {
 
   const win = get_about_3pane();
   const row = await _get_row_at_index(aViewIndex, win);
-  EventUtils.synthesizeMouseAtCenter(row, { accelKey: true }, win);
+
+  synthesize_managed_row_click(row, { accelKey: true }, win, EventUtils);
 
   await wait_for_message_display_completion();
 
@@ -763,7 +767,7 @@ export async function select_shift_click_row(
   aWinOrAccessibilityUtils,
   aAccessibilityUtils
 ) {
-  let accessibilityUtils = null;
+  let accessibilityUtils;
   if (aAccessibilityUtils?.setEnv) {
     accessibilityUtils = aAccessibilityUtils;
   } else if (aWinOrAccessibilityUtils?.setEnv) {
@@ -776,9 +780,14 @@ export async function select_shift_click_row(
   aViewIndex = _normalize_view_index(aViewIndex, win);
 
   const row = await _get_row_at_index(aViewIndex, win);
-  await prepare_thread_row_descendant_click(row, accessibilityUtils);
-  EventUtils.synthesizeMouseAtCenter(row, { shiftKey: true }, win);
-  accessibilityUtils?.resetEnv();
+
+  synthesize_managed_row_click(
+    row,
+    { shiftKey: true },
+    win,
+    EventUtils,
+    accessibilityUtils
+  );
 
   await wait_for_message_display_completion();
 
@@ -920,10 +929,11 @@ export async function middle_click_on_row(aViewIndex, shiftPressed) {
 
   const win = get_about_3pane();
   const row = await _get_row_at_index(aViewIndex);
-  EventUtils.synthesizeMouseAtCenter(
+  synthesize_managed_row_click(
     row,
     { button: 1, shiftKey: shiftPressed },
-    win
+    win,
+    EventUtils
   );
 
   return [
@@ -1211,7 +1221,11 @@ export async function empty_folder(aFolder, aWin = mc) {
   await be_in_folder(aFolder);
   let msgCount;
   while ((msgCount = aFolder.getTotalMessages(false)) > 0) {
-    await select_click_row(0, aWin);
+    const row = await _get_row_at_index(0);
+
+    synthesize_managed_row_click(row, {}, row.documentGlobal, EventUtils);
+    await TestUtils.waitForTick();
+    await wait_for_message_display_completion(undefined, true);
     await press_delete(aWin);
     await TestUtils.waitForCondition(
       () => aFolder.getTotalMessages(false) < msgCount

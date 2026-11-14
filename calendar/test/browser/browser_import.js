@@ -4,6 +4,9 @@
 
 /** This tests importing/exporting an ICS file. */
 
+const { synthesize_managed_row_click } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
 const { MockFilePicker } = ChromeUtils.importESModule(
   "resource://testing-common/MockFilePicker.sys.mjs"
 );
@@ -132,10 +135,11 @@ add_task(async function () {
   Assert.deepEqual(tree.selectedIndices, [0], "the first item should be selected");
 
   info("selecting an item to show its details");
-  EventUtils.synthesizeMouseAtCenter(
+  synthesize_managed_row_click(
     tree.getRowAtIndex(1).querySelector(".calendaritemtitle-column"),
     {},
-    win
+    win,
+    EventUtils
   );
   await TestUtils.waitForCondition(
     () => details.querySelector(".item-title")?.textContent == "Event Två",

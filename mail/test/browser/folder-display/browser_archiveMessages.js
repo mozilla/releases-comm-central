@@ -52,13 +52,13 @@ add_task(async function test_batch_archiver() {
   await expand_all_threads();
 
   /* Select the first (expanded) thread */
-  const root = await select_click_row(0);
+  const root = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(root);
 
   /* Get a grip on the first and the second sub-message */
-  const m1 = await select_click_row(1);
-  const m2 = await select_click_row(2);
-  await select_click_row(0);
+  const m1 = await select_click_row(1, AccessibilityUtils);
+  const m2 = await select_click_row(2, AccessibilityUtils);
+  await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(root);
 
   /* The root message is selected, we archive the first sub-message */
@@ -83,8 +83,8 @@ add_task(async function test_batch_archiver() {
   await toggle_thread_row(0);
 
   /* Get a grip on the second thread */
-  const root2 = await select_click_row(1);
-  await select_click_row(0);
+  const root2 = await select_click_row(1, AccessibilityUtils);
+  await select_click_row(0, AccessibilityUtils);
   assert_selected(root);
 
   /* Archive the first thread, now the second thread should be selected */
@@ -93,7 +93,7 @@ add_task(async function test_batch_archiver() {
   );
   Assert.greater(get_about_3pane().gDBView.getSelectedMsgHdrs().length, 1);
   await archive_messages(get_about_3pane().gDBView.getSelectedMsgHdrs());
-  await select_click_row(0); // TODO This should be unnecessary.
+  await select_click_row(0, AccessibilityUtils); // TODO This should be unnecessary.
   assert_selected(root2);
 
   /* We only have the first thread left */
@@ -103,16 +103,16 @@ add_task(async function test_batch_archiver() {
   await assert_selected_and_displayed(root2);
 
   /* Archive the head of the thread, check that it still works fine */
-  const child1 = await select_click_row(1);
-  await select_click_row(0);
+  const child1 = await select_click_row(1, AccessibilityUtils);
+  await select_click_row(0, AccessibilityUtils);
   await archive_messages([root2]);
-  await select_click_row(0); // TODO This should be unnecessary.
+  await select_click_row(0, AccessibilityUtils); // TODO This should be unnecessary.
   await assert_selected_and_displayed(child1);
 
   /* Test archiving a partial selection */
-  const child2 = await select_click_row(1);
-  const child3 = await select_click_row(2);
-  await select_click_row(3);
+  const child2 = await select_click_row(1, AccessibilityUtils);
+  const child3 = await select_click_row(2, AccessibilityUtils);
+  await select_click_row(3, AccessibilityUtils);
 
   await select_shift_click_row(2);
   await select_shift_click_row(1);
@@ -120,7 +120,7 @@ add_task(async function test_batch_archiver() {
 
   await archive_messages([child1, child3]);
   assert_message_not_in_view([child1, child3]);
-  await select_click_row(0); // TODO This should be unnecessary.
+  await select_click_row(0, AccessibilityUtils); // TODO This should be unnecessary.
   await assert_selected_and_displayed(child2);
 
   Assert.report(

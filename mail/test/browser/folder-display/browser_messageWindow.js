@@ -55,7 +55,7 @@ add_setup(async function () {
   await be_in_folder(folderA);
 
   // select the first message
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
 
   // display it
   msgc = await open_selected_message_in_new_window();
@@ -168,7 +168,7 @@ add_task(async function test_next_unread() {
   await be_in_folder(folderB);
 
   // select the first message, and make sure it's not read
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
 
   // make sure we've been displaying the right message
   await assert_selected_and_displayed(msgc, msg);

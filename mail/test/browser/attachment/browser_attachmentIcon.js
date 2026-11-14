@@ -286,7 +286,7 @@ async function check_attachment_icon_loaded(index) {
  */
 async function help_test_attachment_icon(index) {
   await be_in_folder(folder);
-  await select_click_row(index);
+  await select_click_row(index, AccessibilityUtils);
   info(`Testing message ${index}: ${messages[index].name}`);
   const attachments = messages[index].attachments;
 

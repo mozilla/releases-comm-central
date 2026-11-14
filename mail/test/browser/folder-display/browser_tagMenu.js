@@ -46,7 +46,7 @@ add_task(async function test_updateTagCommandsOnPopupShowing() {
     );
   }
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   const shown = BrowserTestUtils.waitForPopupEvent(popup, "shown");
   popup.openPopup(document.getElementById("unifiedToolbar"), "after_start");

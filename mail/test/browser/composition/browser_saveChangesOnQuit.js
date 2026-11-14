@@ -199,7 +199,7 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
  */
 add_task(async function test_no_prompt_on_close_for_unmodified() {
   await be_in_folder(folder);
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const nwc = await open_compose_new_mail();
@@ -221,7 +221,7 @@ add_task(async function test_no_prompt_on_close_for_unmodified_no_paragraph() {
     set: [["mail.compose.default_to_paragraph", false]],
   });
   await be_in_folder(folder);
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   for (const openCompose of [
@@ -246,7 +246,7 @@ add_task(async function test_no_prompt_on_close_for_unmodified_no_paragraph() {
  */
 add_task(async function test_prompt_on_close_for_modified() {
   await be_in_folder(folder);
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const nwc = await open_compose_new_mail();
@@ -272,7 +272,7 @@ add_task(async function test_prompt_on_close_for_modified() {
 add_task(
   async function test_no_prompt_on_close_for_unmodified_content_type_text() {
     await be_in_folder(folder);
-    const msg = await select_click_row(1); // row 1 is the one with content type text
+    const msg = await select_click_row(1, AccessibilityUtils); // row 1 is the one with content type text
     await assert_selected_and_displayed(window, msg);
 
     const rwc = await open_compose_with_reply();
@@ -295,7 +295,7 @@ add_task(
 add_task(
   async function test_no_prompt_on_close_for_unmodified_no_content_type() {
     await be_in_folder(folder);
-    const msg = await select_click_row(2); // row 2 is the one with no content type
+    const msg = await select_click_row(2, AccessibilityUtils); // row 2 is the one with no content type
     await assert_selected_and_displayed(window, msg);
 
     const rwc = await open_compose_with_reply();
@@ -347,7 +347,7 @@ add_task(async function test_prompt_save_on_pill_editing() {
 
   // Move to the drafts folder and select the recently saved message.
   await be_in_folder(gDraftFolder);
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   // Click on the "edit draft" notification.

@@ -84,7 +84,7 @@ async function displayEncryptedMessageInRemovableAccount() {
   await addEnvelopedMessage(folder);
 
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const aboutMessage = get_about_message();
   await TestUtils.waitForCondition(
     () => aboutMessage.gMyLastEncryptedURI,
@@ -178,7 +178,7 @@ add_task(async function test_navigatingAwayWorksAfterAccountRemoved() {
   MailServices.accounts.removeAccount(account, true);
 
   await be_in_folder(survivingFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await TestUtils.waitForCondition(
     () => getMsgBodyTxt().includes(MSG_BODY),
     "the next message must still decrypt and display after the account was removed"

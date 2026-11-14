@@ -179,7 +179,7 @@ async function mark_read_via_menu(index, read) {
 
 add_task(async function test_mark_one_read() {
   await be_in_folder(unreadFolder);
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
 
   curMessage.markRead(false);
   await mark_read_via_menu(0, true);
@@ -188,7 +188,7 @@ add_task(async function test_mark_one_read() {
 
 add_task(async function test_mark_one_unread() {
   await be_in_folder(unreadFolder);
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
 
   curMessage.markRead(true);
   await mark_read_via_menu(0, false);
@@ -197,7 +197,7 @@ add_task(async function test_mark_one_unread() {
 
 add_task(async function test_mark_n_read() {
   await be_in_folder(unreadFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const curMessages = await select_shift_click_row(1);
 
   for (let i = 0; i < curMessages.length; i++) {
@@ -209,7 +209,7 @@ add_task(async function test_mark_n_read() {
 
 add_task(async function test_mark_n_unread() {
   await be_in_folder(unreadFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const curMessages = await select_shift_click_row(1);
 
   for (let i = 0; i < curMessages.length; i++) {
@@ -221,7 +221,7 @@ add_task(async function test_mark_n_unread() {
 
 add_task(async function test_mark_n_read_mixed() {
   await be_in_folder(unreadFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(true);
@@ -237,7 +237,7 @@ add_task(async function test_mark_n_read_mixed() {
 
 add_task(async function test_mark_n_unread_mixed() {
   await be_in_folder(unreadFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(false);
@@ -253,7 +253,7 @@ add_task(async function test_mark_n_unread_mixed() {
 
 add_task(async function test_toggle_read() {
   await be_in_folder(unreadFolder);
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
 
   curMessage.markRead(false);
   EventUtils.synthesizeKey("m", {});
@@ -263,7 +263,7 @@ add_task(async function test_toggle_read() {
 
 add_task(async function test_toggle_unread() {
   await be_in_folder(unreadFolder);
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
 
   curMessage.markRead(true);
   EventUtils.synthesizeKey("m", {});
@@ -273,7 +273,7 @@ add_task(async function test_toggle_unread() {
 
 add_task(async function test_toggle_mixed() {
   await be_in_folder(unreadFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(false);
@@ -291,7 +291,7 @@ add_task(async function test_toggle_mixed() {
 
 add_task(async function test_mark_menu_read() {
   await be_in_folder(unreadFolder);
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
 
   curMessage.markRead(false);
   await check_read_menuitems(0, true, false);
@@ -299,7 +299,7 @@ add_task(async function test_mark_menu_read() {
 
 add_task(async function test_mark_menu_unread() {
   await be_in_folder(unreadFolder);
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
 
   curMessage.markRead(true);
   await check_read_menuitems(0, false, true);
@@ -307,7 +307,7 @@ add_task(async function test_mark_menu_unread() {
 
 add_task(async function test_mark_menu_mixed() {
   await be_in_folder(unreadFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(false);
@@ -318,7 +318,7 @@ add_task(async function test_mark_menu_mixed() {
 
 add_task(async function test_mark_all_read() {
   await be_in_folder(unreadFolder);
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
   curMessage.markRead(false);
 
   // Make sure we can mark all read with >0 messages unread.
@@ -408,7 +408,7 @@ add_task(async function test_mark_thread_as_read() {
 
 add_task(async function roving_multi_message_buttons() {
   await be_in_folder(unreadFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const curMessages = await select_shift_click_row(1);
   await assert_selected_and_displayed(curMessages);
 
@@ -496,7 +496,7 @@ function promise_and_check_alert_dialog(buttonName, warningText) {
 
 add_task(async function test_shift_delete_prompt() {
   await be_in_folder(shiftDeleteFolder);
-  let curMessage = await select_click_row(0);
+  let curMessage = await select_click_row(0, AccessibilityUtils);
   goUpdateCommand("cmd_shiftDelete");
 
   // First, try shift-deleting and then cancelling at the prompt.
@@ -511,14 +511,14 @@ add_task(async function test_shift_delete_prompt() {
   EventUtils.synthesizeKey("KEY_Delete", { shiftKey: true });
   await dialogPromise;
   // Make sure we didn't actually delete the message.
-  Assert.equal(curMessage, await select_click_row(0));
+  Assert.equal(curMessage, await select_click_row(0, AccessibilityUtils));
 
   // Second, try shift-deleting and then accepting the deletion.
   dialogPromise = promise_and_check_alert_dialog("accept", warning);
   await press_delete(window, { shiftKey: true });
   await dialogPromise;
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0, AccessibilityUtils));
 
   // Third, focus the message pane, then try shift-deleting and accepting
   // the deletion.
@@ -527,18 +527,18 @@ add_task(async function test_shift_delete_prompt() {
   await press_delete(window, { shiftKey: true });
   await dialogPromise;
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0, AccessibilityUtils));
 
   // Finally, try shift-deleting when we turned off the prompt.
   await SpecialPowers.popPrefEnv();
   await SpecialPowers.pushPrefEnv({
     set: [["mail.warn_on_shift_delete", false]],
   });
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
   await press_delete(window, { shiftKey: true });
 
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0, AccessibilityUtils));
 
   await SpecialPowers.popPrefEnv();
 });
@@ -548,7 +548,7 @@ add_task(async function test_thread_delete_prompt() {
   await make_display_threaded();
   await collapse_all_threads();
 
-  let curMessage = await select_click_row(0);
+  let curMessage = await select_click_row(0, AccessibilityUtils);
   goUpdateCommand("cmd_delete");
   // First, try deleting and then cancelling at the prompt.
   await SpecialPowers.pushPrefEnv({
@@ -562,32 +562,41 @@ add_task(async function test_thread_delete_prompt() {
   EventUtils.synthesizeKey("KEY_Delete");
   await dialogPromise;
   // Make sure we didn't actually delete the message.
-  Assert.equal(curMessage, await select_click_row(0));
+  Assert.equal(curMessage, await select_click_row(0, AccessibilityUtils));
 
   // Second, try deleting and then accepting the deletion.
   dialogPromise = promise_and_check_alert_dialog("accept", warning);
   await press_delete(window);
   await dialogPromise;
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0, AccessibilityUtils));
 
   // Finally, try deleting when we turned off the prompt.
   await SpecialPowers.popPrefEnv();
   await SpecialPowers.pushPrefEnv({
     set: [["mail.warn_on_collapsed_thread_operation", false]],
   });
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
   await press_delete(window);
 
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0, AccessibilityUtils));
 
   await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_delete_from_trash_prompt() {
+  async function selectFirstMessage() {
+    // The checker can land on the card layout inside the selectable row.
+    AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
+    const message = await select_click_row(0);
+    AccessibilityUtils.resetEnv();
+
+    return message;
+  }
+
   await be_in_folder(trashFolder);
-  let curMessage = await select_click_row(0);
+  let curMessage = await selectFirstMessage();
   goUpdateCommand("cmd_Delete");
 
   // First, try deleting and then cancelling at the prompt.
@@ -602,32 +611,44 @@ add_task(async function test_delete_from_trash_prompt() {
   EventUtils.synthesizeKey("KEY_Delete");
   await dialogPromise;
   // Make sure we didn't actually delete the message.
-  Assert.equal(curMessage, await select_click_row(0));
+  Assert.equal(
+    curMessage,
+    await selectFirstMessage(),
+    "Canceling the prompt should keep the message in Trash"
+  );
 
   // Second, try deleting and then accepting the deletion.
   dialogPromise = promise_and_check_alert_dialog("accept", warning);
   await press_delete(window);
   await dialogPromise;
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(
+    curMessage,
+    await selectFirstMessage(),
+    "Accepting the prompt should delete the message from Trash"
+  );
 
   // Finally, try deleting when we turned off the prompt.
   await SpecialPowers.popPrefEnv();
   await SpecialPowers.pushPrefEnv({
     set: [["mail.warn_on_delete_from_trash", false]],
   });
-  curMessage = await select_click_row(0);
+  curMessage = await selectFirstMessage();
   await press_delete(window);
 
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(
+    curMessage,
+    await selectFirstMessage(),
+    "Delete should remove the message from Trash when the prompt is disabled"
+  );
 
   await SpecialPowers.popPrefEnv();
 });
 
 add_task(async function test_delete_from_newsgroup_prompt() {
   await be_in_folder(newsgroupFolder);
-  let curMessage = await select_click_row(0);
+  let curMessage = await select_click_row(0, AccessibilityUtils);
   goUpdateCommand("cmd_Delete");
 
   // First, try deleting and then cancelling at the prompt.
@@ -642,25 +663,25 @@ add_task(async function test_delete_from_newsgroup_prompt() {
   EventUtils.synthesizeKey("KEY_Delete");
   await dialogPromise;
   // Make sure we didn't actually delete the message.
-  Assert.equal(curMessage, await select_click_row(0));
+  Assert.equal(curMessage, await select_click_row(0, AccessibilityUtils));
 
   // Second, try deleting and then accepting the deletion.
   dialogPromise = promise_and_check_alert_dialog("accept", warning);
   await press_delete(window);
   await dialogPromise;
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0, AccessibilityUtils));
 
   // Finally, try deleting when we turned off the prompt.
   await SpecialPowers.popPrefEnv();
   await SpecialPowers.pushPrefEnv({
     set: [["news.warn_on_delete", false]],
   });
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
   await press_delete(window);
 
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0, AccessibilityUtils));
 
   await SpecialPowers.popPrefEnv();
 });
@@ -684,7 +705,7 @@ function check_tag_in_message(message, tag, isSet) {
 
 add_task(async function test_tag_keys() {
   await be_in_folder(unreadFolder);
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
 
   EventUtils.synthesizeKey("1", {});
   check_tag_in_message(curMessage, tagArray[0], true);
@@ -700,7 +721,7 @@ add_task(async function test_tag_keys() {
 
 add_task(async function test_tag_keys_disabled_in_content_tab() {
   await be_in_folder(unreadFolder);
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
 
   window.openAddonsMgr("addons://list/theme");
   await new Promise(resolve => setTimeout(resolve));

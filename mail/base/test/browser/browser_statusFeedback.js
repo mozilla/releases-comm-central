@@ -8,9 +8,10 @@ var { MailServices } = ChromeUtils.importESModule(
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-const { ensure_cards_view } = ChromeUtils.importESModule(
-  "resource://testing-common/MailViewHelpers.sys.mjs"
-);
+const { synthesize_managed_row_click, ensure_cards_view } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/MailViewHelpers.sys.mjs"
+  );
 
 const statusText = document.getElementById("statusText");
 const urlText = document.getElementById("urlText");
@@ -67,10 +68,11 @@ add_task(async function testMessageOpen() {
 
   // Click on the email.
   const selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
-  EventUtils.synthesizeMouseAtCenter(
+  synthesize_managed_row_click(
     subjectLine,
     { clickCount: 1 },
-    about3Pane
+    about3Pane,
+    EventUtils
   );
   await selectPromise;
 

@@ -53,11 +53,11 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
     // display it
     const msgc = await open_selected_message_in_new_window();
 
-    await select_click_row(1);
+    await select_click_row(1, AccessibilityUtils);
     const msgc2 = await open_selected_message_in_new_window();
 
     const preCount = folder.getTotalMessages(false);
@@ -88,12 +88,12 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
     // display it
     const msgc = await open_selected_message_in_new_window();
     const msgcA = await open_selected_message_in_new_window();
 
-    await select_click_row(1);
+    await select_click_row(1, AccessibilityUtils);
     const msgc2 = await open_selected_message_in_new_window();
 
     const preCount = folder.getTotalMessages(false);
@@ -126,18 +126,18 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
     // display it
     const msgc = await open_selected_message_in_new_window();
     const msgcA = await open_selected_message_in_new_window();
 
-    await select_click_row(1);
+    await select_click_row(1, AccessibilityUtils);
     const msgc2 = await open_selected_message_in_new_window();
 
     const preCount = folder.getTotalMessages(false);
     const closePromise = BrowserTestUtils.domWindowClosed(msgc);
     const closePromiseA = BrowserTestUtils.domWindowClosed(msgcA);
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
     await SimpleTest.promiseFocus();
     EventUtils.synthesizeKey("KEY_Delete", {}, window);
     await closePromise;
@@ -164,11 +164,11 @@ add_task(async function test_close_message_tab_on_delete_from_message_tab() {
   await be_in_folder(folder);
 
   // select the first message
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   // display it
   const msgc = await open_selected_message_in_new_tab(true);
 
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   const msgc2 = await open_selected_message_in_new_tab(true);
 
   const preCount = folder.getTotalMessages(false);
@@ -208,12 +208,12 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
     // display it
     const msgc = await open_selected_message_in_new_tab(true);
     await open_selected_message_in_new_tab(true);
 
-    await select_click_row(1);
+    await select_click_row(1, AccessibilityUtils);
     const msgc2 = await open_selected_message_in_new_tab(true);
 
     const preCount = folder.getTotalMessages(false);
@@ -254,16 +254,16 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
     // display it
     await open_selected_message_in_new_tab(true);
     await open_selected_message_in_new_tab(true);
 
-    await select_click_row(1);
+    await select_click_row(1, AccessibilityUtils);
     const msgc2 = await open_selected_message_in_new_tab(true);
 
     const preCount = folder.getTotalMessages(false);
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
     const tabClosePromise = BrowserTestUtils.waitForEvent(
       tabmail.tabContainer,
       "TabClose"
@@ -299,18 +299,18 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
     // display it
     await open_selected_message_in_new_tab(true);
     const msgcA = await open_selected_message_in_new_window();
 
-    await select_click_row(1);
+    await select_click_row(1, AccessibilityUtils);
     const msgc2 = await open_selected_message_in_new_tab(true);
     const msgc2A = await open_selected_message_in_new_window();
 
     const preCount = folder.getTotalMessages(false);
     const closePromise = BrowserTestUtils.domWindowClosed(msgcA);
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
     await SimpleTest.promiseFocus();
     EventUtils.synthesizeKey("KEY_Delete", {}, window);
     await closePromise;

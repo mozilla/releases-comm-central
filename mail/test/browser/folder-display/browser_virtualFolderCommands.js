@@ -47,7 +47,7 @@ add_task(async function test_single_folder_select_thread() {
   await expand_all_threads();
 
   // Try selecting the thread from the root message.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.equal(
     win.gDBView.selection.count,
@@ -56,7 +56,7 @@ add_task(async function test_single_folder_select_thread() {
   );
 
   // Now try selecting the thread from a non-root message.
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.equal(
     win.gDBView.selection.count,
@@ -72,7 +72,7 @@ add_task(async function test_cross_folder_select_thread() {
   await expand_all_threads();
 
   // Try selecting the thread from the root message.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.equal(
     win.gDBView.selection.count,
@@ -81,7 +81,7 @@ add_task(async function test_cross_folder_select_thread() {
   );
 
   // Now try selecting the thread from a non-root message.
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.equal(
     win.gDBView.selection.count,

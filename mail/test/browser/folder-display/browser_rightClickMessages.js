@@ -97,7 +97,7 @@ add_task(async function test_right_click_with_nothing_selected() {
 add_task(async function test_right_click_with_one_thing_selected() {
   await be_in_folder(folder);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(0);
 
   await right_click_on_row(1);
@@ -114,7 +114,7 @@ add_task(async function test_right_click_with_one_thing_selected() {
 add_task(async function test_right_click_with_many_things_selected() {
   await be_in_folder(folder);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await select_shift_click_row(5);
   await assert_selected_and_displayed([0, 5]);
 
@@ -132,7 +132,7 @@ add_task(async function test_right_click_with_many_things_selected() {
 add_task(async function test_right_click_on_existing_single_selection() {
   await be_in_folder(folder);
 
-  await select_click_row(3);
+  await select_click_row(3, AccessibilityUtils);
   await assert_selected_and_displayed(3);
 
   await right_click_on_row(3);
@@ -148,7 +148,7 @@ add_task(async function test_right_click_on_existing_single_selection() {
 add_task(async function test_right_click_on_existing_multi_selection() {
   await be_in_folder(folder);
 
-  await select_click_row(3);
+  await select_click_row(3, AccessibilityUtils);
   await select_shift_click_row(6);
   await assert_selected_and_displayed([3, 6]);
 
@@ -185,7 +185,7 @@ add_task(async function test_right_click_deletion_nothing_selected() {
 add_task(async function test_right_click_deletion_one_other_thing_selected() {
   await be_in_folder(folder);
 
-  const curMessage = await select_click_row(5);
+  const curMessage = await select_click_row(5, AccessibilityUtils);
 
   const delMessage = await right_click_on_row(3);
   await delete_via_popup();
@@ -197,7 +197,7 @@ add_task(async function test_right_click_deletion_one_other_thing_selected() {
 add_task(async function test_right_click_deletion_many_other_things_selected() {
   await be_in_folder(folder);
 
-  await select_click_row(4);
+  await select_click_row(4, AccessibilityUtils);
   const messages = await select_shift_click_row(6);
 
   const delMessage = await right_click_on_row(2);
@@ -210,7 +210,7 @@ add_task(async function test_right_click_deletion_many_other_things_selected() {
 add_task(async function test_right_click_deletion_of_one_selected_thing() {
   await be_in_folder(folder);
 
-  const curMessage = await select_click_row(2);
+  const curMessage = await select_click_row(2, AccessibilityUtils);
 
   await right_click_on_row(2);
   await delete_via_popup();
@@ -226,7 +226,7 @@ add_task(async function test_right_click_deletion_of_one_selected_thing() {
 add_task(async function test_right_click_deletion_of_many_selected_things() {
   await be_in_folder(folder);
 
-  await select_click_row(2);
+  await select_click_row(2, AccessibilityUtils);
   const messages = await select_shift_click_row(4);
 
   await right_click_on_row(3);

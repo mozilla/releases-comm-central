@@ -74,7 +74,7 @@ async function addAndSelect(eml) {
 
   gMsgNo++;
   await be_in_folder(folder);
-  await select_click_row(gMsgNo - 1);
+  await select_click_row(gMsgNo - 1, AccessibilityUtils);
   await assert_selected_and_displayed(gMsgNo - 1);
 }
 

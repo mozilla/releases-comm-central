@@ -46,7 +46,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
    * view still gets rebuilt, such that there is a valid msg hdr at row 0.
    */
   await be_in_folder(otherFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await press_delete();
 
   folderVirtual = create_virtual_folder("SavedSearch", [
@@ -55,7 +55,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
   ]);
 
   await be_in_folder(folderVirtual);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   if (otherFolder.msgStore.supportsCompaction) {
     const listener = new PromiseTestUtils.PromiseUrlListener();
     otherFolder.compactAll(listener, false, false);

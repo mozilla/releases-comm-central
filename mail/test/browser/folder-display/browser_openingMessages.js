@@ -68,7 +68,7 @@ add_task(async function test_open_single_message_in_tab() {
     document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
   // Select one message
-  const msgHdr = await select_click_row(1);
+  const msgHdr = await select_click_row(1, AccessibilityUtils);
   // Open it
   open_selected_message();
   // Check that the tab count has increased by 1
@@ -107,7 +107,7 @@ add_task(async function test_open_multiple_messages_in_tabs() {
   await be_in_folder(folder);
 
   // Select a bunch of messages
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   const selectedMessages = await select_shift_click_row(NUM_MESSAGES_TO_OPEN);
   // Open them
   open_selected_messages();
@@ -145,7 +145,7 @@ add_task(async function test_open_message_in_new_window() {
   await be_in_folder(folder);
 
   // Select a message
-  const msgHdr = await select_click_row(1);
+  const msgHdr = await select_click_row(1, AccessibilityUtils);
 
   const newWindowPromise = promise_new_window("mail:messageWindow");
   // Open it
@@ -168,14 +168,14 @@ add_task(async function test_open_message_in_existing_window() {
   await be_in_folder(folder);
 
   // Open up a window
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   const newWindowPromise = promise_new_window("mail:messageWindow");
   open_selected_message();
   const msgc = await newWindowPromise;
   await wait_for_message_display_completion(msgc, true);
 
   // Select another message and open it
-  const msgHdr = await select_click_row(2);
+  const msgHdr = await select_click_row(2, AccessibilityUtils);
   open_selected_message();
   await wait_for_message_display_completion(msgc, true);
 

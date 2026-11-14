@@ -29,9 +29,10 @@ const { add_message_to_folder, create_message, make_message_sets_in_folders } =
     "resource://testing-common/mail/MessageInjectionHelpers.sys.mjs"
   );
 
-const { ensure_cards_view, ensure_table_view } = ChromeUtils.importESModule(
-  "resource://testing-common/MailViewHelpers.sys.mjs"
-);
+const { synthesize_managed_row_click, ensure_cards_view, ensure_table_view } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/MailViewHelpers.sys.mjs"
+  );
 
 const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
@@ -188,7 +189,7 @@ add_task(async function test_custom_account_colors_in_message_list() {
   let row = await TestUtils.waitForCondition(() =>
     about3Pane.threadTree.getRowAtIndex(0)
   );
-  EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
+  synthesize_managed_row_click(row, {}, about3Pane, EventUtils);
 
   info("Test first message without any custom color");
   let account = addedAccounts.at(0);
@@ -408,7 +409,7 @@ add_task(async function test_account_indicator_hidden() {
   const row = await TestUtils.waitForCondition(() =>
     about3Pane.threadTree.getRowAtIndex(0)
   );
-  EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
+  synthesize_managed_row_click(row, {}, about3Pane, EventUtils);
 
   Assert.ok(
     BrowserTestUtils.isHidden(

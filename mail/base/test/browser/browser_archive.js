@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { synthesize_managed_row_click } = ChromeUtils.importESModule(
+  "resource://testing-common/MailViewHelpers.sys.mjs"
+);
+
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
@@ -70,10 +74,11 @@ add_task(async function testArchiveUndo() {
 
   // Simulate a click on the row's subject line to select the row.
   const selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
-  EventUtils.synthesizeMouseAtCenter(
+  synthesize_managed_row_click(
     row.querySelector(".thread-card-subject-container"),
     { clickCount: 1 },
-    about3Pane
+    about3Pane,
+    EventUtils
   );
   await selectPromise;
 

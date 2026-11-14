@@ -102,7 +102,7 @@ add_task(async function test_autohidden_menubar_3pane() {
 
 add_task(async function test_autohidden_menubar_message_window() {
   await be_in_folder(menuFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const msgc = await open_selected_message_in_new_window();
   const menubar = msgc.document.getElementById("toolbar-menubar");
 

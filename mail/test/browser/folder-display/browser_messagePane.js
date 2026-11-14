@@ -44,7 +44,7 @@ add_task(async function test_clear_single_message() {
 
   await be_in_folder(folderSingle);
   assert_message_pane_visible();
-  const message = await select_click_row(0);
+  const message = await select_click_row(0, AccessibilityUtils);
 
   Assert.ok(
     BrowserTestUtils.isVisible(messageBrowser),
@@ -64,7 +64,7 @@ add_task(async function test_clear_multi_messages() {
 
   await be_in_folder(folderMulti);
   assert_message_pane_visible();
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const messages = await select_shift_click_row(2);
 
   Assert.ok(

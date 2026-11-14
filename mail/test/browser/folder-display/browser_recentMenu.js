@@ -51,7 +51,7 @@ add_setup(async function () {
 
 add_task(async function test_move_message() {
   await be_in_folder(folder1);
-  const msgHdr = await select_click_row(0);
+  const msgHdr = await select_click_row(0, AccessibilityUtils);
   // This will cause the initial build of the move recent context menu,
   // which should be empty and disabled.
   await right_click_on_row(0);
@@ -116,7 +116,7 @@ add_task(async function test_move_message() {
   // We've moved a message to aaafolder2 - it should appear in recent list now.
   // Clicking the menuitem by label is not localizable, but Recent doesn't have an
   // id we can use.
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await right_click_on_row(0);
   popups = await click_menus_in_sequence(
     getMailContext(),
@@ -142,7 +142,7 @@ add_task(async function test_move_message() {
 add_task(async function test_delete_message() {
   await press_delete(window);
   // We've deleted a message - we should still just have folder2 in the menu.
-  await select_click_row(0); // TODO shouldn't need to do this
+  await select_click_row(0, AccessibilityUtils); // TODO shouldn't need to do this
   await right_click_on_row(0);
   const popups = await click_menus_in_sequence(
     getMailContext(),
@@ -166,7 +166,7 @@ add_task(async function test_delete_message() {
 });
 
 add_task(async function test_archive_message() {
-  const hdr = await select_click_row(0);
+  const hdr = await select_click_row(0, AccessibilityUtils);
   const year = new Date(hdr.date / 1000).getFullYear();
   await archive_selected_messages();
   // We've archived a message - we should still just have folder2 in the menu.
@@ -176,7 +176,7 @@ add_task(async function test_archive_message() {
     false
   );
   await be_in_folder(archive.getChildNamed(year));
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await right_click_on_row(0);
   const popups = await click_menus_in_sequence(
     getMailContext(),

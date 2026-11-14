@@ -176,7 +176,7 @@ async function save_attachment_files() {
   for (let i = 0; i < length; i++) {
     const file = profileDir.clone();
     file.append(attachmentFileNames[i]);
-    await select_click_row(i);
+    await select_click_row(i, AccessibilityUtils);
     MockFilePicker.setFiles([file]);
     const saved = BrowserTestUtils.waitForEvent(window, "attachmentSaved");
     await new Promise(resolve => {

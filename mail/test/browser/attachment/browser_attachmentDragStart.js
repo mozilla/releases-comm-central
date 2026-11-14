@@ -78,7 +78,7 @@ function dragStart(element) {
  * @param {boolean} allowed - Whether the attachment should be transferred.
  */
 async function checkDragStart(message, name, allowed) {
-  await select_click_row(message);
+  await select_click_row(message, AccessibilityUtils);
   const attachmentList = aboutMessage.document.getElementById("attachmentList");
   await TestUtils.waitForCondition(
     () => attachmentList.getItemAtIndex(0)?.attachment.name == name,

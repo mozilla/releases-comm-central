@@ -5,9 +5,10 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
-const { ensure_cards_view } = ChromeUtils.importESModule(
-  "resource://testing-common/MailViewHelpers.sys.mjs"
-);
+const { synthesize_managed_row_click, ensure_cards_view } =
+  ChromeUtils.importESModule(
+    "resource://testing-common/MailViewHelpers.sys.mjs"
+  );
 
 const TEST_DOCUMENT_URL = "http://mochi.test:8888/";
 let about3Pane;
@@ -221,10 +222,11 @@ add_task(async function testMessagePaneFindToolbars() {
 
   // Simulate a click on the row's subject line to select the row.
   const selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
-  EventUtils.synthesizeMouseAtCenter(
+  synthesize_managed_row_click(
     row.querySelector(".thread-card-subject-container .subject"),
     { clickCount: 1 },
-    about3Pane
+    about3Pane,
+    EventUtils
   );
   await selectPromise;
   Assert.ok(

@@ -262,7 +262,7 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
 
   // Open the "sent" message.
   await be_in_folder(outboxFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   // Test that the sent content type is either text/plain, text/html or
   // multipart/alternative.
@@ -382,7 +382,7 @@ async function saveDraft(composeWindow) {
 
 async function assertDraftFormat(expectSavedFormat) {
   await be_in_folder(draftsFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   const newComposeWindow = await open_compose_from_draft();
   assertSendFormatInMenu(

@@ -50,9 +50,9 @@ add_setup(async function () {
 
   // We delete the first message so that we have to compact anything.
   await be_in_folder(gInbox);
-  const curMessage = await select_click_row(0);
+  const curMessage = await select_click_row(0, AccessibilityUtils);
   await press_delete(window);
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0, AccessibilityUtils));
 
   const urlListener = {
     compactDone: false,
@@ -125,13 +125,13 @@ add_task(async function test_mark_messages_read() {
   be_in_folder(gOutbox); // TODO shouldn't have to swap folders
   // 5 messages in the folder
   await be_in_folder(gInbox);
-  let curMessage = await select_click_row(0);
+  let curMessage = await select_click_row(0, AccessibilityUtils);
   // Store the offset because it will be unavailable via the hdr
   // after the message is deleted.
   const offset = curMessage.storeToken;
   await check_status(gInbox, offset, 0); // status = unread
   await press_delete(window);
-  Assert.notEqual(curMessage, await select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0, AccessibilityUtils));
   await check_status(
     gInbox,
     offset,
@@ -139,7 +139,7 @@ add_task(async function test_mark_messages_read() {
   );
 
   // 4 messages in the folder.
-  curMessage = await select_click_row(0);
+  curMessage = await select_click_row(0, AccessibilityUtils);
   await check_status(gInbox, curMessage.storeToken, 0); // status = unread
 
   // Make sure we can mark all read with >0 messages unread.
@@ -158,13 +158,13 @@ add_task(async function test_mark_messages_read() {
   // All the 4 messages should now be read.
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
   await check_status(gInbox, curMessage.storeToken, Ci.nsMsgMessageFlags.Read);
-  curMessage = await select_click_row(1);
+  curMessage = await select_click_row(1, AccessibilityUtils);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
   await check_status(gInbox, curMessage.storeToken, Ci.nsMsgMessageFlags.Read);
-  curMessage = await select_click_row(2);
+  curMessage = await select_click_row(2, AccessibilityUtils);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
   await check_status(gInbox, curMessage.storeToken, Ci.nsMsgMessageFlags.Read);
-  curMessage = await select_click_row(3);
+  curMessage = await select_click_row(3, AccessibilityUtils);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
   await check_status(gInbox, curMessage.storeToken, Ci.nsMsgMessageFlags.Read);
 
@@ -187,7 +187,7 @@ add_task(async function test_mark_messages_read() {
 
 add_task(async function test_mark_messages_flagged() {
   // Mark a message with the star.
-  const curMessage = await select_click_row(1);
+  const curMessage = await select_click_row(1, AccessibilityUtils);
   await right_click_on_row(1);
   const hiddenPromise = BrowserTestUtils.waitForEvent(
     getMailContext(),
@@ -223,7 +223,7 @@ async function subtest_check_queued_message() {
  */
 async function reply_forward_message(aMsgRow, aReply) {
   await be_in_folder(gInbox);
-  await select_click_row(aMsgRow);
+  await select_click_row(aMsgRow, AccessibilityUtils);
   let cwc;
   if (aReply) {
     // Reply to the message.
@@ -258,7 +258,7 @@ async function reply_forward_message(aMsgRow, aReply) {
   // flags were set. This is risky as the real code could change and call
   // a different function and the purpose of this test would be lost.
   await be_in_folder(gInbox);
-  const curMessage = await select_click_row(aMsgRow);
+  const curMessage = await select_click_row(aMsgRow, AccessibilityUtils);
   const disposition = aReply
     ? gInbox.nsMsgDispositionState_Replied
     : gInbox.nsMsgDispositionState_Forwarded;
@@ -267,7 +267,7 @@ async function reply_forward_message(aMsgRow, aReply) {
 
 add_task(async function test_mark_messages_replied() {
   await reply_forward_message(2, true);
-  const curMessage = await select_click_row(2);
+  const curMessage = await select_click_row(2, AccessibilityUtils);
   await check_status(
     gInbox,
     curMessage.storeToken,
@@ -279,7 +279,7 @@ add_task(async function test_mark_messages_forwarded() {
   await be_in_folder(gInbox);
   // Forward a clean message.
   await reply_forward_message(3, false);
-  let curMessage = await select_click_row(3);
+  let curMessage = await select_click_row(3, AccessibilityUtils);
   await check_status(
     gInbox,
     curMessage.storeToken,
@@ -287,7 +287,7 @@ add_task(async function test_mark_messages_forwarded() {
   );
 
   // Forward a message that is read and already replied to.
-  curMessage = await select_click_row(2);
+  curMessage = await select_click_row(2, AccessibilityUtils);
   await check_status(
     gInbox,
     curMessage.storeToken,

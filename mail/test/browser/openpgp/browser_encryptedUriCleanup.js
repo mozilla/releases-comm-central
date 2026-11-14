@@ -91,7 +91,7 @@ async function displayEncryptedMessageInRemovableAccount() {
   await addEncryptedMessage(folder);
 
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const hdrView = get_about_message().Enigmail.hdrView;
   await TestUtils.waitForCondition(
     () => hdrView.lastEncryptedUri,
@@ -181,7 +181,7 @@ add_task(async function test_navigatingAwayWorksAfterAccountRemoved() {
   MailServices.accounts.removeAccount(account, true);
 
   await be_in_folder(survivingFolder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await TestUtils.waitForCondition(
     () => getMsgBodyTxt().includes(MSG_TEXT),
     "the next message must still decrypt and display after the account was removed"

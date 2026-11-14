@@ -226,7 +226,7 @@ async function subtestLinksInFolder(folder, addMessage) {
   );
 
   await be_in_folder(folder);
-  const msgHdr = await select_click_row(-1);
+  const msgHdr = await select_click_row(-1, AccessibilityUtils);
   Assert.equal(
     msgHdr.subject,
     "Links message",

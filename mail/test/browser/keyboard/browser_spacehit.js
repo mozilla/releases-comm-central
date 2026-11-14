@@ -51,7 +51,7 @@ async function subtest_advance_on_spacebar(shouldAdvance, isShiftPressed) {
   const about3Pane = get_about_3pane();
   about3Pane.gFolder.markMessagesRead([...about3Pane.gFolder.messages], false);
   // Select the second message.
-  const oldMessage = await select_click_row(1);
+  const oldMessage = await select_click_row(1, AccessibilityUtils);
   await wait_for_message_display_completion(window);
   const expectedMessage = shouldAdvance
     ? about3Pane.gDBView.getMsgHdrAt(isShiftPressed ? 0 : 2)
@@ -117,7 +117,7 @@ async function subtest_advance_on_spacebar_browser(
     set: [[prefName, shouldAdvance]],
   });
   // Select the fifth message.
-  const oldMessage = await select_click_row(4);
+  const oldMessage = await select_click_row(4, AccessibilityUtils);
   await wait_for_message_display_completion(window);
   // Set focus to message pane browser..
   const aboutMessage = get_about_message();
@@ -194,7 +194,7 @@ add_task(async function test_scrollWithMessageListFocused() {
     [{ count: 1, body: { body: "A line of message text.\n".repeat(200) } }]
   );
   await be_in_folder(folder);
-  const message = await select_click_row(0);
+  const message = await select_click_row(0, AccessibilityUtils);
   const browser = get_about_message().getMessagePaneBrowser();
   const messageWindow = browser.contentWindow;
   about3Pane.threadTree.focus();

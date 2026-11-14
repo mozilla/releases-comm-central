@@ -152,7 +152,7 @@ add_task(async function testSignedMessageComposition2() {
   await sendMessageCompletePromise;
 
   await be_in_folder(gOutbox);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(0);
 
   Assert.ok(
@@ -194,7 +194,7 @@ add_task(async function testSignedMessageComposition3() {
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(0);
 
   Assert.ok(

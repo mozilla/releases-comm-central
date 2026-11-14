@@ -134,7 +134,10 @@ add_task(async function test_draft_keeps_inline_related_attachment() {
   await be_in_folder(draftsFolder);
   await make_display_unthreaded();
 
+  // The unthreaded list handles keyboard access for the clicked draft.
+  AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
   const draftMsg = await select_click_row(0);
+  AccessibilityUtils.resetEnv();
   await assert_selected_and_displayed(window, draftMsg);
   await wait_for_notification_to_show(
     get_about_message(),
@@ -152,7 +155,9 @@ add_task(async function test_draft_keeps_inline_related_attachment() {
 
   await syncFolder(draftsFolder);
 
+  AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
   const draftMsgReopened = await select_click_row(0);
+  AccessibilityUtils.resetEnv();
   await assert_selected_and_displayed(window, draftMsgReopened);
   await wait_for_notification_to_show(
     get_about_message(),

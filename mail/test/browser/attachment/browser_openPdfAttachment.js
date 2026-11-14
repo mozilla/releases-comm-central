@@ -57,7 +57,7 @@ add_setup(async function () {
     })
   );
   await be_in_folder(folder);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 
   registerCleanupFunction(function () {
     const currentHandler = mimeService.getFromTypeAndExtension(

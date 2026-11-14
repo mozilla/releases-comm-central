@@ -61,7 +61,7 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   // Now check the message content in the drafts folder.
   await be_in_folder(gDrafts);
-  const message = await select_click_row(0);
+  const message = await select_click_row(0, AccessibilityUtils);
   const messageContent = await get_msg_source(message);
 
   // Check for a single line that contains text and make sure there is a

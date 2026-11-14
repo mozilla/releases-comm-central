@@ -73,7 +73,7 @@ add_task(async function testInitialization() {
 
 add_task(async function testAppMenuGlobalFontSizeInteraction() {
   await be_in_folder(folder);
-  const curMessage = await select_click_row(-1);
+  const curMessage = await select_click_row(-1, AccessibilityUtils);
   await assert_selected_and_displayed(window, curMessage);
 
   const appMenu = document.getElementById("appMenu-popup");

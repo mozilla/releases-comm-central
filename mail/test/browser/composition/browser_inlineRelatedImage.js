@@ -123,7 +123,10 @@ add_task(async function test_pasted_image_reconstruction() {
   await save_compose_message(win);
   await close_compose_window(win);
   await be_in_folder(draftsFolder);
+  // The checker can land on the card layout inside the selectable row.
+  AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
   const draft = await select_click_row(0);
+  AccessibilityUtils.resetEnv();
   await assert_selected_and_displayed(window, draft);
 
   const source = await get_msg_source(draft);
@@ -284,7 +287,9 @@ add_task(async function test_imap_image_reconstruction() {
   );
   await server.addMessages(inbox, [], true);
   await be_in_folder(inbox);
+  AccessibilityUtils.setEnv({ mustHaveAccessibleRule: false });
   const message = await select_click_row(0);
+  AccessibilityUtils.resetEnv();
   await assert_selected_and_displayed(window, message);
   const uri = inbox.getUriForMsg(message);
   const service = MailServices.messageServiceFromURI(uri);

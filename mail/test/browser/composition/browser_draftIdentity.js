@@ -235,7 +235,7 @@ add_task(async function test_draft_identity_selection() {
   for (const test of tests) {
     dump("Running draft identity test" + tests.indexOf(test) + "\n");
     await be_in_folder(gDrafts);
-    await select_click_row(test.draftIndex);
+    await select_click_row(test.draftIndex, AccessibilityUtils);
     await assert_selected_and_displayed(test.draftIndex);
     await wait_for_notification_to_show(
       aboutMessage,
@@ -296,7 +296,7 @@ add_task(async function test_secondary_identity_smime_failure_keeps_draft() {
   const originalDraftCount = gDrafts.getTotalMessages(false);
   const draftIndex = create_draft(identity.email, identity.key);
   await be_in_folder(gDrafts);
-  await select_click_row(draftIndex);
+  await select_click_row(draftIndex, AccessibilityUtils);
   await assert_selected_and_displayed(draftIndex);
   await wait_for_notification_to_show(
     aboutMessage,

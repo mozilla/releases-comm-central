@@ -93,7 +93,7 @@ add_task(async function test_switch_to_tab_folder_a() {
  */
 add_task(async function test_open_message_a_in_tab() {
   // (this focuses the thread tree for tabFolderA...)
-  messageA = await select_click_row(0);
+  messageA = await select_click_row(0, AccessibilityUtils);
   // (...refocus the folder tree for our sticky check below)
   focus_folder_tree();
   tabMessageA = await open_selected_message_in_new_tab();
@@ -116,7 +116,7 @@ add_task(async function test_switch_to_tab_folder_b() {
  *  the displayed message is the right one.
  */
 add_task(async function test_open_message_b_in_tab() {
-  messageB = await select_click_row(0);
+  messageB = await select_click_row(0, AccessibilityUtils);
   // Let's focus the message pane now
   focus_message_pane();
   tabMessageB = await open_selected_message_in_new_tab();

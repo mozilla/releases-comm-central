@@ -131,7 +131,7 @@ add_task(async function testDraftEncryption() {
   );
   composeWindow.close();
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const aboutMessage = get_about_message();
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
@@ -187,7 +187,7 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
     );
 
     const draftWindowPromise = waitForComposeWindow();
-    await select_click_row(wantedRow);
+    await select_click_row(wantedRow, AccessibilityUtils);
     ++wantedRow;
     open_selected_message();
 

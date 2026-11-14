@@ -38,7 +38,7 @@ add_task(async function test_message_reloads_work_with_message_pane_toggles() {
   await be_in_folder(folder);
 
   assert_message_pane_visible();
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   // Toggle the message pane off, then on
   toggle_message_pane();
   assert_message_pane_hidden();

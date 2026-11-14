@@ -86,7 +86,7 @@ add_task(async function test_delete_no_junk_messages() {
 add_task(async function test_delete_junk_messages() {
   const initialNumMessages = folderA.getTotalMessages(false);
   await be_in_folder(folderA);
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
 
   // The number of messages to mark as spam and expect to be deleted.
   const NUM_MESSAGES_TO_JUNK = 8;
@@ -124,7 +124,7 @@ add_task(async function test_delete_junk_messages_virtual() {
   Assert.equal(folderE.getTotalMessages(false), 7);
   Assert.equal(virtualFolder.getTotalMessages(false), 10);
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await select_control_click_row(3);
   await select_control_click_row(6);
   await select_control_click_row(9);
@@ -139,7 +139,7 @@ add_task(async function test_delete_junk_messages_virtual() {
     "DeleteOrMoveMsgCompleted"
   );
 
-  await select_click_row(1);
+  await select_click_row(1, AccessibilityUtils);
   goDoCommand("cmd_deleteJunk");
 
   await Promise.all([completeD, completeE]);

@@ -97,7 +97,7 @@ add_setup(async function () {
 async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   await be_in_folder(folder);
 
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 
   const tabSelectPromise = BrowserTestUtils.waitForEvent(

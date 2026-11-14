@@ -87,7 +87,7 @@ async function create_replyMsg(aTo, aEnvelopeTo) {
   await add_message_to_folder([gFolder], msg0);
 
   await be_in_folder(gFolder);
-  const msg = await select_click_row(0);
+  const msg = await select_click_row(0, AccessibilityUtils);
   await assert_selected_and_displayed(window, msg);
 }
 

@@ -110,7 +110,7 @@ add_task(async function test_runFiltersInSingleFolderViews() {
       "Run Filters on Message should be disabled without a selection"
     );
 
-    await select_click_row(0);
+    await select_click_row(0, AccessibilityUtils);
     await select_shift_click_row(1);
     await runFiltersOnSelection();
   }
@@ -123,7 +123,7 @@ add_task(async function test_disableFolderFiltersInSavedSearch() {
     !win.commandController.isCommandEnabled("cmd_applyFilters"),
     "Run Filters on Folder should be disabled in a single-folder saved search"
   );
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   Assert.ok(
     !get_about_message().commandController.isCommandEnabled("cmd_applyFilters"),
     "Run Filters on Folder should also be disabled in the saved-search message pane"
@@ -134,7 +134,10 @@ add_task(async function test_runFiltersInMultiFolderView() {
   await be_in_folder(multiVirtual);
   const win = get_about_3pane();
   const [header] = source.messages;
-  await select_click_row(win.gDBView.findIndexOfMsgHdr(header, true));
+  await select_click_row(
+    win.gDBView.findIndexOfMsgHdr(header, true),
+    AccessibilityUtils
+  );
   Assert.ok(
     get_about_message().commandController.isCommandEnabled(command),
     "Run Filters on Message should be enabled for one message in the multi-folder message pane"
@@ -145,13 +148,13 @@ add_task(async function test_runFiltersInMultiFolderView() {
     "Run Filters on Folder should be disabled in a multi-folder saved search"
   );
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await select_shift_click_row(1);
   Assert.ok(
     !win.commandController.isCommandEnabled(command),
     "Run Filters on Message should be disabled for multiple messages in a multi-folder saved search"
   );
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
 });
 
 add_task(async function test_messageTabFromMultiFolderView() {
@@ -187,7 +190,10 @@ add_task(async function test_runFiltersInSyntheticView() {
     "The synthetic view should display the search results"
   );
   const win = get_about_3pane();
-  await select_click_row(win.gDBView.findIndexOfMsgHdr(headers[0], true));
+  await select_click_row(
+    win.gDBView.findIndexOfMsgHdr(headers[0], true),
+    AccessibilityUtils
+  );
   Assert.ok(
     get_about_message().commandController.isCommandEnabled(command),
     "Run Filters on Message should be enabled for one message in the synthetic message pane"
@@ -198,7 +204,7 @@ add_task(async function test_runFiltersInSyntheticView() {
     "Run Filters on Folder should be disabled in a synthetic view"
   );
 
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   await select_shift_click_row(1);
   Assert.ok(
     !win.commandController.isCommandEnabled(command),
@@ -207,7 +213,7 @@ add_task(async function test_runFiltersInSyntheticView() {
 
   tabmail.closeTab(tab);
   await be_in_folder(other);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   Assert.ok(
     get_about_3pane().commandController.isCommandEnabled(command),
     "Run Filters on Message should be enabled again in a real folder"
@@ -217,7 +223,7 @@ add_task(async function test_runFiltersInSyntheticView() {
 add_task(async function test_runFiltersOnRealFolder() {
   await make_message_sets_in_folders([source], [{ count: 2 }]);
   await be_in_folder(source);
-  await select_click_row(0);
+  await select_click_row(0, AccessibilityUtils);
   const win = get_about_3pane();
   const sourceCount = source.getTotalMessages(false);
   const targetCount = target.getTotalMessages(false);
