@@ -53,9 +53,9 @@
 }
 
 :root[lwt-tree] #unifinder-searchBox {
-  background-color: var(--toolbar-background-color);
+  background-color: var(--color-surface-subtle);
   background-image: none;
-  color: var(--toolbar-text-color);
+  color: var(--color-text-base);
 }
 
 :root[lwtheme] #unifinder-searchBox {

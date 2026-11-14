@@ -43,7 +43,8 @@
 }
 
 #calendar-task-details {
-  background-color: var(--layout-background-2);
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text-base);
   display: flex;
   flex-direction: column;
 }
@@ -88,9 +89,9 @@
   border-block-end: 1px solid ThreeDShadow;
 
   :root[lwt-tree] & {
-    background-color: var(--toolbar-background-color);
+    background-color: var(--color-surface-subtle);
     background-image: none;
-    color: var(--toolbar-text-color);
+    color: var(--color-text-base);
   }
 
   :root[lwtheme] & {

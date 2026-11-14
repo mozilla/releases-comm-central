@@ -10,7 +10,7 @@
     linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.05) 100%),
     linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.02) 100%)
   );
-  --spaces-button-text-color: currentColor;
+  --spaces-button-text-color: var(--color-text-base);
   --spaces-button-active-text-color: var(--button-primary-text-color);
   --spaces-button-active-bg-color: var(--button-primary-background-color);
   --spaces-button-badge-text-color: var(--color-white);

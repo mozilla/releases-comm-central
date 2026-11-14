@@ -1163,6 +1163,8 @@ calendar-editable-item[status="CANCELLED"],
   justify-content: space-between;
   padding: var(--calendar-nav-control-padding);
   gap: 6px;
+  background-color: var(--color-surface-base);
+  color: var(--color-text-base);
 }
 
 #calendarViewHeader > div > span {

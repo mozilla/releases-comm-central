@@ -518,24 +518,6 @@ button.email-action-button {
   border-block-start: 1px solid var(--sidebar-border); /* The same color as the splitters */
 }
 
-:root[lwt-tree] {
-  & #singleMessage,
-  & #attachmentView {
-    background-color: var(--toolbar-background-color) !important;
-    background-image: none !important;
-    color: var(--lwt-text-color);
-  }
-
-  & .headerValue {
-    color: inherit;
-  }
-
-  & #attachmentBar {
-    background-color: hsla(0, 0%, 50%, 0.15);
-    color: inherit;
-  }
-}
-
 /* OpenPGP and S/MIME encryption and signature status icons */
 
 #cryptoBox {

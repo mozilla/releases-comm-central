@@ -105,6 +105,10 @@
     color: var(--button-hover-text-color);
     background-color: var(--toolbar-button-hover-background-color);
     border-color: var(--toolbar-button-hover-border-color);
+
+    :root[lwtheme] & {
+      color: currentColor;
+    }
   }
 
   &.toolbar-button[open="true"] {
@@ -126,6 +130,10 @@
   &.unified-toolbar-button:enabled:hover:active {
     background-color: var(--toolbar-button-active-background-color);
     border-color: var(--toolbar-button-active-border-color);
+
+    :root[lwtheme] & {
+      color: currentColor;
+    }
   }
 
   & > img {
@@ -247,7 +255,6 @@
 
   &.button-flat {
     background-color: transparent;
-    color: currentColor;
     border-color: transparent;
 
     &:hover {

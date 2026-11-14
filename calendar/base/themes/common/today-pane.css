@@ -35,16 +35,16 @@
 }
 
 #today-pane-panel {
-  background-color: var(--layout-background-0);
+  background-color: var(--color-surface-base);
 }
 
 :root[lwtheme] #today-pane-panel {
-  background-color: var(--toolbar-background-color);
-  color: var(--toolbar-text-color);
+  background-color: var(--lwt-accent-color);
+  color: var(--lwt-text-color);
 }
 
 #today-pane-panel > * {
-  color: var(--layout-color-0);
+  color: var(--color-text-base);
 }
 
 #today-pane-panel > .sidebar-header {
@@ -112,7 +112,6 @@
 
 :root[lwt-tree] #today-pane-panel > vbox {
   background-color: var(--lwt-accent-color);
-  color: inherit;
 }
 
 :root[lwt-tree-brighttext] #today-pane-panel > vbox {

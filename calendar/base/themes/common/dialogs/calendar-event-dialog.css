@@ -36,7 +36,13 @@
 
 #calendar-event-dialog-inner,
 #calendar-task-dialog-inner {
-  background: -moz-Dialog !important; /* Override LW-theme background images. */
+  background: var(--color-surface-base);
+  color: var(--color-text-base);
+  text-shadow: none;
+  
+  & > body {
+    color-scheme: light dark;
+  }
 }
 
 #calendar-event-dialog .todo-only,

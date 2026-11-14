@@ -582,11 +582,6 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
   border-block-end: 1px solid var(--layout-border-0);
 }
 
-:root[lwtheme][lwt-tree] .list-header-bar {
-  background-color: var(--toolbar-background-color);
-  color: var(--toolbar-text-color, inherit);
-}
-
 .list-header-bar-container-start,
 .list-header-bar-container-end {
   display: flex;

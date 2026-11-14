@@ -12,14 +12,10 @@
 
 #quick-filter-bar {
   --button-margin: 3px;
-  background-color: var(--layout-background-1);
+  background-color: var(--color-surface-subtle);
   padding: var(--qfb-padding);
   border-block-end: 1px solid var(--sidebar-border);
-
-  :root[lwtheme][lwt-tree] & {
-    background-color: color-mix(in srgb, var(--toolbar-background-color) 50%, transparent);
-    color: var(--lwt-text-color);
-  }
+  color: var(--color-text-base);
 }
 
 #qfb-sticky {

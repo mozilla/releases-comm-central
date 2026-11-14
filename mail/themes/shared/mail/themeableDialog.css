@@ -23,7 +23,7 @@
 
 :root[lwtheme] {
   background-color: var(--lwt-accent-color);
-  color: var(--lwt-text-color);
+  color: var(--color-text-base);
 
   --box-text-color: var(--color-ink-90);
   --box-background-color: var(--color-white);
@@ -40,13 +40,11 @@
     background-position: right top !important;
   }
 
-  &:not([lwt-tree]):-moz-window-inactive {
+  &:-moz-window-inactive {
     background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
   }
 
-  &:not([lwt-tree]) dialog,
-  & #calendar-event-dialog-inner:not([lwt-tree]),
-  & #calendar-task-dialog-inner:not([lwt-tree]) {
+  & dialog {
     background-color: -moz-Dialog;
     color: -moz-DialogText;
     text-shadow: none !important;
@@ -414,10 +412,6 @@ richlistbox > richlistitem {
     background-color: var(--richlist-button-background);
     background-image: linear-gradient(var(--button-background-color), var(--button-background-color));
     color: var(--field-text-color) !important;
-
-    :root[lwtheme] & {
-      color: var(--lwt-text-color) !important;
-    }
   }
 
   & button:not([disabled]):hover,

@@ -743,6 +743,7 @@ richlistitem:not([selected]) .protoIconDimmed {
 
   #chat-status-selector:hover > vbox > &,
   &:focus {
+    color-scheme: light dark;
     color: var(--toolbar-field-color);
     background-color: var(--toolbar-field-background-color);
     border-color: var(--toolbar-field-border-color);
