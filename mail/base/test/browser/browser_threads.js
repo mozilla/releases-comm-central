@@ -48,6 +48,7 @@ add_setup(async function () {
 
   // Check the initial state of a sample of messages.
 
+  await new Promise(about3Pane.requestAnimationFrame);
   await TestUtils.waitForCondition(
     () => threadTree.getRowAtIndex(0) && threadTree.getRowAtIndex(21),
     "waiting for the rows to be rendered"
@@ -312,6 +313,7 @@ add_task(async function testIconsUnThreaded() {
   );
 
   goDoCommand("cmd_sort", { target: { value: "unthreaded" } });
+  await new Promise(about3Pane.requestAnimationFrame);
   threadTree.scrollToIndex(0, true);
   await TestUtils.waitForCondition(
     () => threadTree.getRowAtIndex(0) && threadTree.getRowAtIndex(21),
