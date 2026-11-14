@@ -275,8 +275,14 @@ add_task(async function testNewsLinkTargetsInMailMessage() {
         body: {
           body: `<html><body>
             <img id="area" src="data:image/png;base64,${PNG_BASE64}" width="100" height="100" usemap="#map">
-            <map name="map"><area shape="rect" coords="0,0,100,100" href="${href}" target="_blank"></map>
-            <svg width="100" height="100"><a href="${href}" target="_blank"><rect id="svg" width="100" height="100"/></a></svg>
+            <map name="map">
+              <area alt="Read the article" shape="rect" coords="0,0,100,100" href="${href}" target="_blank">
+            </map>
+            <svg width="100" height="100">
+              <a aria-label="Read the article" href="${href}" target="_blank">
+                <rect id="svg" width="100" height="100"/>
+              </a>
+            </svg>
           </body></html>`,
           contentType: "text/html",
         },
