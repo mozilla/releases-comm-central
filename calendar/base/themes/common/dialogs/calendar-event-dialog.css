@@ -39,7 +39,7 @@
   background: var(--color-surface-base);
   color: var(--color-text-base);
   text-shadow: none;
-  
+
   & > body {
     color-scheme: light dark;
   }
