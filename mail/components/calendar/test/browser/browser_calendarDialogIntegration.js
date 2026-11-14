@@ -467,12 +467,6 @@ add_task(async function test_dialogDeleteMenuSingleEvent() {
 
   const event = await calendar.getItem(eventId);
   Assert.ok(!event, "The event in the calendar should have been deleted");
-
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector(".close-button"),
-    {},
-    window
-  );
 });
 
 add_task(async function test_dialogDeleteMenuRecurringEventsNoPromptPref() {
@@ -524,12 +518,6 @@ add_task(async function test_dialogDeleteMenuRecurringEventsNoPromptPref() {
 
     const event = await calendar.getItem(eventId);
     Assert.ok(!event, "The event in the calendar should have been deleted");
-
-    EventUtils.synthesizeMouseAtCenter(
-      dialog.querySelector(".close-button"),
-      {},
-      window
-    );
   } finally {
     await SpecialPowers.popPrefEnv();
   }
@@ -552,12 +540,6 @@ add_task(async function test_dialogDeleteMenuSingleOccurence() {
 
   const event = await calendar.getItem(eventId);
   Assert.ok(event, "The event in the calendar should still exist");
-
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector(".close-button"),
-    {},
-    window
-  );
 
   await calendar.deleteItem(event);
 });
@@ -600,12 +582,6 @@ add_task(async function test_dialogDeleteMenuSingleOccurrenceOfInfinite() {
 
   const event = await calendar.getItem(eventId);
   Assert.ok(event, "The infinite event in the calendar should still exist");
-
-  EventUtils.synthesizeMouseAtCenter(
-    dialog.querySelector(".close-button"),
-    {},
-    window
-  );
 
   await calendar.deleteItem(event);
 });
@@ -1170,6 +1146,7 @@ async function subtestDeleteEventPrompt(promptPromise, eventBoxDay) {
     "command",
     true
   );
+  const dialogClose = BrowserTestUtils.waitForEvent(dialog, "close");
 
   const eventBoxRemovalPromise = BrowserTestUtils.waitForMutationCondition(
     weekView.getColumnContainer(window, eventBoxDay),
@@ -1181,6 +1158,7 @@ async function subtestDeleteEventPrompt(promptPromise, eventBoxDay) {
   menu.activateItem(menu.querySelector("#deleteEvent"));
   await deleteEventPromise;
   await promptPromise;
+  await dialogClose;
   await eventBoxRemovalPromise;
 }
 

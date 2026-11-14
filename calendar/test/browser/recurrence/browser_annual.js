@@ -10,6 +10,8 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.importESModule(
   "resource://testing-common/calendar/ItemEditingHelpers.sys.mjs"
 );
 
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+
 var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;
 
 const STARTYEAR = 1950;
@@ -25,9 +27,15 @@ add_task(async function testAnnualRecurrence() {
   await CalendarTestUtils.goToDate(window, STARTYEAR, 1, 1);
 
   // Create yearly recurring all-day event.
-  const eventBox = dayView.getAllDayHeader(window);
-  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
-  await setData(dialogWindow, iframeWindow, { title: "Event", repeat: "yearly" });
+  const startDate = cal.createDateTime(`${STARTYEAR}0101`);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window);
+  await setData(dialogWindow, iframeWindow, {
+    title: "Event",
+    allday: true,
+    startdate: startDate,
+    enddate: startDate,
+    repeat: "yearly",
+  });
   await saveAndCloseItemDialog(dialogWindow);
   await TestUtils.waitForCondition(
     () => CalendarTestUtils.dayView.getAllDayItemAt(window, 1),
