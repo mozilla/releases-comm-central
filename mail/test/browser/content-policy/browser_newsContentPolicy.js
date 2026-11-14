@@ -297,7 +297,29 @@ add_task(async function testNewsLinkTargetsInMailMessage() {
   for (const selector of ["#area", "#svg"]) {
     const tabPromise = BrowserTestUtils.waitForEvent(window, "TabOpen");
     const loadedPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+
+    if (selector == "#svg") {
+      await SpecialPowers.spawn(messagePane, [], () => {
+        const doc = content.document;
+        const link = doc.getElementById("svg").parentElement;
+        Assert.equal(
+          link.tabIndex,
+          0,
+          "The SVG link should be in the tab order"
+        );
+        link.focus();
+        Assert.equal(doc.activeElement, link, "The SVG link should take focus");
+      });
+
+      // The focus checker throws when it reads an SVG className as text.
+      AccessibilityUtils.setEnv({ focusableRule: false });
+    }
+
     await BrowserTestUtils.synthesizeMouseAtCenter(selector, {}, messagePane);
+    if (selector == "#svg") {
+      AccessibilityUtils.resetEnv();
+    }
+
     const {
       detail: { tabInfo },
     } = await tabPromise;
