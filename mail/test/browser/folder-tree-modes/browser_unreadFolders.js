@@ -26,6 +26,10 @@ var trashSubfolder;
 var inboxSet;
 
 add_setup(async function () {
+  await SpecialPowers.pushPrefEnv({
+    clear: [[`mail.server.${inboxFolder.server.key}.spamActionTargetAccount`]],
+  });
+
   about3Pane = get_about_3pane();
 
   // Create a folder as a subfolder of the inbox
@@ -83,4 +87,6 @@ registerCleanupFunction(async function () {
   await delete_messages(inboxSet);
   trashFolder.propagateDelete(trashSubfolder, true);
   about3Pane.folderPane.activeModes = ["all"];
+
+  await SpecialPowers.popPrefEnv();
 });

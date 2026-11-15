@@ -190,6 +190,15 @@ async function removeLoginInfo(hostname, username, password, realm = hostname) {
   await Services.logins.removeLoginAsync(loginInfo);
 }
 
+/**
+ * Clear credentials cached by the network HTTP authentication manager.
+ */
+function clearHttpAuthCache() {
+  Cc["@mozilla.org/network/http-auth-manager;1"]
+    .getService(Ci.nsIHttpAuthManager)
+    .clearAll();
+}
+
 registerCleanupFunction(async function () {
   await clearStatusBar(window);
 });

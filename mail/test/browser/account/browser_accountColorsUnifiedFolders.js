@@ -8,6 +8,10 @@ const { AccountManagerUtils } = ChromeUtils.importESModule(
   "moz-src:///comm/mail/modules/AccountManagerUtils.sys.mjs"
 );
 
+const { SmartMailboxUtils } = ChromeUtils.importESModule(
+  "resource:///modules/SmartMailboxUtils.sys.mjs"
+);
+
 const {
   click_account_tree_row,
   get_account_tree_listitem,
@@ -90,21 +94,32 @@ add_setup(async function () {
     "There should be three more accounts"
   );
 
+  const hadSmartMailbox = !!MailServices.accounts.findServer(
+    "nobody",
+    "smart mailboxes",
+    "none"
+  );
+
   // Enable unified folder mode.
   about3Pane.folderPane.activeModes = ["smart", "all"];
 
   registerCleanupFunction(() => {
-    // Remove our test account to leave the profile clean.
+    // Stop the UI using smart folders before removing their account.
+    about3Pane.folderPane.activeModes = ["all"];
+
+    if (!hadSmartMailbox) {
+      SmartMailboxUtils.removeAll(true);
+    }
+
     for (const account of addedAccounts) {
       MailServices.accounts.removeAccount(account);
     }
+
     Assert.equal(
-      MailServices.accounts.allServers.length,
+      MailServices.accounts.accounts.length,
       originalAccountCount,
-      "There should be only the original accounts left."
+      "Should have removed all accounts created in this test"
     );
-    // Reset folder mode.
-    about3Pane.folderPane.activeModes = ["all"];
   });
 });
 

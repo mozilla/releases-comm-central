@@ -7,8 +7,7 @@
  * that causes.
  */
 
-let smtpServer, smtpOutgoingServer, smtpIdentity;
-let ewsServer, ewsOutgoingServer, ewsIdentity;
+let smtpServer, ewsServer;
 
 add_setup(async function () {
   await SpecialPowers.pushPrefEnv({
@@ -20,31 +19,51 @@ add_setup(async function () {
     ServerTestUtils.serverDefs.ews.plain,
   ]);
 
-  let smtpAccount;
-  ({ smtpAccount, smtpIdentity, smtpOutgoingServer } = createSMTPAccount());
-
-  let ewsAccount;
-  ({ ewsAccount, ewsIdentity, ewsOutgoingServer } = createEWSAccount());
-
   registerCleanupFunction(async function () {
-    MailServices.accounts.removeAccount(smtpAccount, false);
-    MailServices.accounts.removeAccount(ewsAccount, false);
     await Services.logins.removeAllLoginsAsync();
     clearHttpAuthCache();
   });
 });
 
-function clearHttpAuthCache() {
-  Cc["@mozilla.org/network/http-auth-manager;1"]
-    .getService(Ci.nsIHttpAuthManager)
-    .clearAll();
-}
-
 function forgetServerPassword(outgoingServer) {
   clearHttpAuthCache();
   outgoingServer.forgetPassword();
-  if (outgoingServer.type == "ews") {
-    outgoingServer.password = "";
+  outgoingServer.forgetSessionPassword();
+  outgoingServer.password = "";
+
+  Assert.equal(
+    outgoingServer.password,
+    "",
+    `${outgoingServer.type} session password should be cleared`
+  );
+}
+
+async function runWithFreshSmtpAccount(subtest) {
+  const { smtpAccount, smtpIdentity, smtpOutgoingServer } = createSMTPAccount();
+
+  try {
+    await subtest(smtpIdentity, smtpOutgoingServer, smtpServer);
+  } finally {
+    smtpOutgoingServer.closeCachedConnections();
+    forgetServerPassword(smtpOutgoingServer);
+    await Services.logins.removeAllLoginsAsync();
+
+    MailServices.accounts.removeAccount(smtpAccount, false);
+    MailServices.outgoingServer.deleteServer(smtpOutgoingServer);
+  }
+}
+
+async function runWithFreshEwsAccount(subtest) {
+  const { ewsAccount, ewsIdentity, ewsOutgoingServer } = createEWSAccount();
+
+  try {
+    await subtest(ewsIdentity, ewsOutgoingServer, ewsServer);
+  } finally {
+    forgetServerPassword(ewsOutgoingServer);
+    await Services.logins.removeAllLoginsAsync();
+
+    MailServices.accounts.removeAccount(ewsAccount, false);
+    MailServices.outgoingServer.deleteServer(ewsOutgoingServer);
   }
 }
 
@@ -75,7 +94,7 @@ async function subtestEnterPassword(identity, outgoingServer, server) {
 
   const logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 0, "no passwords should be saved");
-  outgoingServer.forgetPassword();
+  forgetServerPassword(outgoingServer);
 
   Assert.stringContains(
     server.lastSentMessage,
@@ -85,12 +104,11 @@ async function subtestEnterPassword(identity, outgoingServer, server) {
 }
 
 add_task(async function testEnterPasswordSMTP() {
-  await subtestEnterPassword(smtpIdentity, smtpOutgoingServer, smtpServer);
-  smtpOutgoingServer.closeCachedConnections();
+  await runWithFreshSmtpAccount(subtestEnterPassword);
 });
 
 add_task(async function testEnterPasswordEWS() {
-  await subtestEnterPassword(ewsIdentity, ewsOutgoingServer, ewsServer);
+  await runWithFreshEwsAccount(subtestEnterPassword);
 });
 
 /**
@@ -105,7 +123,28 @@ async function subtestEnterAndSavePassword(identity, outgoingServer, server) {
   await Services.logins.removeAllLoginsAsync();
   forgetServerPassword(outgoingServer);
 
+  let logins = await Services.logins.getAllLogins();
+  Assert.equal(
+    logins.length,
+    0,
+    "there should be no saved passwords before opening the compose window"
+  );
+
   const { composeWindow, subject } = await newComposeWindow(identity);
+
+  Assert.equal(
+    outgoingServer.password,
+    "",
+    `${outgoingServer.type} session password should still be cleared`
+  );
+
+  logins = await Services.logins.getAllLogins();
+  Assert.equal(
+    logins.length,
+    0,
+    "there should still be no saved passwords after opening the compose window"
+  );
+
   const composeClosedPromise = BrowserTestUtils.domWindowClosed(composeWindow);
 
   const promptPromise = handlePasswordPrompt("accept", "password", true);
@@ -119,7 +158,7 @@ async function subtestEnterAndSavePassword(identity, outgoingServer, server) {
   await composeClosedPromise;
   clearHttpAuthCache();
 
-  const logins = await Services.logins.getAllLogins();
+  logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 1, "there should be a saved password");
   Assert.equal(
     logins[0].hostname,
@@ -129,7 +168,7 @@ async function subtestEnterAndSavePassword(identity, outgoingServer, server) {
   Assert.equal(logins[0].username, "user", "login username");
   Assert.equal(logins[0].password, "password", "login password");
   await Services.logins.removeAllLoginsAsync();
-  outgoingServer.forgetPassword();
+  forgetServerPassword(outgoingServer);
 
   Assert.stringContains(
     server.lastSentMessage,
@@ -139,16 +178,11 @@ async function subtestEnterAndSavePassword(identity, outgoingServer, server) {
 }
 
 add_task(async function testEnterAndSavePasswordSMTP() {
-  await subtestEnterAndSavePassword(
-    smtpIdentity,
-    smtpOutgoingServer,
-    smtpServer
-  );
-  smtpOutgoingServer.closeCachedConnections();
+  await runWithFreshSmtpAccount(subtestEnterAndSavePassword);
 });
 
 add_task(async function testEnterAndSavePasswordEWS() {
-  await subtestEnterAndSavePassword(ewsIdentity, ewsOutgoingServer, ewsServer);
+  await runWithFreshEwsAccount(subtestEnterAndSavePassword);
 });
 
 /**
@@ -188,7 +222,7 @@ async function subtestWrongPassword(identity, outgoingServer, server) {
   Assert.equal(logins[0].username, "user", "login username");
   Assert.equal(logins[0].password, "password", "login password");
   await Services.logins.removeAllLoginsAsync();
-  outgoingServer.forgetPassword();
+  forgetServerPassword(outgoingServer);
 
   Assert.stringContains(
     server.lastSentMessage,
@@ -199,20 +233,20 @@ async function subtestWrongPassword(identity, outgoingServer, server) {
 
 add_task(async function testWrongPasswordSMTP() {
   await Services.logins.removeAllLoginsAsync();
-  smtpOutgoingServer.forgetPassword();
-  clearHttpAuthCache();
-  await addLoginInfo("smtp://test.test", "user", "wrong password");
-  await subtestWrongPassword(smtpIdentity, smtpOutgoingServer, smtpServer);
-  smtpOutgoingServer.closeCachedConnections();
+
+  await runWithFreshSmtpAccount(async (identity, outgoingServer, server) => {
+    await addLoginInfo("smtp://test.test", "user", "wrong password");
+    await subtestWrongPassword(identity, outgoingServer, server);
+  });
 });
 
 add_task(async function testWrongPasswordEWS() {
   await Services.logins.removeAllLoginsAsync();
-  ewsOutgoingServer.forgetPassword();
-  ewsOutgoingServer.password = "";
-  clearHttpAuthCache();
-  await addLoginInfo("ews://test.test", "user", "wrong password");
-  await subtestWrongPassword(ewsIdentity, ewsOutgoingServer, ewsServer);
+
+  await runWithFreshEwsAccount(async (identity, outgoingServer, server) => {
+    await addLoginInfo("ews://test.test", "user", "wrong password");
+    await subtestWrongPassword(identity, outgoingServer, server);
+  });
 });
 
 function handleFailurePrompt() {

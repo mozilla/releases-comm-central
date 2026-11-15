@@ -42,10 +42,15 @@ add_setup(async function () {
 
   registerCleanupFunction(async function () {
     outbox.RemoveFolderListener(sendLater.QueryInterface(Ci.nsIFolderListener));
+
     smtpOutgoingServer.closeCachedConnections();
+    smtpOutgoingServer.forgetPassword();
+    smtpOutgoingServer.forgetSessionPassword();
+    smtpOutgoingServer.password = "";
+    await Services.logins.removeAllLoginsAsync();
+
     MailServices.accounts.removeAccount(smtpAccount, false);
     MailServices.accounts.removeAccount(localMailAccount, false);
-    await Services.logins.removeAllLoginsAsync();
 
     Assert.equal(
       outbox.getTotalMessages(false),
@@ -58,6 +63,8 @@ add_setup(async function () {
 add_task(async function testSendInBackground() {
   const { composeWindow, subject } = await newComposeWindow(smtpIdentity);
 
+  const composeClosedPromise = BrowserTestUtils.domWindowClosed(composeWindow);
+
   EventUtils.synthesizeMouseAtCenter(
     composeWindow.document.getElementById("button-send"),
     {},
@@ -66,7 +73,7 @@ add_task(async function testSendInBackground() {
 
   // With mailnews.sendInBackground=true the compose window should close after
   // queuing, without waiting for SMTP delivery.
-  await BrowserTestUtils.domWindowClosed(composeWindow);
+  await composeClosedPromise;
 
   Assert.ok(
     !smtpServer.lastSentMessage,

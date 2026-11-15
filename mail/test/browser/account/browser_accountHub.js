@@ -271,7 +271,7 @@ add_task(async function test_account_email_step() {
 });
 
 add_task(async function test_account_email_config_found() {
-  SpecialPowers.pushPrefEnv({
+  await SpecialPowers.pushPrefEnv({
     set: [["mail.accounthub.manualconfig.enabled", false]],
   });
   Services.fog.testResetFOG();

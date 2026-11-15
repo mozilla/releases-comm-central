@@ -6,6 +6,7 @@ prefs = [
   "mail.accountmanager.accounts=account2,account1",
   "mail.accountmanager.defaultaccount=account2",
   "mail.accountmanager.localfoldersserver=server1",
+  "mail.biff.show_alert=false",
   "mail.identity.id1.fullName=Tinderbox",
   "mail.identity.id1.htmlSigFormat=false",
   "mail.identity.id1.smtpServer=smtp1",

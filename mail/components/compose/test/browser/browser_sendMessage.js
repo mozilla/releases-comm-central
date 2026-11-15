@@ -22,8 +22,8 @@ add_setup(async function () {
   ({ smtpAccount, smtpIdentity, smtpOutgoingServer } = createSMTPAccount());
   await addLoginInfo("smtp://test.test", "user", "password");
 
-  let ewsAccount;
-  ({ ewsAccount, ewsIdentity } = createEWSAccount());
+  let ewsAccount, ewsOutgoingServer;
+  ({ ewsAccount, ewsIdentity, ewsOutgoingServer } = createEWSAccount());
   await addLoginInfo("ews://test.test", "user", "password");
 
   let graphAccount;
@@ -32,6 +32,9 @@ add_setup(async function () {
 
   registerCleanupFunction(async function () {
     smtpOutgoingServer.closeCachedConnections();
+
+    ewsOutgoingServer.forgetPassword();
+    ewsOutgoingServer.password = "";
 
     MailServices.accounts.removeAccount(smtpAccount, false);
     MailServices.accounts.removeAccount(ewsAccount, false);
