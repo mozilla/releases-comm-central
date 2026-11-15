@@ -1469,9 +1469,9 @@ panel[type="arrow"].panel-block-padding::part(content) {
       color: var(--button-text-color-hover);
       background-color: var(--button-hover-background-color);
 
-        &::part(button) {
-          color: var(--button-text-color-hover);
-        }
+      &::part(button) {
+        color: var(--button-text-color-hover);
+      }
 
       &:active {
         border-color: var(--button-border-color-active);
