@@ -84,6 +84,10 @@ unified-toolbar {
 
   & .button:is(.toolbar-button, .unified-toolbar-button) {
     margin-block: 0;
+
+    :root[lwtheme-image] & {
+      text-shadow: inherit;
+    }
   }
 }
 

@@ -26,7 +26,6 @@
 }
 
 #MsgHeadersToolbar {
-  text-shadow: none;
   padding-block: 4px 2px;
 }
 
@@ -64,7 +63,6 @@
           box-shadow:
             inset 0 0 0 1px SelectedItemText,
             inset 0 0 0 2em SelectedItem;
-          text-shadow: none;
         }
       }
 
@@ -145,10 +143,6 @@ toolbarbutton.formatting-button {
 
 #compose-toolbox > toolbar:not([type="menubar"]) {
   padding: 2px 1px;
-
-  :root[lwtheme] & {
-    text-shadow: none;
-  }
 }
 
 /* ::::: autocomplete icons ::::: */

@@ -343,6 +343,7 @@
   min-block-size: 0;
   flex: 1;
   overflow: clip;
+  text-shadow: none;
 
   &.attachment-bucket-closed #attachmentSplitter {
     /* NOTE: When the bucket is closed, we do not consider it "collapsed" by the
