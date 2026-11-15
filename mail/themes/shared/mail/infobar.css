@@ -9,12 +9,18 @@
   border-width: 0;
 
   --icon-size: 16px;
+  --button-background-color: var(--secondary-button-background);
+  --button-background-color-hover: var(--secondary-button-background-hover);
+  --button-background-color-active: var(--secondary-button-background-active);
   --button-background-color-ghost: transparent;
   --button-background-color-ghost-hover: var(--button-background-color-hover);
   --button-background-color-ghost-active: var(--button-background-color-active);
+  --button-border-color: var(--secondary-button-border);
+  --button-border-color-active: var(--secondary-button-border-active);
   --button-border-color-ghost: var(--button-border-color);
   --button-border-color-ghost-hover: var(--button-border-color-hover);
   --button-border-color-ghost-active: var(--button-border-color-active);
+  --button-font-weight: 400;
   --button-text-color-ghost: inherit;
   --button-text-color-ghost-hover: var(--button-text-color-hover);
   --button-text-color-ghost-active: var(--button-text-color-active);
@@ -25,27 +31,16 @@
   --panel-border-radius: 3px;
 
   @media not (prefers-contrast) {
-    --button-text-color: light-dark(#0c0c0d, #f9f9fa);
-    --button-border-color: light-dark(#c2c2c3, #828283);
-    --button-background-color: light-dark(#e2e2e3, #636364);
-    --button-text-color-hover: light-dark(#0c0c0d, #f9f9fa);
-    --button-background-color-hover: light-dark(#d2d2d3, #777778);
-    --button-border-color-active: light-dark(#a2a2a3, #878788);
-    --button-text-color-active: light-dark(#0c0c0d, #f9f9fa);
-    --button-background-color-active: light-dark(#c2c2c3, #878788);
-    --background-color-box-info: light-dark(var(--layout-background-0), var(--layout-background-2));
+    --button-text-color: var(--secondary-button-color);
+    --button-text-color-hover: var(--secondary-button-color);
+    --button-text-color-active: var(--secondary-button-color);
+    --background-color-box-info: var(--color-surface-raised), var(--color-surface-deep));
   }
 
   @media (prefers-contrast) {
     --button-text-color: ButtonText;
-    --button-border-color: ThreeDLightShadow;
-    --button-background-color: ButtonFace;
     --button-text-color-hover: SelectedItemText;
-    --button-background-color-hover: SelectedItem;
-    --button-border-color-active: ThreeDFace;
-    --button-border-color-ghost: currentColor;
     --button-text-color-active: SelectedItemText;
-    --button-background-color-active: SelectedItem;
     --background-color-box-info: hsla(0, 0%, 50%, 0.15);
   }
 }
@@ -198,6 +193,11 @@ moz-button.close {
     stroke: currentColor;
     inline-size: var(--close-icon-size);
     block-size: var(--close-icon-size);
+
+    @media (prefers-contrast) {
+      background-color: SelectedItem;
+      color: SelectedItemText;
+    }
   }
 }
 
