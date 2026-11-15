@@ -34,7 +34,7 @@
     --button-text-color: var(--secondary-button-color);
     --button-text-color-hover: var(--secondary-button-color);
     --button-text-color-active: var(--secondary-button-color);
-    --background-color-box-info: var(--color-surface-raised), var(--color-surface-deep));
+    --background-color-box-info: light-dark(var(--color-surface-raised), var(--color-surface-deep));
   }
 
   @media (prefers-contrast) {
