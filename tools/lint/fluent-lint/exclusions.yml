@@ -73,3 +73,21 @@ CO01:
         - about-paragraph
         - about-paragraph-consider-donation
     files: []
+# Typography checks: apostrophes (TE01, TE02), quotes (TE03, TE04) and
+# ellipsis (TE05). Only add exceptions if the string must contain the ASCII
+# character, e.g. because it's code or a command shown to the user.
+TE01:
+    messages: []
+    files: []
+TE02:
+    messages: []
+    files: []
+TE03:
+    messages: []
+    files: []
+TE04:
+    messages: []
+    files: []
+TE05:
+    messages: []
+    files: []
