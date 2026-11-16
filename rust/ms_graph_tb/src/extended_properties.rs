@@ -24,12 +24,13 @@
 //! #     SingleValueExtendedPropertiesOp, SingleValueExtendedPropertiesType,
 //! # };
 //! # use ms_graph_tb::notnull;
-//! # use ms_graph_tb::paths::me::mail_folders::mail_folder_id::messages;
+//! # use ms_graph_tb::paths::users::user_id::mail_folders::mail_folder_id::messages;
 //! # let endpoint = String::new();
+//! # let user_id = String::new();
 //! # let folder_id = String::new();
 //! define_svlep!(PID_TAG_MESSAGE_SIZE, Integer, 0x0E08);
 //!
-//! let mut request = messages::Get::new(endpoint, folder_id);
+//! let mut request = messages::Get::new(endpoint, user_id, folder_id);
 //! request.expand_typed_svlep([PID_TAG_MESSAGE_SIZE]);
 //!
 //! // let message = [send request and get response];
@@ -525,16 +526,17 @@ mod tests {
 
     #[test]
     fn serialize_message_request_with_extended_properties() -> Result<(), Error> {
-        let mut request = paths::me::mail_folders::mail_folder_id::messages::Get::new(
+        let mut request = paths::users::user_id::mail_folders::mail_folder_id::messages::Get::new(
             "https://graph.microsoft.com/v1.0".to_string(),
+            "87d349ed-44d7-43e1-9a83-5f2406dee5bd".to_string(),
             "inbox".to_string(),
         );
         request.expand_typed_svlep([PID_TAG_MESSAGE_SIZE]);
         let req = request.build_request()?;
 
-        // <https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?expand=singleValueExtendedProperties($filter=id eq 'Integer 0x0E08')>
+        // <https://graph.microsoft.com/v1.0/users/87d349ed-44d7-43e1-9a83-5f2406dee5bd/mailFolders/inbox/messages?expand=singleValueExtendedProperties($filter=id eq 'Integer 0x0E08')>
         let expected = Uri::try_from(
-            "https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?expand=singleValueExtendedProperties%28%24filter%3Did+eq+%27Integer+0x0E08%27%29",
+            "https://graph.microsoft.com/v1.0/users/87d349ed-44d7-43e1-9a83-5f2406dee5bd/mailFolders/inbox/messages?expand=singleValueExtendedProperties%28%24filter%3Did+eq+%27Integer+0x0E08%27%29",
         )
         .unwrap();
         assert_eq!(*req.uri(), expected);

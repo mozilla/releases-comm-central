@@ -382,7 +382,7 @@ impl Display for FilterExpression {
 mod tests {
     use super::{ExpandOptions, FilterExpression, Selection};
     use crate::{
-        Error, Expand, Filter, Operation, Select, paths, paths::me::mail_folders,
+        Error, Expand, Filter, Operation, Select, paths, paths::users::user_id::mail_folders,
         types::mail_folder, types::user,
     };
     use http::uri;
@@ -444,6 +444,7 @@ mod tests {
     fn serialize_message_delta_with_filter() -> Result<(), Error> {
         let mut request = mail_folders::mail_folder_id::messages::delta::Get::new(
             "https://graph.microsoft.com/v1.0".to_string(),
+            "87d349ed-44d7-43e1-9a83-5f2406dee5bd".to_string(),
             "inbox".to_string(),
         );
         request.filter(FilterExpression::eq(
@@ -453,9 +454,9 @@ mod tests {
         let req = request.build_request()?;
         let uri = req.uri();
 
-        // <https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages/delta()?$filter=parentFolderId eq 'inbox'>
+        // <https://graph.microsoft.com/v1.0/users/87d349ed-44d7-43e1-9a83-5f2406dee5bd/mailFolders/inbox/messages/delta()?$filter=parentFolderId eq 'inbox'>
         let expected = uri::Uri::try_from(
-            "https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages/delta()?%24filter=parentFolderId+eq+%27inbox%27",
+            "https://graph.microsoft.com/v1.0/users/87d349ed-44d7-43e1-9a83-5f2406dee5bd/mailFolders/inbox/messages/delta()?%24filter=parentFolderId+eq+%27inbox%27",
         )
         .unwrap();
         assert_eq!(*uri, expected);
@@ -465,7 +466,10 @@ mod tests {
 
     #[test]
     fn serialize_mail_folders_with_multiple_odata_params() -> Result<(), Error> {
-        let mut request = mail_folders::Get::new("https://graph.microsoft.com/v1.0".to_string());
+        let mut request = mail_folders::Get::new(
+            "https://graph.microsoft.com/v1.0".to_string(),
+            "87d349ed-44d7-43e1-9a83-5f2406dee5bd".to_string(),
+        );
         let mut child_folders = ExpandOptions::new();
         child_folders.select([mail_folder::MailFolderSelection::DisplayName]);
         request.select([mail_folder::MailFolderSelection::DisplayName]);
@@ -473,9 +477,9 @@ mod tests {
         let req = request.build_request()?;
         let uri = req.uri();
 
-        // <https://graph.microsoft.com/v1.0/me/mailFolders?$select=displayName&expand=childFolders($select=displayName)>
+        // <https://graph.microsoft.com/v1.0/users/87d349ed-44d7-43e1-9a83-5f2406dee5bd/mailFolders?$select=displayName&expand=childFolders($select=displayName)>
         let expected = uri::Uri::try_from(
-            "https://graph.microsoft.com/v1.0/me/mailFolders?%24select=displayName&expand=childFolders%28%24select%3DdisplayName%29",
+            "https://graph.microsoft.com/v1.0/users/87d349ed-44d7-43e1-9a83-5f2406dee5bd/mailFolders?%24select=displayName&expand=childFolders%28%24select%3DdisplayName%29",
         )
         .unwrap();
         assert_eq!(*uri, expected);
@@ -485,16 +489,19 @@ mod tests {
 
     #[test]
     fn serialize_mail_folders_with_expand() -> Result<(), Error> {
-        let mut request = mail_folders::Get::new("https://graph.microsoft.com/v1.0".to_string());
+        let mut request = mail_folders::Get::new(
+            "https://graph.microsoft.com/v1.0".to_string(),
+            "87d349ed-44d7-43e1-9a83-5f2406dee5bd".to_string(),
+        );
         let mut child_folders = ExpandOptions::new();
         child_folders.select([mail_folder::MailFolderSelection::DisplayName]);
         request.expand([mail_folder::MailFolderExpand::ChildFolders(child_folders)]);
         let req = request.build_request()?;
         let uri = req.uri();
 
-        // <https://graph.microsoft.com/v1.0/me/mailFolders?expand=childFolders($select=displayName)>
+        // <https://graph.microsoft.com/v1.0/users/87d349ed-44d7-43e1-9a83-5f2406dee5bd/mailFolders?expand=childFolders($select=displayName)>
         let expected = uri::Uri::try_from(
-            "https://graph.microsoft.com/v1.0/me/mailFolders?expand=childFolders%28%24select%3DdisplayName%29",
+            "https://graph.microsoft.com/v1.0/users/87d349ed-44d7-43e1-9a83-5f2406dee5bd/mailFolders?expand=childFolders%28%24select%3DdisplayName%29",
         )
         .unwrap();
         assert_eq!(*uri, expected);
@@ -504,7 +511,10 @@ mod tests {
 
     #[test]
     fn serialize_expand_with_multiple_odata_params() -> Result<(), Error> {
-        let mut request = mail_folders::Get::new("https://graph.microsoft.com/v1.0".to_string());
+        let mut request = mail_folders::Get::new(
+            "https://graph.microsoft.com/v1.0".to_string(),
+            "87d349ed-44d7-43e1-9a83-5f2406dee5bd".to_string(),
+        );
         let mut child_folders = ExpandOptions::new();
         child_folders.select([mail_folder::MailFolderSelection::DisplayName]);
         child_folders.filter(FilterExpression::eq(filter_ident!("displayName"), "inbox"));
@@ -512,9 +522,9 @@ mod tests {
         let req = request.build_request()?;
         let uri = req.uri();
 
-        // <https://graph.microsoft.com/v1.0/me/mailFolders?expand=childFolders($select=displayName;$filter=displayName eq 'inbox')>
+        // <https://graph.microsoft.com/v1.0/users/87d349ed-44d7-43e1-9a83-5f2406dee5bd/mailFolders?expand=childFolders($select=displayName;$filter=displayName eq 'inbox')>
         let expected = uri::Uri::try_from(
-            "https://graph.microsoft.com/v1.0/me/mailFolders?expand=childFolders%28%24select%3DdisplayName%3B%24filter%3DdisplayName+eq+%27inbox%27%29",
+            "https://graph.microsoft.com/v1.0/users/87d349ed-44d7-43e1-9a83-5f2406dee5bd/mailFolders?expand=childFolders%28%24select%3DdisplayName%3B%24filter%3DdisplayName+eq+%27inbox%27%29",
         )
         .unwrap();
         assert_eq!(*uri, expected);

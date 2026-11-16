@@ -210,7 +210,7 @@ impl<R: for<'a> Deserialize<'a>> Operation for NextPage<R> {
 mod tests {
     use super::{DeltaItem, DeltaResponse, Removed, RemovedDeltaItem};
     use crate::{
-        Error, Operation, notnull, paths::me::mail_folders, types::entity::Entity,
+        Error, Operation, notnull, paths::users::user_id::mail_folders, types::entity::Entity,
         types::mail_folder,
     };
 
