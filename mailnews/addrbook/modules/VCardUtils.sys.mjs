@@ -114,15 +114,30 @@ export var VCardUtils = {
       return vCard;
     }
 
+    // Join quoted-printable wrapped lines together. This regular expression
+    // matches consecutive lines that end with `=`, and they are joined from
+    // the first quoted-printable marker on. This is done first, so that the
+    // wrapped lines aren't taken for properties.
+    vCard = vCard.replace(/(?:^|(?<=[\r\n]))(?:[^\r\n]*=\r?\n)+/g, lines => {
+      const start = lines.search(/;(?:ENCODING=)?QUOTED-PRINTABLE[;:]/i);
+      if (start == -1) {
+        return lines;
+      }
+      return lines.slice(0, start) + lines.slice(start).replace(/=\r?\n/g, "");
+    });
+
     // Convert known type parameters to valid vCard 4.0, ignore unknown ones.
-    vCard = vCard.replace(/\n(([A-Z]+)(;[\w-]*)+):/gi, (match, key) => {
-      const parts = key.split(";");
+    // A parameter value can be quoted, and contain ; and : then. A quote
+    // which isn't closed on the same line is taken as it is.
+    const property =
+      /\n(([A-Z]+)(;(?:[^;:"\r\n]|"[^"\r\n]*"|"(?![^"\r\n]*"))*)+):/gi;
+    vCard = vCard.replace(property, (match, key) => {
+      const parts = key.match(/(?:[^;"]|"[^"]*"|"(?![^"]*"))+/g);
       const newParts = [parts[0]];
       for (let i = 1; i < parts.length; i++) {
-        if (parts[i] == "") {
-          continue;
-        }
-        if (
+        if (parts[i].includes("=")) {
+          newParts.push(parts[i]);
+        } else if (
           ["HOME", "WORK", "FAX", "PAGER", "CELL"].includes(
             parts[i].toUpperCase()
           )
@@ -135,17 +150,6 @@ export var VCardUtils = {
         }
       }
       return "\n" + newParts.join(";") + ":";
-    });
-
-    // Join quoted-printable wrapped lines together. This regular expression
-    // matches consecutive lines that end with `=`, and they are joined from
-    // the first quoted-printable marker on.
-    vCard = vCard.replace(/(?:^|(?<=[\r\n]))(?:[^\r\n]*=\r?\n)+/g, lines => {
-      const start = lines.search(/;ENCODING=QUOTED-PRINTABLE[;:]/i);
-      if (start == -1) {
-        return lines;
-      }
-      return lines.slice(0, start) + lines.slice(start).replace(/=\r?\n/g, "");
     });
 
     // Strip the version.

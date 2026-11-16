@@ -13,7 +13,9 @@ add_task(async () => {
       vCardLines,
       expectedProps.map(p => {
         if (p.params?.type) {
-          p.params.type = p.params.type.toLowerCase();
+          p.params.type = Array.isArray(p.params.type)
+            ? p.params.type.map(t => t.toLowerCase())
+            : p.params.type.toLowerCase();
         }
         return p;
       }),
@@ -189,6 +191,56 @@ add_task(async () => {
       { name: "title", value: "bar=" },
     ]
   );
+
+  check("NOTE;QUOTED-PRINTABLE:meet=\r\nroom;12:30=\r\nroom;=20b;12:30", [
+    { name: "note", value: "meetroom;12:30room; b;12:30" },
+  ]);
+
+  // Type parameters with parameters that have a value.
+  check("NOTE;CHARSET=UTF-8;QUOTED-PRINTABLE:line 1=0D=0A=\r\nline 2", [
+    { name: "note", value: "line 1\r\nline 2" },
+  ]);
+  check('NOTE;CHARSET="UTF-8";QUOTED-PRINTABLE:=74=65=73=74', [
+    { name: "note", value: "test" },
+  ]);
+  check("TEL;LANGUAGE=en;CELL;VOICE:1234567", [
+    {
+      name: "tel",
+      value: "1234567",
+      params: { language: "en", type: "CELL" },
+    },
+  ]);
+  check("TEL;TYPE=HOME,WORK;VOICE:1234567", [
+    { name: "tel", value: "1234567", params: { type: ["HOME", "WORK"] } },
+  ]);
+
+  // Quoted parameter values, which can contain ; and :.
+  check('TEL;X-LABEL="desk;home";CELL:1234567', [
+    {
+      name: "tel",
+      value: "1234567",
+      params: { "x-label": "desk;home", type: "CELL" },
+    },
+  ]);
+  check('TEL;X-LABEL="at 9:00";CELL:1234567', [
+    {
+      name: "tel",
+      value: "1234567",
+      params: { "x-label": "at 9:00", type: "CELL" },
+    },
+  ]);
+
+  // Quotes which aren't closed.
+  check('TEL;CELL;"weird:1234567', [
+    { name: "tel", value: "1234567", params: { type: "CELL" } },
+  ]);
+  check('TEL;X-LABEL=6" screen;CELL:1234567', [
+    {
+      name: "tel",
+      value: "1234567",
+      params: { "x-label": '6" screen', type: "CELL" },
+    },
+  ]);
 });
 
 add_task(async function testManyQuotedPrintableSoftBreaks() {
@@ -204,7 +256,7 @@ add_task(async function testManyQuotedPrintableSoftBreaks() {
 
 add_task(async function testQuotedPrintableMarkers() {
   const count = 200000;
-  const markers = ";ENCODING=QUOTED-PRINTABLE;".repeat(count);
+  const markers = ";ENCODING=QUOTED-PRINTABLE".repeat(count);
   const vCard = `BEGIN:VCARD\r\nVERSION:2.1\r\nNOTE${markers}:A\r\nEND:VCARD\r\n`;
   Assert.equal(
     VCardUtils.translateVCard21(vCard).length,
