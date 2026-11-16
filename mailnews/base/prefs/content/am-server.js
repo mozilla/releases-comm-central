@@ -102,8 +102,8 @@ function onInit(aPageId, aServerId) {
     .getAttribute("value");
   if (serverType == "imap") {
     setupImapDeleteUI(aServerId);
-  } else if (serverType == "ews") {
-    setupEwsDeleteUI(aServerId);
+  } else if (serverType == "ews" || serverType == "graph") {
+    setupExchangeDeleteUI(aServerId);
   }
   updateOAuthUI(serverType);
   // TLS Cert (External) only supported on IMAP.
@@ -173,7 +173,7 @@ function hasCustomOAuth(serverType) {
     document.getElementById("server.oauth2.useCustomDetails").checked;
   const customExchange =
     ["ews", "graph"].includes(serverType) &&
-    document.getElementById("ews.exchangeOverrideOAuthDetails").checked;
+    document.getElementById("exchange.exchangeOverrideOAuthDetails").checked;
   return customConfig || customExchange;
 }
 
@@ -353,31 +353,31 @@ function onAdvanced() {
       .getAttribute("value");
   } else if (serverType == "ews" || serverType == "graph") {
     serverSettings.exchangeUrl = document
-      .getElementById("ews.exchangeUrl")
+      .getElementById("exchange.exchangeUrl")
       .getAttribute("value");
     serverSettings.exchangeOverrideOAuthDetails = document.getElementById(
-      "ews.exchangeOverrideOAuthDetails"
+      "exchange.exchangeOverrideOAuthDetails"
     ).checked;
     serverSettings.exchangeApplicationId = document
-      .getElementById("ews.exchangeApplicationId")
+      .getElementById("exchange.exchangeApplicationId")
       .getAttribute("value");
     serverSettings.exchangeTenantId = document
-      .getElementById("ews.exchangeTenantId")
+      .getElementById("exchange.exchangeTenantId")
       .getAttribute("value");
     serverSettings.exchangeEndpointHost = document
-      .getElementById("ews.exchangeEndpointHost")
+      .getElementById("exchange.exchangeEndpointHost")
       .getAttribute("value");
     serverSettings.exchangeOAuthScopes = document
-      .getElementById("ews.exchangeOAuthScopes")
+      .getElementById("exchange.exchangeOAuthScopes")
       .getAttribute("value");
     serverSettings.exchangeRedirectUri = document
-      .getElementById("ews.exchangeRedirectUri")
+      .getElementById("exchange.exchangeRedirectUri")
       .getAttribute("value");
     serverSettings.exchangeUsePKCE = document.getElementById(
-      "ews.exchangeUsePKCE"
+      "exchange.exchangeUsePKCE"
     ).checked;
     serverSettings.exchangeUseExternalBrowser = document.getElementById(
-      "ews.exchangeUseExternalBrowser"
+      "exchange.exchangeUseExternalBrowser"
     ).checked;
   }
 
@@ -544,28 +544,28 @@ function onAdvanced() {
       }
     } else if (serverType == "ews" || serverType == "graph") {
       document
-        .getElementById("ews.exchangeUrl")
+        .getElementById("exchange.exchangeUrl")
         .setAttribute("value", serverSettings.exchangeUrl);
-      document.getElementById("ews.exchangeOverrideOAuthDetails").checked =
+      document.getElementById("exchange.exchangeOverrideOAuthDetails").checked =
         serverSettings.exchangeOverrideOAuthDetails;
       document
-        .getElementById("ews.exchangeApplicationId")
+        .getElementById("exchange.exchangeApplicationId")
         .setAttribute("value", serverSettings.exchangeApplicationId);
       document
-        .getElementById("ews.exchangeTenantId")
+        .getElementById("exchange.exchangeTenantId")
         .setAttribute("value", serverSettings.exchangeTenantId);
       document
-        .getElementById("ews.exchangeEndpointHost")
+        .getElementById("exchange.exchangeEndpointHost")
         .setAttribute("value", serverSettings.exchangeEndpointHost);
       document
-        .getElementById("ews.exchangeOAuthScopes")
+        .getElementById("exchange.exchangeOAuthScopes")
         .setAttribute("value", serverSettings.exchangeOAuthScopes);
       document
-        .getElementById("ews.exchangeRedirectUri")
+        .getElementById("exchange.exchangeRedirectUri")
         .setAttribute("value", serverSettings.exchangeRedirectUri);
-      document.getElementById("ews.exchangeUsePKCE").checked =
+      document.getElementById("exchange.exchangeUsePKCE").checked =
         serverSettings.exchangeUsePKCE;
-      document.getElementById("ews.exchangeUseExternalBrowser").checked =
+      document.getElementById("exchange.exchangeUseExternalBrowser").checked =
         serverSettings.exchangeUseExternalBrowser;
     }
 
@@ -834,15 +834,15 @@ function selectImapDeleteModel(choice) {
   document.getElementById("msgTrashFolderPicker").disabled = choice != "1";
 }
 
-function setupEwsDeleteUI(serverId) {
+function setupExchangeDeleteUI(serverId) {
   const deleteModel = document
-    .getElementById("ews.deleteModel")
+    .getElementById("exchange.deleteModel")
     .getAttribute("value");
-  selectEwsDeleteModel(deleteModel);
+  selectExchangeDeleteModel(deleteModel);
 
   // read trash folder path preference
   const trashFolderPath = document
-    .getElementById("ews.trashFolderPath")
+    .getElementById("exchange.trashFolderPath")
     .getAttribute("value");
 
   const escapedPath = Services.io.escapeString(
@@ -851,7 +851,7 @@ function setupEwsDeleteUI(serverId) {
   );
 
   // set folderPicker menulist
-  const trashPopup = setupFolderPicker("ewsMsgTrashFolderPopup", serverId);
+  const trashPopup = setupFolderPicker("exchangeMsgTrashFolderPopup", serverId);
 
   const trashFolder = MailUtils.getExistingFolder(serverId + "/" + escapedPath);
 
@@ -859,9 +859,10 @@ function setupEwsDeleteUI(serverId) {
   trashPopup.parentNode.folder = trashFolder;
 }
 
-function selectEwsDeleteModel(choice) {
-  document.getElementById("ews.deleteModel").setAttribute("value", choice);
-  document.getElementById("ewsMsgTrashFolderPicker").disabled = choice == "0";
+function selectExchangeDeleteModel(choice) {
+  document.getElementById("exchange.deleteModel").setAttribute("value", choice);
+  document.getElementById("exchangeMsgTrashFolderPicker").disabled =
+    choice == "0";
 }
 
 // Capture any menulist changes from folderPicker
@@ -894,17 +895,19 @@ function folderPickerChange(aEvent) {
  *
  * @param {Event} event
  */
-function ewsFolderPickerChange(event) {
+function exchangeFolderPickerChange(event) {
   const folder = event.target._folder;
   const trashUnicode = localisedUnicodePath(folder, false);
 
   // Set the value to be persisted.
   document
-    .getElementById("ews.trashFolderPath")
+    .getElementById("exchange.trashFolderPath")
     .setAttribute("value", trashUnicode);
 
   // Update the widget to show/do correct things even for subfolders.
-  const trashFolderPicker = document.getElementById("ewsMsgTrashFolderPicker");
+  const trashFolderPicker = document.getElementById(
+    "exchangeMsgTrashFolderPicker"
+  );
   trashFolderPicker.menupopup.selectFolder(folder);
 }
 

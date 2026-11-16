@@ -13,6 +13,7 @@ const { wait_for_frame_load } = ChromeUtils.importESModule(
 
 // The accounts to use in tests.
 var ewsAccount;
+var graphAccount;
 var imapAccount;
 var popAccount;
 var localAccount;
@@ -30,9 +31,20 @@ add_setup(() => {
 
   // Create an EWS server and attach it to the account.
   ewsAccount.incomingServer = MailServices.accounts.createIncomingServer(
-    "nobody",
+    "ews",
     "test.test",
     "ews"
+  );
+
+  graphAccount = MailServices.accounts.createAccount();
+  const graphIdentity = MailServices.accounts.createIdentity();
+  graphAccount.addIdentity(graphIdentity);
+
+  // Create a Graph server and attach it to the account.
+  graphAccount.incomingServer = MailServices.accounts.createIncomingServer(
+    "graph",
+    "test.test",
+    "graph"
   );
 
   smtpServer = MailServices.outgoingServer.createServer("smtp");
@@ -68,9 +80,11 @@ add_setup(() => {
   registerCleanupFunction(() => {
     // Make sure the account doesn't persist beyond the test.
     ewsAccount.incomingServer.closeCachedConnections();
+    graphAccount.incomingServer.closeCachedConnections();
     imapAccount.incomingServer.closeCachedConnections();
     popAccount.incomingServer.closeCachedConnections();
     MailServices.accounts.removeAccount(ewsAccount, false);
+    MailServices.accounts.removeAccount(graphAccount, false);
     MailServices.accounts.removeAccount(imapAccount, false);
     MailServices.accounts.removeAccount(popAccount, false);
     MailServices.accounts.removeAccount(localAccount, false);
@@ -102,7 +116,7 @@ async function selectAccountInSettings(accountSettingsTab, serverKey) {
 }
 
 /**
- * Tests that the authentication methods offered for EWS accounts match the ones
+ * Tests that the authentication methods offered for Exchange accounts match the ones
  * we actually support.
  */
 add_task(async function test_ews_auth_methods() {
@@ -146,12 +160,12 @@ add_task(async function test_ews_auth_methods() {
   });
 });
 
-add_task(async function test_ews_trash_settings() {
-  const incomingServer = ewsAccount.incomingServer;
+async function test_exchange_trash_settings(account) {
+  const incomingServer = account.incomingServer;
 
   Assert.ok(
     incomingServer instanceof Ci.IExchangeIncomingServer,
-    "Incoming server should be an EWS incoming server."
+    "Incoming server should be an Exchange incoming server."
   );
 
   const rootFolder = incomingServer.rootFolder;
@@ -162,24 +176,24 @@ add_task(async function test_ews_trash_settings() {
   await open_advanced_settings(async accountSettingsTab => {
     const iframe = await selectAccountInSettings(
       accountSettingsTab,
-      ewsAccount.key
+      account.key
     );
 
     // Get the label specifying the EWS trash path.
-    const trashPathElement = iframe.getElementById("ews.trashFolderPath");
+    const trashPathElement = iframe.getElementById("exchange.trashFolderPath");
     Assert.ok(
       BrowserTestUtils.isHidden(trashPathElement),
       "Should have an element containing the trash path."
     );
 
-    const deleteModelElement = iframe.getElementById("ews.deleteModel");
+    const deleteModelElement = iframe.getElementById("exchange.deleteModel");
     Assert.ok(
       BrowserTestUtils.isVisible(deleteModelElement),
       "Should have the element specifying the delete model."
     );
 
     const trashFolderPickerElement = iframe.getElementById(
-      "ewsMsgTrashFolderPicker"
+      "exchangeMsgTrashFolderPicker"
     );
     Assert.ok(
       BrowserTestUtils.isVisible(trashFolderPickerElement),
@@ -201,7 +215,7 @@ add_task(async function test_ews_trash_settings() {
 
     // Change the UI and make sure the server updates.
     const deleteImmediatelyElement = iframe.getElementById(
-      "ewsModelDeleteImmediately"
+      "exchangeModelDeleteImmediately"
     );
     deleteImmediatelyElement.scrollIntoView({
       block: "center",
@@ -224,6 +238,14 @@ add_task(async function test_ews_trash_settings() {
       "Trash folder picker should be disabled."
     );
   });
+}
+
+add_task(async function test_ews_trash_settings() {
+  await test_exchange_trash_settings(ewsAccount);
+});
+
+add_task(async function test_graph_trash_settings() {
+  await test_exchange_trash_settings(graphAccount);
 });
 
 add_task(async function test_imap_trash_settings() {
@@ -657,7 +679,7 @@ add_task(async function test_ews_host_url_settings() {
 
     // This page uses hidden elements to connect the advanced settings dialog to
     // the underlying save infrastructure.
-    const ewsUrlDataElement = iframe.getElementById("ews.exchangeUrl");
+    const ewsUrlDataElement = iframe.getElementById("exchange.exchangeUrl");
     Assert.ok(!!ewsUrlDataElement, "EWS URL data element should exist.");
 
     // The data elements should all be hidden.
@@ -669,7 +691,7 @@ add_task(async function test_ews_host_url_settings() {
     const advancedDialog = await openAdvancedDialog(
       iframe,
       accountSettingsTab,
-      "server.ewsAdvancedButton"
+      "server.exchangeAdvancedButton"
     );
 
     const ewsUrlElement = advancedDialog.document.getElementById("exchangeUrl");
@@ -707,7 +729,7 @@ add_task(async function test_ews_host_url_settings() {
     const advancedDialogReopened = await openAdvancedDialog(
       iframe,
       accountSettingsTab,
-      "server.ewsAdvancedButton"
+      "server.exchangeAdvancedButton"
     );
 
     const ewsUrlElementReopened =
@@ -744,8 +766,8 @@ add_task(async function test_ews_host_url_settings() {
  * Tests that changing the Exchange OAuth override settings correctly updates
  * the incoming server.
  */
-add_task(async function test_override_oauth_settings() {
-  const incomingServer = ewsAccount.incomingServer;
+async function test_exchange_override_oauth_settings(account) {
+  const incomingServer = account.incomingServer;
   const originalSettings = {
     exchangeOverrideOAuthDetails: incomingServer.exchangeOverrideOAuthDetails,
     exchangeApplicationId: incomingServer.exchangeApplicationId,
@@ -766,20 +788,20 @@ add_task(async function test_override_oauth_settings() {
       Assert.ok(checkPref, "pref should be enabled.");
       const iframe = await selectAccountInSettings(
         accountSettingsTab,
-        ewsAccount.key
+        account.key
       );
 
       // Confirm everything is in its default starting state.
 
       const dataElements = [
-        "ews.exchangeOverrideOAuthDetails",
-        "ews.exchangeApplicationId",
-        "ews.exchangeTenantId",
-        "ews.exchangeEndpointHost",
-        "ews.exchangeOAuthScopes",
-        "ews.exchangeRedirectUri",
-        "ews.exchangeUseExternalBrowser",
-        "ews.exchangeUsePKCE",
+        "exchange.exchangeOverrideOAuthDetails",
+        "exchange.exchangeApplicationId",
+        "exchange.exchangeTenantId",
+        "exchange.exchangeEndpointHost",
+        "exchange.exchangeOAuthScopes",
+        "exchange.exchangeRedirectUri",
+        "exchange.exchangeUseExternalBrowser",
+        "exchange.exchangeUsePKCE",
       ];
       for (const dataElement of dataElements) {
         const element = iframe.getElementById(dataElement);
@@ -793,7 +815,7 @@ add_task(async function test_override_oauth_settings() {
       const advancedDialog = await openAdvancedDialog(
         iframe,
         accountSettingsTab,
-        "server.ewsAdvancedButton"
+        "server.exchangeAdvancedButton"
       );
 
       const oauthOverrideControl = advancedDialog.document.getElementById(
@@ -889,7 +911,7 @@ add_task(async function test_override_oauth_settings() {
       const advancedDialogReopened = await openAdvancedDialog(
         iframe,
         accountSettingsTab,
-        "server.ewsAdvancedButton"
+        "server.exchangeAdvancedButton"
       );
 
       const overrideControlReopened =
@@ -937,4 +959,12 @@ add_task(async function test_override_oauth_settings() {
       incomingServer[name] = value;
     }
   }
+}
+
+add_task(async function test_ews_override_oauth_settings() {
+  await test_exchange_override_oauth_settings(ewsAccount);
+});
+
+add_task(async function test_graph_override_oauth_settings() {
+  await test_exchange_override_oauth_settings(graphAccount);
 });

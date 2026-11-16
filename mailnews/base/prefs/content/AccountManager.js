@@ -1013,7 +1013,9 @@ function saveAccount(accountValues, account) {
         dest = server.QueryInterface(Ci.nsIPop3IncomingServer);
       } else if (type == "imap") {
         dest = server.QueryInterface(Ci.nsIImapIncomingServer);
-      } else if (type == "ews") {
+      } else if (type == "exchange") {
+        // `exchange` is not a server type like the others, but it is the type
+        // prefix used for ews and graph element IDs in am-server.xhtml.
         dest = server.QueryInterface(Ci.IExchangeIncomingServer);
       } else if (type == "none") {
         dest = server.QueryInterface(Ci.nsINoIncomingServer);
@@ -1376,7 +1378,9 @@ function getAccountValue(
         source = server.QueryInterface(Ci.nsIPop3IncomingServer);
       } else if (type == "imap") {
         source = server.QueryInterface(Ci.nsIImapIncomingServer);
-      } else if (type == "ews") {
+      } else if (type == "exchange") {
+        // `exchange` is not a server type like the others, but it is the type
+        // prefix used for ews and graph element IDs in am-server.xhtml.
         source = server.QueryInterface(Ci.IExchangeIncomingServer);
       } else if (type == "none") {
         source = server.QueryInterface(Ci.nsINoIncomingServer);
@@ -1472,7 +1476,7 @@ function restorePage(pageId, account) {
             break;
           case "pop3":
           case "imap":
-          case "ews":
+          case "exchange":
           case "nntp":
           case "server":
             element.serverkey = account.incomingServer.key;

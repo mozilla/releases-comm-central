@@ -616,11 +616,14 @@
             />
           </hbox>
 
-          <!-- EWS -->
+          <!-- Exchange -->
+          <!-- Note: The element IDs in this file are used in AccountManager.js
+           to determine what kind of incoming server each server should be cast to.
+           -->
           <label
             hidden="hidden"
             wsm_persist="true"
-            id="ews.trashFolderPath"
+            id="exchange.trashFolderPath"
             prefattribute="value"
             prefstring="mail.server.%serverkey%.trash_folder_path"
           />
@@ -630,51 +633,51 @@
             <label
               data-l10n-id="account-settings-deleting-messages"
               align="start"
-              control="ews.deleteModel"
+              control="exchange.deleteModel"
             />
           </hbox>
           <vbox>
             <hbox
               align="center"
-              id="ews.deleteModel.box"
+              id="exchange.deleteModel.box"
               hidefor="pop3,nntp,imap"
               flex="1"
             >
               <radiogroup
-                id="ews.deleteModel"
+                id="exchange.deleteModel"
                 wsm_persist="true"
-                oncommand="selectEwsDeleteModel(this.value)"
+                oncommand="selectExchangeDeleteModel(this.value)"
                 prefstring="mail.server.%serverkey%.delete_model"
               >
                 <hbox class="specialFolderPickerGrid">
                   <vbox>
                     <hbox flex="1" align="center">
                       <radio
-                        id="ewsModelMoveToTrash"
+                        id="exchangeModelMoveToTrash"
                         value="1"
                         data-l10n-id="account-settings-move-to-trash"
                       />
                       <menulist
-                        id="ewsMsgTrashFolderPicker"
+                        id="exchangeMsgTrashFolderPicker"
                         class="folderMenuItem"
                         style="max-width: 300px"
                         flex="1"
                         crop="center"
-                        aria-labelledby="ewsModelMoveToTrash"
+                        aria-labelledby="exchangeModelMoveToTrash"
                         displayformat="verbose"
                       >
                         <menupopup
                           is="folder-menupopup"
-                          id="ewsMsgTrashFolderPopup"
+                          id="exchangeMsgTrashFolderPopup"
                           mode="filing"
                           showFileHereLabel="true"
-                          oncommand="ewsFolderPickerChange(event)"
+                          oncommand="exchangeFolderPickerChange(event)"
                         />
                       </menulist>
                     </hbox>
                     <hbox flex="1" align="center">
                       <radio
-                        id="ewsModelDeleteImmediately"
+                        id="exchangeModelDeleteImmediately"
                         value="0"
                         data-l10n-id="account-settings-delete-permanently"
                       />
@@ -687,7 +690,7 @@
               <!-- This button should have identical attributes to the
              server.popAdvancedButton except the hidefor attribute. -->
               <button
-                id="server.ewsAdvancedButton"
+                id="server.exchangeAdvancedButton"
                 data-l10n-id="account-settings-folder-options"
                 oncommand="onAdvanced()"
                 wsm_persist="true"
@@ -697,48 +700,52 @@
             </hbox>
           </vbox>
 
-          <!-- Advanced EWS settings -->
+          <!-- Advanced Exchange settings -->
           <hbox flex="1" hidefor="pop3,nntp,imap" hidden="hidden">
-            <label id="ews.exchangeUrl" wsm_persist="true" hidden="hidden" />
+            <label
+              id="exchange.exchangeUrl"
+              wsm_persist="true"
+              hidden="hidden"
+            />
             <checkbox
-              id="ews.exchangeOverrideOAuthDetails"
+              id="exchange.exchangeOverrideOAuthDetails"
               wsm_persist="true"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.ews_override_oauth_details"
               hidden="hidden"
             />
             <label
-              id="ews.exchangeApplicationId"
+              id="exchange.exchangeApplicationId"
               wsm_persist="true"
               hidden="hidden"
             />
             <label
-              id="ews.exchangeTenantId"
+              id="exchange.exchangeTenantId"
               wsm_persist="true"
               hidden="hidden"
             />
             <label
-              id="ews.exchangeEndpointHost"
+              id="exchange.exchangeEndpointHost"
               wsm_persist="true"
               hidden="hidden"
             />
             <label
-              id="ews.exchangeOAuthScopes"
+              id="exchange.exchangeOAuthScopes"
               wsm_persist="true"
               hidden="hidden"
             />
             <label
-              id="ews.exchangeRedirectUri"
+              id="exchange.exchangeRedirectUri"
               wsm_persist="true"
               hidden="hidden"
             />
             <checkbox
-              id="ews.exchangeUsePKCE"
+              id="exchange.exchangeUsePKCE"
               wsm_persist="true"
               hidden="hidden"
             />
             <checkbox
-              id="ews.exchangeUseExternalBrowser"
+              id="exchange.exchangeUseExternalBrowser"
               wsm_persist="true"
               hidden="hidden"
             />
