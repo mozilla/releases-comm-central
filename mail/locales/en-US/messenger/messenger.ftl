@@ -306,14 +306,14 @@ move-to-folder-again-key =
 # $folderName (String) - The name of the folder to which the message(s) will be moved.
 # Note: The access key should be a letter that occurs before $folderName in the translated string.
 menu-move-to-folder-again =
-    .label = Move to "{ $folderName }" Again
+    .label = Move to “{ $folderName }” Again
     .accesskey = t
 
 # Variables:
 # $folderName (String) - The name of the folder to which the message(s) will be copied.
 # Note: The access key should be a letter that occurs before $folderName in the translated string.
 menu-copy-to-folder-again =
-    .label = Copy to "{ $folderName }" Again
+    .label = Copy to “{ $folderName }” Again
     .accesskey = t
 
 menu-move-to =
@@ -846,7 +846,7 @@ spam-processing-message = Processing spam messages
 #    $subject - the message thread title (subject)
 ignored-theads-feedback = {
     $count ->
-        [one] Replies to the thread "{ $subject }" will not be shown.
+        [one] Replies to the thread “{ $subject }” will not be shown.
         *[other] Replies to the { $count } threads that were selected will not be shown.
     }
 
@@ -855,7 +855,7 @@ ignored-theads-feedback = {
 #    $subject - the message thread title (subject)
 ignored-subtheads-feedback = {
     $count ->
-        [one] Replies to the subthread "{ $subject }" will not be shown.
+        [one] Replies to the subthread “{ $subject }” will not be shown.
         *[other] Replies to the { $count } subthreads that were selected will not be shown.
     }
 

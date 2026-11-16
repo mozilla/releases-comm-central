@@ -188,12 +188,12 @@ itip-cancel-body = { $organizer } has canceled this event: { $summary }
 # Variables:
 #   $attendee (String) - The attendee who made the counterproposal.
 #   $summary (String) - The event title.
-itip-counter-body = { $attendee } has made a counterproposal for "{ $summary }":
+itip-counter-body = { $attendee } has made a counterproposal for “{ $summary }”:
 
 # Variables:
 #   $organizer (String) - The event organizer.
 #   $summary (String) - The event title.
-itip-decline-counter-body = { $organizer } has declined your counterproposal for "{ $summary }".
+itip-decline-counter-body = { $organizer } has declined your counterproposal for “{ $summary }”.
 
 # Variables:
 #   $summary (String) - The event title.

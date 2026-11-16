@@ -5,7 +5,7 @@
 ## Strings used to define the metadata of langpacks published on addons.mozilla.org.
 ## Only text elements and literals are supported for these strings.
 
-langpack-creator = "SeaMonkey e.V."
+langpack-creator = “SeaMonkey e.V.”
 
 # To credit multiple contributors, use a comma-delimited list.
 # Example: Jane Doe, John Doe

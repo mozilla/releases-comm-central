@@ -28,7 +28,7 @@ spam-message-detection-log = Detected spam from { $author } - { $subject } at { 
 # $errorMsg (String) - The error message about the action that failed.
 # $errorCode (String) - The hexadecimal error code.
 filter-failure-warning-prefix =
-    Filter action failed: "{ $errorMsg }" with error code={ $errorCode } while attempting:
+    Filter action failed: “{ $errorMsg }” with error code={ $errorCode } while attempting:
 
 filter-failure-sending-reply-error = Error sending reply
 filter-failure-sending-reply-aborted = Sending reply aborted
@@ -62,7 +62,7 @@ filter-batch-message-ids = { $count ->
 # $subject (String) - The subject line of the message.
 # $date (String) - The date/time the filter was applied.
 filter-log-match-summary =
-    Applied filter "{ $filterName }" to message from { $author } - { $subject } at { $date }
+    Applied filter “{ $filterName }” to message from { $author } - { $subject } at { $date }
 
 # Variables:
 # $id (String) - The author of the moved message.
@@ -101,7 +101,7 @@ filter-log-line = [{ $timestamp }] { $message }
 # Variables:
 # $filterName (String) - The name of the filter.
 # $message (String) - The log message from the filter.
-filter-log-message = Message from filter "{ $filterName }": { $message }
+filter-log-message = Message from filter “{ $filterName }”: { $message }
 
 filter-editor-must-select-target-folder = You must select a target folder.
 filter-editor-enter-valid-email-forward = Enter a valid email address to forward to.
@@ -272,14 +272,14 @@ filter-editor-invalid-search-title = Search Terms Invalid
 # Variables:
 #   $attribute (String) - The search attribute name from the invalid rule.
 #   $operator (String) - The search operator from the bad rule.
-filter-editor-invalid-search-rule = This filter cannot be saved because the search term "{ $attribute } { $operator }" is invalid in the current context.
+filter-editor-invalid-search-rule = This filter cannot be saved because the search term “{ $attribute } { $operator }” is invalid in the current context.
 
 filter-editor-missing-value-title = Search Value Missing
 
 # Variables:
 #   $attribute (String) - The search attribute name from the incomplete rule.
 #   $operator (String) - The search operator from the incomplete rule.
-filter-editor-missing-value-rule = This filter cannot be saved because no value was entered for the search term "{ $attribute } { $operator }".
+filter-editor-missing-value-rule = This filter cannot be saved because no value was entered for the search term “{ $attribute } { $operator }”.
 
 filter-editor-action-order-explanation =
     When a message matches this filter the actions will be run in this order:

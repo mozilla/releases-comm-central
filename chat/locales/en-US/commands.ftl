@@ -9,9 +9,9 @@ commands-key =
     Use /help &lt;command&gt; for more information.
 # LOCALIZATION NOTE (no-command, no-help-key):
 #  $command (String): is the command name the user typed.
-no-command = No '{ $command }' command.
+no-command = No ‘{ $command }’ command.
 #  $command (String): is the command name the user typed.
-no-help-key = No help message for the '{ $command }' command, sorry!
+no-help-key = No help message for the ‘{ $command }’ command, sorry!
 
 say-help-string = say &lt;message&gt;: send a message without processing commands.
 raw-help-string = raw &lt;message&gt;: send a message without escaping HTML entities.

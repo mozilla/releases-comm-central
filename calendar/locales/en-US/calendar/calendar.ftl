@@ -353,12 +353,12 @@ warning-os-tz-no-match =
 # that is not included in our current ZoneInfo database (or if the mapping
 # mapping from windows to ZoneInfo timezone ids does).
 # $timezone OS timezone id
-skipping-os-timezone = Skipping Operating System timezone '{ $timezone }'.
+skipping-os-timezone = Skipping Operating System timezone ‘{ $timezone }’.
 
 # "Skipping locale timezone 'America/New_Yawk'."
 # Testing note: Skipping occurs if a likely-timezone id is unknown or misspelled.
 # $timezone likely timezone id
-skipping-locale-timezone = Skipping locale timezone '{ $timezone }'.
+skipping-locale-timezone = Skipping locale timezone ‘{ $timezone }’.
 
 # Testing note: "No match" timezones include Bucharest on W2k.
 # Brazil timezones may be "No match" (change every year, so often out of date,
