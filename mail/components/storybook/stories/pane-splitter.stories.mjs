@@ -37,7 +37,7 @@ const Template = ({
       background-color: red;
     }
 
-    .wrapper {
+    .splitter-wrapper {
       display: inline-grid;
       grid-template-${
         resizeDirection === "horizontal" ? "columns" : "rows"
@@ -51,7 +51,7 @@ const Template = ({
       --splitter-height: 200px;
     }
   </style>
-  <div class="wrapper">
+  <div class="splitter-wrapper">
     <div id="resizeme" style="background: lightblue"></div>
     <hr is="pane-splitter"
       resize-direction=${resizeDirection}

@@ -37,7 +37,8 @@ export const Tree = () => html`
         <button class="twisty">
           <img
             class="twisty-icon"
-            src="chrome://messenger/skin/icons/new/compact/nav-down.svg"
+            src=""
+            style="content: var(--icon-nav-down)"
           />
         </button>
         Item with children
@@ -72,7 +73,8 @@ export const TreeTable = () => html`
           <button class="twisty">
             <img
               class="twisty-icon"
-              src="chrome://messenger/skin/icons/new/compact/nav-down.svg"
+              src=""
+              style="content: var(--icon-nav-down)"
             />
           </button>
           Item with children
@@ -93,9 +95,6 @@ export const TreeTable = () => html`
 
 export const TreeTableCard = () => html`
   <style>
-    :root {
-      --sidebar-background: var(--layout-background-2);
-    }
     table {
       background: var(--sidebar-background);
       width: 100%;
@@ -112,7 +111,8 @@ export const TreeTableCard = () => html`
             <button class="twisty">
               <img
                 class="twisty-icon"
-                src="chrome://messenger/skin/icons/new/compact/nav-down.svg"
+                src=""
+                style="content: var(--icon-nav-down)"
               />
             </button>
             Item with children

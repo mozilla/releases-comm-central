@@ -6,6 +6,7 @@ import { html } from "lit";
 import { action } from "storybook/actions";
 import "mail/base/content/widgets/search-bar.mjs";
 import "mail/themes/shared/mail/colors.css";
+import "mail/themes/shared/mail/icons.css";
 import "mail/themes/shared/mail/variables.css";
 import "mail/themes/shared/mail/layout.css";
 import "mail/themes/shared/mail/widgets.css";
@@ -45,7 +46,8 @@ const Template = ({ label, disabled }) => html`
       alt="Search"
       slot="search-button"
       class="search-button"
-      src="chrome://messenger/skin/icons/new/compact/search.svg"
+      src=""
+      style="content: var(--icon-search)"
     />
   </search-bar>
 `;

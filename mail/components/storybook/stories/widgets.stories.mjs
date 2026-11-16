@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
+import "mail/themes/shared/mail/colors.css";
 import "mail/themes/shared/mail/variables.css";
 import "mail/themes/shared/mail/widgets.css";
 import "mail/themes/shared/mail/spacings.css";
@@ -183,30 +184,16 @@ export const Select = () => html`
 `;
 
 export const Badge = () => html`
-  <p>
-    <span class="badge" role="presentation">Recommended</span>
-    <span class="badge inverted" role="presentation">Recommended</span><br />
-    <span class="badge beta" role="presentation">Beta</span>
-    <span class="badge beta inverted" role="presentation">Beta</span><br />
-    <span class="badge experimental" role="presentation">Experimental</span>
-    <span class="badge experimental inverted" role="presentation"
-      >Experimental</span
-    ><br />
-    <span class="badge alpha" role="presentation">Alpha</span>
-    <span class="badge alpha inverted" role="presentation">Alpha</span>
-  </p>
-  <p style="background: var(--color-surface-base-dark); color-scheme: dark">
-    <span class="badge" role="presentation">Recommended</span>
-    <span class="badge inverted" role="presentation">Recommended</span><br />
-    <span class="badge beta" role="presentation">Beta</span>
-    <span class="badge beta inverted" role="presentation">Beta</span><br />
-    <span class="badge experimental" role="presentation">Experimental</span>
-    <span class="badge experimental inverted" role="presentation"
-      >Experimental</span
-    ><br />
-    <span class="badge alpha" role="presentation">Alpha</span>
-    <span class="badge alpha inverted" role="presentation">Alpha</span>
-  </p>
+  <span class="badge" role="presentation">Recommended</span>
+  <span class="badge inverted" role="presentation">Recommended</span><br />
+  <span class="badge beta" role="presentation">Beta</span>
+  <span class="badge beta inverted" role="presentation">Beta</span><br />
+  <span class="badge experimental" role="presentation">Experimental</span>
+  <span class="badge experimental inverted" role="presentation"
+    >Experimental</span
+  ><br />
+  <span class="badge alpha" role="presentation">Alpha</span>
+  <span class="badge alpha inverted" role="presentation">Alpha</span>
 `;
 
 export const ToggleCheckbox = () => html`

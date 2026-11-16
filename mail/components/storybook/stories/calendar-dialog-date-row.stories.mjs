@@ -6,6 +6,7 @@ import { html } from "lit";
 import "mail/components/calendar/content/calendar-dialog-date-row.mjs";
 import "mail/themes/shared/mail/colors.css";
 import "mail/themes/shared/mail/icons.css";
+import "mail/themes/shared/mail/spacings.css";
 import "mail/themes/shared/mail/calendar/calendarDialog.css";
 
 window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");

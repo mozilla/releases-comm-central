@@ -7,6 +7,18 @@ import customElementsManifest from "../custom-elements.json";
 import { insertFTLIfNeeded, connectFluent } from "./fluent-utils.mjs";
 // eslint-disable-next-line import-x/no-unassigned-import -- Load global CSS through Vite.
 import "chrome://global/skin/global.css";
+// eslint-disable-next-line import-x/no-unassigned-import
+import "mail/themes/shared/mail/colors.css";
+
+// Ensure both individual stories and doc preview boxes have a background
+// suitable for the active color scheme by default.
+document.body.style.backgroundColor = "var(--color-surface-base)";
+const style = document.createElement("style");
+style.innerHTML = `
+.docs-story {
+  background-color: var(--color-surface-base);
+}`;
+document.head.append(style);
 
 // Base Fluent set up.
 connectFluent();

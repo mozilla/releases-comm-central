@@ -24,7 +24,7 @@ const Template = ({ horizontal }) => html`
       position: relative;
     }
     [is="drop-indicator"] {
-      display: block;
+      display: block !important;
       inset-inline-start: 10px;
       inset-block-start: -10px;
     }

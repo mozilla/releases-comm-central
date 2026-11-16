@@ -46,11 +46,12 @@ img {
         // Only list properties with an image URL as value.
         const value = computed.getPropertyValue(property);
         return (
-          value.startsWith("url(") &&
-          (value.endsWith('.svg")') ||
-            value.endsWith('.png")') ||
-            value.endsWith('.gif")') ||
-            value.endsWith('.webp")'))
+          (value.startsWith("url(") &&
+            (value.endsWith('.svg")') ||
+              value.endsWith('.png")') ||
+              value.endsWith('.gif")') ||
+              value.endsWith('.webp")'))) ||
+          value.startsWith('url("data:image/')
         );
       })
       .sort();

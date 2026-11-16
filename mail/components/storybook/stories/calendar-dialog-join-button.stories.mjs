@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { html } from "lit";
+import "mail/themes/shared/mail/colors.css";
+import "mail/themes/shared/mail/variables.css";
+import "mail/themes/shared/mail/widgets.css";
+import "mail/themes/shared/mail/spacings.css";
+import "mail/themes/shared/mail/icons.css";
 import "mail/themes/shared/mail/calendar/calendarDialog.css";
 
 export default {

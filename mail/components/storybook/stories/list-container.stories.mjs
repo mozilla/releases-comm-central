@@ -45,7 +45,8 @@ export const List = ({ expanded }) => html`
         <span class="twisty"
           ><img
             class="twisty-icon"
-            src="chrome://messenger/skin/icons/new/compact/nav-down.svg"
+            src=""
+            style="content: var(--icon-nav-down)"
         /></span>
         List item
       </div>
