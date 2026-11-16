@@ -110,7 +110,7 @@ export var VCardUtils = {
    * @returns {string}
    */
   translateVCard21(vCard) {
-    if (!/\bVERSION:2.1\b/i.test(vCard)) {
+    if (!/\bVERSION:2\.1\b/i.test(vCard)) {
       return vCard;
     }
 
@@ -153,7 +153,7 @@ export var VCardUtils = {
     });
 
     // Strip the version.
-    return vCard.replace(/(\r?\n)VERSION:2.1\r?\n/i, "$1");
+    return vCard.replace(/(\r?\n)VERSION:2\.1\r?\n/i, "$1");
   },
   /**
    * Return a new AddrBookCard from the provided vCard string.

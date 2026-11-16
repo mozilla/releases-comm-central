@@ -284,3 +284,13 @@ add_task(async function testUnicodeLineSeparators() {
     );
   }
 });
+
+add_task(async function testOtherVersions() {
+  const vCard =
+    "BEGIN:VCARD\r\nVERSION:201\r\nTEL;CELL:1234567\r\nEND:VCARD\r\n";
+  Assert.equal(
+    VCardUtils.translateVCard21(vCard),
+    vCard,
+    "a vCard which isn't version 2.1 should not be translated"
+  );
+});
