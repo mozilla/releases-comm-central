@@ -16,6 +16,7 @@ from gecko_taskgraph.target_tasks import (
 )
 
 from comm_taskgraph.try_option_syntax import _try_cc_option_syntax
+from comm_taskgraph.util.shippable_repacks import filter_out_shippable_repacks
 
 logger = logging.getLogger(__name__)
 
@@ -99,14 +100,21 @@ def target_tasks_tb_rust_cargo_audit(full_task_graph, parameters, graph_config):
 
 @register_target_task("enterprise_thunderbird_tasks")
 def target_tasks_enterprise_thunderbird(full_task_graph, parameters, graph_config):
-    return [l for l in target_tasks_enterprise_firefox(full_task_graph, parameters, graph_config)]
+    # TODO: Drop filter_out_shippable_repacks once the repacks come from the
+    # release promotion action.
+    return filter_out_shippable_repacks(
+        full_task_graph,
+        parameters,
+        target_tasks_enterprise_firefox(full_task_graph, parameters, graph_config),
+    )
 
 
 @register_target_task("enterprise_thunderbird_with_tests_tasks")
 def target_tasks_enterprise_thunderbird_with_tests(full_task_graph, parameters, graph_config):
-    return [
-        l
-        for l in target_tasks_enterprise_firefox_with_tests(
-            full_task_graph, parameters, graph_config
-        )
-    ]
+    # TODO: Drop filter_out_shippable_repacks once the repacks come from the
+    # release promotion action.
+    return filter_out_shippable_repacks(
+        full_task_graph,
+        parameters,
+        target_tasks_enterprise_firefox_with_tests(full_task_graph, parameters, graph_config),
+    )

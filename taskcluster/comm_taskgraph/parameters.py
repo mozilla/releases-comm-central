@@ -26,6 +26,8 @@ class CommParametersSchema(GeckoParametersSchema, kw_only=True, rename=None):
     comm_head_git_repository: Optional[str] = None
     comm_head_git_rev: Optional[str] = None
     comm_src_path: str
+    # TODO: Remove with comm_taskgraph.util.shippable_repacks.
+    enterprise_schedule_shippable_repacks: bool = True
     message: str
     try_options: Optional[dict]
 

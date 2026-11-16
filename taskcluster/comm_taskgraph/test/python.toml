@@ -3,4 +3,6 @@ subsuite = "comm_taskgraph"
 
 ["test_parameters.py"]
 
+["test_shippable_repacks.py"]
+
 ["test_try_option_syntax.py"]

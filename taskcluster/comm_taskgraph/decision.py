@@ -192,12 +192,19 @@ def get_decision_parameters(graph_config, parameters):
             get_release_partner_config,
             get_release_partners,
         )
+        from comm_taskgraph.util.shippable_repacks import should_schedule_shippable_repacks
 
         parameters["release_partner_config"] = get_release_partner_config(
             parameters, graph_config
         )
         parameters["release_partners"] = get_release_partners(parameters)
         parameters["release_type"] = get_release_type(parameters)
+
+        # TODO: Remove once Thunderbird Enterprise repacks come from the
+        # release promotion action.
+        parameters["enterprise_schedule_shippable_repacks"] = should_schedule_shippable_repacks(
+            parameters, graph_config
+        )
 
     for n in (
         "COMM_BASE_REPOSITORY",
