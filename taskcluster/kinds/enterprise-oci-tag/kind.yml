@@ -1,0 +1,30 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: comm_taskgraph.loader.merge:loader
+only-for-project: enterprise-thunderbird
+reference-base-path: taskcluster/kinds
+
+kind-dependencies:
+    - enterprise-oci-upload
+    - toolchain
+
+reference-tasks:
+    - ship
+
+transforms:
+    - comm_taskgraph.transforms.enterprise:override_with_task_defaults
+    - taskgraph.transforms.from_deps
+    - comm_taskgraph.transforms.enterprise:enterprise_oci_registry
+    - gecko_taskgraph.transforms.job
+    - gecko_taskgraph.transforms.task
+
+# Applied over the Firefox Enterprise task by override_with_task_defaults.
+task-defaults:
+    run-on-projects: [enterprise-thunderbird]
+    shipping-product: thunderbird-enterprise
+    # Thunderbird Enterprise repacks are scheduled by the decision task.
+    shipping-phase: build
+    treeherder:
+        platform: thunderbird-release-enterprise/opt

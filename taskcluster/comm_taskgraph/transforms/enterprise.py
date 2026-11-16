@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import importlib
+import json
 
 from taskgraph.transforms.base import TransformSequence
 
@@ -160,4 +161,47 @@ def _firefox_enterprise_transforms(name):
     return run
 
 
+enterprise_oci_registry = _firefox_enterprise_transforms("enterprise_oci_registry")
+enterprise_release_definition = _firefox_enterprise_transforms("enterprise_release_definition")
 enterprise_repack_mar_signing = _firefox_enterprise_transforms("enterprise_repack_mar_signing")
+
+
+def _raw_prefix(repository, revision):
+    raw_base = repository.replace("https://github.com/", "https://raw.githubusercontent.com/")
+    return f"{raw_base}/{revision}/"
+
+
+@transforms.add
+def use_comm_repository_in_release_definition(config, jobs):
+    """Point the release definition at the comm repository.
+
+    gecko_taskgraph.transforms.enterprise_release_definition takes the source,
+    the revision and the in-tree policies URLs from the gecko
+    head_repository/head_rev parameters, while Thunderbird's live in the comm
+    repository.
+    """
+    params = config.params
+    gecko_prefix = _raw_prefix(params["head_repository"], params["head_rev"])
+    comm_prefix = _raw_prefix(params["comm_head_repository"], params["comm_head_rev"])
+
+    def rebase(url):
+        if url.startswith(gecko_prefix):
+            return comm_prefix + url.removeprefix(gecko_prefix)
+        return url
+
+    for job in jobs:
+        env = job["worker"]["env"]
+        definition = json.loads(env["RELEASE_DEFINITION"]["task-reference"])
+        definition["source"] = params["comm_head_repository"]
+        definition["revision"] = params["comm_head_rev"]
+
+        policies = definition["policies"]
+        policies["policies_schema"] = rebase(policies["policies_schema"])
+        policies["ftl_files"] = {
+            locale: rebase(url) for locale, url in policies["ftl_files"].items()
+        }
+
+        env["RELEASE_DEFINITION"] = {
+            "task-reference": json.dumps(definition, separators=(",", ":"))
+        }
+        yield job

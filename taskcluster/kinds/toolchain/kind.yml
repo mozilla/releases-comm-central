@@ -37,6 +37,7 @@ reference-tasks:
     - linux64-minidump-stackwalk
     - linux64-mkbom
     - linux64-mozcheck
+    - linux64-mozilla-oci-artifacts-cli
     - linux64-msix-packaging
     - linux64-nasm
     - linux64-node
@@ -61,6 +62,7 @@ reference-tasks:
     - linux64-samply
     - linux64-sccache
     - linux64-toolchain-sysroot
+    - linux64-toolchain-sysroot-deb12
     - linux64-toolchain-sysroot-gcc11
     - linux64-upx
     - linux64-uv
