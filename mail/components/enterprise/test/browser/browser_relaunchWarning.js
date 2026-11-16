@@ -105,7 +105,7 @@ add_task(async function test_relaunch_warning_is_displayed_and_updated() {
   );
 
   const restartButton = updatedNotification.buttonContainer.querySelector(
-    "button.notification-button"
+    "moz-button.notification-button"
   );
 
   Assert.ok(restartButton, "The notification should have a restart button");
