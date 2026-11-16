@@ -306,6 +306,29 @@ add_task(function testFromVCardManyProperties() {
 });
 
 /**
+ * Tests that the vCard is found in linear time, also when it never ends.
+ */
+add_task(function testFromVCardManyBegins() {
+  const count = 200000;
+  const begins = "BEGIN:VCARD\r\n".repeat(count);
+
+  Assert.equal(
+    VCardProperties.fromVCard(begins),
+    null,
+    "unterminated vCards should not be parsed"
+  );
+
+  const properties = VCardProperties.fromVCard(
+    `garbage\r\nbegin:vcard\r\nVERSION:4.0\r\nFN:first\r\nend:vcard\r\n${begins}`
+  );
+  Assert.equal(
+    properties.getFirstValue("fn"),
+    "first",
+    "the first vCard should be parsed"
+  );
+});
+
+/**
  * Tests creating a VCardProperties from a Map of old-style address book
  * properties, then recreating the Map.
  */
