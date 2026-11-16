@@ -105,8 +105,11 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     /// performing a [message creation] request.
     ///
     /// The message move request is always performed without specifying a
-    /// folder. If `folder_id` isn't [`None`], a subsequent [message move] is
-    /// performed to move the message to the desired final location.
+    /// folder. Microsoft's default behavior is to create the message in the
+    /// server's Drafts folder. If `folder_id` isn't [`None`], and the
+    /// `folder_id` is different than the folder the server placed the new
+    /// message in, a subsequent [message move] is performed to move the message
+    /// to the desired final location.
     ///
     /// [message creation]:
     ///     https://learn.microsoft.com/en-us/graph/api/user-post-messages
@@ -130,7 +133,13 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
             .send_request_json_response(request, Default::default())
             .await?;
 
-        if let Some(folder_id) = folder_id {
+        // If we received a destination folder and that folder is not the same
+        // folder that the message was created in by the server, move the
+        // message to the destination folder.
+        if let (Some(folder_id), notnull!(message_folder_id)) =
+            (folder_id, message.parent_folder_id.as_ref())
+            && (folder_id != *message_folder_id)
+        {
             // Ideally we'd create the message using `POST
             // /me/mailFolders/{id}/messages` if a folder ID is specified, but
             // in practice it looks like that endpoint does not support creating
