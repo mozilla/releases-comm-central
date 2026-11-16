@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import importlib
+
 from taskgraph.transforms.base import TransformSequence
 
 from gecko_taskgraph.transforms.repackage_routes import transforms as repackage_routes_transforms
@@ -117,3 +119,45 @@ def add_tbrust_vendor(config, jobs):
                         maybe_add_dep(job, "linux64-rust")
 
         yield job
+
+
+def _override(dest, source):
+    for key, value in source.items():
+        if isinstance(value, dict) and isinstance(dest.get(key), dict):
+            _override(dest[key], value)
+        else:
+            dest[key] = value
+
+
+@transforms.add
+def override_with_task_defaults(config, jobs):
+    """Override the Firefox Enterprise reference tasks with the kind's
+    task-defaults. Unlike the task-defaults merge, lists are replaced rather
+    than appended to."""
+    overrides = config.config.get("task-defaults", {})
+    for job in jobs:
+        _override(job, overrides)
+        yield job
+
+
+def _firefox_enterprise_transforms(name):
+    """Wrap `gecko_taskgraph.transforms.<name>`, which only Firefox Enterprise
+    has.
+
+    Kinds import their transforms even when they load no tasks, so a kind
+    listing that module directly breaks every Thunderbird graph on top of
+    mozilla-central. The wrapper imports it only on enterprise projects.
+    """
+
+    def run(config, jobs):
+        if "enterprise" not in config.params["project"]:
+            yield from jobs
+            return
+        module = importlib.import_module(f"gecko_taskgraph.transforms.{name}")
+        yield from module.transforms(config, jobs)
+
+    run.__name__ = run.__qualname__ = name
+    return run
+
+
+enterprise_repack_mar_signing = _firefox_enterprise_transforms("enterprise_repack_mar_signing")

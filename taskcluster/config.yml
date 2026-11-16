@@ -90,6 +90,7 @@ treeherder:
         'M-msix-cf': 'Mochitests confirm failure from MSIX builds'
         'Rpk-Ent': 'Enterprise repacks'
         'Rpk-Ent-Rpk': 'Enterprise repacks repackage'
+        'Rpk-Ent-Ms': 'Enterprise repacks MAR signing'
         'Rpk': 'Classic repacks'
         'MSI-Ent': "MSI Enterprise repacks"
         'MSIs-Ent': "MSI signed Enterprise repacks"

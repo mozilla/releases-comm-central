@@ -1,0 +1,33 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: comm_taskgraph.loader.merge:loader
+only-for-project: enterprise-thunderbird
+reference-base-path: taskcluster/kinds
+
+kind-dependencies:
+    - enterprise-repack-repackage
+
+reference-tasks:
+    - enterprise-repack-repackage-signing
+
+only-for-build-platforms:
+    - linux64-enterprise-shippable/opt
+    - linux64-aarch64-enterprise-shippable/opt
+    - macosx64-enterprise-shippable/opt
+    - win64-enterprise-shippable/opt
+
+transforms:
+    - comm_taskgraph.transforms.enterprise:override_with_task_defaults
+    - taskgraph.transforms.from_deps
+    # The shipping phase is copied from the enterprise-repack-repackage tasks.
+    - comm_taskgraph.transforms.enterprise:enterprise_repack_mar_signing
+    - gecko_taskgraph.transforms.task
+
+# Applied over the Firefox Enterprise task by override_with_task_defaults.
+task-defaults:
+    run-on-projects: [enterprise-thunderbird]
+    index:
+        # type and job-name are filled in by the transform, per repack id.
+        product: thunderbird
