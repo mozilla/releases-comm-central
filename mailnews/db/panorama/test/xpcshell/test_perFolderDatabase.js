@@ -204,6 +204,16 @@ add_task(async function testFolderMethods() {
   // Reset unread messages.
   folderDatabase.markRead(3, false, null);
   folderDatabase.markRead(4, false, null);
+
+  // Test listing offline messages.
+  Assert.deepEqual(folderDatabase.listAllOfflineMsgs(), []);
+  folderDatabase.markOffline(2, true, null);
+  folderDatabase.markOffline(4, true, null);
+  Assert.deepEqual(folderDatabase.listAllOfflineMsgs(), [2, 4]);
+  folderDatabase.markOffline(2, false, null);
+  Assert.deepEqual(folderDatabase.listAllOfflineMsgs(), [4]);
+  folderDatabase.markOffline(4, false, null);
+  Assert.deepEqual(folderDatabase.listAllOfflineMsgs(), []);
 });
 
 add_task(async function testFolderInfo() {

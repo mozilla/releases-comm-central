@@ -923,7 +923,7 @@ NS_IMETHODIMP PerFolderDatabase::SetSummaryValid(bool aSummaryValid) {
 }
 NS_IMETHODIMP PerFolderDatabase::ListAllOfflineMsgs(
     nsTArray<nsMsgKey>& aRetVal) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return MessageDB().ListOfflineKeys(mFolderId, aRetVal);
 }
 NS_IMETHODIMP PerFolderDatabase::SetAttributeOnPendingHdr(
     nsIMsgDBHdr* pendingHdr, const char* property, const char* propertyVal) {

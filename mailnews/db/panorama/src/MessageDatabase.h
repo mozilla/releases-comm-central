@@ -113,7 +113,10 @@ class MessageDatabase : public nsIMessageDatabase {
   friend class Thread;
   friend class ThreadMessageEnumerator;
 
+  // List the keys for all the messages in a given folder.
   nsresult ListAllKeys(uint64_t aFolderId, nsTArray<nsMsgKey>& aKeys);
+  // List the keys for all the messages with the offline flag in a given folder.
+  nsresult ListOfflineKeys(uint64_t aFolderId, nsTArray<nsMsgKey>& aKeys);
   nsresult ListThreadKeys(uint64_t folderId, uint64_t parent, uint64_t threadId,
                           nsTArray<nsMsgKey>& keys);
   nsresult GetThreadMaxDate(uint64_t folderId, uint64_t threadId,

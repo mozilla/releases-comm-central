@@ -265,8 +265,34 @@ nsresult MessageDatabase::ListAllKeys(uint64_t folderId,
   stmt->BindInt64ByName("folderId"_ns, folderId);
 
   bool hasResult;
-  while (NS_SUCCEEDED(stmt->ExecuteStep(&hasResult)) && hasResult) {
+  MOZ_TRY(stmt->ExecuteStep(&hasResult));
+  while (hasResult) {
     keys.AppendElement((nsMsgKey)(stmt->AsInt64(0)));
+    MOZ_TRY(stmt->ExecuteStep(&hasResult));
+  }
+
+  return NS_OK;
+}
+
+nsresult MessageDatabase::ListOfflineKeys(uint64_t aFolderId,
+                                          nsTArray<nsMsgKey>& aKeys) {
+  aKeys.Clear();
+
+  nsCOMPtr<mozIStorageStatement> stmt;
+  nsresult rv = DatabaseCore::GetStatement(
+      "ListOfflineKeys"_ns,
+      "SELECT id FROM messages WHERE folderId = :folderId AND flags & :flag != 0"_ns,
+      getter_AddRefs(stmt));
+  NS_ENSURE_SUCCESS(rv, rv);
+  mozStorageStatementScoper scoper(stmt);
+  stmt->BindInt64ByName("folderId"_ns, aFolderId);
+  stmt->BindInt64ByName("flag"_ns, nsMsgMessageFlags::Offline);
+
+  bool hasResult;
+  MOZ_TRY(stmt->ExecuteStep(&hasResult));
+  while (hasResult) {
+    aKeys.AppendElement((nsMsgKey)(stmt->AsInt64(0)));
+    MOZ_TRY(stmt->ExecuteStep(&hasResult));
   }
 
   return NS_OK;
