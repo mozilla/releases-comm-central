@@ -23,10 +23,13 @@ class nsIDBChangeListener;
 
 namespace mozilla::mailnews {
 
+class OfflineOperation;
+
 class PerFolderDatabase : public nsIMsgDatabase,
                           public SupportsWeakPtr,
                           public MessageListener {
  public:
+  PerFolderDatabase() = delete;
   explicit PerFolderDatabase(uint64_t folderId, bool isNewsFolder)
       : mFolderId(folderId), mIsNewsFolder(isNewsFolder) {
     MessageDB().AddMessageListener(this);
@@ -62,6 +65,10 @@ class PerFolderDatabase : public nsIMsgDatabase,
   bool mIsNewsFolder;
   nsTArray<nsMsgKey> mNewList;
   nsTObserverArray<RefPtr<nsIDBChangeListener>> mListeners;
+
+  // Some nsIMsgOfflineImapOperation support.
+  // Not persisted to databse.
+  mozilla::HashMap<nsMsgKey, RefPtr<OfflineOperation>> mOfflineOps;
 };
 
 class MessageEnumerator : public nsBaseMsgEnumerator {

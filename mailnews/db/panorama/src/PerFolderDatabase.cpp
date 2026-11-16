@@ -15,7 +15,10 @@
 #include "mozIStorageBindingParamsArray.h"
 #include "mozIStorageStatement.h"
 #include "mozStorageHelper.h"
+#include "nsDebug.h"
+#include "nsImapCore.h"  // For kImapMsgDeletedFlag
 #include "nsIMsgDBView.h"
+#include "nsIMsgOfflineImapOperation.h"
 #include "nsMsgMessageFlags.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
@@ -23,6 +26,223 @@
 #include "Thread.h"
 
 namespace mozilla::mailnews {
+
+// nsIMsgOfflineImapOperation implementation for PerFolderDatabase
+// Private to this cpp file.
+
+class OfflineOperation : public nsIMsgOfflineImapOperation {
+ public:
+  OfflineOperation() = delete;
+
+  // Key is usually but not always a valid message key.
+  // But sometimes the corresponding message has already been deleted, or
+  // a fake key is being used...
+  explicit OfflineOperation(nsMsgKey key) : mMessageKey(key) {}
+
+  NS_DECL_ISUPPORTS
+
+  NS_IMETHODIMP GetOperation(nsOfflineImapOperationType* operation) override {
+    NS_ENSURE_ARG(operation);
+    *operation = mOperation;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetFlagsChangedOp(imapMessageFlagsType imapFlags) override {
+    MOZ_TRY(SetNewFlags(imapFlags));
+    mOperation |= kFlagsChanged;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetMsgMovedOp() override {
+    mOperation |= kMsgMoved;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetMsgCopyOp(const nsACString& destinationBox) override {
+    mCopyDestinations.AppendElement(destinationBox);
+    mOperation |= kMsgCopy;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetMoveResultOp(const nsACString& sourceFolderUri) override {
+    mSourceFolderUri = sourceFolderUri;
+    mOperation |= kMoveResult;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetAppendDraftOp(const nsACString& destFolderUri) override {
+    MOZ_TRY(SetDestinationFolderURI(destFolderUri));
+    mOperation |= kAppendDraft;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetDeleteAllMsgsOp() override {
+    mOperation |= kDeleteAllMsgs;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetAddKeywordsOp(nsACString const& keyword) override {
+    if (!mKeywordsToAdd.Contains(keyword)) {
+      mKeywordsToAdd.AppendElement(keyword);
+    }
+    mOperation |= kAddKeywords;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetRemoveKeywordsOp(nsACString const& keyword) override {
+    if (!mKeywordsToRemove.Contains(keyword)) {
+      mKeywordsToRemove.AppendElement(keyword);
+    }
+    mOperation |= kRemoveKeywords;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP ClearOperation(nsOfflineImapOperationType operation) override {
+    mOperation &= ~operation;
+    switch (operation) {
+      case kMsgMoved:
+      case kAppendTemplate:
+      case kAppendDraft:
+        mDestinationFolderUri.Truncate();
+        break;
+      case kMsgCopy:
+        NS_ENSURE_TRUE(!mCopyDestinations.IsEmpty(), NS_ERROR_UNEXPECTED);
+        mCopyDestinations.RemoveElementAt(0);
+        // NOTE: Likely bug: shouldn't this also keep kMsgCopy set if there
+        // are more destinations?
+        break;
+    }
+    return NS_OK;
+  }
+
+  /* attribute nsMsgKey messageKey; */
+  NS_IMETHODIMP GetMessageKey(nsMsgKey* messageKey) override {
+    NS_ENSURE_ARG(messageKey);
+    *messageKey = mMessageKey;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetMessageKey(nsMsgKey messageKey) override {
+    mMessageKey = messageKey;
+    return NS_OK;
+  }
+
+  /* attribute nsMsgKey srcMessageKey; */
+  NS_IMETHODIMP GetSrcMessageKey(nsMsgKey* srcMessageKey) override {
+    NS_ENSURE_ARG(srcMessageKey);
+    *srcMessageKey = mSrcMessageKey;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetSrcMessageKey(nsMsgKey srcMessageKey) override {
+    mSrcMessageKey = srcMessageKey;
+    return NS_OK;
+  }
+
+  /* attribute unsigned long srcUid; */
+  NS_IMETHODIMP GetSrcUid(ImapUid* uid) override {
+    NS_ENSURE_ARG(uid);
+    *uid = mSrcUid;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetSrcUid(ImapUid uid) override {
+    mSrcUid = uid;
+    return NS_OK;
+  }
+
+  /* attribute imapMessageFlagsType flagOperation; */
+  NS_IMETHODIMP GetNewFlags(imapMessageFlagsType* newFlags) override {
+    NS_ENSURE_ARG(newFlags);
+    *newFlags = mNewFlags;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetNewFlags(imapMessageFlagsType newFlags) override {
+    mNewFlags = newFlags;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP GetDestinationFolderURI(
+      nsACString& destinationFolderUri) override {
+    destinationFolderUri = mDestinationFolderUri;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetDestinationFolderURI(
+      const nsACString& destinationFolderUri) override {
+    mDestinationFolderUri = destinationFolderUri;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP GetMoveSourceFolderUri(nsACString& sourceFolderUri) override {
+    sourceFolderUri = mSourceFolderUri;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP GetKeywordsToAdd(nsACString& keywords) override {
+    keywords = StringJoin(" "_ns, mKeywordsToAdd);
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP GetKeywordsToRemove(nsACString& keywords) override {
+    keywords = StringJoin(" "_ns, mKeywordsToRemove);
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP GetCopyDestination(int32_t copyIndex,
+                                   nsACString& retval) override {
+    if (copyIndex >= (int32_t)mCopyDestinations.Length()) {
+      return NS_ERROR_ILLEGAL_VALUE;
+    }
+    retval = mCopyDestinations.ElementAt(copyIndex);
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP GetMsgSize(uint32_t* msgSize) override {
+    NS_ENSURE_ARG(msgSize);
+    *msgSize = mMsgSize;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetMsgSize(uint32_t msgSize) override {
+    mMsgSize = msgSize;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP SetPlayingBack(bool playingBack) override {
+    mPlayingBack = playingBack;
+    return NS_OK;
+  }
+
+  NS_IMETHODIMP GetPlayingBack(bool* playingBack) override {
+    NS_ENSURE_ARG(playingBack);
+    *playingBack = mPlayingBack;
+    return NS_OK;
+  }
+
+ protected:
+  virtual ~OfflineOperation() {}
+
+ private:
+  nsMsgKey mMessageKey{nsMsgKey_None};
+  uint32_t mOperation{0};
+  nsMsgKey mSrcMessageKey{nsMsgKey_None};
+  ImapUid mSrcUid{0};
+  imapMessageFlagsType mNewFlags{0};
+  nsCString mDestinationFolderUri;
+  nsCString mSourceFolderUri;
+  nsTArray<nsCString> mKeywordsToAdd;
+  nsTArray<nsCString> mKeywordsToRemove;
+  uint32_t mMsgSize{0};
+  nsTArray<nsCString> mCopyDestinations;
+
+  bool mPlayingBack{false};
+};
+
+NS_IMPL_ISUPPORTS(OfflineOperation, nsIMsgOfflineImapOperation)
+
+// PerFolderDatabase
 
 NS_IMPL_ISUPPORTS(PerFolderDatabase, nsIDBChangeAnnouncer, nsIMsgDatabase)
 
@@ -728,10 +948,24 @@ NS_IMETHODIMP PerFolderDatabase::SetNextPseudoMsgKey(
     nsMsgKey aNextPseudoMsgKey) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
+
 NS_IMETHODIMP PerFolderDatabase::GetNextFakeOfflineMsgKey(
-    nsMsgKey* aNextFakeOfflineMsgKey) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsMsgKey* nextFakeOfflineMsgKey) {
+  // NOTE: if .nextFakeOfflineMsgKey survives beyond
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=2093129 then it should
+  // probably return a fake key which is unique across all folders.
+  constexpr nsMsgKey kIdStartOfFake = 0xffffff80;
+
+  NS_ENSURE_ARG_POINTER(nextFakeOfflineMsgKey);
+
+  nsMsgKey fakeKey = kIdStartOfFake;
+  while (mOfflineOps.has(fakeKey)) {
+    --fakeKey;
+  }
+  *nextFakeOfflineMsgKey = fakeKey;
+  return NS_OK;
 }
+
 NS_IMETHODIMP PerFolderDatabase::GetDefaultViewFlags(
     nsMsgViewFlagsTypeValue* viewFlags) {
   NS_ENSURE_ARG_POINTER(viewFlags);
@@ -890,24 +1124,74 @@ NS_IMETHODIMP PerFolderDatabase::DeleteFolder() {
   return NS_OK;
 }
 
-// nsIMsgOfflineOpsDatabase
+// nsIMsgOfflineImapOperation-related methods
 
 NS_IMETHODIMP PerFolderDatabase::GetOfflineOpForKey(
-    unsigned int, bool, nsIMsgOfflineImapOperation**) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsMsgKey msgKey, bool create, nsIMsgOfflineImapOperation** offlineOp) {
+  if (auto p = mOfflineOps.lookup(msgKey)) {
+    // Return the existing one.
+    RefPtr<OfflineOperation> op(p->value());
+    op.forget(offlineOp);
+    return NS_OK;
+  }
+  // Not found. Create one if we were asked to.
+  if (!create) {
+    *offlineOp = nullptr;
+    return NS_OK;
+  }
+
+  // NOTE: for some offline ops there is no corresponding message, so msgKey
+  // will be a fake value.
+  RefPtr<OfflineOperation> op = new OfflineOperation(msgKey);
+  MOZ_ALWAYS_TRUE(mOfflineOps.putNew(msgKey, op));
+  op.forget(offlineOp);
+  return NS_OK;
 }
-NS_IMETHODIMP PerFolderDatabase::RemoveOfflineOp(nsIMsgOfflineImapOperation*) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+
+NS_IMETHODIMP PerFolderDatabase::RemoveOfflineOp(
+    nsIMsgOfflineImapOperation* op) {
+  nsMsgKey key;
+  MOZ_TRY(op->GetMessageKey(&key));
+  mOfflineOps.remove(key);
+  return NS_OK;
 }
-NS_IMETHODIMP PerFolderDatabase::ListAllOfflineOpIds(nsTArray<unsigned int>&) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+
+NS_IMETHODIMP PerFolderDatabase::ListAllOfflineOpIds(nsTArray<nsMsgKey>& ids) {
+  ids.ClearAndRetainStorage();
+  ids.SetCapacity(mOfflineOps.count());
+  for (auto it = mOfflineOps.iter(); !it.done(); it.next()) {
+    ids.AppendElement(it.get().key());
+  }
+  return NS_OK;
 }
+
 NS_IMETHODIMP PerFolderDatabase::ListAllOfflineDeletes(
-    nsTArray<unsigned int>&) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+    nsTArray<nsMsgKey>& ids) {
+  ids.ClearAndRetainStorage();
+  for (auto it = mOfflineOps.iter(); !it.done(); it.next()) {
+    OfflineOperation* op = it.get().value();
+    nsOfflineImapOperationType opType;
+    imapMessageFlagsType newFlags;
+    MOZ_TRY(op->GetOperation(&opType));
+    MOZ_TRY(op->GetNewFlags(&newFlags));
+
+    // It seems like this should also be checking for
+    // nsIMsgOfflineImapOperation::kDeletedMsg here, but the mork
+    // implementation doesn't so there might be good reasons.
+    // For now we'll follow what the old implementation does.
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=2089877
+    if (opType & nsIMsgOfflineImapOperation::kMsgMoved ||
+        ((opType & nsIMsgOfflineImapOperation::kFlagsChanged) &&
+         (newFlags & kImapMsgDeletedFlag))) {
+      ids.AppendElement(it.get().key());
+    }
+  }
+  return NS_OK;
 }
-NS_IMETHODIMP PerFolderDatabase::HasOfflineActivity(bool*) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP PerFolderDatabase::HasOfflineActivity(bool* hasOfflineActivity) {
+  NS_ENSURE_ARG(hasOfflineActivity);
+  *hasOfflineActivity = (mOfflineOps.count() > 0);
+  return NS_OK;
 }
 
 MessageEnumerator::MessageEnumerator(mozIStorageStatement* aStmt)

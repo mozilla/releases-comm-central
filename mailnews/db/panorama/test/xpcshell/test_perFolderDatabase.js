@@ -577,3 +577,54 @@ add_task(async function testListener() {
   // TODO
   //Assert.equal(headerRemoved.getStringProperty("keywords"), "");
 });
+
+// Test the methods dealing with offline ops.
+add_task(async function testOfflineOps() {
+  const folder = await rootFolder.createSubfolderAsync("offlineOpsTest");
+
+  const db = folder.msgDatabase;
+  Assert.equal(
+    db.getOfflineOpForKey(1234, false),
+    null,
+    "Fetching non-existant op should return null."
+  );
+  Assert.deepEqual(db.listAllOfflineOpIds(), []);
+  Assert.equal(db.hasOfflineActivity(), false);
+
+  const op1 = db.getOfflineOpForKey(1234, true);
+  Assert.ok(op1, "Should be able to create an op");
+  Assert.equal(db.hasOfflineActivity(), true);
+  Assert.equal(db.getOfflineOpForKey(1234, false), op1);
+  Assert.deepEqual(db.listAllOfflineOpIds(), [1234]);
+
+  // Add op2 as kMsgMoved ("message has been moved out of the folder").
+  const op2 = db.getOfflineOpForKey(9999, true);
+  Assert.ok(op2, "Should be able to create another op");
+  op2.setMsgMovedOp();
+  Assert.equal(db.getOfflineOpForKey(9999, false), op2);
+  Assert.deepEqual(db.listAllOfflineOpIds().toSorted(), [1234, 9999]);
+
+  Assert.deepEqual(
+    db.listAllOfflineDeletes(),
+    [9999],
+    "kMsgMoved counts as a message deletion"
+  );
+
+  db.removeOfflineOp(op1);
+  Assert.equal(db.getOfflineOpForKey(1234, false), null, "op1 should be gone");
+  Assert.deepEqual(db.listAllOfflineOpIds(), [9999]);
+  Assert.equal(
+    db.hasOfflineActivity(),
+    true,
+    "DB should still have offline ops"
+  );
+
+  db.removeOfflineOp(op2);
+  Assert.equal(db.getOfflineOpForKey(9999, false), null, "op2 should be gone");
+  Assert.deepEqual(db.listAllOfflineOpIds(), []);
+  Assert.equal(
+    db.hasOfflineActivity(),
+    false,
+    "DB should not have any offline ops left"
+  );
+});

@@ -121,8 +121,9 @@ If the filter triggers and decides to move the incoming message to another folde
 
 The main interface is [`nsIMsgDatabase`](https://searchfox.org/comm-central/search?q=interface+nsIMsgDatabase+).
 
-There are also interfaces which provide extra functionality used by IMAP ([`nsIMsgOfflineOpsDatabase`](https://searchfox.org/comm-central/search?q=interface+nsIMsgOfflineOpsDatabase+)) and News ([`nsINewsDatabase`](https://searchfox.org/comm-central/search?q=interface+nsINewsDatabase+)).
+There is also an interface which provides extra functionality for News ([`nsINewsDatabase`](https://searchfox.org/comm-central/search?q=interface+nsINewsDatabase+)).
 But such protocol-specific functionality has tended to smear out over the years, and there's probably a good argument for consolidating it all into a single interface (and implementation).
+This has already happened for IMAP: the `nsIMsgOfflineImapOperation`-related functions used to be in a separate interface but have now been absorbed into `nsIMsgDatabase`.
 
 `nsIMsgDatabase` inherits from [`nsIDBChangeAnnouncer`](https://searchfox.org/comm-central/search?q=interface+nsIDBChangeAnnouncer+), which provides methods for listeners to register interest for notifications when changes are made to the database.
 
