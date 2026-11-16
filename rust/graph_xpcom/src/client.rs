@@ -37,6 +37,7 @@ mod change_read_status_all;
 mod check_connectivity;
 mod copy_folder;
 mod copy_message;
+mod create_calendar_event;
 mod create_folder;
 mod create_message;
 mod delete_folder;

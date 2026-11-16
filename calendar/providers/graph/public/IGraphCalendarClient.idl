@@ -8,6 +8,8 @@ interface IGraphCalendarDiscoveryListener;
 interface IGraphCalendarEventListener;
 interface IGraphCalendarInfo;
 
+interface IExchangeSimpleOperationListener;
+
 [scriptable, uuid(2df1d00a-8419-4292-826a-15b143b78544)]
 interface IGraphCalendarClient : nsISupports
 {
@@ -16,6 +18,27 @@ interface IGraphCalendarClient : nsISupports
         in AUTF8String calendarId,
         in IGraphCalendarEventListener listener,
         in AUTF8String syncState);
+
+    /**
+     * Create a calendar event on the remote server.
+     *
+     * Time strings should be of the form `<date>T<time>` where `<date>` is of
+     * the form `YYYY-MM-DD` and `<time>` is of the form `HH:mm:ss.ssssss`.
+     *
+     * Time zone strings should be valid Microsoft or IANA time zone identifiers.
+     *
+     * Valid time zone values are documented at
+     * https://learn.microsoft.com/en-us/graph/api/resources/datetimetimezone?view=graph-rest-1.0
+     * https://learn.microsoft.com/en-us/graph/api/resources/datetimetimezone?view=graph-rest-1.0#additional-time-zones
+     */
+    void createCalendarEvent(
+        in AUTF8String calendarId,
+        in AUTF8String title,
+        in AUTF8String startDateTime,
+        in AUTF8String startTimezone,
+        in AUTF8String endDateTime,
+        in AUTF8String endTimeZone,
+        in IExchangeSimpleOperationListener listener);
 };
 
 [scriptable, uuid(54e4b644-a8a3-4d46-8920-81880f9208ec)]

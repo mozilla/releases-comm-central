@@ -209,11 +209,34 @@ export class GraphCalendar extends cal.provider.BaseClass {
   /**
    * Add an item to the calendar.
    *
-   * @param {calIItemBase} _item - Item to add
+   * @param {calIItemBase} item - Item to add
    * @returns {Promise<calIItemBase>}
    */
-  async addItem(_item) {
-    throw new Components.Exception("addItem", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  async addItem(item) {
+    const newItem = item.clone();
+    const client = MailServices.protocolClient
+      .getClient("graph", this.location, this.username)
+      .QueryInterface(Ci.IGraphCalendarClient);
+    const listener = new EventCreateListener();
+    client.createCalendarEvent(
+      this.id,
+      newItem.title,
+      newItem.startDate.toString(),
+      newItem.startDate.timezone.toString(),
+      newItem.endDate.toString(),
+      newItem.endDate.timezone.toString(),
+      listener
+    );
+    const newIds = await listener.getNewIds();
+    if (newIds.length != 1) {
+      throw new Components.Exception(
+        `Unexpected number of created IDs: ${newIds.length}`,
+        Cr.NS_ERROR_UNEXPECTED
+      );
+    }
+    newItem.id = newIds[0];
+    this.backingCalendar.addItem(newItem);
+    return newItem;
   }
 
   /**
@@ -250,11 +273,11 @@ export class GraphCalendar extends cal.provider.BaseClass {
   /**
    * Get a single item by ID.
    *
-   * @param {string} _id - Item UID
+   * @param {string} id - Item UID
    * @returns {Promise<calIItemBase|null>}
    */
-  async getItem(_id) {
-    throw new Components.Exception("getItem", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  async getItem(id) {
+    return await this.backingCalendar.getItem(id);
   }
 
   /**
@@ -545,6 +568,53 @@ class EventSyncListener extends cal.data.OperationGroup {
     if (listener) {
       this.#additionalListeners.add(listener);
     }
+  }
+}
+
+/**
+ * Listener class to manage a promise associated with the Graph client callback
+ * structure.
+ *
+ * @implements {IExchangeSimpleOperationListener}
+ */
+class EventCreateListener {
+  QueryInterface = ChromeUtils.generateQI(["IExchangeSimpleOperationListener"]);
+
+  /**
+   * The promise that will resolve when the callback completes.
+   *
+   * @type {Promise<string[]>}
+   */
+  #promise;
+
+  /**
+   * The promise resolve callback.
+   */
+  #resolve;
+
+  constructor() {
+    const { promise, resolve } = Promise.withResolvers();
+    this.#promise = promise;
+    this.#resolve = resolve;
+  }
+
+  /**
+   * Notify that the operation was successful.
+   *
+   * @param {string[]} newIds
+   * @param {*} _useLegacyFallback
+   */
+  onOperationSuccess(newIds, _useLegacyFallback) {
+    this.#resolve(newIds);
+  }
+
+  /**
+   * Wait until the new IDs have been created and return them.
+   *
+   * @returns {string[]}
+   */
+  async getNewIds() {
+    return await this.#promise;
   }
 }
 

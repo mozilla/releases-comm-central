@@ -614,4 +614,44 @@ impl XpcomGraphBridge {
 
         Ok(())
     }
+
+    xpcom_method!(create_calendar_event => CreateCalendarEvent(
+        calendar_id: *const nsACString,
+        title: *const nsACString,
+        start_date_time: *const nsACString,
+        start_timezone: *const nsACString,
+        end_date_time: *const nsACString,
+        end_timezone: *const nsACString,
+        listener: *const IExchangeSimpleOperationListener
+    ));
+    fn create_calendar_event(
+        &self,
+        calendar_id: &nsACString,
+        title: &nsACString,
+        start_date_time: &nsACString,
+        start_timezone: &nsACString,
+        end_date_time: &nsACString,
+        end_timezone: &nsACString,
+        listener: &IExchangeSimpleOperationListener,
+    ) -> Result<(), nsresult> {
+        let client = self.client.clone();
+
+        let listener = SafeExchangeSimpleOperationListener::new(listener);
+
+        moz_task::spawn_local(
+            "create_calendar_event",
+            client.create_calendar_event(
+                calendar_id.to_string(),
+                title.to_string(),
+                start_date_time.to_string(),
+                start_timezone.to_string(),
+                end_date_time.to_string(),
+                end_timezone.to_string(),
+                listener,
+            ),
+        )
+        .detach();
+
+        Ok(())
+    }
 }

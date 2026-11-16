@@ -2,6 +2,8 @@
 head = "../head.js head.js"
 prefs = ["calendar.graph.enabled=true"]
 
+["test_createEvent.js"]
+
 ["test_graphCalendar.js"]
 
 ["test_graphProvider.js"]

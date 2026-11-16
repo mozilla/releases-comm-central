@@ -11,6 +11,7 @@ import {
 
 import {
   EmailAddress,
+  GraphCalendarEvent,
   GraphMessage,
   HttpResponseData,
 } from "resource://testing-common/mailnews/GraphTypes.sys.mjs";
@@ -505,7 +506,13 @@ export class GraphServer extends MockServer {
         break;
 
       case "POST":
-        if (operationPath === "/messages") {
+        if ((pathMatch = /\/calendars\/([0-9a-zA-Z=]+)/.exec(operationPath))) {
+          const calendarId = pathMatch[1];
+          responseJsonObject = this.#createCalendarEvent(
+            calendarId,
+            requestBody
+          );
+        } else if (operationPath === "/messages") {
           responseJsonObject = this.#createMessage(requestBody);
         } else if (
           operationPath.startsWith("/messages") &&
@@ -1220,6 +1227,31 @@ export class GraphServer extends MockServer {
   #deleteMessage(resourcePath) {
     const messageId = resourcePath.split("/").at(-1);
     this.deleteItem(messageId);
+  }
+
+  /**
+   * Handle POST /calendars/{calendarId}
+   *
+   * @param {string} calendarId
+   * @param {string} requestBody
+   * @returns {object}
+   */
+  #createCalendarEvent(calendarId, requestBody) {
+    const parsedReq = JSON.parse(requestBody);
+
+    const newEvent = new GraphCalendarEvent(
+      `create-event-${this.#calendarEvents.length}`,
+      parsedReq.subject,
+      {
+        dateTime: parsedReq.start.dateTime,
+        timeZone: parsedReq.start.timezone,
+      },
+      { dateTime: parsedReq.end.dateTime, timeZone: parsedReq.end.timezone }
+    );
+
+    this.addCalendarEvent(calendarId, newEvent);
+
+    return newEvent.toJSON();
   }
 
   get #apparentEndpoint() {
