@@ -89,32 +89,32 @@ export class CalItipMessageSender {
 
       if (originalItem.recurrenceInfo && item.recurrenceInfo) {
         // check whether the two differ only in EXDATEs
+        const isExdate = ritem =>
+          (ritem instanceof lazy.CalRecurrenceDate || ritem instanceof Ci.calIRecurrenceDate) &&
+          ritem.isNegative;
+        const exdateKey = date => `${date.icalString}|${date.timezone.tzid}`;
+        const originalExdateKeys = new Set(
+          originalItem.recurrenceInfo
+            .getRecurrenceItems()
+            .filter(isExdate)
+            .map(ritem => exdateKey(ritem.date))
+        );
+
         const clonedItem = item.clone();
         const exdates = [];
+        const otherItems = [];
         for (const ritem of clonedItem.recurrenceInfo.getRecurrenceItems()) {
-          if (
-            !(ritem instanceof lazy.CalRecurrenceDate || ritem instanceof Ci.calIRecurrenceDate)
-          ) {
-            continue;
-          }
-          if (
-            ritem.isNegative &&
-            !originalItem.recurrenceInfo.getRecurrenceItems().some(recitem => {
-              return (
-                (recitem instanceof lazy.CalRecurrenceDate ||
-                  recitem instanceof Ci.calIRecurrenceDate) &&
-                recitem.isNegative &&
-                recitem.date.compare(ritem.date) == 0
-              );
-            })
-          ) {
+          if (isExdate(ritem) && !originalExdateKeys.has(exdateKey(ritem.date))) {
             exdates.push(ritem);
+          } else {
+            otherItems.push(ritem);
           }
         }
         if (exdates.length > 0) {
           // check whether really only EXDATEs have been added:
           const recInfo = clonedItem.recurrenceInfo;
-          exdates.forEach(recInfo.deleteRecurrenceItem, recInfo);
+          recInfo.clearRecurrenceItems();
+          otherItems.forEach(recInfo.appendRecurrenceItem, recInfo);
           if (cal.item.compareContent(clonedItem, originalItem)) {
             // transition into "delete occurrence(s)"
             // xxx todo: support multiple

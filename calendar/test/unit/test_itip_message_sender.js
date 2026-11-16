@@ -230,6 +230,62 @@ add_task(async function testAddAdditionalAttendee() {
   await calendar.deleteItem(modifiedItem);
 });
 
+add_task(async function testOccurrenceDeletedFromOwnEvent() {
+  const icalString = CalendarTestUtils.dedent`
+      BEGIN:VEVENT
+      CREATED:20210105T000000Z
+      DTSTAMP:20210501T000000Z
+      UID:2a3f5bd6-0d7e-4c1c-9a4b-3c1d4e8b8f21
+      DTSTART:20210105T090000Z
+      DTEND:20210105T100000Z
+      RRULE:FREQ=DAILY;COUNT=10
+      EXDATE:20210106T090000Z,20210107T090000Z
+      EXDATE;VALUE=DATE:20210108
+      STATUS:CONFIRMED
+      SUMMARY:Test Event
+      ORGANIZER;CN=${identityEmail}:${cal.email.prependMailTo(identityEmail)}
+      ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;
+        RSVP=TRUE;CN=other@example.com;:mailto:other@example.com
+      X-MOZ-SEND-INVITATIONS:TRUE
+      END:VEVENT
+    `;
+
+  const savedItem = await calendar.addItem(new CalEvent(icalString));
+
+  const occurrenceDate = cal.createDateTime("20210110T090000Z");
+  const targetItem = savedItem.clone();
+  targetItem.recurrenceInfo.removeOccurrenceAt(occurrenceDate);
+  const modifiedItem = await calendar.modifyItem(targetItem, savedItem);
+
+  const sender = new CalItipMessageSender(savedItem, null);
+  const result = sender.buildOutgoingMessages(Ci.calIOperationListener.MODIFY, modifiedItem);
+  Assert.equal(result, 1, "return value should indicate there are pending messages");
+
+  const [msg] = sender.pendingMessages;
+  Assert.equal(msg.method, "CANCEL", "message method should be 'CANCEL'");
+  Assert.equal(
+    msg.item.recurrenceId.compare(occurrenceDate),
+    0,
+    "message should cancel the removed occurrence"
+  );
+
+  const renamedItem = modifiedItem.clone();
+  renamedItem.title = "Renamed Event";
+  renamedItem.setProperty("SEQUENCE", "1");
+  const savedRenamedItem = await calendar.modifyItem(renamedItem, modifiedItem);
+
+  const sender2 = new CalItipMessageSender(modifiedItem, null);
+  const result2 = sender2.buildOutgoingMessages(Ci.calIOperationListener.MODIFY, savedRenamedItem);
+  Assert.equal(result2, 1, "return value should indicate there are pending messages");
+  Assert.equal(
+    sender2.pendingMessages[0].method,
+    "REQUEST",
+    "message method should be 'REQUEST' when the existing EXDATEs are unchanged"
+  );
+
+  await calendar.deleteItem(savedRenamedItem);
+});
+
 add_task(async function testInvitationReceived() {
   const item = createIncomingEvent(eventOrganizerEmail, identityEmail);
   const savedItem = await calendar.addItem(item);
