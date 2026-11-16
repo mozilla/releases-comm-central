@@ -201,3 +201,34 @@ add_task(async function testManyQuotedPrintableSoftBreaks() {
     "soft line breaks should all be joined"
   );
 });
+
+add_task(async function testQuotedPrintableMarkers() {
+  const count = 200000;
+  const markers = ";ENCODING=QUOTED-PRINTABLE;".repeat(count);
+  const vCard = `BEGIN:VCARD\r\nVERSION:2.1\r\nNOTE${markers}:A\r\nEND:VCARD\r\n`;
+  Assert.equal(
+    VCardUtils.translateVCard21(vCard).length,
+    vCard.length - "VERSION:2.1\r\n".length,
+    "a line which isn't wrapped should be kept"
+  );
+
+  Assert.equal(
+    VCardUtils.translateVCard21(
+      "BEGIN:VCARD\r\nVERSION:2.1\r\nTITLE:bar=\r\nNOTE;ENCODING=QUOTED-PRINTABLE:A=\r\nB\r\nEND:VCARD\r\n"
+    ),
+    "BEGIN:VCARD\r\nTITLE:bar=\r\nNOTE;ENCODING=QUOTED-PRINTABLE:AB\r\nEND:VCARD\r\n",
+    "only lines from the quoted-printable one should be joined"
+  );
+});
+
+add_task(async function testUnicodeLineSeparators() {
+  const count = 200000;
+  for (const separator of ["\u2028", "\u2029"]) {
+    const vCard = `BEGIN:VCARD\r\nVERSION:2.1\r\nNOTE:${`a=${separator}`.repeat(count)}b\r\nEND:VCARD\r\n`;
+    Assert.equal(
+      VCardUtils.translateVCard21(vCard).length,
+      vCard.length - "VERSION:2.1\r\n".length,
+      "a line with Unicode line separators should be kept"
+    );
+  }
+});
