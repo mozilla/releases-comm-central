@@ -11,7 +11,6 @@
 #include "nsIOutputStream.h"
 #include "nsIChannel.h"
 #include "nsILoadGroup.h"
-#include "nsIFile.h"
 #include "nsCOMPtr.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIProgressEventSink.h"
@@ -64,16 +63,6 @@ class nsMsgProtocol : public nsIStreamListener,
 
  protected:
   virtual ~nsMsgProtocol();
-
-  // methods for opening and closing a socket with core netlib....
-  // mscott -okay this is lame. I should break this up into a file protocol and
-  // a socket based protocol class instead of cheating and putting both methods
-  // here...
-
-  // helper routine
-  nsresult GetFileFromURL(nsIURI* aURL, nsIFile** aResult);
-  // Used to open a file socket connection.
-  virtual nsresult OpenFileSocket(nsIURI* aURL);
 
   virtual const char* GetType() { return nullptr; }
   nsresult GetQoSBits(uint8_t* aQoSBits);

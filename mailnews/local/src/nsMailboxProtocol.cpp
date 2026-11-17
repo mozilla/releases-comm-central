@@ -23,6 +23,8 @@
 #include "prprf.h"
 #include "nspr.h"
 #include "nsIStreamTransportService.h"
+#include "nsIFile.h"
+#include "nsIFileStreams.h"
 #include "nsIStreamConverterService.h"
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
@@ -208,7 +210,27 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
       m_runningUrl->GetMessageKey(&msgKey);
       if (msgKey == 0) {
         // This appears to be an .eml file.
-        rv = OpenFileSocket(aURL);
+        nsAutoCString escapedPath;
+        rv = aURL->GetFilePath(escapedPath);
+        NS_ENSURE_SUCCESS(rv, rv);
+        nsCOMPtr<nsIFile> file;
+        rv = NS_GetFileFromURLSpec("file://"_ns + escapedPath,
+                                   getter_AddRefs(file));
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        nsCOMPtr<nsIInputStream> stream;
+        // Defer opening the file until it's read, which happens after the
+        // content policy has been consulted.
+        rv = NS_NewLocalFileInputStream(getter_AddRefs(stream), file, -1, -1,
+                                        nsIFileInputStream::DEFER_OPEN);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        nsCOMPtr<nsIStreamTransportService> sts =
+            mozilla::components::StreamTransport::Service();
+        rv = sts->CreateInputTransport(stream, true,
+                                       getter_AddRefs(m_transport));
+        NS_ENSURE_SUCCESS(rv, rv);
+        m_socketIsOpen = false;
       } else {
         nsCOMPtr<nsIMsgMessageUrl> msgUrl = m_runningUrl.get();
         if (msgUrl) {

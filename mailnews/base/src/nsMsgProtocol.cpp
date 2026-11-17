@@ -10,7 +10,6 @@
 #include "nsMemory.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"
-#include "nsIStreamTransportService.h"
 #include "nsISocketTransportService.h"
 #include "nsISocketTransport.h"
 #include "nsITLSSocketControl.h"
@@ -19,8 +18,6 @@
 #include "nsILoadInfo.h"
 #include "nsIIOService.h"
 #include "nsNetUtil.h"
-#include "nsIFileURL.h"
-#include "nsIFileStreams.h"
 #include "nsIWebProgressListener.h"
 #include "nsIPipe.h"
 #include "nsIPrompt.h"
@@ -91,52 +88,6 @@ nsresult nsMsgProtocol::GetQoSBits(uint8_t* aQoSBits) {
   int32_t val = Preferences::GetInt(prefName.get());
   *aQoSBits = (uint8_t)std::clamp(val, 0, 0xff);
   return NS_OK;
-}
-
-nsresult nsMsgProtocol::GetFileFromURL(nsIURI* aURL, nsIFile** aResult) {
-  NS_ENSURE_ARG_POINTER(aURL);
-  NS_ENSURE_ARG_POINTER(aResult);
-  // extract the file path from the uri...
-  nsAutoCString urlSpec;
-  aURL->GetPathQueryRef(urlSpec);
-  urlSpec.InsertLiteral("file://", 0);
-  nsresult rv;
-
-  // dougt - there should be an easier way!
-  nsCOMPtr<nsIURI> uri;
-  if (NS_FAILED(rv = NS_NewURI(getter_AddRefs(uri), urlSpec.get()))) return rv;
-
-  nsCOMPtr<nsIFileURL> fileURL = do_QueryInterface(uri);
-  if (!fileURL) return NS_ERROR_FAILURE;
-
-  return fileURL->GetFile(aResult);
-  // dougt
-}
-
-nsresult nsMsgProtocol::OpenFileSocket(nsIURI* aURL) {
-  // mscott - file needs to be encoded directly into aURL. I should be able to
-  // get rid of this method completely.
-
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIFile> file;
-
-  rv = GetFileFromURL(aURL, getter_AddRefs(file));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIInputStream> stream;
-  // Defer opening the file until it's read, which happens after the content
-  // policy has been consulted.
-  rv = NS_NewLocalFileInputStream(getter_AddRefs(stream), file, -1, -1,
-                                  nsIFileInputStream::DEFER_OPEN);
-  if (NS_FAILED(rv)) return rv;
-
-  // create input stream transport
-  nsCOMPtr<nsIStreamTransportService> sts =
-      mozilla::components::StreamTransport::Service();
-  rv = sts->CreateInputTransport(stream, true, getter_AddRefs(m_transport));
-
-  m_socketIsOpen = false;
-  return rv;
 }
 
 nsresult nsMsgProtocol::CloseSocket() {

@@ -12,8 +12,7 @@ var { open_message_from_file } = ChromeUtils.importESModule(
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
-async function check_eml_window_title(subject, eml) {
-  const file = new FileUtils.File(getTestFilePath(`data/${eml}`));
+async function check_eml_window_title(subject, file) {
   const msgc = await open_message_from_file(file);
 
   const brandBundle = Services.strings.createBundle(
@@ -49,9 +48,27 @@ async function check_eml_window_title(subject, eml) {
 }
 
 add_task(async function test_eml_empty_subject() {
-  await check_eml_window_title("", "./emptySubject.eml");
+  await check_eml_window_title(
+    "",
+    await IOUtils.getFile(getTestFilePath("data/emptySubject.eml"))
+  );
 });
 
 add_task(async function test_eml_normal_subject() {
-  await check_eml_window_title("An email", "./evil.eml");
+  await check_eml_window_title(
+    "An email",
+    await IOUtils.getFile(getTestFilePath("data/evil.eml"))
+  );
+});
+
+add_task(async function test_eml_non_ascii_path() {
+  const dir = await IOUtils.createUniqueDirectory(
+    PathUtils.tempDir,
+    "Ünïcødé ✉ dir"
+  );
+  registerCleanupFunction(() => IOUtils.remove(dir, { recursive: true }));
+  const path = PathUtils.join(dir, "Postlåda ✉ 日本.eml");
+  await IOUtils.copy(getTestFilePath("data/evil.eml"), path);
+
+  await check_eml_window_title("An email", await IOUtils.getFile(path));
 });
