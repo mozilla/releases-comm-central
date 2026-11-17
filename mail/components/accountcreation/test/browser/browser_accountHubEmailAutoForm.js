@@ -304,6 +304,8 @@ add_task(async function test_thundermailSignin() {
   newForm.setAttribute("title-id", "account-hub-email-setup-header");
   newForm.hidden = true;
 
+  // Use one form at a time to keep its IDs and access keys unique.
+  subview.remove();
   browser.contentWindow.document.body.appendChild(newForm);
   await translateAccountHubStep(newForm);
   newForm.hidden = false;
@@ -346,4 +348,5 @@ add_task(async function test_thundermailSignin() {
   );
 
   newForm.remove();
+  browser.contentWindow.document.body.appendChild(subview);
 });
