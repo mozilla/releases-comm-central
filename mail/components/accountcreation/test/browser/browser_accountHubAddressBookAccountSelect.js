@@ -28,6 +28,7 @@ add_setup(async function () {
     abAccountsSubview,
     "account-hub-select-address-book-account"
   );
+  await translateAccountHubStep(abAccountsSubview);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,

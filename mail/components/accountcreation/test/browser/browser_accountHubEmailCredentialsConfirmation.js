@@ -30,6 +30,7 @@ add_setup(async function () {
     subview,
     "account-hub-email-credentials-confirmation"
   );
+  await translateAccountHubStep(subview);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,

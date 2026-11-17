@@ -29,6 +29,7 @@ add_setup(async function () {
   server = subview.querySelector("#davServer");
 
   await setAccountHubStepTitle(subview, "account-hub-new-remote-address-book");
+  await translateAccountHubStep(subview);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,

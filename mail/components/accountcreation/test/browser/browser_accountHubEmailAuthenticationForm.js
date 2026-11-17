@@ -31,6 +31,7 @@ add_setup(async function () {
   username = subview.querySelector("#authenticationUsername");
 
   await setAccountHubStepTitle(subview, "account-hub-email-enter-password");
+  await translateAccountHubStep(subview);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,

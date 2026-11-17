@@ -38,6 +38,8 @@ add_setup(async function () {
 
   advancedConfigButton = subview.querySelector("#advancedConfigurationManual");
 
+  await translateAccountHubStep(subview);
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     // Some test states deliberately leave the manual settings title empty.

@@ -31,6 +31,7 @@ add_setup(async function () {
   thundermailButton = subview.querySelector(".account-hub-thundermail-button");
 
   await setAccountHubStepTitle(subview, "account-hub-email-setup-header");
+  await translateAccountHubStep(subview);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
@@ -301,8 +302,11 @@ add_task(async function test_thundermailSignin() {
   const newForm =
     browser.contentWindow.document.createElement("email-auto-form");
   newForm.setAttribute("title-id", "account-hub-email-setup-header");
+  newForm.hidden = true;
 
   browser.contentWindow.document.body.appendChild(newForm);
+  await translateAccountHubStep(newForm);
+  newForm.hidden = false;
 
   const newThundermailHeader = newForm.querySelector(
     ".account-hub-thundermail-header"

@@ -26,6 +26,11 @@ add_setup(async function () {
   headerWithSubheaderText =
     subHeaderTextStep.shadowRoot.querySelector("account-hub-header");
 
+  await Promise.all([
+    translateAccountHubStep(step),
+    translateAccountHubStep(subHeaderTextStep),
+  ]);
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

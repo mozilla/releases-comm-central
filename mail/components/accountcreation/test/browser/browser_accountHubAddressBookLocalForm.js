@@ -23,6 +23,7 @@ add_setup(async function () {
   );
 
   await setAccountHubStepTitle(subView, "account-hub-add-local-address-book");
+  await translateAccountHubStep(subView);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,

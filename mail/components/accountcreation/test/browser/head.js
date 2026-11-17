@@ -15,3 +15,17 @@ async function setAccountHubStepTitle(step, titleId) {
   step.setTitle(titleId);
   await step.l10n.translateElements([step.shadowRoot.querySelector("#title")]);
 }
+
+/**
+ * Translates a step's header, shadow root, and form before the test scans them.
+ *
+ * @param {HTMLElement} step - The Account Hub step in the fixture.
+ * @returns {Promise<void>} Resolves when the translations are applied.
+ */
+async function translateAccountHubStep(step) {
+  await Promise.all([
+    step.headerReady,
+    step.l10n.translateRoots(),
+    step.ready ?? step.l10n.translateFragment(step),
+  ]);
+}

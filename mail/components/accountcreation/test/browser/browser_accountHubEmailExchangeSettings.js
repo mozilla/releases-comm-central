@@ -33,6 +33,7 @@ add_setup(async function () {
   serviceURLInput = serviceURL.querySelector("input");
 
   await setAccountHubStepTitle(subview, "account-hub-email-exchange-settings");
+  await translateAccountHubStep(subview);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,

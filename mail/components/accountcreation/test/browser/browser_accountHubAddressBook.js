@@ -53,6 +53,8 @@ add_setup(async function () {
   testAccount.account.incomingServer.username = "test@test.com";
   testAccount.account.defaultIdentity.fullName = "Test User";
 
+  await abView.ready;
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",
@@ -546,21 +548,25 @@ add_task(async function test_localAddressBookForwardEventAndCreation() {
   );
 
   const button = optionSelect.querySelector("#newLocalAddressBook");
+  const localStep = abView.querySelector("#addressBookLocalSubview");
+  const localStepShown = BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    localStep
+  );
 
   EventUtils.synthesizeMouseAtCenter(button, {}, abView.documentGlobal);
+  await localStepShown;
 
-  let localForm;
-
-  await TestUtils.waitForCondition(async () => {
-    localForm = abView.querySelector("address-book-local-form form");
-    return localForm?.getBoundingClientRect().width;
-  }, `waiting for new local address book subview to be visible`);
+  Assert.ok(
+    localStep.querySelector('label[for="addressBookName"]').textContent.trim(),
+    "The name label should be translated when the local address book form opens"
+  );
   assertBrandingHeaderHidden(
-    localForm.closest("address-book-local-form"),
+    localStep,
     "The local address book subview should not show branding"
   );
 
-  const input = localForm.querySelector("input");
+  const input = localStep.querySelector("#addressBookName");
 
   EventUtils.synthesizeMouseAtCenter(input, {}, abView.documentGlobal);
 

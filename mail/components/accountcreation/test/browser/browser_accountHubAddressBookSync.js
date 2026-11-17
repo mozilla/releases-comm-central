@@ -42,6 +42,7 @@ add_setup(async function () {
   ];
 
   await setAccountHubStepTitle(abSyncSubview, "account-hub-sync-address-books");
+  await translateAccountHubStep(abSyncSubview);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,

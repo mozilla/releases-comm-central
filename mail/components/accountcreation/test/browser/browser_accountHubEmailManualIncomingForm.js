@@ -29,6 +29,7 @@ add_setup(async function () {
   );
 
   await setAccountHubStepTitle(subview, "account-hub-email-setup-incoming");
+  await translateAccountHubStep(subview);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,

@@ -32,6 +32,7 @@ add_setup(async function () {
   port = subview.querySelector("#port");
 
   await setAccountHubStepTitle(subview, "account-hub-ldap-form");
+  await translateAccountHubStep(subview);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,

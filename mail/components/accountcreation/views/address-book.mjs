@@ -302,8 +302,20 @@ class AccountHubAddressBook extends HTMLElement {
     }
     this.#hideSubviews();
     this.#currentState = subview;
+
+    const step = this.#currentSubview;
     await this.#loadTemplateScript(this.#states[subview].templateId);
-    await this.#currentSubview.ready;
+
+    await Promise.all([
+      step.headerReady,
+      step.l10n.translateRoots(),
+      step.ready ?? step.l10n.translateFragment(step),
+    ]);
+
+    if (this.#currentState !== subview) {
+      return;
+    }
+
     // Always dispatch the maximized event to ensure that the account hub is
     // fully visible when we change subview.
     this.dispatchEvent(
@@ -311,7 +323,7 @@ class AccountHubAddressBook extends HTMLElement {
         bubbles: true,
       })
     );
-    this.#currentSubview.hidden = false;
+    step.hidden = false;
     this.#setFooterButtons();
   }
 

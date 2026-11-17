@@ -55,7 +55,7 @@ add_setup(async function () {
   advancedConfigButton = subview.querySelector(
     "#advancedConfigurationExchange"
   );
-  await subview.l10n.translateFragment(subview);
+  await translateAccountHubStep(subview);
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
