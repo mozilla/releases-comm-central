@@ -61,6 +61,7 @@ class AddressBookAccountSelect extends AccountHubStep {
 
       const icon = document.createElement("img");
       icon.classList.add("mail-lock-icon");
+      icon.alt = "";
       button.appendChild(icon);
 
       const titleText = document.createElement("span");
