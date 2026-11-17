@@ -41,6 +41,8 @@ add_setup(async function () {
     },
   ];
 
+  await setAccountHubStepTitle(abSyncSubview, "account-hub-sync-address-books");
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

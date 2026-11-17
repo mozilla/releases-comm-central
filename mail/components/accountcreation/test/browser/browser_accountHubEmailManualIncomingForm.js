@@ -28,6 +28,8 @@ add_setup(async function () {
     "email-manual-incoming-form"
   );
 
+  await setAccountHubStepTitle(subview, "account-hub-email-setup-incoming");
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

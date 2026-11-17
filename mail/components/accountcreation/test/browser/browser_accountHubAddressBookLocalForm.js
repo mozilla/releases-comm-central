@@ -22,6 +22,8 @@ add_setup(async function () {
     "address-book-local-form"
   );
 
+  await setAccountHubStepTitle(subView, "account-hub-add-local-address-book");
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

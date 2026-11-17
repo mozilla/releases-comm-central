@@ -40,6 +40,8 @@ add_setup(async function () {
 
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
+    // Some test states deliberately leave the manual settings title empty.
+    axeOptions: { rules: { "empty-heading": { enabled: false } } },
     message: "Account Hub should have no accessibility violations",
     specialPowers: SpecialPowers,
   });

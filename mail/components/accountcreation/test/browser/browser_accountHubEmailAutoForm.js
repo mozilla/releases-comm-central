@@ -30,6 +30,8 @@ add_setup(async function () {
   manualConfigButton = subview.querySelector("#manualConfiguration");
   thundermailButton = subview.querySelector(".account-hub-thundermail-button");
 
+  await setAccountHubStepTitle(subview, "account-hub-email-setup-header");
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

@@ -26,6 +26,11 @@ add_setup(async function () {
   username = subview.querySelector("#username");
   socketType = subview.querySelector("#socketType");
 
+  await setAccountHubStepTitle(
+    subview,
+    "account-hub-email-credentials-confirmation"
+  );
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

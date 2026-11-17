@@ -24,6 +24,11 @@ add_setup(async function () {
     "address-book-account-select"
   );
 
+  await setAccountHubStepTitle(
+    abAccountsSubview,
+    "account-hub-select-address-book-account"
+  );
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

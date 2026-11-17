@@ -31,6 +31,8 @@ add_setup(async function () {
   hostname = subview.querySelector("#hostname");
   port = subview.querySelector("#port");
 
+  await setAccountHubStepTitle(subview, "account-hub-ldap-form");
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

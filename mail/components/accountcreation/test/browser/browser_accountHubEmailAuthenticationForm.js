@@ -30,6 +30,8 @@ add_setup(async function () {
   rememberPassword = subview.querySelector("#rememberAuthenticationPassword");
   username = subview.querySelector("#authenticationUsername");
 
+  await setAccountHubStepTitle(subview, "account-hub-email-enter-password");
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

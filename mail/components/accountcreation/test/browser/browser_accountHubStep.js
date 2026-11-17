@@ -133,9 +133,10 @@ add_task(async function test_rendersSubheaderTextCorrectly() {
 });
 
 add_task(async function test_setTitleUpdatesTitleId() {
-  step.setTitle("account-hub-manual-config-imap-title");
-
   const title = header.querySelector("#title");
+
+  step.setTitle("account-hub-manual-config-imap-title");
+  await step.l10n.translateElements([title]);
 
   Assert.equal(
     step.getAttribute("title-id"),
@@ -150,10 +151,10 @@ add_task(async function test_setTitleUpdatesTitleId() {
 });
 
 add_task(async function test_setTitleClearsTitleId() {
+  const title = header.querySelector("#title");
+
   step.setTitle("account-hub-manual-config-pop3-title");
   step.setTitle();
-
-  const title = header.querySelector("#title");
 
   Assert.ok(
     !step.hasAttribute("title-id"),
@@ -169,4 +170,8 @@ add_task(async function test_setTitleClearsTitleId() {
     "",
     "Removing title-id should clear title text"
   );
+
+  // Restore the fixture title before axe scans it again.
+  step.setTitle("account-hub-title");
+  await step.l10n.translateElements([title]);
 });

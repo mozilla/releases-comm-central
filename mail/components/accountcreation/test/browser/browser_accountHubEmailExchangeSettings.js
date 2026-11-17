@@ -32,6 +32,8 @@ add_setup(async function () {
   serviceURL = subview.querySelector("#serviceURL");
   serviceURLInput = serviceURL.querySelector("input");
 
+  await setAccountHubStepTitle(subview, "account-hub-email-exchange-settings");
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

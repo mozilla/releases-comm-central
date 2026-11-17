@@ -28,6 +28,8 @@ add_setup(async function () {
   username = subview.querySelector("#username");
   server = subview.querySelector("#davServer");
 
+  await setAccountHubStepTitle(subview, "account-hub-new-remote-address-book");
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",

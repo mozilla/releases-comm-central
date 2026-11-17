@@ -28,6 +28,8 @@ add_setup(async function () {
   password = subview.querySelector('input[type="password"]');
   rememberPassword = subview.querySelector("#rememberPassword");
 
+  await setAccountHubStepTitle(subview, "account-hub-email-enter-password");
+
   const axeWatcher = await startAxeMutationObserver(tab.browser, {
     autoFinish: false,
     message: "Account Hub should have no accessibility violations",
@@ -43,17 +45,35 @@ add_setup(async function () {
 add_task(async function test_passwordLabels() {
   const doc = subview.ownerDocument;
   const secondForm = doc.createElement("email-password-form");
+  secondForm.setTitle("account-hub-address-book-enter-password");
+  secondForm.hidden = true;
   doc.body.appendChild(secondForm);
-  await Promise.all([subview.ready, secondForm.ready]);
+
+  await Promise.all([
+    subview.ready,
+    secondForm.headerReady,
+    secondForm.l10n.translateRoots(),
+    secondForm.ready,
+  ]);
+
+  secondForm.hidden = false;
 
   for (const form of [subview, secondForm]) {
     const input = form.querySelector('input[type="password"]');
     const label = form.querySelector("label[for]");
-    Assert.equal(label.control, input, "Each label belongs to its own input");
+    Assert.equal(
+      label.control,
+      input,
+      "Each label should belong to its own input"
+    );
     input.blur();
     label.scrollIntoView({ block: "nearest" });
     EventUtils.synthesizeMouseAtCenter(label, {}, subview.documentGlobal);
-    Assert.equal(doc.activeElement, input, "The label focuses its own input");
+    Assert.equal(
+      doc.activeElement,
+      input,
+      "The label should focus its own input"
+    );
   }
   secondForm.remove();
 });
