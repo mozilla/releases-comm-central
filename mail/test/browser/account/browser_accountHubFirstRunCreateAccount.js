@@ -21,7 +21,10 @@ add_setup(async () => {
   );
   expectSystemIntegration =
     shellService.shouldCheckDefaultClient &&
-    !shellService.isDefaultClient(false, Ci.nsIShellService.MAIL);
+    !shellService.isDefaultClient(
+      false,
+      Ci.nsIShellService.MAIL | Ci.nsIShellService.NET_THUNDERBIRD
+    );
 });
 
 add_task(async function test_account_hub_complete_first_run() {
