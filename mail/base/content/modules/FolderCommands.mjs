@@ -27,7 +27,9 @@ ChromeUtils.defineLazyGetter(lazy, "messengerBundle", () =>
 
 /**
  * Whether deleting this folder would move it to the trash rather than destroy
- * it. A folder already inside the trash has nowhere left to go.
+ * it. A folder already inside the trash has nowhere left to go, and one in a
+ * shared IMAP namespace can't be moved into the personal trash. Keep in sync
+ * with nsImapMailFolder::DeleteSelf().
  *
  * @param {nsIMsgFolder} folder
  * @returns {boolean}
@@ -35,6 +37,9 @@ ChromeUtils.defineLazyGetter(lazy, "messengerBundle", () =>
 function deleteMovesToTrash(folder) {
   return (
     !folder.isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true) &&
+    !folder.getFlag(
+      Ci.nsMsgFolderFlags.ImapPublic | Ci.nsMsgFolderFlags.ImapOtherUser
+    ) &&
     serverDeletesToTrash(folder.server)
   );
 }

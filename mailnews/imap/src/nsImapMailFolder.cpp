@@ -1733,6 +1733,14 @@ NS_IMETHODIMP nsImapMailFolder::GetDeletable(bool* deletable) {
   GetIsServer(&isServer);
 
   *deletable = !(isServer || (mFlags & nsMsgFolderFlags::SpecialUse));
+  // Deleting the root of a shared namespace would delete all the folders in
+  // it.
+  if (*deletable && (mFlags & (nsMsgFolderFlags::ImapPublic |
+                               nsMsgFolderFlags::ImapOtherUser))) {
+    bool isNamespace = false;
+    GetIsNamespace(&isNamespace);
+    *deletable = !isNamespace;
+  }
   return NS_OK;
 }
 
@@ -2222,8 +2230,14 @@ nsImapMailFolder::DeleteSelf(bool interactive) {
     return nsMsgDBFolder::DeleteSelf(false);
   }
 
-  // "this" is the folder we're deleting from
-  bool deleteNoTrash = TrashOrDescendantOfTrash(this) || !DeleteIsMoveToTrash();
+  // "this" is the folder we're deleting from. A folder in a shared namespace
+  // can't be moved into the personal trash: servers refuse a RENAME across
+  // namespaces (e.g. Dovecot: "Renaming not supported across non-private
+  // namespaces"), so it gets deleted like in the no-trash delete models.
+  bool isShared = folderFlags & (nsMsgFolderFlags::ImapPublic |
+                                 nsMsgFolderFlags::ImapOtherUser);
+  bool deleteNoTrash =
+      TrashOrDescendantOfTrash(this) || !DeleteIsMoveToTrash() || isShared;
 
   nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
   if (!deleteNoTrash) {
