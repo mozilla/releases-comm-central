@@ -232,8 +232,8 @@ class AccountHubHeader extends HTMLElement {
       titleText,
       firstRun ? "account-hub-welcome-brand" : "account-hub-title"
     );
-    nameText.toggleAttribute("aria-hidden", firstRun);
-    titleText.toggleAttribute("aria-hidden", firstRun);
+    nameText.ariaHidden = firstRun ? "true" : null;
+    titleText.ariaHidden = firstRun ? "true" : null;
     header.querySelector(".account-hub-welcome-text").hidden = !firstRun;
   }
 
