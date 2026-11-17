@@ -124,7 +124,8 @@ class AddressBookSync extends AccountHubStep {
    * states of the inputs.
    */
   #updateSelectAll() {
-    const allSelected = [...this.inputs].every(c => c.checked);
+    const inputs = [...this.inputs];
+    const allSelected = inputs.every(c => c.checked);
 
     this.#selectAllAddressBooksInput.checked = allSelected;
     this.#selectAllAddressBooksInput.indeterminate =
@@ -134,9 +135,15 @@ class AddressBookSync extends AccountHubStep {
       this.#selectAllAddressBooksLabel.querySelector("span"),
       allSelected ? "account-hub-deselect-all" : "account-hub-select-all"
     );
-    this.#selectAllAddressBooksInput.disabled = [...this.inputs].every(
-      c => c.disabled
-    );
+    this.#selectAllAddressBooksInput.disabled = inputs.every(c => c.disabled);
+
+    if (!inputs.length) {
+      this.#selectAllAddressBooksInput.removeAttribute("aria-controls");
+
+      return;
+    }
+
+    this.#selectAllAddressBooksInput.ariaControlsElements = inputs;
   }
 
   /**
@@ -154,10 +161,6 @@ class AddressBookSync extends AccountHubStep {
       this.#accountsContainer.append(this.#createInput(addressBook));
     }
 
-    this.#selectAllAddressBooksInput.setAttribute(
-      "aria-controls",
-      [...this.inputs].map(input => input.id).join(" ")
-    );
     this.#updateSelectAll();
   }
 
