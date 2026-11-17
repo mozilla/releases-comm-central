@@ -293,6 +293,17 @@ LRESULT CALLBACK nsMessengerWinIntegration::IconWindowProc(HWND msgWindow,
 NS_IMETHODIMP
 nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
   NS_ENSURE_ARG(aWindow);
+
+  nsCOMPtr<nsIWidget> widget;
+  aWindow->GetMainWidget(getter_AddRefs(widget));
+
+  if (widget) {
+    // Minimize the window before hiding it. This will prevent it from becoming
+    // visible when activated with SetForegroundWindow (e.g. when a toast
+    // notification is clicked).
+    widget->SetSizeMode(nsSizeMode_Minimized);
+  }
+
   aWindow->SetVisibility(false);
   sHiddenWindows.AppendElement(aWindow);
 
