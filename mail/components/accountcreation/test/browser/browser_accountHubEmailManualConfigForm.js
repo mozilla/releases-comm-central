@@ -4,6 +4,10 @@
 
 "use strict";
 
+const { startAxeMutationObserver } = ChromeUtils.importESModule(
+  "resource://testing-common/mail/AxeHelpers.sys.mjs"
+);
+
 const { AccountConfig } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountConfig.sys.mjs"
 );
@@ -22,6 +26,8 @@ add_setup(async function () {
     url: "chrome://mochitests/content/browser/comm/mail/components/accountcreation/test/browser/files/accountHubEmailManualConfigForm.xhtml",
   });
 
+  MockExternalProtocolService.init();
+
   await BrowserTestUtils.browserLoaded(tab.browser);
   tab.browser.focus();
   browser = tab.browser;
@@ -32,8 +38,14 @@ add_setup(async function () {
 
   advancedConfigButton = subview.querySelector("#advancedConfigurationManual");
 
-  MockExternalProtocolService.init();
-  registerCleanupFunction(() => {
+  const axeWatcher = await startAxeMutationObserver(tab.browser, {
+    autoFinish: false,
+    message: "Account Hub should have no accessibility violations",
+    specialPowers: SpecialPowers,
+  });
+
+  registerCleanupFunction(async () => {
+    await axeWatcher.finish();
     MockExternalProtocolService.cleanup();
     tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   });
