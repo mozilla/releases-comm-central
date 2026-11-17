@@ -38,16 +38,16 @@
     --tree-card-border-hover-spam: light-dark(var(--color-red-30), var(--color-red-80));
     --thread-card-focus-spam: light-dark(var(--color-red-70), var(--color-red-40));
     --tree-card-background-current-spam: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 98%, var(--color-red-50)),
-      color-mix(in srgb, var(--layout-background-0) 88%, var(--color-red-90))
+      color-mix(in srgb, var(--color-surface-base) 98%, var(--color-red-50)),
+      color-mix(in srgb, var(--color-surface-base) 88%, var(--color-red-90))
     );
     --tree-card-background-selected-spam: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 95%, var(--color-red-50)),
-      color-mix(in srgb, var(--layout-background-0) 85%, var(--color-red-90))
+      color-mix(in srgb, var(--color-surface-base) 95%, var(--color-red-50)),
+      color-mix(in srgb, var(--color-surface-base) 85%, var(--color-red-90))
     );
     --tree-card-background-selected-current-spam: light-dark(
-      color-mix(in srgb, var(--layout-background-0) 90%, var(--color-red-50)),
-      color-mix(in srgb, var(--layout-background-0) 80%, var(--color-red-90))
+      color-mix(in srgb, var(--color-surface-base) 90%, var(--color-red-50)),
+      color-mix(in srgb, var(--color-surface-base) 80%, var(--color-red-90))
     );
     --tree-card-border-selected-spam: light-dark(var(--color-red-50), var(--color-red-70));
   }
@@ -79,11 +79,19 @@
     /* Unread Message */
     &[data-properties~="unread"] {
       --read-status-display: inline-block;
-      --read-status-fill: var(--color-green-40);
-      --read-status-stroke: var(--color-green-60);
+      --read-status-fill: var(--unread-indicator-fill);
+      --read-status-stroke: var(--unread-indicator-stroke);
 
-      & .card-container :is(.sender, .subject) {
-        font-weight: bold;
+      & .card-container {
+        box-shadow: var(--shadow-1);
+
+        & :is(.sender, .subject) {
+          font-weight: bold;
+        }
+      }
+
+      &:not(.selected, :hover, :focus, :focus-within) {
+        --tree-card-background: var(--color-surface-raised);
       }
 
       /* New Message */
@@ -109,8 +117,8 @@
       }
 
       & button.twisty {
-        background-color: var(--layout-background-2);
-        border-color: var(--layout-background-4);
+        background-color: var(--color-surface-lower);
+        border-color: var(--color-surface-border);
 
         &::before {
           position: absolute;
@@ -257,8 +265,8 @@
           }
 
           &:hover {
-            background-color: var(--layout-background-2);
-            border-color: var(--layout-background-4);
+            background-color: var(--color-surface-lower);
+            border-color: var(--color-surface-border);
           }
 
           .children &.thread-card-button {
@@ -491,7 +499,7 @@
         inset-block: calc(50% - var(--circle-size) / 2);
         inset-inline-start: calc((var(--tree-card-inline) * 2) - var(--circle-size) / 2);
         -moz-context-properties: fill, stroke;
-        fill: var(--tree-pane-background);
+        fill: transparent;
         stroke: var(--thread-line-color);
         line-height: 0;
       }
@@ -561,21 +569,21 @@
       }
 
       &:not(:hover, :focus, :focus-within, .current, .selected) {
-        --tree-card-background: var(--tree-pane-background);
-        --tree-card-border: var(--tree-pane-background);
+        --tree-card-background: transparent;
+        --tree-card-border: transparent;
       }
 
       & .subject {
         font-size: 1.1rem;
         font-weight: 400;
-        color: var(--layout-color-2);
+        color: var(--color-text-secondary);
       }
 
       & .sort-header-details {
         grid-area: sort;
         display: inline-block;
         font-weight: 500;
-        color: var(--layout-color-2);
+        color: var(--color-text-secondary);
 
         & > span {
           font-weight: 700;

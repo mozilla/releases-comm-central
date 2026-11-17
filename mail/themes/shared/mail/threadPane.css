@@ -21,8 +21,6 @@
   @media not (prefers-contrast) {
     --thread-pane-flag-fill: light-dark(var(--color-orange-30), var(--color-orange-40));
     --thread-pane-flag-stroke: light-dark(var(--color-orange-60), var(--color-orange-50));
-    --thread-pane-unread-fill: light-dark(var(--color-green-60), var(--color-green-50));
-    --thread-pane-unread-stroke: light-dark(var(--color-green-60), var(--color-green-50));
     --thread-pane-spam-fill: light-dark(var(--color-red-50), var(--color-red-40));
     --thread-pane-spam-stroke: light-dark(var(--color-red-70), var(--color-red-50));
   }
@@ -34,10 +32,6 @@
   background-color: var(--tree-view-bg);
   color: var(--tree-view-color);
   overflow-anchor: none;
-
-  &[rows="thread-row"] {
-    background-color: var(--layout-background-0);
-  }
 }
 
 #threadTree tbody {
@@ -52,7 +46,7 @@
 
   & [data-properties~="dummy"] {
     &:not(.card-layout, :hover, .selected) {
-      background-color: var(--layout-background-1);
+      background-color: var(--color-surface-subtle);
     }
 
     & .subject-line {
@@ -172,8 +166,15 @@
 }
 
 [is="tree-view-table-body"] {
-  & > .table-layout[data-properties~="unread"]:not([data-properties~="tagged"]) {
-    color: var(--unread-color);
+  & > .table-layout[data-properties~="unread"] {
+    &:not(.selected, .current, :hover, :focus, :focus-within) {
+      background-color: var(--color-surface-raised);
+      box-shadow: var(--shadow-1);
+    }
+
+    &:not([data-properties~="tagged"]) {
+      color: var(--unread-color);
+    }
   }
 
   &:focus > .table-layout.selected[data-properties~="tagged"] :is(.tag-icon, .subject),
@@ -320,8 +321,8 @@ tr:not([data-properties~="attach"]) :is(.attachmentcol-column img, .attachment-i
 }
 
 tr[data-properties~="unread"] .tree-view-row-unread > .tree-button-unread > img {
-  fill: color-mix(in srgb, var(--thread-pane-unread-fill) 50%, transparent);
-  stroke: var(--thread-pane-unread-stroke);
+  fill: var(--unread-indicator-fill);
+  stroke: var(--unread-indicator-stroke);
 }
 
 [is="tree-view-table-body"]:is(:focus, :focus-within) > .selected > .tree-view-row-unread > .tree-button-unread > img,
@@ -576,10 +577,10 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
   align-items: center;
   justify-content: space-between;
   gap: 3px;
-  color: var(--layout-color-1);
+  color: var(--color-text-base);
   padding-inline: var(--thread-pane-header-padding);
-  background-color: var(--layout-background-1);
-  border-block-end: 1px solid var(--layout-border-0);
+  background-color: var(--color-surface-base);
+  border-block-end: 1px solid var(--color-surface-border);
 }
 
 .list-header-bar-container-start,

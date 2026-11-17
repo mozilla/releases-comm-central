@@ -46,11 +46,11 @@
 
   @media not (forced-colors) {
     --tree-focus-outline: transparent;
-    --tree-pane-background: light-dark(var(--color-gray-05), var(--color-black)); /* REMOVE THIS! */
-    --tree-card-background: var(--layout-background-0);
-    --tree-card-border: var(--layout-border-0);
+    --tree-card-background: var(--color-surface-base);
+    --tree-card-border: var(--color-surface-border);
     --tree-card-border-hover: color-mix(in srgb, var(--selected-item-color) 70%, transparent);
     --tree-card-border-focus: var(--selected-item-color);
+
     /* Selection Colors */
     --tree-card-background-current: light-dark(
       color-mix(in srgb, var(--selected-item-color) 10%, var(--tree-card-background)),
@@ -68,41 +68,43 @@
 
     /* Unfocused Colors */
     --tree-card-background-current-unfocused: light-dark(
-      color-mix(in srgb, var(--layout-background-3) 30%, transparent),
-      color-mix(in srgb, var(--layout-background-3) 55%, transparent)
+      color-mix(in srgb, var(--color-surface-deep) 30%, transparent),
+      color-mix(in srgb, var(--color-surface-deep) 55%, transparent)
     );
     --tree-card-background-selected-unfocused: light-dark(
-      color-mix(in srgb, var(--layout-background-3) 30%, transparent),
-      color-mix(in srgb, var(--layout-background-3) 45%, transparent)
+      color-mix(in srgb, var(--color-surface-deep) 30%, transparent),
+      color-mix(in srgb, var(--color-surface-deep) 45%, transparent)
     );
     --tree-card-background-selected-current-unfocused: light-dark(
-      color-mix(in srgb, var(--layout-background-3) 30%, transparent),
-      color-mix(in srgb, var(--layout-background-3) 65%, transparent)
+      color-mix(in srgb, var(--color-surface-deep) 30%, transparent),
+      color-mix(in srgb, var(--color-surface-deep) 65%, transparent)
     );
     --tree-card-background-selected-current-unfocused-hover: light-dark(
-      color-mix(in srgb, var(--layout-background-3) 10%, transparent),
-      color-mix(in srgb, var(--layout-background-3) 45%, transparent)
+      color-mix(in srgb, var(--color-surface-deep) 10%, transparent),
+      color-mix(in srgb, var(--color-surface-deep) 45%, transparent)
     );
-    --tree-card-border-selected-unfocused: light-dark(var(--layout-border-1), var(--layout-border-2));
+    --tree-card-border-selected-unfocused: var(--color-surface-border-intense);
 
-    --listbox-selected-bg: light-dark(var(--color-gray-30), var(--color-gray-70));
+    --listbox-selected-bg: var(--color-surface-deep);
     --listbox-focused-selected-bg: var(--selected-item-color);
     --listbox-selected-color: var(--selected-item-text-color);
     --listbox-focused-selected-color: var(--selected-item-text-color);
     --listbox-hover: color-mix(in srgb, var(--selected-item-color) 10%, transparent);
     --listbox-border-type: dashed;
-    --tree-view-bg: light-dark(var(--layout-background-1), var(--color-black));
-    --tree-view-color: var(--layout-color-1);
-    --tree-view-header-hover-bg: light-dark(var(--color-gray-20), var(--color-gray-70));
-    --tree-view-header-hover-active-bg: light-dark(var(--color-gray-30), var(--color-gray-90));
+
+    --tree-view-bg: var(--color-surface-base);
+    --tree-view-color: var(--color-text-base);
+    --tree-view-header-hover-bg: color-mix(in srgb, var(--color-surface-border) 45%, transparent);
+    --tree-view-header-hover-active-bg: color-mix(in srgb, var(--color-surface-border) 65%, transparent);
     --tree-row-delete-button-color: light-dark(var(--color-red-60), var(--color-red-40));
-    --unread-color: var(--layout-color-0);
+    --unread-color: light-dark(var(--color-black), var(--color-white));
+    --unread-indicator-fill: var(--color-green-40);
+    --unread-indicator-stroke: var(--color-green-60);
   }
 
   @media (forced-colors) {
     --tree-focus-outline: SelectedItem;
     --tree-view-bg: Canvas;
-    --tree-pane-background: color-mix(in srgb, Canvas 90%, CanvasText);
     --tree-card-background: Canvas;
     --tree-card-border: CanvasText;
     --tree-card-border-hover: SelectedItem;
@@ -121,14 +123,14 @@
     --listbox-selected-color: SelectedItemText;
     --listbox-focused-selected-bg: SelectedItem;
     --listbox-hover: color-mix(in srgb, var(--tree-view-bg) 90%, SelectedItem);
-    --listbox-selected-bg: color-mix(in srgb, var(--tree-view-bg) 80%, var(--listbox-focused-selected-bg));
+    --listbox-selected-bg: color-mix(in srgb, var(--color-surface-base) 80%, var(--listbox-focused-selected-bg));
     --listbox-selected-outline: 2px solid SelectedItem;
     --listbox-border-type: solid;
     --icon-color-prefers-contrast-selected-focused: SelectedItemText;
   }
 
   &[lwt-tree] {
-    --listbox-selected-bg: color-mix(in srgb, var(--tree-view-bg) 70%, var(--sidebar-highlight-background-color));
+    --listbox-selected-bg: color-mix(in srgb, var(--color-surface-base) 70%, var(--sidebar-highlight-background-color));
     --listbox-hover: color-mix(in srgb, var(--tree-view-bg) 80%, var(--sidebar-highlight-background-color));
     --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--selected-item-color));
     --listbox-selected-color: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
@@ -353,7 +355,7 @@ th[is="tree-view-table-header-cell"] {
   padding: 0;
   position: relative;
   overflow: hidden;
-  background-color: var(--layout-background-1);
+  background-color: var(--color-surface-lower);
 
   &[data-type="icon"] {
     inline-size: var(--table-header-cell-icon-width);
@@ -709,7 +711,8 @@ slot[name="placeholders"] {
   table[is="tree-view-table"] tbody tr {
     transition:
       color var(--transition-duration) var(--transition-timing),
-      background-color var(--transition-duration) var(--transition-timing);
+      background-color var(--transition-duration) var(--transition-timing),
+      box-shadow var(--transition-duration) var(--transition-timing);
 
     & img {
       transition:
