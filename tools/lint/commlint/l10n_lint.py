@@ -10,21 +10,21 @@ from python.l10n_lint import lint_strings
 from mach import util as mach_util
 from mozpack import path as mozpath
 from mozversioncontrol import MissingVCSTool
-from mozversioncontrol.repoupdate import update_mercurial_repo
+from mozversioncontrol.repoupdate import update_git_repo
 
-LOCALE = "comm-strings-quarantine"
-STRINGS_REPO = "https://hg.mozilla.org/projects/comm-strings-quarantine"
+LOCALE = "thunderbird-l10n-source"
+STRINGS_REPO = "https://github.com/thunderbird/thunderbird-l10n-source.git"
 
 PULL_AFTER = timedelta(days=2)
 
 
 def comm_strings_setup(**lint_args):
-    return hg_repo_setup(STRINGS_REPO, LOCALE)
+    return git_repo_setup(STRINGS_REPO, LOCALE)
 
 
-def hg_repo_setup(repo: str, name: str):
+def git_repo_setup(repo: str, name: str):
     gs = mozpath.join(mach_util.get_state_dir(), name)
-    marker = mozpath.join(gs, ".hg", "l10n_pull_marker")
+    marker = mozpath.join(gs, ".git", "l10n_pull_marker")
     try:
         last_pull = datetime.fromtimestamp(os.stat(marker).st_mtime)
         skip_clone = datetime.now() < last_pull + PULL_AFTER
@@ -33,11 +33,11 @@ def hg_repo_setup(repo: str, name: str):
     if skip_clone:
         return
     try:
-        update_mercurial_repo(repo, gs)
+        update_git_repo(repo, gs)
     except MissingVCSTool:
         if os.environ.get("MOZ_AUTOMATION"):
             raise
-        print("warning: l10n linter requires Mercurial but was unable to find 'hg'")
+        print("warning: l10n linter requires Git but was unable to find 'git'")
         return 1
     with open(marker, "w") as fh:
         fh.flush()
