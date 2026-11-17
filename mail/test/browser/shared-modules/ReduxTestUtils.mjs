@@ -104,8 +104,8 @@ const ReduxTestUtils = {
    * returns. The store can delay notifications for marked actions.
    * The caller must remove the listener when the test finishes.
    *
-   * @param {() => void} listener - The function to call after a dispatch.
-   * @returns {() => void} A function that removes the listener.
+   * @param {function(): void} listener - The function to call after a dispatch.
+   * @returns {function(): void} A function that removes the listener.
    */
   subscribe(listener) {
     return store.subscribe(listener);
