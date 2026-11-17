@@ -144,8 +144,8 @@ CalDavCalendar.prototype = {
     return this.mOfflineStorage;
   },
 
-  set offlineStorage(storage) {
-    this.mOfflineStorage = storage;
+  set offlineStorage(offlineStorage) {
+    this.mOfflineStorage = offlineStorage;
     this.fetchCachedMetaData();
   },
 

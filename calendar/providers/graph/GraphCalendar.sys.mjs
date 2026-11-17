@@ -138,11 +138,11 @@ export class GraphCalendar extends cal.provider.BaseClass {
   }
 
   /**
-   * @param {calISyncWriteCalendar} storage
+   * @param {calISyncWriteCalendar} offlineStorage
    */
-  set offlineStorage(storage) {
-    this.#offlineStorage = storage;
-    this.#syncStateToken = storage.getMetaData(SYNC_TOKEN_METADATA_KEY) || "";
+  set offlineStorage(offlineStorage) {
+    this.#offlineStorage = offlineStorage;
+    this.#syncStateToken = offlineStorage.getMetaData(SYNC_TOKEN_METADATA_KEY) || "";
   }
 
   resetLog() {

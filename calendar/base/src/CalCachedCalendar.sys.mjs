@@ -477,7 +477,7 @@ calCachedCalendar.prototype = {
    */
   async playbackOfflineItems(aPlaybackType) {
     const self = this;
-    const storage = this.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage);
+    const offlineStorage = this.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage);
 
     let itemQueue = [];
     let debugOp;
@@ -550,7 +550,7 @@ calCachedCalendar.prototype = {
           if (aPlaybackType == Ci.calIChangeLog.OFFLINE_FLAG_DELETED_RECORD) {
             self.mCachedCalendar.deleteItem(item);
           } else {
-            storage.resetItemOfflineFlag(item);
+            offlineStorage.resetItemOfflineFlag(item);
           }
         } else if (
           aPlaybackType == Ci.calIChangeLog.OFFLINE_FLAG_CREATED_RECORD &&
@@ -562,7 +562,7 @@ calCachedCalendar.prototype = {
           if (!self.mPendingUidConflicts.some(pending => pending.id == item.id)) {
             self.mPendingUidConflicts.push(item);
           }
-          storage.resetItemOfflineFlag(item);
+          offlineStorage.resetItemOfflineFlag(item);
         } else {
           // If the playback action could not be performed, then there
           // is no need for further action. The item still has the
