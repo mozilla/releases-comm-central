@@ -92,6 +92,8 @@ class AddressBookSync extends AccountHubStep {
         return true;
       },
     });
+
+    this.#updateSelectAll();
   }
 
   /**
