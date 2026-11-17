@@ -209,7 +209,7 @@ add_task(async function getItipHeader_test() {
           value: "attendee1@example.net",
         },
       },
-      expected: 'Organizer has declined your counterproposal for "Test Event".',
+      expected: "Organizer has declined your counterproposal for \u{201C}Test Event\u{201D}.",
     },
     {
       name: "Attendee makes counter proposal",
@@ -220,7 +220,8 @@ add_task(async function getItipHeader_test() {
           value: "attendee1@example.net",
         },
       },
-      expected: 'Attendee1 <attendee1@example.net> has made a counterproposal for "Test Event":',
+      expected:
+        "Attendee1 <attendee1@example.net> has made a counterproposal for \u{201C}Test Event\u{201D}:",
     },
     {
       name: "Attendee replies with acceptance",
