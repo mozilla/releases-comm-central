@@ -450,14 +450,14 @@ add_task(async function test_uncheckingDefaultOauthShowsCustomOptions() {
 
 add_task(async function test_ewsPasswordStillHidesDefaultOauth() {
   changeAccountType(graphCard);
-  const hiddenPromise = BrowserTestUtils.waitForAttribute(
-    "hidden",
-    oauthOptionsWrapperElement
-  );
   changeAccountType(ewsCard);
-  await hiddenPromise;
 
   await selectAuthenticationMethod("incomingAuthMethodCleartext");
+  await BrowserTestUtils.waitForMutationCondition(
+    oauthOptionsWrapperElement,
+    { attributes: true, attributeFilter: ["hidden"] },
+    () => oauthOptionsWrapperElement.hidden
+  );
 
   Assert.equal(
     authenticationSelect.value,
