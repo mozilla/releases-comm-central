@@ -234,7 +234,7 @@ class AddressBookLdapAccountForm extends AccountHubStep {
     this.#name.ariaInvalid = !nameValidity;
 
     if (!nameValidity) {
-      this.#name.setAttribute("aria-described", "nameErrorMessage");
+      this.#name.setAttribute("aria-describedby", "nameErrorMessage");
     } else {
       this.#name.removeAttribute("aria-describedby");
       this.#stateData.name = this.#name.value;
