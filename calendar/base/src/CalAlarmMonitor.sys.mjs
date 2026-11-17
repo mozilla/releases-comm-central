@@ -195,12 +195,20 @@ CalAlarmMonitor.prototype = {
   onRemoveAlarmsByItem(aItem) {
     const calAlarmWindow = peekAlarmWindow();
     this.mAlarms = this.mAlarms.filter(([thisItem, alarm]) => {
-      const ret = aItem.hashId != thisItem.hashId;
-      if (!ret && calAlarmWindow && "removeWidgetFor" in calAlarmWindow) {
+      // Match the exact occurrence, or every fired occurrence of the same
+      // parent when the parent itself is passed (hashIds differ per rid).
+      const keep =
+        aItem.hashId != thisItem.hashId &&
+        !(
+          aItem.parentItem === aItem &&
+          aItem.id == thisItem.id &&
+          aItem.calendar?.id == thisItem.calendar?.id
+        );
+      if (!keep && calAlarmWindow && "removeWidgetFor" in calAlarmWindow) {
         // window is open
         calAlarmWindow.removeWidgetFor(thisItem, alarm);
       }
-      return ret;
+      return keep;
     });
   },
 

@@ -68,9 +68,12 @@ ChromeUtils.defineLazyGetter(this, "gReadOnlyNotification", () => {
  */
 function getAlarmService() {
   if (!("mAlarmService" in window)) {
+    // Use wrappedJSObject so async dismiss/snooze methods run on the real JS
+    // implementation (promises, IgnoredAlarmsStore) rather than only through
+    // the XPCOM signature.
     window.mAlarmService = Cc["@mozilla.org/calendar/alarm-service;1"].getService(
       Ci.calIAlarmService
-    );
+    ).wrappedJSObject;
   }
   return window.mAlarmService;
 }
@@ -179,6 +182,11 @@ function setupWindow() {
 function finishWindow() {
   Services.obs.removeObserver(gShutdownObserver, "mail-unloading-messenger");
 
+  if (closeIfEmpty._pending) {
+    clearTimeout(closeIfEmpty._pending);
+    closeIfEmpty._pending = null;
+  }
+
   if (gShutdownDetected) {
     return;
   }
@@ -190,6 +198,10 @@ function finishWindow() {
     // all/snooze all. This can happen when the closer is clicked or escape
     // is pressed. Snooze all remaining items using the default snooze
     // property.
+    //
+    // If a dismiss already wrote (or is writing) the same events, a second
+    // snooze PUT against a stale etag surfaces the "Item changed on server"
+    // prompt. Skip items the alarm service has already locally acknowledged.
     let snoozePref = Services.prefs.getIntPref("calendar.alarms.defaultsnoozelength", 0);
     if (snoozePref <= 0) {
       snoozePref = 5;
@@ -237,23 +249,34 @@ function snoozeAllItems(aDurationMinutes) {
   }
 
   const alarmRichlist = document.getElementById("alarm-richlist");
-  const parentItems = {};
+  const alarmService = getAlarmService();
+  const entries = [];
 
-  // Make a copy of the child nodes as they get modified live
-  for (const node of alarmRichlist.children) {
+  // Snapshot children: snoozeAlarm removes widgets synchronously, and the
+  // richlist collection is live — iterating it directly would skip reminders.
+  for (const node of [...alarmRichlist.children]) {
     // Check if the node is a valid alarm and is still part of DOM
     if (
       node.parentNode &&
       node.item &&
       node.alarm &&
       cal.acl.isCalendarWritable(node.item.calendar) &&
-      cal.acl.userCanModifyItem(node.item) &&
-      !(node.item.parentItem.hashId in parentItems)
+      cal.acl.userCanModifyItem(node.item)
     ) {
-      // We only need to acknowledge one occurrence for repeating items
-      parentItems[node.item.parentItem.hashId] = node.item.parentItem;
-      getAlarmService().snoozeAlarm(node.item, node.alarm, duration);
+      entries.push({ item: node.item, alarm: node.alarm });
     }
+  }
+  // Drop already-acked widgets without claiming the series for parent dedupe
+  // so a newer occurrence of the same event can still be snoozed.
+  const selected =
+    alarmService.selectSnoozeAllEntries?.(entries) ||
+    entries.map(entry => ({ ...entry, action: "snooze" }));
+  for (const { item, alarm, action } of selected) {
+    if (action == "remove") {
+      alarmService.removeAlarmsForItem(item);
+      continue;
+    }
+    alarmService.snoozeAlarm(item, alarm, duration);
   }
   // we need to close the widget here explicitly because the dialog will stay
   // opened if there a still not snoozable alarms
@@ -388,30 +411,43 @@ function addWidgetFor(aItem, aAlarm) {
 function removeWidgetFor(aItem, aAlarm) {
   const hashId = aItem.hashId;
   const alarmRichlist = document.getElementById("alarm-richlist");
-  const nodes = alarmRichlist.children;
-  let notfound = true;
-  for (let i = nodes.length - 1; notfound && i >= 0; --i) {
+  const nodes = [...alarmRichlist.children];
+  let removed = false;
+  // Parent-item removals clear every fired occurrence of that event.
+  const removingParent = aItem.parentItem === aItem;
+  for (let i = nodes.length - 1; i >= 0; --i) {
     const widget = nodes[i];
-    if (
-      widget.item &&
-      widget.item.hashId == hashId &&
-      widget.alarm &&
-      widget.alarm.icalString == aAlarm.icalString
-    ) {
-      if (widget.selected) {
-        // Advance selection if needed
-        widget.control.selectedItem = widget.previousElementSibling || widget.nextElementSibling;
-      }
-
-      widget.removeEventListener("snooze", onSnoozeAlarm);
-      widget.removeEventListener("dismiss", onDismissAlarm);
-      widget.removeEventListener("itemdetails", onItemDetails);
-
-      widget.remove();
-      doReadOnlyChecks();
-      closeIfEmpty();
-      notfound = false;
+    if (!widget.item || !widget.alarm) {
+      continue;
     }
+    const sameOccurrence = widget.item.hashId == hashId;
+    const sameParentSeries =
+      removingParent &&
+      widget.item.id == aItem.id &&
+      widget.item.calendar?.id == aItem.calendar?.id;
+    const sameAlarm = removingParent || !aAlarm || widget.alarm.icalString == aAlarm.icalString;
+    if (!(sameOccurrence || sameParentSeries) || !sameAlarm) {
+      continue;
+    }
+    if (widget.selected) {
+      // Advance selection if needed
+      widget.control.selectedItem = widget.previousElementSibling || widget.nextElementSibling;
+    }
+
+    widget.removeEventListener("snooze", onSnoozeAlarm);
+    widget.removeEventListener("dismiss", onDismissAlarm);
+    widget.removeEventListener("itemdetails", onItemDetails);
+
+    widget.remove();
+    removed = true;
+    // Exact occurrence+alarm matches only need one removal.
+    if (!removingParent) {
+      break;
+    }
+  }
+
+  if (removed) {
+    doReadOnlyChecks();
   }
 
   // Update the title
@@ -467,11 +503,28 @@ async function doReadOnlyChecks() {
 function closeIfEmpty() {
   const alarmRichlist = document.getElementById("alarm-richlist");
 
-  // we don't want to close if the alarm service is still loading, as the
-  // removed alarms may be immediately added again.
-  if (!alarmRichlist.hasChildNodes() && !getAlarmService().isLoading) {
-    window.close();
+  if (alarmRichlist.hasChildNodes()) {
+    return;
   }
+
+  // Avoid closing while the alarm service is mid-reload: widgets are briefly
+  // cleared then re-added. If loading is stuck (slow CalDAV) after a real
+  // dismiss emptied the list, still close so the dialog does not hang open.
+  if (!getAlarmService().isLoading) {
+    window.close();
+    return;
+  }
+
+  if (closeIfEmpty._pending) {
+    return;
+  }
+  closeIfEmpty._pending = setTimeout(() => {
+    closeIfEmpty._pending = null;
+    const list = document.getElementById("alarm-richlist");
+    if (list && !list.hasChildNodes()) {
+      window.close();
+    }
+  }, 1500);
 }
 
 /**

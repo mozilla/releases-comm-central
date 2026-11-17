@@ -115,6 +115,22 @@ const IgnoredAlarmsStore = {
       entry => this._entryId(entry) == item.parentItem.hashId
     );
   },
+
+  /**
+   * Drops any ignore entry for the item. Used when the user changes the alarm
+   * definition (event dialog clears alarmLastAck) so a new offset can fire
+   * again despite a prior local dismiss ack.
+   *
+   * @param {calIItemBase} item
+   */
+  remove(item) {
+    const id = item.parentItem.hashId;
+    const cache = this._getCache(item.calendar);
+    const kept = cache.filter(entry => this._entryId(entry) != id);
+    if (kept.length != cache.length) {
+      item.calendar.setProperty("alarms.ignored", kept.join(","));
+    }
+  },
 };
 
 export function CalAlarmService() {
@@ -190,6 +206,12 @@ export function CalAlarmService() {
     onModifyItem(newItem, oldItem) {
       // If we're in a batch, ignore this notification. We're going to reload anyway.
       if (this.calendarIdsInBatch.has(newItem.calendar.id)) {
+        // The reload rebuilds alarms, but first discard any local acknowledgement
+        // invalidated by a change to the reminder.
+        const previousItem = newItem.recurrenceId ? oldItem : oldItem.parentItem;
+        if (this.alarmService._alarmDefinitionsDiffer(newItem, previousItem)) {
+          IgnoredAlarmsStore.remove(newItem);
+        }
         return;
       }
 
@@ -263,6 +285,9 @@ CalAlarmService.prototype = {
   mObservers: null,
   mTimezone: null,
 
+  // Exposed for the alarm dialog (skip auto-snooze of already-dismissed items).
+  IgnoredAlarmsStore,
+
   classID: calAlarmServiceClassID,
   QueryInterface: cal.generateQI(["calIAlarmService", "nsIObserver"]),
   classInfo: cal.generateCI({
@@ -314,15 +339,23 @@ CalAlarmService.prototype = {
     // Right now we only support snoozing all alarms for the given item for
     // aDuration.
 
+    // Remove from the dialog first so a slow or failing CalDAV round-trip does
+    // not leave the reminder stuck on screen (same rationale as dismissAlarm).
+    this.removeAlarmsForItem(aItem);
+
+    const now = nowUTC();
+    // Record the local ack *before* awaiting modifyItem so a concurrent reload
+    // cannot re-fire while the snooze write is in flight (same race as dismiss).
+    IgnoredAlarmsStore.add(aItem, now);
+
     // Make sure we're working with the parent, otherwise we'll accidentally
     // create an exception
     const newEvent = aItem.parentItem.clone();
-    let alarmTime = nowUTC();
 
     // Set the last acknowledged time to now.
-    newEvent.alarmLastAck = alarmTime;
+    newEvent.alarmLastAck = now;
 
-    alarmTime = alarmTime.clone();
+    const alarmTime = now.clone();
     alarmTime.addDuration(aDuration);
 
     let propName = "X-MOZ-SNOOZE-TIME";
@@ -349,11 +382,86 @@ CalAlarmService.prototype = {
       return;
     }
 
-    // The server did not persist our changes for some reason.
-    // Include the item in the ignored list so we skip displaying alarms for
-    // this item in the future, and remove the alarm that is already shown.
-    IgnoredAlarmsStore.add(aItem);
+    // The server did not persist the snooze. Keep the pre-await local ack so
+    // future occurrences can still arm, and clear any reminder a reload may
+    // have put back while modifyItem was pending.
     this.removeAlarmsForItem(aItem);
+  },
+
+  /**
+   * Whether this occurrence's alarm is already covered by the latest local or
+   * server acknowledgement. Used by snooze-all so a prior dismiss of one
+   * occurrence does not skip snoozing a later one (series-level has() would).
+   *
+   * @param {calIItemBase} aItem
+   * @param {calIAlarm} aAlarm
+   * @returns {boolean}
+   */
+  isOccurrenceAlarmAcknowledged(aItem, aAlarm) {
+    let alarmDate = cal.alarms.calculateAlarmDate(aItem, aAlarm);
+    if (!alarmDate || aAlarm.action != "DISPLAY") {
+      return false;
+    }
+    if (alarmDate.isDate) {
+      alarmDate = alarmDate.getInTimezone(this.timezone);
+      alarmDate.isDate = false;
+    }
+    alarmDate = alarmDate.getInTimezone(cal.dtz.UTC);
+
+    // Match addAlarmsForItem: a later snooze time is the effective fire time.
+    let snoozeDate;
+    if (aItem.parentItem == aItem) {
+      snoozeDate = aItem.getProperty("X-MOZ-SNOOZE-TIME");
+    } else {
+      snoozeDate = aItem.parentItem.getProperty(
+        "X-MOZ-SNOOZE-TIME-" + aItem.recurrenceId.nativeTime
+      );
+    }
+    if (
+      snoozeDate &&
+      !(snoozeDate instanceof lazy.CalDateTime) &&
+      !(snoozeDate instanceof Ci.calIDateTime)
+    ) {
+      snoozeDate = cal.createDateTime(snoozeDate);
+    }
+    if (snoozeDate && snoozeDate.compare(alarmDate) > 0) {
+      alarmDate = snoozeDate;
+    }
+
+    const ignoredAck = IgnoredAlarmsStore.getAck(aItem);
+    const parentAck = aItem.parentItem.alarmLastAck;
+    let lastAck = parentAck || ignoredAck;
+    if (parentAck && ignoredAck && ignoredAck.compare(parentAck) > 0) {
+      lastAck = ignoredAck;
+    }
+    return !!(lastAck && lastAck.compare(alarmDate) >= 0);
+  },
+
+  /**
+   * Choose snooze-all actions for fired reminders in display order. Already-
+   * acknowledged entries are removed only and must not claim the series for
+   * parent dedupe, or a newer occurrence of the same series would be skipped.
+   *
+   * @param {{item: calIItemBase, alarm: calIAlarm}[]} aEntries
+   * @returns {{item: calIItemBase, alarm: calIAlarm, action: "remove"|"snooze"}[]}
+   */
+  selectSnoozeAllEntries(aEntries) {
+    const parentSeen = new Set();
+    const selected = [];
+    for (const entry of aEntries) {
+      const { item, alarm } = entry;
+      if (this.isOccurrenceAlarmAcknowledged(item, alarm)) {
+        selected.push({ item, alarm, action: "remove" });
+        continue;
+      }
+      const parentId = item.parentItem.hashId;
+      if (parentSeen.has(parentId)) {
+        continue;
+      }
+      parentSeen.add(parentId);
+      selected.push({ item, alarm, action: "snooze" });
+    }
+    return selected;
   },
 
   async dismissAlarm(aItem) {
@@ -365,6 +473,13 @@ CalAlarmService.prototype = {
     this.removeAlarmsForItem(aItem);
     if (cal.acl.isCalendarWritable(aItem.calendar) && cal.acl.userCanModifyItem(aItem)) {
       const now = nowUTC();
+      // Record the local ack *before* awaiting modifyItem. CalDAV providers
+      // (e.g. Nextcloud) may notify onModifyItem/onLoad while the PUT is still
+      // in flight or when they re-fetch an item that stripped X-MOZ-LASTACK.
+      // Without a pre-emptive local ack, addAlarmsForItem would re-fire the
+      // same alarm and the dismiss button would appear to do nothing.
+      IgnoredAlarmsStore.add(aItem, now);
+
       // We want the parent item, otherwise we're going to accidentally
       // create an exception.  We've relnoted (for 0.1) the slightly odd
       // behavior this can cause if you move an event after dismissing an
@@ -390,13 +505,10 @@ CalAlarmService.prototype = {
       }
       if (modifiedItem?.alarmLastAck && now.compare(modifiedItem.alarmLastAck) == 0) {
         this.updateAlarmsForModifiedItem(modifiedItem, oldParent);
-        return;
       }
-
-      // The server did not persist our changes for some reason.
-      // Record the ack locally so alarms up to this point stay dismissed while
-      // future occurrences of the item can still fire.
-      IgnoredAlarmsStore.add(aItem, now);
+      // Whether or not the server persisted the ack, the local ignore entry
+      // already keeps alarms up to `now` dismissed while future occurrences
+      // can still fire.
     }
   },
 
@@ -551,8 +663,33 @@ CalAlarmService.prototype = {
       oldItem = oldItem.parentItem;
     }
 
+    // saveReminder() clears alarmLastAck when VALARMs change. A prior dismiss
+    // may still sit in IgnoredAlarmsStore with an ack time of "now", which would
+    // keep suppressing the new (still-past) offset — same hang as
+    // browser_alarmDialog.js after changing 1day → 2days. Drop the local entry
+    // only when the alarm definition itself changed, not when a server merely
+    // stripped X-MOZ-LASTACK on an otherwise identical item.
+    if (this._alarmDefinitionsDiffer(newItem, oldItem)) {
+      IgnoredAlarmsStore.remove(newItem);
+    }
+
     this.removeAlarmsForOccurrences(oldItem);
     this.addAlarmsForOccurrences(newItem);
+  },
+
+  /**
+   * @param {calIItemBase} aNewItem
+   * @param {calIItemBase} aOldItem
+   * @returns {boolean}
+   */
+  _alarmDefinitionsDiffer(aNewItem, aOldItem) {
+    const toKey = item =>
+      item
+        .getAlarms()
+        .map(alarm => alarm.icalString)
+        .sort()
+        .join("\0");
+    return toKey(aNewItem) != toKey(aOldItem);
   },
 
   addAlarmsForItem(aItem) {

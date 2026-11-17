@@ -892,6 +892,513 @@ add_task(async function test_migrateSkipsClearWhenShowMissedTrue() {
   Services.prefs.clearUserPref("calendar.alarms.ignored.legacyCleared");
 });
 
+/**
+ * Dismiss must record a local ack before modifyItem resolves so a concurrent
+ * calendar reload (CalDAV onModifyItem/onLoad) cannot re-fire the same alarm.
+ * Reproduces the Nextcloud "Dismiss does nothing" race.
+ */
+add_task(async function test_dismissSurvivesReloadDuringModify() {
+  alarmObserver.clear();
+
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  memory.id = cal.getUUID();
+
+  const impl = memory.wrappedJSObject;
+  let releaseModify;
+  const modifyGate = new Promise(resolve => {
+    releaseModify = resolve;
+  });
+  const innerModifyItem = impl.modifyItem.bind(impl);
+  impl.modifyItem = async function (newItem, oldItem) {
+    await modifyGate;
+    // Mimic a server that drops X-MOZ-LASTACK on the round-trip.
+    const stripped = newItem.clone();
+    stripped.alarmLastAck = null;
+    stripped.deleteProperty("X-MOZ-LASTACK");
+    return innerModifyItem(stripped, oldItem);
+  };
+
+  cal.manager.registerCalendar(memory);
+  await alarmObserver.doOnAlarmsLoaded(memory);
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  item.title = "dismiss survives reload during modify";
+  await memory.addItem(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.checkExpected();
+
+  const dismissPromise = alarmObserver.service.dismissAlarm(item, alarm);
+  // UI/observer removal is synchronous.
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("removed before modify resolves");
+
+  // Simulate the CalDAV re-fetch/reload that races the still-pending PUT.
+  alarmObserver.service.removeAlarmsForOccurrences(item);
+  alarmObserver.clear();
+  alarmObserver.service.addAlarmsForOccurrences(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("reload during in-flight dismiss must not re-fire");
+
+  releaseModify();
+  await dismissPromise;
+
+  // After the stripped response, the alarm must still stay dismissed.
+  alarmObserver.service.removeAlarmsForOccurrences(item);
+  alarmObserver.clear();
+  alarmObserver.service.addAlarmsForOccurrences(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("still dismissed after stripped modify completes");
+
+  cal.manager.unregisterCalendar(memory);
+});
+
+/**
+ * Failed dismiss still removes the fired alarm from observers immediately.
+ */
+add_task(async function test_failedDismissRemovesAlarm() {
+  const memory = await doRunTest(calendar => {
+    calendar.wrappedJSObject.modifyItem = async () => {
+      throw new Error("modification rejected");
+    };
+  });
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  item.title = "test_failedDismissRemovesAlarm";
+  await memory.addItem(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.checkExpected("test_failedDismissRemovesAlarm, before dismiss");
+
+  await alarmObserver.service.dismissAlarm(item, alarm);
+
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("test_failedDismissRemovesAlarm, after dismiss");
+
+  // Local ack must keep it dismissed across a re-arm.
+  alarmObserver.service.removeAlarmsForOccurrences(item);
+  alarmObserver.clear();
+  alarmObserver.service.addAlarmsForOccurrences(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("test_failedDismissRemovesAlarm, after re-arm");
+});
+
+/**
+ * Snooze removes the alarm from the dialog before the provider confirms the
+ * write, matching dismiss.
+ */
+add_task(async function test_snoozeRemovesAlarmImmediately() {
+  const memory = await doRunTest();
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  item.title = "test_snoozeRemovesAlarmImmediately";
+  await memory.addItem(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.checkExpected();
+
+  memory.startBatch();
+  const snoozed = alarmObserver.service.snoozeAlarm(item, alarm, cal.createDuration("PT1H"));
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("test_snoozeRemovesAlarmImmediately, before confirmation");
+  await snoozed;
+  memory.endBatch();
+  // After a successful snooze outside the observer path, a timer is armed.
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_TIMER);
+  alarmObserver.checkExpected("test_snoozeRemovesAlarmImmediately, after confirmation");
+});
+
+/**
+ * Snooze must record a local ack before modifyItem resolves so a concurrent
+ * calendar reload cannot re-fire the same alarm while the write is pending
+ * (parity with dismiss / D340771 review).
+ */
+add_task(async function test_snoozeSurvivesReloadDuringModify() {
+  alarmObserver.clear();
+
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  memory.id = cal.getUUID();
+
+  const impl = memory.wrappedJSObject;
+  let releaseModify;
+  const modifyGate = new Promise(resolve => {
+    releaseModify = resolve;
+  });
+  const innerModifyItem = impl.modifyItem.bind(impl);
+  impl.modifyItem = async function (newItem, oldItem) {
+    await modifyGate;
+    // Mimic a server that drops the snooze property on the round-trip.
+    const stripped = newItem.clone();
+    stripped.alarmLastAck = null;
+    stripped.deleteProperty("X-MOZ-LASTACK");
+    stripped.deleteProperty("X-MOZ-SNOOZE-TIME");
+    return innerModifyItem(stripped, oldItem);
+  };
+
+  cal.manager.registerCalendar(memory);
+  await alarmObserver.doOnAlarmsLoaded(memory);
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  item.title = "snooze survives reload during modify";
+  await memory.addItem(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.checkExpected();
+
+  const snoozePromise = alarmObserver.service.snoozeAlarm(item, alarm, cal.createDuration("PT1H"));
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("removed before modify resolves");
+
+  // Simulate the CalDAV re-fetch/reload that races the still-pending PUT.
+  alarmObserver.service.removeAlarmsForOccurrences(item);
+  alarmObserver.clear();
+  alarmObserver.service.addAlarmsForOccurrences(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("reload during in-flight snooze must not re-fire");
+
+  releaseModify();
+  await snoozePromise;
+
+  // After the stripped response, the alarm must still stay clear of the dialog.
+  alarmObserver.service.removeAlarmsForOccurrences(item);
+  alarmObserver.clear();
+  alarmObserver.service.addAlarmsForOccurrences(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("still clear after stripped snooze completes");
+
+  cal.manager.unregisterCalendar(memory);
+});
+
+/**
+ * Review scenario: reload re-adds the reminder while snooze modifyItem is
+ * pending, then the write fails. The re-added fired alarm must be cleared —
+ * a late IgnoredAlarmsStore entry alone is not enough if the widget is already
+ * back in the dialog.
+ */
+add_task(async function test_failedSnoozeClearsReloadRefire() {
+  alarmObserver.clear();
+
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  memory.id = cal.getUUID();
+
+  const impl = memory.wrappedJSObject;
+  let releaseModify;
+  const modifyGate = new Promise(resolve => {
+    releaseModify = resolve;
+  });
+  impl.modifyItem = async function () {
+    await modifyGate;
+    throw new Error("modification rejected");
+  };
+
+  cal.manager.registerCalendar(memory);
+  await alarmObserver.doOnAlarmsLoaded(memory);
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  item.title = "failed snooze clears reload re-fire";
+  await memory.addItem(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.checkExpected();
+
+  const snoozePromise = alarmObserver.service.snoozeAlarm(item, alarm, cal.createDuration("PT1H"));
+
+  // Reload while the write is in flight (would re-fire without a pre-await ack).
+  alarmObserver.service.removeAlarmsForOccurrences(item);
+  alarmObserver.clear();
+  alarmObserver.service.addAlarmsForOccurrences(item);
+
+  releaseModify();
+  await snoozePromise;
+
+  // Regardless of whether the reload re-fired, the failure path must leave the
+  // alarm cleared from observers (dialog) and suppressed on re-arm.
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("failed snooze must clear any reload re-fire");
+
+  alarmObserver.service.removeAlarmsForOccurrences(item);
+  alarmObserver.clear();
+  alarmObserver.service.addAlarmsForOccurrences(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_NONE);
+  alarmObserver.checkExpected("failed snooze stays suppressed after re-arm");
+
+  cal.manager.unregisterCalendar(memory);
+});
+
+/**
+ * Local acknowledgement is occurrence-scoped via ack time: dismissing Monday
+ * must not make Tuesday's reminder look "already handled" for snooze-all.
+ * Bare IgnoredAlarmsStore.has() is series-wide and is the wrong check.
+ */
+add_task(async function test_occurrenceAckDoesNotBlockLaterReminder() {
+  alarmObserver.clear();
+
+  const memory = await doRunTest();
+
+  // Two past daily occurrences: dismiss of the first is recorded with that
+  // occurrence's alarm time (as a local ack). A parent alarmLastAck of "now"
+  // would cover every already-due occurrence; the dialog bug is series-level
+  // has() after an earlier occurrence was acknowledged.
+  const date = cal.dtz.now();
+  date.hour -= 47;
+  date.hour; // Force normalization, as in addTestItems Test 7.
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT15M", "RRULE:FREQ=DAILY");
+  item.title = "occurrence ack does not block later reminder";
+  await memory.addItem(item);
+
+  const probe = item.startDate.clone();
+  probe.second -= 1;
+  const firstOcc = item.recurrenceInfo.getNextOccurrence(probe);
+  firstOcc.QueryInterface(Ci.calIEvent);
+  probe.day = firstOcc.startDate.day;
+  probe.month = firstOcc.startDate.month;
+  probe.year = firstOcc.startDate.year;
+  probe.hour = firstOcc.startDate.hour;
+  probe.minute = firstOcc.startDate.minute;
+  probe.second = firstOcc.startDate.second;
+  probe.second += 1;
+  const secondOcc = item.recurrenceInfo.getNextOccurrence(probe);
+  secondOcc.QueryInterface(Ci.calIEvent);
+
+  let firstAlarmDate = cal.alarms.calculateAlarmDate(firstOcc, alarm);
+  firstAlarmDate = firstAlarmDate.getInTimezone(cal.dtz.UTC);
+  // Local ack at the first occurrence's fire time only — later occurrences with
+  // a newer alarm date must remain snoozeable (Toby's Snooze All case).
+  alarmObserver.service.IgnoredAlarmsStore.add(firstOcc, firstAlarmDate);
+
+  Assert.ok(
+    alarmObserver.service.IgnoredAlarmsStore.has(secondOcc),
+    "series-level has() is true for later occurrences after an earlier dismiss"
+  );
+  Assert.ok(
+    alarmObserver.service.isOccurrenceAlarmAcknowledged(firstOcc, alarm),
+    "first occurrence is acknowledged"
+  );
+  Assert.ok(
+    !alarmObserver.service.isOccurrenceAlarmAcknowledged(secondOcc, alarm),
+    "later occurrence must not be treated as already acknowledged"
+  );
+
+  // Snooze-all must still be able to schedule the later reminder.
+  await alarmObserver.service.snoozeAlarm(secondOcc, alarm, cal.createDuration("PT1H"));
+  alarmObserver.expectResult(memory, secondOcc, alarm, EXPECT_TIMER);
+  alarmObserver.checkExpected("later occurrence snoozes after earlier dismiss");
+});
+
+/**
+ * After a successful dismiss the local ignore store holds an ack time of "now".
+ * Changing the reminder (as saveReminder does: new VALARM + alarmLastAck=null)
+ * must clear that entry so the new still-past offset can fire again. Without
+ * this, browser_alarmDialog.js hangs waiting for the second alarm dialog.
+ */
+add_task(async function test_changedAlarmRefiresAfterDismiss() {
+  alarmObserver.clear();
+  Services.prefs.setBoolPref("calendar.alarms.showmissed", true);
+
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  memory.id = cal.getUUID();
+  cal.manager.registerCalendar(memory);
+  await alarmObserver.doOnAlarmsLoaded(memory);
+
+  const date = cal.dtz.now();
+  // All-day-ish past offset like "1 day before tomorrow": fire immediately.
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  item.title = "changed alarm refires after dismiss";
+  await memory.addItem(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.checkExpected("initial alarm fired");
+
+  await alarmObserver.service.dismissAlarm(item, alarm);
+  Assert.ok(
+    alarmObserver.service.IgnoredAlarmsStore.has(item),
+    "dismiss records a local ignore entry"
+  );
+
+  // Mimic saveReminder(): replace the VALARM and clear alarmLastAck.
+  const stored = await memory.getItem(item.id);
+  const edited = stored.clone();
+  edited.clearAlarms();
+  const newAlarm = createAlarmFromDuration("-PT15M");
+  edited.addAlarm(newAlarm);
+  edited.alarmLastAck = null;
+  edited.deleteProperty("X-MOZ-LASTACK");
+  const modified = await memory.modifyItem(edited, stored);
+
+  Assert.ok(
+    !alarmObserver.service.IgnoredAlarmsStore.has(modified),
+    "ignore entry cleared when the alarm definition changes"
+  );
+
+  alarmObserver.clear();
+  // onModifyItem already re-armed; also force a clean check.
+  alarmObserver.service.removeAlarmsForOccurrences(modified);
+  alarmObserver.clear();
+  alarmObserver.service.addAlarmsForOccurrences(modified);
+  alarmObserver.expectResult(memory, modified, newAlarm, EXPECT_FIRED);
+  alarmObserver.checkExpected("new offset fires after reminder change");
+
+  cal.manager.unregisterCalendar(memory);
+  Services.prefs.clearUserPref("calendar.alarms.showmissed");
+});
+
+/**
+ * Same as above, but the reminder edit is delivered inside a calendar batch,
+ * where calendarObserver.onModifyItem used to return before touching alarms.
+ * The local ignore entry must still be dropped (D340771 review, CI browser
+ * test selects 2days inside a batch).
+ */
+add_task(async function test_changedAlarmInBatchClearsIgnoreEntry() {
+  alarmObserver.clear();
+  Services.prefs.setBoolPref("calendar.alarms.showmissed", true);
+
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  memory.id = cal.getUUID();
+  cal.manager.registerCalendar(memory);
+  await alarmObserver.doOnAlarmsLoaded(memory);
+
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+  item.title = "changed alarm in batch clears ignore";
+  await memory.addItem(item);
+  alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  alarmObserver.checkExpected("initial alarm fired");
+
+  await alarmObserver.service.dismissAlarm(item, alarm);
+  Assert.ok(
+    alarmObserver.service.IgnoredAlarmsStore.has(item),
+    "dismiss records a local ignore entry"
+  );
+
+  const stored = await memory.getItem(item.id);
+  const edited = stored.clone();
+  edited.clearAlarms();
+  edited.addAlarm(createAlarmFromDuration("-PT15M"));
+  edited.alarmLastAck = null;
+  edited.deleteProperty("X-MOZ-LASTACK");
+
+  memory.startBatch();
+  try {
+    const modified = await memory.modifyItem(edited, stored);
+    Assert.ok(
+      !alarmObserver.service.IgnoredAlarmsStore.has(modified),
+      "ignore entry cleared when the alarm changes inside a batch"
+    );
+  } finally {
+    memory.endBatch();
+  }
+
+  cal.manager.unregisterCalendar(memory);
+  Services.prefs.clearUserPref("calendar.alarms.showmissed");
+});
+
+/**
+ * Several independent fired alarms can all be snoozed when the caller works
+ * from a snapshot of targets (as snooze-all must). Ensures remove-on-snooze
+ * does not depend on live-collection iteration order in the service path.
+ */
+add_task(async function test_snoozeAllIndependentAlarmsFromSnapshot() {
+  const memory = await doRunTest();
+
+  const date = cal.dtz.now();
+  const items = [];
+  for (let i = 0; i < 3; i++) {
+    const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT5M");
+    item.title = `snooze snapshot ${i}`;
+    await memory.addItem(item);
+    items.push({ item, alarm });
+  }
+  for (const { item, alarm } of items) {
+    alarmObserver.expectResult(memory, item, alarm, EXPECT_FIRED);
+  }
+  alarmObserver.checkExpected("three independent alarms fired");
+
+  // Snapshot first (dialog must do the same with richlist children), then act.
+  const snapshot = items.slice();
+  for (const { item, alarm } of snapshot) {
+    if (alarmObserver.service.isOccurrenceAlarmAcknowledged(item, alarm)) {
+      alarmObserver.service.removeAlarmsForItem(item);
+      continue;
+    }
+    // Fire-and-forget like the dialog; await below.
+    alarmObserver.service.snoozeAlarm(item, alarm, cal.createDuration("PT1H"));
+  }
+  await Promise.resolve();
+  // Let the async snoozes settle.
+  await TestUtils.waitForCondition(() =>
+    snapshot.every(
+      ({ item, alarm }) => !!alarmObserver.getTimer(memory.id, item.hashId, alarm.icalString)
+    )
+  );
+
+  for (const { item, alarm } of snapshot) {
+    alarmObserver.expectResult(memory, item, alarm, EXPECT_TIMER);
+  }
+  alarmObserver.checkExpected("all three independent alarms snoozed from snapshot");
+});
+
+/**
+ * Snooze-all must not let an already-acknowledged older occurrence claim the
+ * series for parent dedupe. Otherwise a newer occurrence of the same series is
+ * excluded and only the stale reminder is removed (D340771 inline review).
+ */
+add_task(async function test_snoozeAllSkipsAckedBeforeParentDedupe() {
+  alarmObserver.clear();
+
+  const memory = await doRunTest();
+
+  const date = cal.dtz.now();
+  date.hour -= 47;
+  date.hour; // Force normalization, as in addTestItems Test 7.
+  const [item, alarm] = createEventWithAlarm(memory, date, date, "-PT15M", "RRULE:FREQ=DAILY");
+  item.title = "snooze-all acked before parent dedupe";
+  await memory.addItem(item);
+
+  const probe = item.startDate.clone();
+  probe.second -= 1;
+  const firstOcc = item.recurrenceInfo.getNextOccurrence(probe);
+  firstOcc.QueryInterface(Ci.calIEvent);
+  probe.day = firstOcc.startDate.day;
+  probe.month = firstOcc.startDate.month;
+  probe.year = firstOcc.startDate.year;
+  probe.hour = firstOcc.startDate.hour;
+  probe.minute = firstOcc.startDate.minute;
+  probe.second = firstOcc.startDate.second;
+  probe.second += 1;
+  const secondOcc = item.recurrenceInfo.getNextOccurrence(probe);
+  secondOcc.QueryInterface(Ci.calIEvent);
+
+  let firstAlarmDate = cal.alarms.calculateAlarmDate(firstOcc, alarm);
+  firstAlarmDate = firstAlarmDate.getInTimezone(cal.dtz.UTC);
+  alarmObserver.service.IgnoredAlarmsStore.add(firstOcc, firstAlarmDate);
+
+  // Display order: older acked occurrence first, then the newer live one.
+  const selected = alarmObserver.service.selectSnoozeAllEntries([
+    { item: firstOcc, alarm },
+    { item: secondOcc, alarm },
+  ]);
+
+  Assert.deepEqual(
+    selected.map(entry => [entry.item.hashId, entry.action]),
+    [
+      [firstOcc.hashId, "remove"],
+      [secondOcc.hashId, "snooze"],
+    ],
+    "acked older occurrence is removed without blocking snooze of the newer one"
+  );
+
+  for (const entry of selected) {
+    if (entry.action == "remove") {
+      alarmObserver.service.removeAlarmsForItem(entry.item);
+    } else {
+      await alarmObserver.service.snoozeAlarm(entry.item, entry.alarm, cal.createDuration("PT1H"));
+    }
+  }
+
+  alarmObserver.expectResult(memory, firstOcc, alarm, EXPECT_NONE);
+  alarmObserver.expectResult(memory, secondOcc, alarm, EXPECT_TIMER);
+  alarmObserver.checkExpected("newer occurrence snoozed after acked older was dropped");
+});
+
 registerCleanupFunction(() => {
   Services.prefs.clearUserPref("calendar.notifications.times");
 });
