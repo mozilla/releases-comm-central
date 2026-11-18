@@ -108,7 +108,7 @@ add_task(async function () {
   // Check the database is populated correctly.
 
   const allMessagesId = folderDB.getFolderByPath("server1/all messages");
-  checkRow(allMessagesId, {
+  checkRow("folders", allMessagesId, {
     id: allMessagesId,
     parent: folderDB.getFolderByPath("server1"),
     ordinal: null,
@@ -117,7 +117,7 @@ add_task(async function () {
   });
 
   const testId = folderDB.getFolderByPath("server1/foo/test");
-  checkRow(testId, {
+  checkRow("folders", testId, {
     id: testId,
     parent: folderDB.getFolderByPath("server1/foo"),
     ordinal: null,

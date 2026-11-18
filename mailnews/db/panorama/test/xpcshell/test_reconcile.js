@@ -35,15 +35,15 @@ add_task(function testReconcile() {
   );
   Assert.deepEqual(folderDB.getFolderChildren(parent), [inserted, sibling]);
 
-  checkRow(inserted, {
+  checkRow("folders", inserted, {
     id: inserted,
     parent,
     ordinal: null,
     name: "inserted",
     flags: 0,
   });
-  checkNoRow(child);
-  checkNoRow(grandchild);
+  checkNoRow("folders", child);
+  checkNoRow("folders", grandchild);
 
   // Folders with the virtual flag shouldn't be removed.
 
@@ -52,7 +52,7 @@ add_task(function testReconcile() {
   drawTree(parent);
 
   Assert.deepEqual(folderDB.getFolderChildren(parent), [inserted, sibling]);
-  checkRow(inserted, {
+  checkRow("folders", inserted, {
     id: inserted,
     parent,
     ordinal: null,

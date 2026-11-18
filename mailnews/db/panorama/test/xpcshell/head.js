@@ -120,24 +120,36 @@ function drawTree(root, level = 0) {
   }
 }
 
-function checkRow(id, expected) {
+/**
+ * Select the row in `table` with `id`, and check the column values.
+ *
+ * @param {string} table - The name of the table to select from.
+ * @param {integer} id - The id of the row to check.
+ * @param {{[key: string]: number}} expected - The columns to select and their
+ *   expected values.
+ */
+function checkRow(table, id, expected) {
   const stmt = database.connectionForTests.createStatement(
-    "SELECT id, parent, ordinal, name, flags FROM folders WHERE id = :id"
+    `SELECT ${Object.keys(expected).join(", ")} FROM ${table} WHERE id = :id`
   );
   stmt.params.id = id;
   stmt.executeStep();
-  Assert.equal(stmt.row.id, expected.id, "row id");
-  Assert.equal(stmt.row.parent, expected.parent, "row parent");
-  Assert.equal(stmt.row.ordinal, expected.ordinal, "row ordinal");
-  Assert.equal(stmt.row.name, expected.name, "row name");
-  Assert.equal(stmt.row.flags, expected.flags, "row flags");
+  for (const [name, value] of Object.entries(expected)) {
+    Assert.equal(stmt.row[name], value, `row ${name}`);
+  }
   stmt.reset();
   stmt.finalize();
 }
 
-function checkNoRow(id) {
+/**
+ * Check that there is no row in `table` with `id`.
+ *
+ * @param {string} table - The name of the table to select from.
+ * @param {integer} id - The id of the row to check.
+ */
+function checkNoRow(table, id) {
   const stmt = database.connectionForTests.createStatement(
-    "SELECT id, parent, ordinal, name, flags FROM folders WHERE id = :id"
+    `SELECT id FROM ${table} WHERE id = :id`
   );
   stmt.params.id = id;
   Assert.ok(!stmt.executeStep(), `row ${id} should not exist`);
@@ -145,21 +157,41 @@ function checkNoRow(id) {
   stmt.finalize();
 }
 
-function checkOrdinals(expected) {
+/**
+ * Select the rows matching `id` from `table`, and check the names and values.
+ * This works for the folder_properties and message_properties tables.
+ *
+ * @param {string} table - The name of the table to select from.
+ * @param {integer} id - The id of the object to check.
+ * @param {{[key: string]: number}} expected - The expected names and values.
+ * @param {boolean} [lenient=false] - If true, properties that aren't in
+ *   `expected` are allowed.
+ */
+function checkPropertyRows(table, id, expected, lenient = false) {
   const stmt = database.connectionForTests.createStatement(
-    "SELECT parent, ordinal FROM folders WHERE id=:id"
+    `SELECT name, value FROM ${table} WHERE id = :id`
   );
-  for (const [folder, parent, ordinal] of expected) {
-    stmt.params.id = folder;
-    stmt.executeStep();
-    Assert.deepEqual(
-      [stmt.row.parent, stmt.row.ordinal],
-      [parent, ordinal],
-      `parent and ordinal of '${folderDB.getFolderName(folder)}'`
-    );
-    stmt.reset();
+  stmt.params.id = id;
+
+  const properties = {};
+  const uncheckedProperties = {};
+  while (stmt.executeStep()) {
+    if (!lenient || stmt.row.name in expected) {
+      properties[stmt.row.name] = stmt.row.value;
+    } else {
+      uncheckedProperties[stmt.row.name] = stmt.row.value;
+    }
   }
+  stmt.reset();
   stmt.finalize();
+
+  if (Object.keys(uncheckedProperties).length) {
+    info("These properties exist but weren't checked:");
+    for (const [key, value] of Object.entries(uncheckedProperties)) {
+      info(`  ${key} = ${value}`);
+    }
+  }
+  Assert.deepEqual(properties, expected, `properties of ${id}`);
 }
 
 /**

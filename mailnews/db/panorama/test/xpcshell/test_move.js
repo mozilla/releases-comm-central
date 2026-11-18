@@ -375,3 +375,26 @@ add_task(function testMoveToNewRoot() {
     "root folders should be prevented from moving"
   );
 });
+
+/**
+ * Check that folders' parents and ordinals are saved in the database.
+ *
+ * @param {[integer, integer, ?ordinal][]} expected - An array of expected
+ *   folder rows. Each is an array of folder ID, parent folder ID, and ordinal.
+ */
+function checkOrdinals(expected) {
+  const stmt = database.connectionForTests.createStatement(
+    "SELECT parent, ordinal FROM folders WHERE id=:id"
+  );
+  for (const [folder, parent, ordinal] of expected) {
+    stmt.params.id = folder;
+    stmt.executeStep();
+    Assert.deepEqual(
+      [stmt.row.parent, stmt.row.ordinal],
+      [parent, ordinal],
+      `parent and ordinal of '${folderDB.getFolderName(folder)}'`
+    );
+    stmt.reset();
+  }
+  stmt.finalize();
+}

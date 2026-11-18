@@ -73,7 +73,7 @@ async function testFolderDiscovery(server) {
   drawTree(root);
   Assert.equal(folderDB.getFolderParent(root), 0);
   Assert.equal(folderDB.getFolderName(root), server.key);
-  checkRow(root, {
+  checkRow("folders", root, {
     id: root,
     parent: 0,
     ordinal: null,
@@ -87,7 +87,7 @@ async function testFolderDiscovery(server) {
   Assert.ok(trash);
   Assert.equal(folderDB.getFolderParent(trash), root);
   Assert.equal(folderDB.getFolderName(trash), "Trash");
-  checkRow(trash, {
+  checkRow("folders", trash, {
     id: trash,
     parent: root,
     ordinal: null,
@@ -99,7 +99,7 @@ async function testFolderDiscovery(server) {
   Assert.ok(unsent);
   Assert.equal(folderDB.getFolderParent(unsent), root);
   Assert.equal(folderDB.getFolderName(unsent), "Unsent Messages");
-  checkRow(unsent, {
+  checkRow("folders", unsent, {
     id: unsent,
     parent: root,
     ordinal: null,
@@ -113,7 +113,7 @@ async function testFolderDiscovery(server) {
   Assert.ok(test1);
   Assert.equal(folderDB.getFolderParent(test1), root);
   Assert.equal(folderDB.getFolderName(test1), "test1");
-  checkRow(test1, {
+  checkRow("folders", test1, {
     id: test1,
     parent: root,
     ordinal: null,
@@ -125,7 +125,7 @@ async function testFolderDiscovery(server) {
   Assert.ok(test2);
   Assert.equal(folderDB.getFolderParent(test2), test1);
   Assert.equal(folderDB.getFolderName(test2), "test2");
-  checkRow(test2, {
+  checkRow("folders", test2, {
     id: test2,
     parent: test1,
     ordinal: null,
@@ -138,7 +138,7 @@ async function testFolderDiscovery(server) {
   Assert.ok(test3);
   Assert.equal(folderDB.getFolderParent(test3), root);
   Assert.equal(folderDB.getFolderName(test3), "test3");
-  checkRow(test3, {
+  checkRow("folders", test3, {
     id: test3,
     parent: root,
     ordinal: null,

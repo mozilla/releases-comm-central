@@ -25,7 +25,7 @@ add_task(function testDelete() {
 
   // Delete a leaf folder.
   folderDB.deleteFolder(b1);
-  checkNoRow(b1);
+  checkNoRow("folders", b1);
   drawTree(parent);
   Assert.throws(
     () => folderDB.getFolderRoot(b1),
@@ -41,13 +41,13 @@ add_task(function testDelete() {
 
   // Delete a leaf folder with siblings.
   folderDB.deleteFolder(a1);
-  checkNoRow(a1);
+  checkNoRow("folders", a1);
   drawTree(parent);
   Assert.deepEqual(folderDB.getFolderChildren(a), [a2]);
 
   // Delete a folder with children.
   folderDB.deleteFolder(d);
-  checkNoRow(d);
+  checkNoRow("folders", d);
   drawTree(parent);
   Assert.deepEqual(
     folderDB.getFolderChildren(parent).toSorted(),
@@ -81,5 +81,5 @@ add_task(function testDeleteFromFolder() {
   const folderId = folder.id;
   folder.deleteSelf(false);
 
-  checkNoRow(folderId);
+  checkNoRow("folders", folderId);
 });

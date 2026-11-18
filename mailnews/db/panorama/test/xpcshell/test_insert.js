@@ -58,7 +58,7 @@ add_task(function testInsertRoot() {
     "path should percent-encode '/' chars"
   );
 
-  checkRow(flipflop, {
+  checkRow("folders", flipflop, {
     id: flipflop,
     parent: 0,
     ordinal: null,
@@ -112,7 +112,7 @@ add_task(function testInsertFolder() {
     "new folder should be added to parent's children"
   );
 
-  checkRow(inserted, {
+  checkRow("folders", inserted, {
     id: inserted,
     parent,
     ordinal: null,
