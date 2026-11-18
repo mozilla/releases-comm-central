@@ -218,10 +218,13 @@ async function subtest_wait_for_account_hub_dialog(type = "MAIL") {
     dialog.querySelector(account_hub_start_templates[type]),
     `The ${account_hub_start_templates[type]} element should be available`
   );
+
+  // The dialog or the parent view can hide the start step.
   await BrowserTestUtils.waitForMutationCondition(
-    dialog.querySelector(account_hub_start_templates[type]),
+    dialog,
     {
-      attributeFilter: ["hidden"],
+      subtree: true,
+      attributeFilter: ["class", "hidden", "open"],
     },
     () =>
       BrowserTestUtils.isVisible(

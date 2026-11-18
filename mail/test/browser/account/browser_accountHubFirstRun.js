@@ -59,8 +59,6 @@ add_task(async function test_account_hub_first_run() {
 });
 
 add_task(async function test_account_hub_first_run_open_address_book_setup() {
-  IMAPServer.open();
-  SMTPServer.open();
   const dialog = await subtest_open_account_hub_dialog();
 
   Assert.ok(
@@ -133,9 +131,6 @@ add_task(async function test_account_hub_first_run_open_address_book_setup() {
   minimizeButton = header.shadowRoot.getElementById("minimizeButton");
   EventUtils.synthesizeMouseAtCenter(minimizeButton, {});
   await closeEvent;
-
-  IMAPServer.close();
-  SMTPServer.close();
 });
 
 add_task(async function test_account_hub_header_branding() {
