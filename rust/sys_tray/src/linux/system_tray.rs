@@ -44,7 +44,7 @@ impl IconData {
 
 pub(crate) fn read_stream(stream: &nsIInputStream) -> Result<Vec<u8>, nsresult> {
     let mut bytes_available = 0;
-    unsafe { stream.Available(&mut bytes_available) }.to_result()?;
+    unsafe { stream.Available(&raw mut bytes_available) }.to_result()?;
 
     // `nsIInputStream::Available` reads into a u64, but `nsIInputStream::Read`
     // takes a u32.
@@ -64,7 +64,11 @@ pub(crate) fn read_stream(stream: &nsIInputStream) -> Result<Vec<u8>, nsresult> 
         let read_ptr = read_sink.as_mut_ptr();
 
         stream
-            .Read(read_ptr as *mut c_char, bytes_available, &mut bytes_read)
+            .Read(
+                read_ptr.cast::<c_char>(),
+                bytes_available,
+                &raw mut bytes_read,
+            )
             .to_result()?;
     };
 
@@ -102,8 +106,8 @@ fn decode_image_from_img_container(img_container: &imgIContainer) -> Result<Icon
     let mut image_stream_ref = GetterAddrefs::<nsIInputStream>::new();
 
     unsafe {
-        let mime_type: *const nsACString = &*nsCString::from("image/png");
-        let output_options: *const nsAString = &*nsString::from("");
+        let mime_type: *const nsACString = &raw const *nsCString::from("image/png");
+        let output_options: *const nsAString = &raw const *nsString::from("");
         img_tools.EncodeImage(
             img_container,
             mime_type,
@@ -119,13 +123,12 @@ fn decode_image_from_img_container(img_container: &imgIContainer) -> Result<Icon
     let mut height = 0;
 
     unsafe {
-        img_container.GetWidth(&mut width);
-        img_container.GetHeight(&mut height);
+        img_container.GetWidth(&raw mut width);
+        img_container.GetHeight(&raw mut height);
     }
 
     let icon = decode_png(Cursor::new(png_data)).ok_or_else(|| {
         log::error!(target: "system_tray", "Unable to decode tray icon's new mail overlay");
-        ()
     })?;
 
     log::debug!(target: "system_tray",
@@ -224,7 +227,7 @@ impl XdgIcon {
                 .unwrap_or_default()
                 .replace(';', ":")
                 .split(':')
-                .map(|s| s.to_lowercase())
+                .map(str::to_lowercase)
                 .any(|i| i == "gnome")
         });
 
@@ -298,7 +301,7 @@ impl From<&TrayItem> for ksni::MenuItem<SystemTray> {
                         tray.dispatch_action(act)
                             .expect("Couldn't send to main thread");
                     }),
-                    icon_name: icon.as_ref().map(|i| i.to_string()).unwrap_or_default(),
+                    icon_name: icon.as_ref().map(ToString::to_string).unwrap_or_default(),
                     ..Default::default()
                 })
             }
@@ -363,10 +366,10 @@ impl SystemTray {
         unsafe {
             let badge_icon = decode_image_from_img_container(img_container?).ok()?;
             linux_tray_integration.MergeTrayIconBadge(
-                &cached_icon_pixmap.rgba_data,
+                &raw const cached_icon_pixmap.rgba_data,
                 cached_icon_pixmap.width,
                 cached_icon_pixmap.height,
-                &badge_icon.rgba_data,
+                &raw const badge_icon.rgba_data,
                 badge_icon.width,
                 badge_icon.height,
                 updated_img_container.ptr(),
@@ -379,7 +382,7 @@ impl SystemTray {
     }
 
     fn should_display_badge(&self) -> bool {
-        self.unread_count > 0 && self.icon_pixmap.len() > 0
+        self.unread_count > 0 && !self.icon_pixmap.is_empty()
     }
 
     pub fn update_unread_count(
@@ -395,7 +398,7 @@ impl SystemTray {
             if let Some(icon_pixmap) = self.get_icon_pixmap_with_badge(img_container) {
                 self.icon_pixmap = icon_pixmap;
             } else {
-                log::warn!(target: "system_tray", "Unable to get icon pixmap with badge")
+                log::warn!(target: "system_tray", "Unable to get icon pixmap with badge");
             }
         }
     }
@@ -440,6 +443,6 @@ impl ksni::Tray for SystemTray {
     }
 
     fn menu(&self) -> Vec<ksni::MenuItem<Self>> {
-        self.items.iter().map(|i| i.into()).collect::<Vec<_>>()
+        self.items.iter().map(Into::into).collect::<Vec<_>>()
     }
 }

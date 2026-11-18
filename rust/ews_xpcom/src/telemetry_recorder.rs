@@ -24,6 +24,16 @@ pub(crate) const OFFICE365_BASE_DOMAINS: [&str; 4] = [
     ".microsoft",
 ];
 
+/// # Safety
+///
+/// `iid` must reference a valid, initialized [`nsIID`] that is not mutated for
+///  the duration of the call.
+///
+/// `result` must be non-null, [properly aligned], and valid for writing one
+/// `*mut c_void`. Its storage must not overlap `iid` or be accessed through
+/// another pointer while it is being written.
+///
+/// [properly aligned]: https://doc.rust-lang.org/reference/behavior-considered-undefined.html#places-based-on-misaligned-pointers
 #[allow(non_snake_case)]
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn NS_CreateEwsTelemetryRecorder(

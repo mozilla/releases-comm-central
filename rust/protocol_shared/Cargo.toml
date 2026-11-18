@@ -2,10 +2,10 @@
 name = "protocol_shared"
 version = "0.1.0"
 edition = "2024"
+rust-version.workspace = true
 
 [dependencies]
 async-lock = "3.4.2"
-base64 = "0.21.3"
 log = "0.4.21"
 mail-parser = "0.9.3"
 mail-builder = { version = "0.3.2", default-features = false }

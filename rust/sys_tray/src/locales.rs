@@ -26,7 +26,7 @@ fn supported_locales() -> Result<ThinVec<nsCString>, nsresult> {
         .ok_or(nserror::NS_ERROR_NO_INTERFACE)?;
     let mut locales = ThinVec::new();
     unsafe {
-        service.GetAppLocalesAsBCP47(&mut locales).to_result()?;
+        service.GetAppLocalesAsBCP47(&raw mut locales).to_result()?;
     }
     Ok(locales)
 }

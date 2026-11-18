@@ -422,17 +422,15 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
     fn all_required_properties_present(&self) -> bool {
         let username_present = self
             .username()
-            .map_err(|err| {
+            .inspect_err(|&err| {
                 log::debug!("failed to get username: {err}");
-                err
             })
             .ok()
             .is_some();
         let auth_method_present = self
             .auth_method()
-            .map_err(|err| {
+            .inspect_err(|&err| {
                 log::debug!("failed to get auth method: {err}");
-                err
             })
             .ok()
             .is_some();
@@ -440,14 +438,13 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         // properties, but it should be set around the same time.
         let endpoint_url_present = self
             .endpoint_url()
-            .map_err(|err| {
+            .inspect_err(|&err| {
                 log::debug!("failed to get endpoint URL: {err}");
-                err
             })
             .ok()
             .is_some();
 
-        return username_present && auth_method_present && endpoint_url_present;
+        username_present && auth_method_present && endpoint_url_present
     }
 
     ///////////////////////////////////////////////////////////
@@ -463,7 +460,7 @@ impl<ClientT: SendCapableClient> OutgoingServer<ClientT> {
         self.key
             .get()
             .ok_or(nserror::NS_ERROR_NOT_INITIALIZED)
-            .map(nsCString::clone)
+            .cloned()
     }
 
     // UID

@@ -5,7 +5,7 @@ edition = "2024"
 rust-version.workspace = true
 
 [dependencies]
-fluent = "0.16"
+fluent-ffi = { path = "../../../intl/l10n/rust/fluent-ffi" }
 log = "0.4"
 moz_task = { path = "../../../xpcom/rust/moz_task" }
 mozbuild = { path = "../../../build/rust/mozbuild" }
@@ -14,7 +14,6 @@ nsstring = { path = "../../../xpcom/rust/nsstring" }
 thin-vec = "0.2"
 unic-langid = "0.9"
 xpcom = { path = "../../../xpcom/rust/xpcom" }
-fluent-ffi = { path = "../../../intl/l10n/rust/fluent-ffi" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.9.6"

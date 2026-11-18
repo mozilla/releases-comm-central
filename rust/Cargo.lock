@@ -2144,38 +2144,12 @@ dependencies = [
 
 [[package]]
 name = "fluent"
-version = "0.16.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb74634707bebd0ce645a981148e8fb8c7bccd4c33c652aeffd28bf2f96d555a"
-dependencies = [
- "fluent-bundle 0.15.3",
- "unic-langid",
-]
-
-[[package]]
-name = "fluent"
 version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8137a6d5a2c50d6b0ebfcb9aaa91a28154e0a70605f112d30cb0cd4a78670477"
 dependencies = [
- "fluent-bundle 0.16.0",
+ "fluent-bundle",
  "fluent-pseudo",
- "unic-langid",
-]
-
-[[package]]
-name = "fluent-bundle"
-version = "0.15.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fe0a21ee80050c678013f82edf4b705fe2f26f1f9877593d13198612503f493"
-dependencies = [
- "fluent-langneg",
- "fluent-syntax 0.11.1",
- "intl-memoizer",
- "intl_pluralrules",
- "rustc-hash 1.999.999",
- "self_cell 0.10.3",
- "smallvec",
  "unic-langid",
 ]
 
@@ -2186,11 +2160,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "01203cb8918f5711e73891b347816d932046f95f54207710bda99beaeb423bf4"
 dependencies = [
  "fluent-langneg",
- "fluent-syntax 0.12.0",
+ "fluent-syntax",
  "intl-memoizer",
  "intl_pluralrules",
  "rustc-hash 2.1.1",
- "self_cell 1.2.0",
+ "self_cell",
  "smallvec",
  "unic-langid",
 ]
@@ -2203,7 +2177,7 @@ checksum = "38637647e8853f0bae81ffb20f53b2b3b60fec70ab30ad8a84583682fc02629b"
 dependencies = [
  "async-trait",
  "chunky-vec",
- "fluent-bundle 0.16.0",
+ "fluent-bundle",
  "futures",
  "once_cell",
  "pin-cell",
@@ -2216,9 +2190,9 @@ name = "fluent-ffi"
 version = "0.1.0"
 dependencies = [
  "cstr",
- "fluent 0.17.0",
+ "fluent",
  "fluent-pseudo",
- "fluent-syntax 0.12.0",
+ "fluent-syntax",
  "intl-memoizer",
  "nsstring",
  "thin-vec",
@@ -2254,15 +2228,6 @@ checksum = "86f1b5259b7f28e4f6a03e826c8305e15309cd90fc3a786447407c001786bf2e"
 dependencies = [
  "once_cell",
  "regex",
-]
-
-[[package]]
-name = "fluent-syntax"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a530c4694a6a8d528794ee9bbd8ba0122e779629ac908d15ad5a7ae7763a33d"
-dependencies = [
- "thiserror 1.999.999",
 ]
 
 [[package]]
@@ -2650,7 +2615,7 @@ dependencies = [
  "etagere",
  "etp_engine",
  "ews_xpcom",
- "fluent 0.17.0",
+ "fluent",
  "fluent-fallback",
  "fluent-ffi",
  "fluent-langneg",
@@ -2790,7 +2755,7 @@ dependencies = [
  "encoding_glue",
  "etagere",
  "etp_engine",
- "fluent 0.17.0",
+ "fluent",
  "fluent-fallback",
  "fluent-ffi",
  "fluent-langneg",
@@ -3821,7 +3786,7 @@ name = "l10nregistry"
 version = "0.3.0"
 dependencies = [
  "async-trait",
- "fluent-bundle 0.16.0",
+ "fluent-bundle",
  "fluent-fallback",
  "futures",
  "pin-project-lite",
@@ -3836,7 +3801,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "cstr",
- "fluent 0.17.0",
+ "fluent",
  "fluent-fallback",
  "fluent-ffi",
  "futures",
@@ -3982,7 +3947,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "cstr",
- "fluent 0.17.0",
+ "fluent",
  "fluent-fallback",
  "fluent-ffi",
  "futures",
@@ -5694,7 +5659,6 @@ name = "protocol_shared"
 version = "0.1.0"
 dependencies = [
  "async-lock",
- "base64 0.21.999",
  "http 0.2.12",
  "log",
  "mail-builder",
@@ -6310,15 +6274,6 @@ dependencies = [
 
 [[package]]
 name = "self_cell"
-version = "0.10.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e14e4d63b804dc0c7ec4a1e52bcb63f02c7ac94476755aa579edac21e01f915d"
-dependencies = [
- "self_cell 1.2.0",
-]
-
-[[package]]
-name = "self_cell"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f7d95a54511e0c7be3f51e8867aa8cf35148d7b9445d44de2f943e2b206e749"
@@ -6905,7 +6860,6 @@ name = "sys_tray"
 version = "0.1.0"
 dependencies = [
  "dbus",
- "fluent 0.16.1",
  "fluent-ffi",
  "ksni",
  "log",

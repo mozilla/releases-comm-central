@@ -40,7 +40,7 @@ fn get_bool_pref(name: &CStr) -> Option<bool> {
     let prefs_service = get_service::<nsIPrefBranch>(c"@mozilla.org/preferences-service;1")?;
     unsafe {
         prefs_service
-            .GetBoolPref(name.as_ptr(), &mut value)
+            .GetBoolPref(name.as_ptr(), &raw mut value)
             .to_result()
             .ok()?;
     }
@@ -58,10 +58,10 @@ fn launcher_uri_from_desktop_file(variable: &str) -> Option<String> {
 fn unity_launcher_uri() -> String {
     const FALLBACK: &str = "application://thunderbird.desktop";
 
-    if let Ok(flatpak_id) = env::var("FLATPAK_ID") {
-        if !flatpak_id.is_empty() {
-            return format!("application://{flatpak_id}.desktop");
-        }
+    if let Ok(flatpak_id) = env::var("FLATPAK_ID")
+        && !flatpak_id.is_empty()
+    {
+        return format!("application://{flatpak_id}.desktop");
     }
 
     if let Some(uri) = launcher_uri_from_desktop_file("SNAP_APP_DESKTOP_FILE") {
@@ -231,10 +231,10 @@ impl LinuxSysTrayHandler {
             }
         }
 
-        if let Some(active_connection) = connection.as_ref() {
-            if !emit_unity_launcher_count(active_connection, count) {
-                *connection = None;
-            }
+        if let Some(active_connection) = connection.as_ref()
+            && !emit_unity_launcher_count(active_connection, count)
+        {
+            *connection = None;
         }
     }
 
@@ -289,10 +289,6 @@ impl LinuxSysTrayHandler {
                 true,
             );
         }
-        if !value {
-            return Ok(true);
-        }
-
-        Ok(false)
+        Ok(!value)
     }
 }
