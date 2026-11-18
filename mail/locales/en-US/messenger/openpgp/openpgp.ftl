@@ -72,8 +72,8 @@ account-settings-attach-public-key-when-signing =
 account-settings-encrypt-message-subject =
     .label = Encrypt message subject line
     .accesskey = b
-account-settings-encrypt-saved-drafts =
-    .label = Encrypt message subject line
+account-settings-encrypt-draft-messages =
+    .label = Encrypt draft messages
     .accesskey = r
 
 # Do not translate "Autocrypt", it's the name of a standard.
