@@ -358,12 +358,7 @@ NS_IMETHODIMP PerFolderDatabase::Commit(nsMsgDBCommit aCommitType) {
   return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::ForceClosed() { return NS_OK; }
-NS_IMETHODIMP PerFolderDatabase::ClearCachedHdrs() {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-NS_IMETHODIMP PerFolderDatabase::ResetHdrCacheSize(uint32_t size) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
+NS_IMETHODIMP PerFolderDatabase::ClearCachedHdrs() { return NS_OK; }
 NS_IMETHODIMP PerFolderDatabase::GetDBFolderInfo(
     nsIDBFolderInfo** aDBFolderInfo) {
   NS_ENSURE_ARG_POINTER(aDBFolderInfo);
@@ -1010,10 +1005,14 @@ NS_IMETHODIMP PerFolderDatabase::GetDefaultSortOrder(
 }
 NS_IMETHODIMP PerFolderDatabase::GetMsgHdrCacheSize(
     uint32_t* aMsgHdrCacheSize) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  NS_ENSURE_ARG_POINTER(aMsgHdrCacheSize);
+  // Dummy value to make it look like we do maintain a cache but that it's not
+  // small enough that it needs to be resized (in most cases).
+  *aMsgHdrCacheSize = 1024;
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::SetMsgHdrCacheSize(uint32_t aMsgHdrCacheSize) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_OK;
 }
 NS_IMETHODIMP PerFolderDatabase::GetNewList(nsTArray<nsMsgKey>& aNewList) {
   aNewList = mNewList.Clone();

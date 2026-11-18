@@ -4908,14 +4908,6 @@ NS_IMETHODIMP nsMsgDatabase::GetDefaultSortOrder(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::ResetHdrCacheSize(uint32_t aSize) {
-  if (m_cacheSize > aSize) {
-    m_cacheSize = aSize;
-    ClearHdrCache(false);
-  }
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsMsgDatabase::GetNewList(nsTArray<nsMsgKey>& aNewKeys) {
   aNewKeys = m_newSet.Clone();

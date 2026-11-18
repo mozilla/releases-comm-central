@@ -254,6 +254,33 @@ add_task(async function testFolderInfo() {
   Assert.equal(folderA.getNumUnread(false), 2);
 });
 
+/**
+ * Test that cache size management functions are implemented.
+ */
+add_task(async function testCacheSize() {
+  const folderA = rootFolder.getChildNamed("folderA");
+  const folderDatabaseA = database.openFolderDB(folderA, false);
+
+  const size = folderDatabaseA.msgHdrCacheSize;
+  Assert.greater(
+    size,
+    0,
+    "the cache getter should return a value greater than 0"
+  );
+
+  folderDatabaseA.msgHdrCacheSize = 1000;
+  Assert.ok(
+    true,
+    "setting the cache size of the folder shouldn't throw an error"
+  );
+
+  Assert.equal(
+    size,
+    folderDatabaseA.msgHdrCacheSize,
+    "the dummy value returned by the getter shouldn't have changed"
+  );
+});
+
 add_task(async function testFolderProperties() {
   const folderB = MailServices.folderLookup.getFolderForURL(
     rootFolder.URI + "/folderB"
