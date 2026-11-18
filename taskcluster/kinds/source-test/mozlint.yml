@@ -41,6 +41,33 @@ clang-format:
             - artifact: clang-tidy.tar.zst
               dest: clang-tools
 
+clippy:
+    description: clippy on the Rust code
+    treeherder:
+        symbol: rust(clippy)
+    worker:
+        docker-image: {in-tree: "debian12-amd64-build"}
+        env:
+            MOZCONFIG: comm/mail/config/mozconfigs/linux64/clippy
+    run:
+        prepend-env:
+            PATH: "$MOZ_FETCHES_DIR/rustc/bin/${PATH:+:$PATH}"
+        mach: >
+            commlint -v -l clippy -f treeherder
+            -f json:/builds/worker/mozlint.json comm/
+    fetches:
+        toolchain:
+            - linux64-clang
+            - linux64-rust
+            - linux64-cbindgen
+            - linux64-nasm
+            - linux64-node
+            - linux64-pkgconf
+            - sysroot-x86_64-linux-gnu
+            - sysroot-wasm32-wasi
+    optimization:
+        skip-unless-mozlint: clippy.yml
+
 codespell:
     description: Checks for misspellings in text files
     treeherder:

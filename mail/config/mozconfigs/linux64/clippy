@@ -1,0 +1,4 @@
+# Clippy needs the compile environment and generated Rust prerequisites.
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
+# The runner fails on warnings regardless. We need this for --keep-going.
+ac_add_options --disable-warnings-as-errors

@@ -1,0 +1,21 @@
+---
+clippy:
+    description: Lint rust
+    include:
+        - comm/
+    extensions:
+        - rs
+    support-files:
+        - 'tools/lint/clippy/**'
+        - 'build/cargo/cargo-clippy.yaml'
+        - 'comm/tools/lint/clippy.yml'
+        - 'comm/tools/lint/commlint/**'
+        - 'comm/taskcluster/kinds/source-test/mozlint.yml'
+        - 'comm/mail/config/mozconfigs/common'
+        - 'comm/mail/config/mozconfigs/linux64/clippy'
+        - 'comm/**/Cargo.toml'
+        - 'comm/**/Cargo.lock'
+        - 'comm/rust/.cargo/**'
+    type: global
+    payload: commlint:lint_wrapper
+    wraps: commlint:clippy_lint

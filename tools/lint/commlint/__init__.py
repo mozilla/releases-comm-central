@@ -143,6 +143,16 @@ def rust_lint(paths, config, fix=None, **lintargs):
     return issues
 
 
+def clippy_lint(paths, config, **lintargs):
+    from clippy import lint
+
+    issues = lint(paths, config, **lintargs)
+    for issue in issues["results"]:
+        if issue.level == "warning":
+            issue.level = "error"
+    return issues
+
+
 def lint_wrapper(paths, config, **lintargs):
     _apply_global_excludes(lintargs["root"], config)
     _expand_support_files(lintargs["root"], config)
