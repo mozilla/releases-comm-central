@@ -26,7 +26,7 @@ tasks:
     repackage-msi:
         from-deps:
             group-by: single-with-filters
-        worker-type: 'b-win2022'
+        worker-type: 'b-win2025'
         mozharness:
             use-magic-mh-args: false
             use-caches: false

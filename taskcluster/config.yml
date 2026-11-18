@@ -201,6 +201,11 @@ workers:
             implementation: generic-worker
             os: windows
             worker-type: '{alias}'
+        b-win2025:
+            provisioner: '{trust-domain}-{level}'
+            implementation: generic-worker
+            os: windows
+            worker-type: '{alias}'
         images(|-aarch64):
             provisioner: '{trust-domain}-{level}'
             implementation: docker-worker

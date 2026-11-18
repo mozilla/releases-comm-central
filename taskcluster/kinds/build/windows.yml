@@ -517,7 +517,7 @@ win64-plain/debug:
         platform: windows2012-64/debug
         symbol: Bp
         tier: 2
-    worker-type: b-win2022
+    worker-type: b-win2025
     worker:
         max-run-time: 7200
         env:
@@ -562,7 +562,7 @@ win64-plain/opt:
         platform: windows2012-64/opt
         symbol: Bp
         tier: 2
-    worker-type: b-win2022
+    worker-type: b-win2025
     worker:
         max-run-time: 7200
         env:
@@ -662,7 +662,7 @@ win64-ccov/opt:
         platform: windows2012-64/ccov
         symbol: B
         tier: 2
-    worker-type: b-win2022
+    worker-type: b-win2025
     worker:
         artifacts:
             - name: public/code-coverage-grcov.zip
