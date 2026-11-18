@@ -72,6 +72,7 @@ gecko-trace = { path = "../../../toolkit/components/gecko-trace" }
 gecko_logger = { path = "../../../xpcom/rust/gecko_logger" }
 gecko_tracing = { path = "../../../xpcom/rust/gecko_tracing" }
 geckoservo = { path = "../../../servo/ports/geckolib" }
+gkrust-uniffi-components = { path = "../../../toolkit/components/uniffi-bindgen-gecko-js/components", features = ['xpcom', 'mozbuild'] }
 gkrust_utils = { path = "../../../xpcom/rust/gkrust_utils" }
 happy_eyeballs_glue = { path = "../../../netwerk/protocol/http/happy_eyeballs_glue" }
 harfbuzz_glue = { path = "../../../gfx/harfbuzz_glue" }

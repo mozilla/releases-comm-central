@@ -2663,6 +2663,7 @@ dependencies = [
  "gecko_tracing",
  "geckoservo",
  "gkrust-shared",
+ "gkrust-uniffi-components",
  "gkrust_utils",
  "graph_xpcom",
  "happy_eyeballs_glue",
