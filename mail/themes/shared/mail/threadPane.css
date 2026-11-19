@@ -169,7 +169,6 @@
   & > .table-layout[data-properties~="unread"] {
     &:not(.selected, .current, :hover, :focus, :focus-within) {
       background-color: var(--color-surface-raised);
-      box-shadow: var(--shadow-1);
     }
 
     &:not([data-properties~="tagged"]) {
