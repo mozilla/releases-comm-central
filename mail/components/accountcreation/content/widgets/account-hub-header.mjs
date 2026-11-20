@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/account-hub-header.html" with { type: "text" };
+
 const { AccountCreationUtils } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
 );
@@ -18,11 +21,16 @@ const { isFirstRun } = ChromeUtils.importESModule(
 const { gAccountSetupLogger } = AccountCreationUtils;
 /**
  * Account Hub Header Template
- * Template ID: #accountHubHeaderTemplate (from accountHubHeaderTemplate.inc.xhtml)
  *
  * @fires CustomEvent#"request-close" - When close button is clicked to close dialog.
  */
 class AccountHubHeader extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * @type {?HTMLFormElement}
    */
@@ -54,9 +62,10 @@ class AccountHubHeader extends HTMLElement {
     style.href = "chrome://messenger/skin/accountHub.css";
     shadowRoot.appendChild(style);
 
-    const template = document.getElementById("accountHubHeaderTemplate");
-    template.classList.add("account-hub-header");
-    const clonedNode = template.content.cloneNode(true);
+    const clonedNode = this.ownerDocument.importNode(
+      AccountHubHeader.template,
+      true
+    );
 
     this.l10n = new DOMLocalization([
       "branding/brand.ftl",

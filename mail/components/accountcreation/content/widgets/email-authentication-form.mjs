@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-authentication-form.html" with { type: "text" };
 import { EmailPasswordForm } from "./email-password-form.mjs";
 
 /**
@@ -12,12 +14,16 @@ import { EmailPasswordForm } from "./email-password-form.mjs";
 /**
  * Subview for password entry when required for autodiscovery with optional
  * username field.
- * Template ID: #accountHubEmailAuthenticationFormTemplate
  *
  * @tagname email-authentication-form
  */
 class EmailAuthenticationForm extends EmailPasswordForm {
-  _templateId = "accountHubEmailAuthenticationFormTemplate";
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   _formSelector = "#authenticationForm";
   _passwordSelector = "#authenticationPassword";
   _rememberPasswordSelector = "#rememberAuthenticationPassword";

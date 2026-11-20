@@ -170,19 +170,18 @@ class AccountHubControllerClass {
   }
 
   /**
-   * Check if we don't currently have the needed custom element for the
-   * requested view and load the needed script. We do this to avoid loading all
-   * the unnecessary account creation files.
+   * Registers a view's custom element in the current window.
    *
    * @param {string} view - The name of the view to load.
-   * @returns {Promise<void>} Resolves when custom element of the view is usable.
+   * @returns {Promise<void>} Resolves after the view's element is registered.
    */
-  #loadScript(view) {
+  async #loadScript(view) {
     if (customElements.get(`account-hub-${view}`)) {
-      return Promise.resolve();
+      return;
     }
+
     // eslint-disable-next-line no-unsanitized/method
-    return import(
+    await import(
       `chrome://messenger/content/accountcreation/views/${view}.mjs`
     );
   }

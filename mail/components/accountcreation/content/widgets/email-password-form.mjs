@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-password-form.html" with { type: "text" };
 import { AccountHubStep } from "./account-hub-step.mjs";
 
 const { XPCOMUtils } = ChromeUtils.importESModule(
@@ -18,9 +20,18 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 
 /**
  * Account Hub Email Password Form Template
- * Template ID: #accountHubEmailPasswordFormTemplate (from accountHubEmailPasswordFormTemplate.inc.xhtml)
  */
 export class EmailPasswordForm extends AccountHubStep {
+  /**
+   * The form template. Subclasses can supply their own template.
+   *
+   * @type {DocumentFragment}
+   */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   constructor() {
     super();
     XPCOMUtils.defineLazyPreferenceGetter(
@@ -39,7 +50,6 @@ export class EmailPasswordForm extends AccountHubStep {
    */
   #password;
 
-  _templateId = "accountHubEmailPasswordFormTemplate";
   /**
    * The selector to get the form element.
    *
@@ -77,9 +87,10 @@ export class EmailPasswordForm extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById(this._templateId)
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      this.constructor.template,
+      true
+    );
     this.appendChild(template);
     this.ready = this.l10n.translateFragment(this);
 

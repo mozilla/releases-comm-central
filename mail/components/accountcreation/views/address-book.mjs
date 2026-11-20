@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../templates/address-book.html" with { type: "text" };
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-step.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-footer.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
@@ -32,6 +34,12 @@ ChromeUtils.defineESModuleGetters(lazy, {
  */
 
 class AccountHubAddressBook extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   static get observedAttributes() {
     return ["hidden"];
   }
@@ -154,8 +162,12 @@ class AccountHubAddressBook extends HTMLElement {
 
     this.classList.add("account-hub-view");
 
-    const template = document.getElementById("accountHubAddressBookSetup");
-    this.appendChild(template.content.cloneNode(true));
+    const template = this.ownerDocument.importNode(
+      AccountHubAddressBook.template,
+      true
+    );
+
+    this.appendChild(template);
 
     for (const state of Object.values(this.#states)) {
       state.subview = this.querySelector(`#${state.id}`);
@@ -344,17 +356,18 @@ class AccountHubAddressBook extends HTMLElement {
   }
 
   /**
-   * Load the template of a subview using the template ID.
+   * Registers a subview's custom element in the current window.
    *
    * @param {string} templateId - ID of the template that needs to be loaded.
+   * @returns {Promise<void>} Resolves after the subview's element is registered.
    */
   async #loadTemplateScript(templateId) {
     if (customElements.get(templateId)) {
-      return Promise.resolve();
+      return;
     }
 
     // eslint-disable-next-line no-unsanitized/method
-    return import(
+    await import(
       `chrome://messenger/content/accountcreation/content/widgets/${templateId}.mjs`
     );
   }

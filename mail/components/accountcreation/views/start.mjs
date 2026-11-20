@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../templates/start.html" with { type: "text" };
+
 /* global gSync */
 
 const { AppConstants } = ChromeUtils.importESModule(
@@ -15,6 +18,12 @@ const { UIState } = ChromeUtils.importESModule(
 );
 
 class AccountHubStart extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   #accounts = [
     {
       id: "email",
@@ -63,8 +72,12 @@ class AccountHubStart extends HTMLElement {
 
     this.classList.add("account-hub-view");
 
-    const template = document.getElementById("accountHubStart");
-    this.appendChild(template.content.cloneNode(true));
+    const template = this.ownerDocument.importNode(
+      AccountHubStart.template,
+      true
+    );
+
+    this.appendChild(template);
 
     this.initUI();
 

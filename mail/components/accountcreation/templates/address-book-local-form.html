@@ -1,11 +1,8 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<html:template
-  id="accountHubAddressBookLocalFormTemplate"
-  xmlns="http://www.w3.org/1999/xhtml"
->
+<template id="accountHubAddressBookLocalFormTemplate">
   <form
     id="localAddressBookForm"
     class="account-hub-address-book-form"
@@ -19,31 +16,36 @@
           aria-invalid="false"
           aria-errormessage="nameErrorMessage"
           placeholder=""
-          required="required" />
+          required="required"
+        />
         <label
           for="addressBookName"
           class="animated"
           data-l10n-id="account-hub-local-address-book-label"
-          data-l10n-attrs="accesskey">
+          data-l10n-attrs="accesskey"
+        >
         </label>
         <img
           id="nameWarning"
           src=""
           data-l10n-id="account-hub-email-warning-icon"
           alt=""
-          class="form-icon icon-danger input-warning" />
+          class="form-icon icon-danger input-warning"
+        />
         <img
           id="nameSuccess"
           src=""
           alt=""
-          class="form-icon icon-success input-success" />
+          class="form-icon icon-success input-success"
+        />
         <span
           id="nameErrorMessage"
           class="input-error-message"
-          data-l10n-id="account-hub-local-error-text">
+          data-l10n-id="account-hub-local-error-text"
+        >
         </span>
       </div>
     </div>
     <button type="submit" hidden="hidden"></button>
   </form>
-</html:template>
+</template>

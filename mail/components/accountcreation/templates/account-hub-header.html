@@ -1,20 +1,24 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<html:template id="accountHubHeaderTemplate" xmlns="http://www.w3.org/1999/xhtml">
+<template id="accountHubHeaderTemplate">
   <header id="accountHubHeader" class="hub-header">
     <div id="headerButtonsContainer">
-      <button id="minimizeButton"
-              class="button button-flat button-round icon-button icon-only modal-close-button"
-              data-l10n-id="account-hub-minimize-button"
-              type="button">
+      <button
+        id="minimizeButton"
+        class="button button-flat button-round icon-button icon-only modal-close-button"
+        data-l10n-id="account-hub-minimize-button"
+        type="button"
+      >
         <img class="icon-minimize" src="" alt="" />
       </button>
-      <button id="closeButton"
-              class="button button-flat button-round icon-button icon-only modal-close-button"
-              data-l10n-id="account-hub-close-button"
-              type="button">
+      <button
+        id="closeButton"
+        class="button button-flat button-round icon-button icon-only modal-close-button"
+        data-l10n-id="account-hub-close-button"
+        type="button"
+      >
         <img class="icon-close-lg" src="" alt="" />
       </button>
     </div>
@@ -30,32 +34,25 @@
       </h1>
     </div>
     <!-- Title Text for Email Setup -->
-    <h1 id="accountHubHeaderTitle"
-        class="sub-view-title">
-        <slot name="title"></slot>
+    <h1 id="accountHubHeaderTitle" class="sub-view-title">
+      <slot name="title"></slot>
     </h1>
-    <h2 id="accountHubHeaderSubheader"
-        class="sub-view-sub-header"
-        hidden="hidden">
-        <slot name="subheader"></slot>
+    <h2
+      id="accountHubHeaderSubheader"
+      class="sub-view-sub-header"
+      hidden="hidden"
+    >
+      <slot name="subheader"></slot>
     </h2>
     <details id="emailFormNotification" class="notification-bar">
       <summary
         id="emailFormNotificationSummary"
         class="notification-title-container"
       >
-        <img class="form-icon icon-warning"
-             src=""
-             alt=""/>
-        <img class="form-icon icon-success"
-             src=""
-             alt="" />
-        <img class="form-icon icon-info"
-             src=""
-             alt="" />
-        <img class="form-icon icon-danger"
-             src=""
-             alt="" />
+        <img class="form-icon icon-warning" src="" alt="" />
+        <img class="form-icon icon-success" src="" alt="" />
+        <img class="form-icon icon-info" src="" alt="" />
+        <img class="form-icon icon-danger" src="" alt="" />
         <p
           id="emailFormNotificationTitle"
           class="notification-title"
@@ -75,4 +72,4 @@
       </p>
     </details>
   </header>
-</html:template>
+</template>

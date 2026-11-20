@@ -2,14 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/address-book-option-select.html" with { type: "text" };
 import { AccountHubStep } from "./account-hub-step.mjs";
 
 /**
  * Account Hub Address Book Option Select Template
- * Template ID: #accountHubAddressBookOptionSelectTemplate
- * (from accountHubAddressBookOptionSelectTemplate.inc.xhtml)
  */
 class AddressBookOptionSelect extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -18,9 +24,10 @@ class AddressBookOptionSelect extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubAddressBookOptionSelectTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      AddressBookOptionSelect.template,
+      true
+    );
     this.appendChild(template);
     this.ready = this.l10n.translateFragment(this);
 

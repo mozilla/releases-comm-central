@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-manual-config-form.html" with { type: "text" };
+
 const { AccountCreationUtils } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
 );
@@ -47,9 +50,14 @@ const portIsEmpty = portValue =>
 
 /**
  * Account Hub Email Manual Config Form Template
- * Template ID: #accountHubEmailManualConfigFormTemplate (from accountHubEmailManualConfigFormTemplate.inc.xhtml)
  */
 class EmailManualConfigForm extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * The account config object that gets updated by the manual config form.
    *
@@ -191,9 +199,10 @@ class EmailManualConfigForm extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubEmailManualConfigFormTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      EmailManualConfigForm.template,
+      true
+    );
     this.appendChild(template);
 
     this.#incomingPort = this.querySelector("#manualIncomingPort");

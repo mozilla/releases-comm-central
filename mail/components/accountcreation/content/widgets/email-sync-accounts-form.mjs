@@ -2,13 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-sync-accounts-form.html" with { type: "text" };
 import { AccountHubStep } from "./account-hub-step.mjs";
 
 /**
  * Account Hub Email Sync Accounts Template
- * Template ID: #accountHubEmailSyncAccountsFormTemplate (from accountHubEmailSyncAccountsFormTemplate.inc.xhtml)
  */
 class EmailSyncAccountsForm extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * Select all address books button.
    *
@@ -67,9 +74,10 @@ class EmailSyncAccountsForm extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubEmailSyncAccountsFormTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      EmailSyncAccountsForm.template,
+      true
+    );
     this.appendChild(template);
 
     this.#selectedAddressBooks = this.querySelector("#selectedAddressBooks");

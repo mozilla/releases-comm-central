@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/account-hub-radio-card-large.html" with { type: "text" };
+
 /**
  * Forms a radio group with all other account-hub-radio-card-large in the same
  * form. If all of them are contained in one element, that element should be a
  * radiogroup. If no radio card starts out checked, the first card checks
  * itself.
- *
- * Template ID: #accountHubRadioCardLargeTemplate
  *
  * @tagname account-hub-radio-card-large
  * @slot title
@@ -20,6 +21,12 @@
  *   manipulate the state.
  */
 class AccountHubRadioCardLarge extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   static formAssociated = true;
 
   /**
@@ -59,9 +66,10 @@ class AccountHubRadioCardLarge extends HTMLElement {
     }
 
     const shadowRoot = this.attachShadow({ mode: "open" });
-    const template = document
-      .getElementById("accountHubRadioCardLargeTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      AccountHubRadioCardLarge.template,
+      true
+    );
     const style = document.createElement("link");
     style.href = "chrome://messenger/skin/accountHubRadioCardLarge.css";
     style.rel = "stylesheet";

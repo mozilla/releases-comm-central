@@ -43,6 +43,23 @@ add_setup(async function () {
   });
 });
 
+add_task(function test_loadsOwnTemplates() {
+  const doc = step.ownerDocument;
+
+  Assert.equal(
+    doc.querySelectorAll('template[id^="accountHub"]').length,
+    0,
+    "The steps should load without Account Hub templates in their document"
+  );
+  Assert.ok(step.shadowRoot, "The step should create its shadow root");
+  Assert.ok(header.shadowRoot, "The header should load its own template");
+  Assert.notEqual(
+    header.shadowRoot,
+    headerWithSubheaderText.shadowRoot,
+    "Each header should have its own template contents"
+  );
+});
+
 add_task(async function test_headerButtonsStayPutWhenHeaderContentChanges() {
   const controls = header.shadowRoot.querySelector("#headerButtonsContainer");
   const getControlsTop = () => Math.round(controls.getBoundingClientRect().top);

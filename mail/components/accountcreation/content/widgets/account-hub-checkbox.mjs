@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/account-hub-checkbox.html" with { type: "text" };
+
 /**
  * Checkbox input and its label for account hub. You can listen to the normal
  * input events.
- *
- * Template ID: #accountHubInputTemplate (from #accountHubInputTemplate.inc.xhtml)
  *
  * @tagname account-hub-checkbox
  * @attribute {string} id - ID used to create IDs for input and error message.
@@ -19,6 +20,12 @@
  * @attribute {boolean} checked - Whether the checkbox should be checked.
  */
 class AccountHubCheckbox extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   static observedAttributes = ["checked", "l10n-label-id"];
   /**
    * The internal input element.
@@ -57,9 +64,10 @@ class AccountHubCheckbox extends HTMLElement {
     }
     this.hasConnected = true;
 
-    const template = document
-      .getElementById("accountHubCheckboxTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      AccountHubCheckbox.template,
+      true
+    );
     this.appendChild(template);
 
     this.#input = this.querySelector("input");

@@ -1,0 +1,392 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<template id="accountHubEmailConfigFoundTemplate">
+  <div id="configFound" slot="content">
+    <form id="protocolForm" class="account-hub-form">
+      <div class="hub-body auto-config-body">
+        <div class="config-form-data">
+          <fieldset class="form-options">
+            <label id="imap" class="config-option">
+              <div class="config-title">
+                <input type="radio" name="config-type" value="imap" />
+                <span class="config-title-text">IMAP</span>
+                <span
+                  class="badge"
+                  data-l10n-id="account-hub-result-recommended-label"
+                ></span>
+              </div>
+              <div
+                class="config-text"
+                data-l10n-id="account-hub-result-imap-description"
+              ></div>
+            </label>
+
+            <label id="pop3" class="config-option">
+              <div class="config-title">
+                <input type="radio" name="config-type" value="pop3" />
+                <span class="config-title-text">POP3</span>
+                <span
+                  class="badge"
+                  role="presentation"
+                  data-l10n-id="account-hub-result-recommended-label"
+                ></span>
+              </div>
+              <div
+                class="config-text"
+                data-l10n-id="account-hub-result-pop-description"
+              ></div>
+            </label>
+
+            <label id="ews" class="config-option" hidden="hidden">
+              <div class="config-title">
+                <input type="radio" name="config-type" value="ews" />
+                <span
+                  class="config-title-text"
+                  data-l10n-id="account-hub-result-ews-shortname"
+                ></span>
+                <span
+                  class="badge"
+                  role="presentation"
+                  data-l10n-id="account-hub-result-recommended-label"
+                ></span>
+              </div>
+              <div
+                class="config-text"
+                data-l10n-id="account-hub-result-ews-description"
+              ></div>
+            </label>
+
+            <label id="graph" class="config-option" hidden="hidden">
+              <div class="config-title">
+                <input type="radio" name="config-type" value="graph" />
+                <span
+                  class="config-title-text"
+                  data-l10n-id="account-hub-result-graph-api-shortname"
+                ></span>
+                <span
+                  class="badge"
+                  role="presentation"
+                  data-l10n-id="account-hub-result-recommended-label"
+                ></span>
+              </div>
+              <div
+                class="config-text"
+                data-l10n-id="account-hub-result-graph-api-description"
+              ></div>
+            </label>
+
+            <label id="exchange" class="config-option" hidden="hidden">
+              <div class="config-title">
+                <input type="radio" name="config-type" value="exchange" />
+                <span class="config-title-text">Exchange</span>
+                <span
+                  class="badge experimental inverted"
+                  role="presentation"
+                  data-l10n-id="account-hub-result-addon-label"
+                ></span>
+              </div>
+              <div
+                class="config-text"
+                data-l10n-id="account-hub-result-exchange-description"
+              ></div>
+            </label>
+          </fieldset>
+          <div
+            id="configSelection"
+            class="form-selection config-selection is-showing-shared-config"
+          >
+            <div class="selection-grid">
+              <div id="incomingConfig" class="config-column">
+                <div id="incomingConfigType" class="config-header">
+                  <img
+                    src="chrome://messenger/skin/icons/new/normal/incoming.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <h3
+                      id="incomingTypeText"
+                      class="header-title"
+                      data-l10n-id="account-hub-result-incoming-legend"
+                    ></h3>
+                    <p id="incomingType" class="header-data"></p>
+                  </div>
+                </div>
+
+                <!-- Host -->
+                <div class="config-detail">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/globe.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-result-server-label"
+                    ></p>
+                    <p id="incomingHost" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Port -->
+                <div id="incomingPortConfig" class="config-detail">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/conversation.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-result-port-label"
+                    ></p>
+                    <p id="incomingPort" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Connection security -->
+                <div class="config-detail shared-config-item">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/shield.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-result-security-label"
+                    ></p>
+                    <p id="incomingSocketType" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Username -->
+                <div class="config-detail shared-config-item">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/account-settings.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-servers-username-label"
+                    ></p>
+                    <p id="incomingUsername" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Authentication type -->
+                <div class="config-detail shared-config-item">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/key.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-result-authentication-type-label"
+                    ></p>
+                    <p id="incomingAuthenticationType" class="data"></p>
+                  </div>
+                </div>
+              </div>
+
+              <div id="outgoingConfig" class="config-column" hidden="hidden">
+                <div
+                  id="outgoingConfigType"
+                  class="config-header"
+                  hidden="hidden"
+                >
+                  <img
+                    src="chrome://messenger/skin/icons/new/normal/outgoing.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <h3
+                      class="header-title"
+                      data-l10n-id="account-hub-result-outgoing-legend"
+                    ></h3>
+                    <p id="outgoingType" class="header-data"></p>
+                  </div>
+                </div>
+
+                <!-- Host -->
+                <div class="config-detail">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/globe.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-result-server-label"
+                    ></p>
+                    <p id="outgoingHost" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Port -->
+                <div class="config-detail">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/conversation.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-result-port-label"
+                    ></p>
+                    <p id="outgoingPort" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Connection security -->
+                <div class="config-detail shared-config-item">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/shield.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-result-security-label"
+                    ></p>
+                    <p id="outgoingSocketType" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Username -->
+                <div class="config-detail shared-config-item">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/account-settings.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-servers-username-label"
+                    ></p>
+                    <p id="outgoingUsername" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Authentication type -->
+                <div class="config-detail shared-config-item">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/key.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-result-authentication-type-label"
+                    ></p>
+                    <p id="outgoingAuthenticationType" class="data"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="config-common">
+              <div id="allServersHeading" class="config-header">
+                <h3
+                  class="header-title"
+                  data-l10n-id="account-hub-all-servers-legend"
+                ></h3>
+              </div>
+
+              <!-- Username -->
+              <div class="config-detail">
+                <img
+                  class="config-item-icon"
+                  src="chrome://messenger/skin/icons/new/compact/account-settings.svg"
+                  alt=""
+                />
+                <div class="config-item-data">
+                  <p
+                    class="title"
+                    data-l10n-id="account-hub-servers-username-label"
+                  ></p>
+                  <p id="sharedUsername" class="data"></p>
+                </div>
+              </div>
+
+              <div class="config-row">
+                <!-- Connection security -->
+                <div class="config-detail">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/shield.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-result-security-label"
+                    ></p>
+                    <p id="sharedSocketType" class="data"></p>
+                  </div>
+                </div>
+
+                <!-- Authentication type -->
+                <div class="config-detail">
+                  <img
+                    class="config-item-icon"
+                    src="chrome://messenger/skin/icons/new/compact/key.svg"
+                    alt=""
+                  />
+                  <div class="config-item-data">
+                    <p
+                      class="title"
+                      data-l10n-id="account-hub-result-authentication-type-label"
+                    ></p>
+                    <p id="sharedAuthenticationType" class="data"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="custom-action-container">
+              <button
+                id="editConfiguration"
+                class="button link-button link-button-sm"
+                type="button"
+                data-l10n-id="account-hub-edit-configuration"
+              ></button>
+            </div>
+
+            #ifndef MOZ_ENTERPRISE
+            <!-- Install Add-on Text -->
+            <div
+              id="owlExchangeDescription"
+              class="owl-exchange-section"
+              hidden="hidden"
+            >
+              <p>
+                <img id="addonIcon" class="addon-icon" />
+                <a id="addonInfo" class="addon-info link"></a>
+              </p>
+              <button
+                id="addonInstall"
+                class="install-addon-button button button-sm primary-button"
+                type="button"
+                data-l10n-id="account-hub-addon-install-title"
+              ></button>
+            </div>
+            #endif
+          </div>
+        </div>
+      </div>
+      <button type="submit" hidden="hidden"></button>
+    </form>
+  </div>
+</template>

@@ -1,0 +1,56 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<template id="accountHubAddressBookSetup">
+  <address-book-option-select
+    id="addressBookOptionSelectSubview"
+    class="account-hub-step"
+    title-id="account-hub-add-address-book"
+  >
+  </address-book-option-select>
+  <address-book-account-select
+    id="addressBookAccountSelectSubview"
+    class="account-hub-step"
+    title-id="account-hub-select-address-book-account"
+    hidden="hidden"
+  >
+  </address-book-account-select>
+  <address-book-remote-account-form
+    id="addressBookRemoteAccountFormSubview"
+    class="account-hub-step"
+    title-id="account-hub-new-remote-address-book"
+    hidden="hidden"
+  >
+  </address-book-remote-account-form>
+  <address-book-ldap-account-form
+    id="addressBookLdapAccountFormSubview"
+    class="account-hub-step"
+    title-id="account-hub-ldap-form"
+    hidden="hidden"
+  >
+  </address-book-ldap-account-form>
+  <address-book-sync
+    id="addressBookSyncSubview"
+    class="account-hub-step"
+    title-id="account-hub-sync-address-books"
+    hidden="hidden"
+  >
+  </address-book-sync>
+  <address-book-local-form
+    id="addressBookLocalSubview"
+    class="account-hub-step"
+    title-id="account-hub-add-local-address-book"
+    hidden="hidden"
+  >
+  </address-book-local-form>
+  <email-password-form
+    id="addressBookPasswordSubview"
+    title-id="account-hub-address-book-enter-password"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-password-form>
+  <account-hub-footer id="addressBookFooter" class="hub-footer">
+  </account-hub-footer>
+</template>

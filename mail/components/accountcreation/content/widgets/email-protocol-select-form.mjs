@@ -2,14 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-protocol-select-form.html" with { type: "text" };
 import { AccountHubStep } from "./account-hub-step.mjs";
 
 /**
  * Account Hub Email Protocol Select Form Template
- * Template ID: #accountHubEmailProtocolSelectFormTemplate
- * (from accountHubEmailProtocolSelectFormTemplate.inc.xhtml)
  */
 class EmailProtocolSelectForm extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -18,9 +24,10 @@ class EmailProtocolSelectForm extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubEmailProtocolSelectFormTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      EmailProtocolSelectForm.template,
+      true
+    );
     this.appendChild(template);
   }
 

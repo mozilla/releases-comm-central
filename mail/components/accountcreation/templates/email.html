@@ -1,0 +1,99 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<template id="accountHubEmailSetup">
+  <email-auto-form
+    id="emailAutoConfigSubview"
+    title-id="account-hub-email-setup-header"
+    class="account-hub-step"
+  >
+  </email-auto-form>
+  <email-protocol-select-form
+    id="emailProtocolSelectSubview"
+    title-id="account-hub-email-protocol-select-header"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-protocol-select-form>
+  <email-manual-incoming-form
+    id="emailIncomingConfigSubview"
+    title-id="account-hub-email-setup-incoming"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-manual-incoming-form>
+  <email-manual-outgoing-form
+    id="emailOutgoingConfigSubview"
+    title-id="account-hub-email-setup-outgoing"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-manual-outgoing-form>
+  <email-manual-config-form
+    id="emailManualConfigSubview"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-manual-config-form>
+  <email-exchange-settings
+    id="emailExchangeSettingsSubview"
+    class="account-hub-step"
+    title-id="account-hub-email-exchange-settings"
+    hidden="hidden"
+  ></email-exchange-settings>
+  <email-exchange-type
+    id="emailExchangeTypeSubview"
+    title-id="account-hub-exchange-type-title"
+    class="account-hub-step"
+    hidden="hidden"
+  ></email-exchange-type>
+  <email-config-found
+    id="emailConfigFoundSubview"
+    title-id="account-hub-email-connect-settings"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-config-found>
+  <email-credentials-confirmation
+    id="emailCredentialsConfirmationSubview"
+    title-id="account-hub-email-credentials-confirmation"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-credentials-confirmation>
+  <email-password-form
+    id="emailPasswordSubview"
+    title-id="account-hub-email-enter-password"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-password-form>
+  <email-authentication-form
+    id="emailAutodiscoverAuthenticationSubview"
+    title-id="account-hub-email-enter-password"
+    class="account-hub-step"
+    hidden="hidden"
+  ></email-authentication-form>
+  <email-sync-accounts-form
+    id="emailSyncAccountsSubview"
+    title-id="account-hub-email-sync-accounts"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-sync-accounts-form>
+  <email-added-success
+    id="emailAddedSuccessSubview"
+    class="account-hub-step"
+    hidden="hidden"
+  >
+  </email-added-success>
+
+  <account-hub-footer id="emailFooter" class="hub-footer"> </account-hub-footer>
+
+  <div id="loadingOverlay">
+    <div class="loader-outside">
+      <div class="loader-inside"></div>
+    </div>
+  </div>
+</template>

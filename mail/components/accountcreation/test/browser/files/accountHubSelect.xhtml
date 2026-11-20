@@ -11,23 +11,6 @@
     <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/account-hub-select.mjs"></script>
   </head>
   <body>
-    <template id="accountHubSelectTemplate"
-      xmlns="http://www.w3.org/1999/xhtml">
-      <label>
-      </label>
-      <div class="input-control">
-        <select
-          class="menulist"
-          flex="1">
-        </select>
-        <p id="securityWarning" class="input-error-message">
-          <span data-l10n-name="error-text"></span>
-          <a class="more-info-link" data-l10n-name="error-link" href="#"></a>
-        </p>
-        <slot hidden="hidden"></slot>
-      </div>
-      <small class="account-hub-form-small-comment" hidden="hidden"></small>
-    </template>
     <account-hub-select id="testSelect"
                         l10n-label-id="account-hub-ssl-label"
                         l10n-error-id="account-hub-select-security-warning">

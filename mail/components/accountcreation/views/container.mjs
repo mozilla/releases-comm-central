@@ -2,12 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../templates/container.html" with { type: "text" };
+
 /**
  * Custom Element containing the main account hub dialog. Used to append the
  * needed CSS files to the shadowDom to prevent style leakage.
  * NOTE: This could directly extend an HTMLDialogElement if it had a shadowRoot.
  */
 class AccountHubContainer extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /** @type {HTMLElement} */
   placeholder;
 
@@ -25,9 +34,10 @@ class AccountHubContainer extends HTMLElement {
 
     const shadowRoot = this.attachShadow({ mode: "open" });
 
-    const template = document
-      .getElementById("accountHubDialog")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      AccountHubContainer.template,
+      true
+    );
 
     // Load styles in the shadowRoot so we don't leak it.
     const style = document.createElement("link");

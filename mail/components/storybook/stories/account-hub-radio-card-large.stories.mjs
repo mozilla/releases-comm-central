@@ -23,15 +23,6 @@ const AccountHubRadioCardLargeTemplate = ({ title, description, tag }) => html`
       grid-template: 1fr / 1fr 1fr;
     }
   </style>
-  <template id="accountHubRadioCardLargeTemplate">
-    <label>
-      <div class="title-line">
-        <slot name="title" class="title"></slot>
-        <slot name="tag"></slot>
-      </div>
-      <slot name="description" class="description"></slot>
-    </label>
-  </template>
   <form>
     <fieldset role="radiogroup">
       <account-hub-radio-card-large value="a" aria-checked="true">

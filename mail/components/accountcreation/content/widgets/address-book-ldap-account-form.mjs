@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/address-book-ldap-account-form.html" with { type: "text" };
 import { AccountHubStep } from "./account-hub-step.mjs";
 import "./account-hub-select.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
@@ -34,10 +36,14 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 /**
  * Account Hub LDAP Account Form Template
- * Template ID: #accountHubAddressBookLdapAccountFormTemplate
- * (from accountHubAddressBookLdapAccountFormTemplate.inc.xhtml)
  */
 class AddressBookLdapAccountForm extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * The name of the LDAP directory.
    *
@@ -103,9 +109,10 @@ class AddressBookLdapAccountForm extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubAddressBookLdapAccountFormTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      AddressBookLdapAccountForm.template,
+      true
+    );
     this.appendChild(template);
 
     this.#name = this.querySelector("#name");

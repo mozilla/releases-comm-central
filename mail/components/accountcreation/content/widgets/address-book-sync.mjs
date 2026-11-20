@@ -2,14 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/address-book-sync.html" with { type: "text" };
 import { AccountHubStep } from "./account-hub-step.mjs";
 
 /**
  * Account Hub Address Book Sync Template
- * Template ID: #accountHubAddressBookSyncTemplate
- * (from accountHubAddressBookSyncTemplate.inc.xhtml)
  */
 class AddressBookSync extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * Accounts container element.
    *
@@ -68,9 +74,10 @@ class AddressBookSync extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubAddressBookSyncTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      AddressBookSync.template,
+      true
+    );
     this.appendChild(template);
 
     this.#accountsContainer = this.querySelector(

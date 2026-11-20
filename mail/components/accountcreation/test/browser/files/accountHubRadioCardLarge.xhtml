@@ -11,18 +11,6 @@
     <script type="module" src="chrome://messenger/content/accountcreation/content/widgets/account-hub-radio-card-large.mjs"></script>
   </head>
   <body>
-      <template
-        id="accountHubRadioCardLargeTemplate"
-        xmlns="http://www.w3.org/1999/xhtml"
-      >
-        <label>
-          <div class="title-line">
-            <slot name="title" class="title"></slot>
-            <slot name="tag"></slot>
-          </div>
-          <slot name="description" class="description"></slot>
-        </label>
-      </template>
       <form>
         <fieldset role="radiogroup">
           <account-hub-radio-card-large value="first">Test</account-hub-radio-card-large>

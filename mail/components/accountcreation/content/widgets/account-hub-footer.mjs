@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/account-hub-footer.html" with { type: "text" };
+
 const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -13,10 +16,15 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 /**
  * Account Hub Footer Template
- * Template ID: #accountHubFooterTemplate (from accountHubFooterTemplate.inc.xhtml)
  */
 
 class AccountHubFooter extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * Property to store disabled state of footer.
    *
@@ -30,9 +38,10 @@ class AccountHubFooter extends HTMLElement {
     }
     this.hasConnected = true;
 
-    const template = document
-      .getElementById("accountHubFooterTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      AccountHubFooter.template,
+      true
+    );
     this.appendChild(template);
     this.addEventListener("click", this);
 

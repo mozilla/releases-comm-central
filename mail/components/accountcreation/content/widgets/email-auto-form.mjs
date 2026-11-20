@@ -2,13 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-auto-form.html" with { type: "text" };
 import { AccountHubStep } from "./account-hub-step.mjs";
 
 /**
  * Account Hub Email Auto Form Template
- * Template ID: #accountHubEmailAutoFormTemplate (from accountHubEmailAutoFormTemplate.inc.xhtml)
  */
 class EmailAutoForm extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * The account name field.
    *
@@ -64,9 +71,10 @@ class EmailAutoForm extends AccountHubStep {
       .querySelector("account-hub-header")
       .setAttribute("hide-title-on-thundermail", "");
 
-    const template = document
-      .getElementById("accountHubEmailAutoFormTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      EmailAutoForm.template,
+      true
+    );
     this.appendChild(template);
 
     this.#realName = this.querySelector("#realName");

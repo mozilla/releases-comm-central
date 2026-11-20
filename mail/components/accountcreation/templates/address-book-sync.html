@@ -1,15 +1,12 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<html:template
-  id="accountHubAddressBookSyncTemplate"
-  xmlns="http://www.w3.org/1999/xhtml"
->
+<template id="accountHubAddressBookSyncTemplate">
   <form
-  id="addressBookSyncForm"
-  class="account-hub-address-book-form"
-  slot="content"
+    id="addressBookSyncForm"
+    class="account-hub-address-book-form"
+    slot="content"
   >
     <div class="hub-body sync-accounts-form-body">
       <div id="addressBooks" class="sync-type-container">
@@ -19,18 +16,14 @@
             <h1
               class="title"
               data-l10n-id="account-hub-address-books-button"
-            >
-            </h1>
+            ></h1>
             <span id="selectedAddressBooks" class="subtitle"></span>
             <label
               class="button button-primary button-sm select-all select-all-button"
               for="selectAllAddressBooks"
               tabindex="0"
             >
-              <input
-                id="selectAllAddressBooks"
-                type="checkbox"
-              />
+              <input id="selectAllAddressBooks" type="checkbox" />
               <span></span>
             </label>
           </div>
@@ -39,10 +32,10 @@
           id="addressBookAccountsContainer"
           class="sync-input-container"
           role="region"
-          aria-live="polite">
-        </div>
+          aria-live="polite"
+        ></div>
       </div>
     </div>
     <button type="submit" hidden="hidden"></button>
   </form>
-</html:template>
+</template>

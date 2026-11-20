@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-manual-outgoing-form.html" with { type: "text" };
+
 const { AccountCreationUtils } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
 );
@@ -28,9 +31,14 @@ import "./account-hub-select.mjs"; // eslint-disable-line import-x/no-unassigned
 
 /**
  * Account Hub Email Outgoing Form Template
- * Template ID: #accountHubEmailOutgoingFormTemplate (from accountHubEmailOutgoingFormTemplate.inc.xhtml)
  */
 class EmailOutgoingForm extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * The current email outgoing config form inputs.
    *
@@ -81,9 +89,10 @@ class EmailOutgoingForm extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubOutgoingEmailFormTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      EmailOutgoingForm.template,
+      true
+    );
     this.appendChild(template);
 
     this.#outgoingPort = this.querySelector("#outgoingPort");

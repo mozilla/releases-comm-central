@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/account-hub-step.html" with { type: "text" };
 import "chrome://messenger/content/accountcreation/content/widgets/account-hub-header.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 /**
  * Account Hub Step Template
- * Template ID: #accountHubStepTemplate (from accountHubStepTemplate.inc.xhtml)
  *
  * @slot content - Body content for the step.
  * @attribute {string} title-id - ID of the string to use as title for the step.
@@ -17,6 +18,12 @@ import "chrome://messenger/content/accountcreation/content/widgets/account-hub-h
  *  id will take precedence.
  */
 export class AccountHubStep extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   static observedAttributes = ["is-first-run", "title-id"];
 
   /** @type {DOMLocalization} */
@@ -42,8 +49,10 @@ export class AccountHubStep extends HTMLElement {
     style.rel = "stylesheet";
     style.href = "chrome://messenger/skin/accountHub.css";
 
-    const template = document.getElementById("accountHubStepTemplate");
-    const clonedNode = template.content.cloneNode(true);
+    const clonedNode = this.ownerDocument.importNode(
+      AccountHubStep.template,
+      true
+    );
     shadowRoot.append(style, clonedNode);
 
     this.l10n = new DOMLocalization([

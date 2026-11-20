@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/address-book-remote-account-form.html" with { type: "text" };
 import { AccountHubStep } from "./account-hub-step.mjs";
 
 /**
@@ -13,10 +15,14 @@ import { AccountHubStep } from "./account-hub-step.mjs";
 
 /**
  * Account Hub Address Book Remote Account Form Template
- * Template ID: #accountHubAddressBookRemoteAccountFormTemplate
- * (from accountHubAddressBookRemoteAccountFormTemplate.inc.xhtml)
  */
 class AddressBookRemoteAccountForm extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * @type {HTMLInputElement}
    */
@@ -43,9 +49,10 @@ class AddressBookRemoteAccountForm extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubAddressBookRemoteAccountFormTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      AddressBookRemoteAccountForm.template,
+      true
+    );
     this.appendChild(template);
 
     this.#username = this.querySelector("#username");

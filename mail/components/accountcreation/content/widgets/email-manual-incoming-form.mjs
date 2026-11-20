@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-manual-incoming-form.html" with { type: "text" };
+
 const { AccountCreationUtils } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
 );
@@ -25,9 +28,14 @@ import "./account-hub-input.mjs"; // eslint-disable-line import-x/no-unassigned-
 
 /**
  * Account Hub Email Incoming Form Template
- * Template ID: #accountHubEmailIncomingFormTemplate (from accountHubEmailIncomingFormTemplate.inc.xhtml)
  */
 class EmailIncomingForm extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * The incoming server protocol.
    *
@@ -99,9 +107,10 @@ class EmailIncomingForm extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubIncomingEmailFormTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      EmailIncomingForm.template,
+      true
+    );
     this.appendChild(template);
 
     this.#incomingProtocol = this.querySelector("#incomingProtocol");

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-exchange-settings.html" with { type: "text" };
+
 const { InputSanitizer } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/InputSanitizer.sys.mjs"
 );
@@ -11,11 +14,16 @@ import "./account-hub-input.mjs"; // eslint-disable-line import-x/no-unassigned-
 
 /**
  * Account Hub Email Exchange Settings
- * Template ID: #accountHubEmailExchangeSettingsTemplate (from accountHubEmailExchangeSettingsTemplate.inc.xhtml)
  *
  * @tagname email-exchange-settings
  */
 class EmailExchangeSettings extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   _formSelector = "#exchangeSettingsForm";
 
   /**
@@ -40,9 +48,10 @@ class EmailExchangeSettings extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubEmailExchangeSettingsTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      EmailExchangeSettings.template,
+      true
+    );
     this.appendChild(template);
 
     this.#serviceURL = this.querySelector("#serviceURL");

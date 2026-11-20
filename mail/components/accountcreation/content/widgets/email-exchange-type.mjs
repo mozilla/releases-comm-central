@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-exchange-type.html" with { type: "text" };
 import { AccountHubStep } from "./account-hub-step.mjs";
 import "chrome://messenger/content/tb-banner.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./account-hub-radio-card-large.mjs"; // eslint-disable-line import-x/no-unassigned-import
@@ -42,11 +44,16 @@ const EXCHANGE_AUTH_METHODS = [
 
 /**
  * Account Hub Email Exchange type choice and config form.
- * Template ID: #accountHubEmailExchangeTypeTemplate (from accountHubEmailExchangeType.inc.xhtml)
  *
  * @tagname email-exchange-type
  */
 class EmailExchangeType extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * The current account configuration.
    *
@@ -154,9 +161,10 @@ class EmailExchangeType extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubEmailExchangeTypeTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      EmailExchangeType.template,
+      true
+    );
     this.appendChild(template);
 
     this.#form = this.querySelector("#exchangeTypeForm");

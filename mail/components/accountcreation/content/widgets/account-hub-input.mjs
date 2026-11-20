@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/account-hub-input.html" with { type: "text" };
+
 const optionalAttributes = [
   "name",
   "placeholder",
@@ -14,9 +17,6 @@ const optionalAttributes = [
 /**
  * Input, label and error message for account hub. You can listen to the normal
  * input events.
- *
- * Template ID: #accountHubInputTemplate (from
- * #accountHubInputTemplate.inc.xhtml)
  *
  * @tagname account-hub-input
  * @attribute {string} id - ID used to create IDs for input and error message.
@@ -44,6 +44,12 @@ const optionalAttributes = [
  *   observed.
  */
 class AccountHubInput extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   static observedAttributes = ["l10n-label-id", "l10n-error-id"];
   /**
    * The internal input element.
@@ -125,9 +131,10 @@ class AccountHubInput extends HTMLElement {
     }
     this.hasConnected = true;
 
-    const template = document
-      .getElementById("accountHubInputTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      AccountHubInput.template,
+      true
+    );
     this.appendChild(template);
 
     this.#input = this.querySelector("input");

@@ -1,8 +1,8 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<html:template id="accountHubEmailExchangeTypeTemplate" xmlns="http://www.w3.org/1999/xhtml">
+<template id="accountHubEmailExchangeTypeTemplate">
   <div slot="content" class="manual-config-wrapper">
     <form id="exchangeTypeForm" class="account-hub-form">
       <div class="hub-body">
@@ -15,11 +15,15 @@
             data-l10n-id="account-hub-exchange-type-account-type"
           ></legend>
           <account-hub-radio-card-large value="graph">
-            <span slot="title" data-l10n-id="account-hub-card-graph-title"></span>
+            <span
+              slot="title"
+              data-l10n-id="account-hub-card-graph-title"
+            ></span>
             <span
               slot="tag"
               class="badge"
-              data-l10n-id="account-hub-result-recommended-label"></span>
+              data-l10n-id="account-hub-result-recommended-label"
+            ></span>
             <span slot="description">
               <span data-l10n-id="account-hub-card-graph-description"></span>
               <span
@@ -34,11 +38,13 @@
             <span
               slot="tag"
               class="legacy-text"
-              data-l10n-id="account-hub-card-ews-tag"></span>
+              data-l10n-id="account-hub-card-ews-tag"
+            ></span>
             <span
               slot="tag"
               class="badge"
-              data-l10n-id="account-hub-result-recommended-label"></span>
+              data-l10n-id="account-hub-result-recommended-label"
+            ></span>
             <span slot="description">
               <span data-l10n-id="account-hub-card-ews-description"></span>
               <span
@@ -72,26 +78,22 @@
                 value=""
                 disabled="disabled"
                 selected="selected"
-              >
-              </option>
+              ></option>
               <option
                 id="incomingAuthMethodCleartext"
                 data-l10n-id="account-hub-ssl-cleartext-password-option"
                 value="3"
-              >
-              </option>
+              ></option>
               <option
                 id="incomingAuthMethodNtlm"
                 label="NTLM"
                 value="6"
-              >
-              </option>
+              ></option>
               <option
                 id="incomingAuthMethodOAuth2"
                 value="10"
                 label="OAuth2"
-              >
-              </option>
+              ></option>
             </account-hub-select>
             <tb-banner
               id="exchangeTypeUnsupportedOAuthBanner"
@@ -159,4 +161,4 @@
       data-l10n-id="account-hub-advanced-configuration-button"
     ></button>
   </div>
-</html:template>
+</template>

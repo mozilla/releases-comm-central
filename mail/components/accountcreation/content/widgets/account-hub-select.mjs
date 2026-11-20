@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/account-hub-select.html" with { type: "text" };
+
 const attrs = ["id", "disabled", "l10n-label-id", "warning", "l10n-error-id"];
 
 /**
@@ -12,6 +15,12 @@ const attrs = ["id", "disabled", "l10n-label-id", "warning", "l10n-error-id"];
  *   text. Not observed.
  */
 class AccountHubSelect extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   static observedAttributes = attrs;
 
   /**
@@ -80,9 +89,7 @@ class AccountHubSelect extends HTMLElement {
     let styles;
     let shadowRoot;
     if (detached) {
-      template = document
-        .getElementById("accountHubSelectTemplate")
-        .content.cloneNode(true);
+      template = this.ownerDocument.importNode(AccountHubSelect.template, true);
       shadowRoot = this.attachShadow({ mode: "open" });
       styles = document.createElement("link");
       styles.rel = "stylesheet";

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../templates/email.html" with { type: "text" };
+
 const {
   AccountCreationUtils: {
     gAccountSetupLogger,
@@ -49,6 +52,12 @@ class UserSkippedError extends Error {}
  * Main Account Hub email setup flow controller.
  */
 class AccountHubEmail extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * Email config footer.
    *
@@ -349,8 +358,12 @@ class AccountHubEmail extends HTMLElement {
 
     this.classList.add("account-hub-view");
 
-    const template = document.getElementById("accountHubEmailSetup");
-    this.appendChild(template.content.cloneNode(true));
+    const template = this.ownerDocument.importNode(
+      AccountHubEmail.template,
+      true
+    );
+
+    this.appendChild(template);
 
     this.#emailAutoConfigSubview = this.querySelector(
       "#emailAutoConfigSubview"
@@ -551,17 +564,18 @@ class AccountHubEmail extends HTMLElement {
   }
 
   /**
-   * Load a template of a subview using the template ID.
+   * Registers a subview's custom element in the current window.
    *
    * @param {string} templateId - ID of the template that needs to be loaded.
+   * @returns {Promise<void>} Resolves after the subview's element is registered.
    */
   async #loadTemplateScript(templateId) {
     if (customElements.get(templateId)) {
-      return Promise.resolve();
+      return;
     }
 
     // eslint-disable-next-line no-unsanitized/method
-    return import(
+    await import(
       `chrome://messenger/content/accountcreation/content/widgets/${templateId}.mjs`
     );
   }

@@ -2,13 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "../../templates/email-credentials-confirmation.html" with { type: "text" };
 import { AccountHubStep } from "./account-hub-step.mjs";
 
 /**
  * Account Hub Email Credentials Confirmation Step.
- * Template ID: #accountHubEmailCredentialsConfirmationTemplate (from accountHubEmailCredentialsConfirmationTemplate.inc.xhtml)
  */
 class EmailCredentialsConfirmation extends AccountHubStep {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   /**
    * The redirection host.
    *
@@ -24,9 +31,10 @@ class EmailCredentialsConfirmation extends AccountHubStep {
 
     super.connectedCallback();
 
-    const template = document
-      .getElementById("accountHubEmailCredentialsConfirmationTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(
+      EmailCredentialsConfirmation.template,
+      true
+    );
     this.appendChild(template);
 
     this.querySelector("#manualConfiguration").addEventListener("click", this);
