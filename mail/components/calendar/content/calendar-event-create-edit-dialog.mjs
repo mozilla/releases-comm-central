@@ -10,7 +10,10 @@ import { CalendarEventDialogSourceMixin } from "./calendar-event-dialog-source-m
 import { store } from "moz-src:///comm/mail/base/content/state/store.mjs";
 import { saveCalendarEventEdit } from "./calendar-event-edit-save.mjs";
 import { saveCalendarEventCreate } from "./calendar-event-create-save.mjs";
-import { calendarEventCategorySaveField } from "./calendar-event-save-fields.mjs";
+import {
+  calendarEventCategorySaveField,
+  calendarEventVideoSaveField,
+} from "./calendar-event-save-fields.mjs";
 import {
   loadCalendarOptions,
   observeCalendarOptions,
@@ -54,13 +57,15 @@ import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import-x/
 import "./calendar-dialog-toggleable-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-dialog-subview.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-event-category-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-event-video-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
 
 /**
- * Displays editable event values, calendar choices, and category controls.
+ * Displays editable event values, calendar choices, category controls, and
+ * Video controls.
  *
  * Keeps unsaved values (the draft) in the document's Redux store under a fixed
  * session key. Public getters return copies so callers cannot change the draft.
@@ -231,7 +236,10 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
    *
    * @type {Record<string, CalendarEventSaveField>}
    */
-  saveFields = { categories: calendarEventCategorySaveField };
+  saveFields = {
+    categories: calendarEventCategorySaveField,
+    video: calendarEventVideoSaveField,
+  };
 
   /**
    * The margin maintained between this dialog and the visible calendar view.
@@ -319,6 +327,9 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       );
       this.append(template.content.cloneNode(true));
       this.#categoryRow.bindEventSession(this.calendarEventSessionKey);
+      this.querySelector("calendar-event-video-row").bindEventSession(
+        this.calendarEventSessionKey
+      );
       this.#calendarSelect = this.querySelector(".calendar-selector");
       this.#availabilitySelect = this.querySelector(".availability-selector");
       this.addEventListener("cancel", this);
@@ -1358,7 +1369,11 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     this.dispatch(
       initializeFields({
         sessionKey: this.calendarEventSessionKey,
-        defaults: { calendarId: calendar.id },
+        defaults: {
+          calendarId: calendar.id,
+          enabledRows: { video: false },
+          videoUrl: "",
+        },
       })
     );
   }

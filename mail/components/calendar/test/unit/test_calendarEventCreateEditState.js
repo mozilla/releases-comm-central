@@ -136,6 +136,8 @@ add_task(function test_sourceSnapshotStartsAnIsolatedDraft() {
       end: snapshot.event.end,
       start: snapshot.event.start,
       title: "Original title",
+      videoUrl: "",
+      enabledRows: { video: false },
     },
     "The draft should copy editable source values"
   );
@@ -556,6 +558,7 @@ add_task(function test_rowDefaultsAndDirtyStateStaySeparate() {
   Assert.deepEqual(
     draft.value.enabledRows,
     {
+      video: false,
       location: false,
       reminders: true,
     },
@@ -564,6 +567,7 @@ add_task(function test_rowDefaultsAndDirtyStateStaySeparate() {
   Assert.deepEqual(
     draft.baseline.enabledRows,
     {
+      video: false,
       location: true,
       reminders: true,
     },

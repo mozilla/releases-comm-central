@@ -7,6 +7,7 @@ import {
   canMoveCalendarEvent,
   snapshotCalendar,
 } from "./calendar-event-calendar-options.mjs";
+import { getEventVideoUrl } from "./calendar-event-save-fields.mjs";
 
 const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
@@ -43,6 +44,8 @@ const { cal } = ChromeUtils.importESModule(
  * @property {string} title - The event title.
  * @property {string[]} categories - A copy of all selected names, including
  *   names absent from category preferences.
+ * @property {string} videoUrl - The URL of the video conference, or an empty
+ *   string. A CONFERENCE property without FEATURE=VIDEO gives an empty string.
  */
 
 /**
@@ -121,6 +124,9 @@ function snapshotDateTime(dateTime) {
  * Category names come from the event, not the available choices. Copying all
  * names preserves selections absent from preferences.
  *
+ * The video URL comes from a CONFERENCE property whose FEATURE lists VIDEO.
+ * Other conferences leave it empty.
+ *
  * @param {CalendarEventSourceIdentity} identity - The route used to load the
  *   event, including the occurrence ID if present.
  * @param {calIEvent} event - The loaded event or occurrence.
@@ -143,6 +149,7 @@ function snapshotEvent(identity, event) {
       end: snapshotDateTime(event.endDate),
       title: event.title,
       categories: [...event.getCategories()],
+      videoUrl: getEventVideoUrl(event),
     },
   };
 }

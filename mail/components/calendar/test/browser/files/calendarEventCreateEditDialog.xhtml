@@ -73,7 +73,7 @@
 
       #calendarRange {
         /* Leave room beside this target for a dialog with field rows. */
-        inset: 300px auto auto 600px;
+        inset: 250px auto auto 600px;
       }
 
       [is="calendar-event-create-edit-dialog"] {
@@ -117,6 +117,16 @@
       <div class="row">
         <slot name="icon"></slot>
         <slot name="label"></slot>
+        <slot name="content"></slot>
+      </div>
+    </template>
+    <template id="calendarDialogToggleableRowTemplate">
+      <div class="row">
+        <slot name="icon"></slot>
+        <label class="toggle-label">
+          <slot name="label"></slot>
+          <input class="toggle-checkbox" type="checkbox" />
+        </label>
         <slot name="content"></slot>
       </div>
     </template>
@@ -188,6 +198,27 @@
               data-subview="main"
             >
               <div class="calendar-event-create-edit-dialog-rows">
+                <calendar-event-video-row>
+                  <img slot="icon" class="icon-video" src="" alt="" />
+                  <span
+                    slot="label"
+                    class="row-label"
+                    data-l10n-id="calendar-event-video-label"
+                  ></span>
+                  <div slot="content" class="calendar-event-video-content">
+                    <input
+                      class="calendar-event-video-url"
+                      type="text"
+                      data-l10n-id="calendar-event-video-url"
+                    />
+                    <button
+                      class="button button-flat icon-button icon-only
+                        calendar-event-clear-video-url"
+                      type="button"
+                      data-l10n-id="calendar-event-video-url-clear"
+                    ></button>
+                  </div>
+                </calendar-event-video-row>
                 <calendar-dialog-navigation-row
                   id="descriptionNavigationRow"
                   subview-id="calendarEventCreateEditDescriptionSubview"

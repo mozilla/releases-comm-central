@@ -42,6 +42,7 @@ MOZ_SRC_FILES += [
     "content/calendar-event-save-fields.mjs",
     "content/calendar-event-session-row.mjs",
     "content/calendar-event-source-loader.mjs",
+    "content/calendar-event-video-row.mjs",
     "content/dialog-position.mjs",
     "content/dialogs/calendar-prompt.mjs",
     "content/positioned-dialog.mjs",

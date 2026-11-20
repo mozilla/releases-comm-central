@@ -515,3 +515,36 @@ export const selectCategoryViewModel = createSelector(
     disabled: !hasDraft || options === null || saving,
   })
 );
+
+/**
+ * Returns whether the Video row is on in the draft. Returns false when the
+ * draft or the flag is absent.
+ *
+ * @type {CalendarEventCreateEditSelector<boolean>}
+ */
+export const selectVideoEnabled = createSelector(
+  [selectCurrentDraft],
+  draft => draft?.enabledRows?.video === true
+);
+
+/**
+ * Returns the video URL text in the draft. Returns an empty string when the
+ * draft or the URL is absent.
+ *
+ * @type {CalendarEventCreateEditSelector<string>}
+ */
+export const selectVideoUrl = createSelector(
+  [selectCurrentDraft],
+  draft => draft?.videoUrl ?? ""
+);
+
+/**
+ * Returns whether the Video controls are unavailable. They are unavailable
+ * without a draft and while Save is pending.
+ *
+ * @type {CalendarEventCreateEditSelector<boolean>}
+ */
+export const selectVideoDisabled = createSelector(
+  [selectCurrentDraft, selectCurrentOperation],
+  (draft, operation) => !draft || operation?.status == "pending"
+);

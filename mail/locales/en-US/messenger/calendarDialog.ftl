@@ -286,3 +286,15 @@ calendar-event-more-categories = +{ $count } more
             [one] +{ $count } more category
            *[other] +{ $count } more categories
         }
+
+## Video row in the event create/edit dialog.
+
+calendar-event-video-label = Video
+
+calendar-event-video-url =
+  .aria-label = Video URL
+  .placeholder = Enter URL for video
+
+calendar-event-video-url-clear =
+  .aria-label = Clear video URL
+  .title = Clear video URL

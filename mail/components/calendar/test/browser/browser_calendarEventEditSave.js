@@ -490,6 +490,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
   );
   const closeButton = dialog.querySelector(".close-button");
   const titleInput = dialog.querySelector(".event-title-input");
+  const videoRow = dialog.querySelector("calendar-event-video-row");
   const descriptionRow = dialog.querySelector("#descriptionNavigationRow");
   const availability = dialog.querySelector(".availability-selector");
   const categoryRow = dialog.querySelector(".calendar-event-category-row");
@@ -526,6 +527,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
     [{}, moreButton, "Tab should reach More."],
     [{}, closeButton, "Tab should reach Close."],
     [{}, titleInput, "Tab should reach the title."],
+    [{}, videoRow, "Tab should reach Video."],
     [{}, descriptionRow, "Tab should reach Description."],
     [{}, addCategory, "Tab should reach Add category."],
     [{}, availability, "Tab should reach Availability."],
@@ -545,6 +547,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
       descriptionRow,
       "Shift+Tab should return to Description.",
     ],
+    [{ shiftKey: true }, videoRow, "Shift+Tab should return to Video."],
     [{ shiftKey: true }, titleInput, "Shift+Tab should return to the title."],
     [{ shiftKey: true }, closeButton, "Shift+Tab should return to Close."],
     [{ shiftKey: true }, moreButton, "Shift+Tab should return to More."],
@@ -556,6 +559,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
     [{}, moreButton, "Tab should reach More again."],
     [{}, closeButton, "Tab should reach Close again."],
     [{}, titleInput, "Tab should reach the title again."],
+    [{}, videoRow, "Tab should reach Video again."],
     [{}, descriptionRow, "Tab should reach Description again."],
     [{}, addCategory, "Tab should reach Add category again."],
     [{}, availability, "Tab should reach Availability again."],

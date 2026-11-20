@@ -88,4 +88,8 @@ subsuite = "thunderbird"
 
 ["browser_calendarEventSessionRow.js"]
 
+["browser_calendarEventVideoRow.js"]
+
+["browser_calendarEventVideoSave.js"]
+
 ["browser_positionedDialog.js"]

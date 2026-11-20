@@ -493,7 +493,7 @@ li[is="calendar-dialog-attachment"] {
   overflow-block: auto;
   border-block-start: 1px solid var(--color-surface-border);
 
-  :is(calendar-dialog-row, calendar-dialog-toggleable-row, calendar-dialog-navigation-row, calendar-event-category-row) {
+  :is(calendar-dialog-row, calendar-dialog-toggleable-row, calendar-dialog-navigation-row, calendar-event-category-row, calendar-event-video-row) {
     border-block-end: 1px solid var(--color-surface-border);
     padding-block: var(--calendar-dialog-gap);
   }
@@ -658,5 +658,26 @@ li[is="calendar-dialog-attachment"] {
     & .calendar-event-category-chip {
       flex-shrink: 0;
     }
+  }
+
+  & .calendar-event-video-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-base);
+    min-inline-size: 0;
+  }
+
+  & .calendar-event-video-url {
+    flex: 1;
+    min-inline-size: 0;
+    box-sizing: border-box;
+    min-block-size: var(--input-min-height);
+    margin: 0;
+  }
+
+  & .calendar-event-clear-video-url {
+    --button-padding: var(--space-step);
+    margin: 0;
+    background-image: var(--icon-close);
   }
 }

@@ -1277,7 +1277,12 @@ add_task(async function test_createAndEditDraftLifecycle() {
 
   Assert.deepEqual(
     dialog.draft,
-    { calendarId: calendar.id, categories: [] },
+    {
+      calendarId: calendar.id,
+      categories: [],
+      enabledRows: { video: false },
+      videoUrl: "",
+    },
     "Create mode should start with the selected calendar default"
   );
 
@@ -1312,6 +1317,8 @@ add_task(async function test_createAndEditDraftLifecycle() {
       end: source.snapshot.event.end,
       start: source.snapshot.event.start,
       title: calendarEvent.title,
+      videoUrl: source.snapshot.event.videoUrl,
+      enabledRows: { video: false },
     },
     "Edit mode should copy source data into a draft"
   );
@@ -1348,7 +1355,12 @@ add_task(async function test_createAndEditDraftLifecycle() {
   await resetToCreateMode();
   Assert.deepEqual(
     dialog.draft,
-    { calendarId: calendar.id, categories: [] },
+    {
+      calendarId: calendar.id,
+      categories: [],
+      enabledRows: { video: false },
+      videoUrl: "",
+    },
     "Clearing an edit route should remove its draft and restore the calendar default"
   );
 });
@@ -2115,6 +2127,8 @@ add_task(async function test_saveButtonDisabledValidityState() {
       end: source.snapshot.event.end,
       start: source.snapshot.event.start,
       title: calendarEvent.title,
+      videoUrl: source.snapshot.event.videoUrl,
+      enabledRows: { video: false },
     },
     "Edit mode should copy source data into a draft"
   );

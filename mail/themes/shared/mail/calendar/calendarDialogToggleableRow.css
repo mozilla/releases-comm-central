@@ -26,3 +26,7 @@ slot[name="content"]::slotted(*) {
 .row {
   row-gap: calc(var(--space-step) * 3);
 }
+
+:host(:not([checked])) .row {
+  row-gap: 0;
+}

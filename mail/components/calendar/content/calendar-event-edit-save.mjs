@@ -203,6 +203,15 @@ export async function saveCalendarEventEdit({
             continue;
           }
 
+          if (
+            section == "video" &&
+            draft.enabledRows?.video === baseline.enabledRows?.video &&
+            (draft.enabledRows?.video === false ||
+              draft.videoUrl === baseline.videoUrl)
+          ) {
+            continue;
+          }
+
           const { enabled, values } = prepared[section];
 
           if (enabled) {

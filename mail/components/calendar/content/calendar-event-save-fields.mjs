@@ -16,8 +16,8 @@ const { cal } = ChromeUtils.importESModule(
  * For enabled fields, create Save calls `validate` when supplied. After
  * validation succeeds, create Save calls `apply` for those fields.
  * Disabled fields add no properties to a new event.
- * Edit Save skips unchanged categories. For each field it saves, edit Save
- * calls `apply` for an enabled row or `remove` for a disabled row.
+ * Edit Save skips unchanged categories and Video. For each field it saves,
+ * edit Save calls `apply` for an enabled row or `remove` for a disabled row.
  * Both paths keep disabled fields' input in the draft for retry.
  * Field code supplies defaults and checks permissions for its own values.
  *
@@ -49,6 +49,74 @@ export const calendarEventCategorySaveField = {
   keys: ["categories"],
   apply: (event, values) => event.setCategories(values.categories ?? []),
   remove: event => event.setCategories([]),
+};
+
+/**
+ * Returns whether the event's CONFERENCE property is a video conference.
+ * Only a FEATURE parameter that lists VIDEO makes it one. A property without
+ * FEATURE, or with other features such as PHONE, belongs to no row.
+ *
+ * @param {calIEvent} event - The event to read.
+ * @returns {boolean} True if the FEATURE parameter lists VIDEO.
+ */
+function isVideoConference(event) {
+  const features = event.getPropertyParameter("CONFERENCE", "FEATURE") ?? "";
+
+  return features.toUpperCase().split(",").includes("VIDEO");
+}
+
+/**
+ * Returns the URL of the event's video conference, or an empty string.
+ * Phone, chat, and other conferences return an empty string. Save leaves them
+ * unchanged unless the user adds a new video URL.
+ *
+ * @param {calIEvent} event - The event to read.
+ * @returns {string} The video URL, or an empty string.
+ */
+export function getEventVideoUrl(event) {
+  return isVideoConference(event)
+    ? (event.getProperty("CONFERENCE") ?? "")
+    : "";
+}
+
+/**
+ * Copies the Video URL to the event's CONFERENCE property.
+ *
+ * Writes the trimmed URL with `VALUE=URI` and `FEATURE=VIDEO`. An empty URL
+ * writes nothing and removes an old video conference. If the event already has
+ * the same video URL, leaves the property and its other parameters unchanged.
+ * A new URL replaces any existing CONFERENCE property, because an event keeps
+ * one value for each property name. Edit Save skips this row if the draft has
+ * the same URL and enabled state as its starting values. Otherwise, it calls
+ * `remove` for a disabled row, which removes only a video conference. Create
+ * Save skips a disabled row. The draft keeps its URL for retry.
+ *
+ * @type {CalendarEventSaveField}
+ */
+export const calendarEventVideoSaveField = {
+  keys: ["videoUrl"],
+  apply: (event, values) => {
+    const url = values.videoUrl?.trim() ?? "";
+
+    if (!url) {
+      calendarEventVideoSaveField.remove(event);
+      return;
+    }
+
+    if (getEventVideoUrl(event) == url) {
+      return;
+    }
+
+    event.deleteProperty("CONFERENCE");
+    event.setProperty("CONFERENCE", url);
+    event.setPropertyParameter("CONFERENCE", "VALUE", "URI");
+    event.setPropertyParameter("CONFERENCE", "FEATURE", "VIDEO");
+  },
+  remove: event => {
+    if (isVideoConference(event)) {
+      event.deleteProperty("CONFERENCE");
+    }
+  },
 };
 
 /**

@@ -24,6 +24,8 @@
 
 ["test_calendarEventSourceState.js"]
 
+["test_calendarEventVideoSave.js"]
+
 ["test_dialog_position.js"]
 
 ["test_joinLinkParser.js"]
