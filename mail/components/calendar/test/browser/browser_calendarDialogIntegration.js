@@ -195,15 +195,14 @@ add_task(async function test_respondToRecurringInvitation() {
     "the RSVP control sends the selected response"
   );
 
-  let storedEvent;
-  await TestUtils.waitForCondition(async () => {
-    storedEvent = await calendar.getItem(invitation.id);
-    const exception = storedEvent.recurrenceInfo.getExceptionFor(
+  const storedEvent = await TestUtils.waitForCondition(async () => {
+    const event = await calendar.getItem(invitation.id);
+    const exception = event.recurrenceInfo.getExceptionFor(
       occurrence.recurrenceId
     );
     return (
       exception?.getAttendeeById(calendarUser).participationStatus ==
-      "TENTATIVE"
+        "TENTATIVE" && event
     );
   }, "waiting for the RSVP response to be saved");
   await TestUtils.waitForCondition(
@@ -250,7 +249,11 @@ add_task(async function test_respondToRecurringInvitation() {
     () =>
       Array.from(
         dialog.querySelectorAll("calendar-dialog-attendees-row:not([type]) li")
-      ).find(element => element.attendee.id == calendarUser),
+      ).find(
+        element =>
+          element.attendee.id == calendarUser &&
+          element.attendee.participationStatus == "TENTATIVE"
+      ),
     "waiting for the invited attendee to render after the RSVP response"
   );
   Assert.equal(

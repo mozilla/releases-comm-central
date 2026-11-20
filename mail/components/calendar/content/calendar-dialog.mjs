@@ -102,7 +102,7 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
    *
    * @type {?Function}
    */
-  #onEventResponse = null;
+  #updateEvent = null;
 
   /**
    * The title element for the dialog
@@ -268,10 +268,12 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
    * with a calIEvent the dialog will update to show the data of that event.
    *
    * @param {calIEvent} event
-   * @param {?Function} [onEventResponse] - Called to save an event response.
+   * @param {?Function} [updateEvent] - Called to save updates to the event.
+   *   TODO should be an event emitted by the dialog and handled by its owner.
+   *   And then triggering a method call on the dialog with the new event info?
    * @throws {Error} When passed a calIItemBase that isn't an event.
    */
-  setCalendarEvent(event, onEventResponse = null) {
+  setCalendarEvent(event, updateEvent = null) {
     if (!event.isEvent()) {
       throw new Error("Can only display events");
     }
@@ -287,7 +289,7 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
         ? String(event.recurrenceId.nativeTime)
         : null,
     });
-    this.#onEventResponse = onEventResponse;
+    this.#updateEvent = updateEvent;
   }
 
   /**
@@ -462,7 +464,7 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
    */
   #clearData() {
     this.#event = null;
-    this.#onEventResponse = null;
+    this.#updateEvent = null;
     this.#subviewManager.showDefaultSubview();
     this.#title.textContent = "";
     this.querySelector(".calendar-name").textContent = "";
@@ -484,6 +486,57 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
     this.querySelector("calendar-dialog-acceptance").reset();
     this.querySelector("#expandingDescription").setDescription("");
     this.querySelector("#expandedDescription").setDescription("");
+  }
+
+  /**
+   * Applies a new version of the event and then updates the dialog's own event
+   * cache. Does not handle updating the UI afterward.
+   *
+   * @param {calIEvent} newEvent - A new event instance that has the updated
+   *   properties.
+   * @param {object} [response] - The itip response mode.
+   * @returns {Promise<boolean>} Whether the dialog is still showing the event
+   *   that is subject to this change.
+   */
+  async #applyNewEvent(newEvent, response) {
+    if (newEvent === this.#event) {
+      throw new Error("Must provide a clone of the current event to update");
+    }
+    const transactionComplete = Promise.withResolvers();
+    const oldEvent = this.#event;
+    if (this.#updateEvent) {
+      await this.#updateEvent(
+        newEvent,
+        newEvent.calendar,
+        oldEvent,
+        { onTransactionComplete: transactionComplete.resolve },
+        response
+      );
+    } else {
+      await window.doTransaction(
+        "modify",
+        newEvent,
+        newEvent.calendar,
+        oldEvent,
+        { onTransactionComplete: transactionComplete.resolve },
+        response
+      );
+    }
+    const postTransactionEvent = await transactionComplete.promise;
+
+    // The dialog may have been reused while the transaction was in progress.
+    if (this.#event !== oldEvent) {
+      return false;
+    }
+
+    this.#event = postTransactionEvent || newEvent;
+    // Preserve the recurrence state.
+    if (this.hasAttribute("recurrence-id") && this.#event.recurrenceInfo) {
+      this.#event = this.#event.recurrenceInfo.getOccurrenceFor(
+        oldEvent.recurrenceId
+      );
+    }
+    return true;
   }
 
   /**
@@ -523,23 +576,12 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
 
     try {
       const response = { responseMode: Ci.calIItipItem.AUTO };
-      if (this.#onEventResponse) {
-        await this.#onEventResponse(
-          newEvent,
-          newEvent.calendar,
-          oldEvent,
-          null,
-          response
-        );
-      } else {
-        await window.doTransaction(
-          "modify",
-          newEvent,
-          newEvent.calendar,
-          oldEvent,
-          null,
-          response
-        );
+      if (
+        !(await this.#applyNewEvent(newEvent, response)) ||
+        this.#event?.hashId != oldEvent.hashId
+      ) {
+        console.warn("Active event changed while setting event response");
+        return;
       }
     } catch (error) {
       console.error("Failed to send calendar event response", error);
@@ -550,13 +592,7 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
       return;
     }
 
-    // The dialog may have been reused while the transaction was in progress.
-    if (this.#event !== oldEvent) {
-      return;
-    }
-
-    this.#event = newEvent;
-    const attendees = newEvent.getAttendees();
+    const attendees = this.#event.getAttendees();
     for (const attendeeView of this.querySelectorAll(
       "calendar-dialog-attendees-row"
     )) {
