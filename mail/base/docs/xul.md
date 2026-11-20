@@ -19,6 +19,7 @@ The `.inc.*` prefix is used to indicate that the file is not a fully valid
 document and is expected to be included by the preprocessor into another
 document.
 
+(xul-namespaces)=
 ## Namespaces
 
 Typically `.xhtml` documents will declare an `xmlns`, `xmlns:xul` and

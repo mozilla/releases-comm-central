@@ -29,10 +29,8 @@
 - If the element doesn't attach a shadow root in its `connectedCallback`,
   consider using a `hasConnected` class field to detect if the main setup logic
   has already happened.
-- Templates are currently managed in HTML markup and we just document the ID of
-  the template that the custom element expects as `Template ID: #myElementTemplate`.
-  Often the template is in an include file we include anywhere the custom element
-  is used.
+- Import custom element templates as text. See
+  [Load a template from a file](#load-a-template-from-a-file).
 - Styles for the custom element are usually in a separate css file with the same
   name as the module. If the element has a shadow root, the stylesheet will be
   loaded into it.
@@ -57,6 +55,53 @@
 - Unless key repeats are desired, consider using `keyup` listeners for keyboard
   event handling.
 
+## Load a template from a file
+
+Put your component's markup in its own file. **Each file must contain exactly
+one HTML `<template>` element.** Use a trusted template file that ships with
+Thunderbird.
+
+1. Import the file as text using `with { type: "text" }`. The example below
+   imports `./my-element.html` as `templateMarkup`. This path resolves relative
+   to the component module's URL, such as a `chrome://`, `resource://`, or
+   `moz-src:///` URL.
+2. Import `getLazyTemplate` from
+   `moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs`. Declare
+   `static template` on the class and call `getLazyTemplate(this, templateMarkup)`
+   in a static block.
+3. When an instance needs its markup, copy the fragment with
+   `this.ownerDocument.importNode(MyElement.template, true)`.
+
+The loader parses the markup on the first read of `MyElement.template` and
+keeps the fragment for later instances. Each copy uses the destination
+document's custom element definitions.
+
+Use `MyElement.template` when the method always needs that class's template.
+If an inherited method should use a subclass's own template, read
+`this.constructor.template`.
+
+### Use XUL in a template
+
+Use HTML syntax for plain templates. If the template contains XUL, use an
+`.xhtml` file and add the two namespace declarations shown below to its opening
+`<template>` tag. The `xmlns` declaration keeps `<template>` and unprefixed
+tags in HTML. The `xmlns:xul` declaration tells the loader to read the file as
+XML. Use the `xul:` prefix on XUL tags.
+
+```xml
+<template xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <form>
+    <input id="name" disabled="disabled" />
+    <xul:label value="Name" />
+  </form>
+</template>
+```
+
+Write the whole file as well-formed XML. Close every element, including empty
+ones such as `<input />`. Quote attribute values and give boolean attributes a
+value, such as `disabled="disabled"`. See [XUL namespaces](xul-namespaces).
+
 ## Custom Element Boilerplate
 
 ### my-element.mjs
@@ -66,15 +111,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "moz-src:///comm/mail/base/content/modules/TemplateLoader.mjs";
+import templateMarkup from "./my-element.html" with { type: "text" };
+
 /**
  * Example component serving as a boilerplate demonstration.
  * You should never see this description in the wild.
- * Template ID: #myElementTemplate
  *
  * @attribute {string} label - Label of the button. Observed for changes.
  * @tagname my-element
  */
 export class MyElement extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, templateMarkup);
+  }
+
   static get observedAttributes() {
     return ["label"];
   }
@@ -96,9 +149,7 @@ export class MyElement extends HTMLElement {
     const styles = document.createElement("link");
     styles.rel = "stylesheet";
     styles.href = "chrome://messenger/skin/shared/my-element.css";
-    const template = document
-      .getElementById("myElementTemplate")
-      .content.cloneNode(true);
+    const template = this.ownerDocument.importNode(MyElement.template, true);
 
     template.querySelector("button").addEventListener("click", this);
     template.querySelector("button").textContent = this.getAttribute("label");
@@ -144,10 +195,10 @@ export class MyElement extends HTMLElement {
 customElements.define("my-element", MyElement);
 ```
 
-### myElementTemplate.inc.xhtml
+### my-element.html
 
 ```html
-<template id="myElementTemplate">
+<template>
   <span data-l10n-id="my-element-string"></span>
   <button class="button" data-l10n-id="my-element-button"></button>
 </template>
