@@ -467,7 +467,6 @@ class nsImapProtocol : public nsIImapProtocol,
   virtual void ParseIMAPandCheckForNewMail(const char* commandString = nullptr,
                                            bool ignoreBadNOResponses = false);
   // biff
-  void PeriodicBiff();
   void SendSetBiffIndicatorEvent(nsMsgBiffState newState);
 
   // folder opening and listing header functions

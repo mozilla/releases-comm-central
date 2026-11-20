@@ -26,10 +26,8 @@ class nsImapFlagAndUidState : public nsIImapFlagAndUidState {
   imapMessageFlagsType GetMessageFlagsFromUID(ImapUid uid, bool* foundIt,
                                               int32_t* ndx);
 
-  bool IsLastMessageUnseen(void);
   bool GetPartialUIDFetch() { return fPartialUIDFetch; }
   void SetPartialUIDFetch(bool isPartial) { fPartialUIDFetch = isPartial; }
-  ImapUid GetHighestNonDeletedUID();
   uint16_t GetSupportedUserFlags() { return fSupportedUserFlags; }
   void StartCapture() { fStartCapture = true; }
   uint32_t GetNumAdded() { return fNumAdded; }

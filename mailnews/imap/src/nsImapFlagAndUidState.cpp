@@ -180,33 +180,6 @@ int32_t nsImapFlagAndUidState::NumberOfDeletedMessages() {
   return fNumberDeleted;
 }
 
-// since the uids are sorted, start from the back (rb)
-
-ImapUid nsImapFlagAndUidState::GetHighestNonDeletedUID() {
-  uint32_t msgIndex = fUids.Length();
-  do {
-    if (msgIndex <= 0) return (0);
-    msgIndex--;
-    if (fUids[msgIndex] && !(fFlags[msgIndex] & kImapMsgDeletedFlag)) {
-      return fUids[msgIndex];
-    }
-  } while (msgIndex > 0);
-  return 0;
-}
-
-// Has the user read the last message here ? Used when we first open the inbox
-// to see if there really is new mail there.
-
-bool nsImapFlagAndUidState::IsLastMessageUnseen() {
-  uint32_t msgIndex = fUids.Length();
-
-  if (msgIndex <= 0) return false;
-  msgIndex--;
-  // if last message is deleted, it was probably filtered the last time around
-  return !(fUids[msgIndex] &&
-           (fFlags[msgIndex] & (kImapMsgSeenFlag | kImapMsgDeletedFlag)));
-}
-
 // find a message flag given a key with non-recursive binary search, since some
 // folders may have thousand of messages, once we find the key set its index, or
 // the index of where the key should be inserted

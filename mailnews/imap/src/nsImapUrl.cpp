@@ -537,10 +537,6 @@ void nsImapUrl::ParseImapPart(char* imapPartOfUrl) {
     } else if (!PL_strcasecmp(m_urlidSubString, "list")) {
       m_imapAction = nsImapLsubFolders;
       ParseFolderPath(&m_destinationCanonicalFolderPathSubString);
-    } else if (!PL_strcasecmp(m_urlidSubString, "biff")) {
-      m_imapAction = nsImapBiff;
-      ParseFolderPath(&m_sourceCanonicalFolderPathSubString);
-      ParseListOfMessageIds();
     } else if (!PL_strcasecmp(m_urlidSubString, "netscape")) {
       m_imapAction = nsImapGetMailAccountUrl;
     } else if (!PL_strcasecmp(m_urlidSubString, "appendmsgfromfile")) {

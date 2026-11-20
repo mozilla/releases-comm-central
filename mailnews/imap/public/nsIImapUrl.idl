@@ -183,7 +183,6 @@ interface nsIImapUrl : nsISupports
   const long nsImapOnlineToOfflineCopy = 0x10000022;
   const long nsImapOnlineToOfflineMove = 0x10000023;
   const long nsImapMsgPreview = 0x10000024;
-  const long nsImapBiff  = 0x10000026;
   const long nsImapSelectNoopFolder  = 0x10000027;
   const long nsImapAppendDraftFromFile = 0x10000028;
   const long nsImapUidExpunge = 0x10000029;

@@ -3333,9 +3333,6 @@ void nsImapProtocol::ProcessSelectedStateURL() {
           ProcessStoreFlags(messageIdString, bMessageIdsAreUids, ~msgFlags,
                             false);
         } break;
-        case nsIImapUrl::nsImapBiff:
-          PeriodicBiff();
-          break;
         case nsIImapUrl::nsImapOnlineCopy:
         case nsIImapUrl::nsImapOnlineMove: {
           nsCString messageIdString;
@@ -4631,50 +4628,6 @@ void nsImapProtocol::HeaderFetchCompleted() {
   m_hdrDownloadCache->ReleaseAll();
 
   if (m_imapMailFolderSink) m_imapMailFolderSink->HeaderFetchCompleted(this);
-}
-
-// Use the noop to tell the server we are still here, and therefore we are
-// willing to receive status updates. The recent or exists response from the
-// server could tell us that there is more mail waiting for us, but we need to
-// check the flags of the mail and the high water mark to make sure that we do
-// not tell the user that there is new mail when perhaps they have already read
-// it in another machine.
-
-void nsImapProtocol::PeriodicBiff() {
-  nsMsgBiffState startingState = m_currentBiffState;
-
-  if (GetServerStateParser().GetIMAPstate() ==
-      nsImapServerResponseParser::kFolderSelected) {
-    Noop();  // check the latest number of messages
-    int32_t numMessages = 0;
-    m_flagState->GetNumberOfMessages(&numMessages);
-    if (GetServerStateParser().NumberOfMessages() != numMessages) {
-      ImapUid highestUid = GetServerStateParser().HighestRecordedUID() + 1;
-      nsCString fetchStr;  // only update flags
-
-      uint32_t deleted = m_flagState->NumberOfDeletedMessages();
-      uint32_t added = numMessages;
-      if (!added || (added == deleted))  // empty keys, get them all
-        highestUid = 1;
-
-      // sprintf(fetchStr, "%ld:%ld", id, id +
-      // GetServerStateParser().NumberOfMessages() -
-      // fFlagState->GetNumberOfMessages());
-      AppendUid(fetchStr, highestUid);
-      fetchStr.AppendLiteral(":*");
-      FetchMessage(fetchStr, kFlags);
-      if ((m_flagState->GetHighestNonDeletedUID() >= highestUid) &&
-          m_flagState->IsLastMessageUnseen())
-        m_currentBiffState = nsIMsgFolder::nsMsgBiffState_NewMail;
-      else
-        m_currentBiffState = nsIMsgFolder::nsMsgBiffState_NoMail;
-    } else
-      m_currentBiffState = nsIMsgFolder::nsMsgBiffState_NoMail;
-  } else
-    m_currentBiffState = nsIMsgFolder::nsMsgBiffState_Unknown;
-
-  if (startingState != m_currentBiffState)
-    SendSetBiffIndicatorEvent(m_currentBiffState);
 }
 
 void nsImapProtocol::SendSetBiffIndicatorEvent(nsMsgBiffState newState) {
@@ -7326,11 +7279,9 @@ void nsImapProtocol::OnMoveFolderHierarchy(const char* sourceMailbox) {
 // the imap action is appropriate and if discovery is not in progress due to
 // a running "discoverallboxes" URL.
 void nsImapProtocol::FindMailboxesIfNecessary() {
-  // biff should not discover mailboxes
   nsImapAction imapAction;
   (void)m_runningUrl->GetImapAction(&imapAction);
-  if ((imapAction != nsIImapUrl::nsImapBiff) &&
-      (imapAction != nsIImapUrl::nsImapVerifylogon) &&
+  if ((imapAction != nsIImapUrl::nsImapVerifylogon) &&
       (imapAction != nsIImapUrl::nsImapDiscoverAllBoxesUrl) &&
       (imapAction != nsIImapUrl::nsImapUpgradeToSubscription) &&
       !GetSubscribingNow()) {
