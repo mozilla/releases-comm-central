@@ -20,6 +20,16 @@ The back-end is initialized from the `InAppNotifications` module, which glues al
 
 The custom elements start with an `in-app-notification-manager` element that connects to the events of the `NotificationManager` exposed through the `InAppNotifications` module from the back-end and then creates and removes notifications as needed. It does not have any interaction logic itself, instead it tells the `NotificationManager` about the user interaction, which might then in turn tell the UI to hide a notification.
 
+### Templates
+
+The notification, container, and close-button modules import their HTML templates
+as text modules. Each template is packaged with its module through `MOZ_SRC_FILES`.
+Each class registers its template in a static block with `getLazyTemplate()`.
+The first read of the class's `template` property parses the markup. Each
+element imports a copy of the cached fragment into its `ownerDocument`. Host
+documents do not need to include notification templates.
+Notification data is assigned as text or attributes after the template is loaded.
+
 ### Selecting which notification to display
 
 The `NotificationManager` is what ultimately selects the notification to display, after the raw data was filtered by `NotificationFilter`. The notifications eligible to be displayed are sorted by `severity` (ascending), then the `start_at` timestamp (ascending), and finally by the `percent_chance` (ascending), and the first message is selected for display. It tries to avoid switching notification if there is one already visible, only displacing the current notification if there is a notification with a higher severity to display instead. Lastly the notification manager handles the case where the notification expires (`end_at` transitioning to the past), requesting new notifications when that happens. It also requests new notifications to display when a notification is dismissed. It generally tries to wait a bit before showing the next notification.

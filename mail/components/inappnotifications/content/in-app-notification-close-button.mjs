@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "../../../base/content/modules/TemplateLoader.mjs";
+import closeButtonTemplate from "./in-app-notification-close-button.html" with { type: "text" };
 import { InAppNotificationEvent } from "./InAppNotificationEvent.mjs";
 
 /**
  * Close button for in app notifications.
- * Template ID: #inAppNotificationCloseButtonTemplate
  *
  * @tagname in-app-notification-close-button
  * @fires notificationclose - Event when the button is clicked. Includes the
@@ -14,12 +15,19 @@ import { InAppNotificationEvent } from "./InAppNotificationEvent.mjs";
  */
 
 class InAppNotificationCloseButton extends HTMLButtonElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, closeButtonTemplate);
+  }
+
   connectedCallback() {
     if (!this.hasConnected) {
       this.hasConnected = true;
-      const template = document
-        .getElementById("inAppNotificationCloseButtonTemplate")
-        .content.cloneNode(true);
+      const template = this.ownerDocument.importNode(
+        InAppNotificationCloseButton.template,
+        true
+      );
 
       this.append(template);
 

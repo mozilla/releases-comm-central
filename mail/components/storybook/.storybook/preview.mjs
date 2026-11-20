@@ -50,6 +50,24 @@ window.ChromeUtils = {
   importESModule(_path) {
     return window.AppConstants;
   },
+  defineLazyGetter(target, property, initializer) {
+    Object.defineProperty(target, property, {
+      configurable: true,
+      enumerable: true,
+      get() {
+        const value = initializer.call(target);
+
+        Object.defineProperty(target, property, {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value,
+        });
+
+        return value;
+      },
+    });
+  },
 };
 
 // Stories use complete URLs, so no application values need expansion.

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "../../../base/content/modules/TemplateLoader.mjs";
+import containerTemplate from "./in-app-notification-container.html" with { type: "text" };
 import "./in-app-notification-button.mjs"; //eslint-disable-line import-x/no-unassigned-import
 import "./in-app-notification-close-button.mjs"; //eslint-disable-line import-x/no-unassigned-import
 
@@ -9,7 +11,6 @@ const attrs = ["cta", "description", "heading", "url", "data-id", "type"];
 
 /**
  * Container for in app notifications.
- * Template ID: #inAppNotificationContainerTemplate
  *
  * @tagname in-app-notification-container
  * @attribute {string} cta - Call to action label.
@@ -20,6 +21,12 @@ const attrs = ["cta", "description", "heading", "url", "data-id", "type"];
  * @attribute {"donation"|"message"|"blog"|"security"} type - Type of the notification.
  */
 class InAppNotificationContainer extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, containerTemplate);
+  }
+
   static observedAttributes = attrs;
 
   connectedCallback() {
@@ -27,10 +34,12 @@ class InAppNotificationContainer extends HTMLElement {
     let template;
     let styles;
     let shadowRoot;
+
     if (detached) {
-      template = document
-        .getElementById("inAppNotificationContainerTemplate")
-        .content.cloneNode(true);
+      template = this.ownerDocument.importNode(
+        InAppNotificationContainer.template,
+        true
+      );
       styles = document.createElement("link");
       styles.rel = "stylesheet";
       styles.href = "chrome://messenger/skin/inAppNotificationContainer.css";

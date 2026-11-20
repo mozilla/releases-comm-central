@@ -4,21 +4,21 @@
 
 "use strict";
 
-add_task(function test_documentContainsTemplates() {
+add_task(function test_documentDoesNotRequireTemplates() {
   Assert.equal(
     document.querySelectorAll("#inAppNotificationContainerTemplate").length,
-    1,
-    "Contains 1 container template"
+    0,
+    "The main window should not need a container template"
   );
   Assert.equal(
     document.querySelectorAll("#inAppNotificationTemplate").length,
-    1,
-    "Contains 1 notification template"
+    0,
+    "The main window should not need a notification template"
   );
   Assert.equal(
     document.querySelectorAll("#inAppNotificationCloseButtonTemplate").length,
-    1,
-    "Contains 1 close button template"
+    0,
+    "The main window should not need a close button template"
   );
 });
 

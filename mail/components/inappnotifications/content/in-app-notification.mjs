@@ -2,15 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { getLazyTemplate } from "../../../base/content/modules/TemplateLoader.mjs";
+import notificationTemplate from "./in-app-notification.html" with { type: "text" };
 import "./in-app-notification-container.mjs"; //eslint-disable-line import-x/no-unassigned-import
 
 /**
  * In app notification.
- * Template ID: #inAppNotificationTemplate
  *
  * @tagname in-app-notification
  */
 class InAppNotification extends HTMLElement {
+  /** @type {DocumentFragment} */
+  static template;
+  static {
+    getLazyTemplate(this, notificationTemplate);
+  }
+
   /** @type {InAppNotificationContainer} */
   #container = null;
 
@@ -18,24 +25,28 @@ class InAppNotification extends HTMLElement {
   #data = null;
 
   connectedCallback() {
-    if (!this.shadowRoot) {
-      const template = document
-        .getElementById("inAppNotificationTemplate")
-        .content.cloneNode(true);
-      const shadowRoot = this.attachShadow({ mode: "open" });
-
-      shadowRoot.append(template);
-
-      this.#container = this.shadowRoot.querySelector(
-        "in-app-notification-container"
-      );
-
-      // if #data is set data was set prior to the element being connected
-      // use the data and update now that the element is connected.
-      if (this.#data) {
-        this.setNotificationData(this.#data);
-      }
+    if (this.shadowRoot) {
+      return;
     }
+
+    const template = this.ownerDocument.importNode(
+      InAppNotification.template,
+      true
+    );
+    const shadowRoot = this.attachShadow({ mode: "open" });
+
+    shadowRoot.append(template);
+
+    this.#container = this.shadowRoot.querySelector(
+      "in-app-notification-container"
+    );
+
+    if (!this.#data) {
+      return;
+    }
+
+    // Apply data that was set before the element was connected.
+    this.setNotificationData(this.#data);
   }
 
   /**

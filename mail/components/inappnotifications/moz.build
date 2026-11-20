@@ -7,9 +7,12 @@ with Files("**"):
 
 MOZ_SRC_FILES += [
     "content/in-app-notification-button.mjs",
+    "content/in-app-notification-close-button.html",
     "content/in-app-notification-close-button.mjs",
+    "content/in-app-notification-container.html",
     "content/in-app-notification-container.mjs",
     "content/in-app-notification-manager.mjs",
+    "content/in-app-notification.html",
     "content/in-app-notification.mjs",
     "content/InAppNotificationEvent.mjs",
     "modules/InAppNotifications.sys.mjs",

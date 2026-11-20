@@ -64,6 +64,113 @@ function getData(value, type = "donation") {
   };
 }
 
+add_task(function test_importedTemplates() {
+  const doc = browser.contentWindow.document;
+
+  Assert.ok(notification, "The fixture should contain a notification");
+  Assert.ok(
+    notification.shadowRoot,
+    "The notification should have a shadow root"
+  );
+
+  const container = notification.shadowRoot.querySelector(
+    "in-app-notification-container"
+  );
+
+  Assert.equal(
+    doc.querySelectorAll("template").length,
+    0,
+    "The notification should load without templates in the host document"
+  );
+  Assert.ok(container, "The notification should contain a container");
+  Assert.ok(
+    container instanceof
+      browser.contentWindow.customElements.get("in-app-notification-container"),
+    "The imported container should use its custom element definition"
+  );
+
+  const closeButton = container.shadowRoot.querySelector(
+    '[is="in-app-notification-close-button"]'
+  );
+  const actionButton = container.shadowRoot.querySelector(
+    '[is="in-app-notification-button"]'
+  );
+
+  Assert.ok(closeButton, "The container should contain a close button");
+  Assert.ok(actionButton, "The container should contain an action link");
+  Assert.ok(
+    closeButton instanceof
+      browser.contentWindow.customElements.get(
+        "in-app-notification-close-button"
+      ),
+    "The imported close button should use its custom element definition"
+  );
+  Assert.ok(
+    actionButton instanceof
+      browser.contentWindow.customElements.get("in-app-notification-button"),
+    "The imported action link should use its custom element definition"
+  );
+  Assert.ok(
+    closeButton.querySelector("img"),
+    "The close button should load its own template"
+  );
+});
+
+add_task(function test_dataBeforeConnection() {
+  const doc = browser.contentWindow.document;
+  const second = doc.createElement("in-app-notification");
+
+  registerCleanupFunction(() => second.remove());
+  second.setNotificationData(getData("Second notification"));
+  doc.body.append(second);
+
+  Assert.ok(
+    second.shadowRoot,
+    "The second notification should have a shadow root"
+  );
+
+  const firstContainer = notification.shadowRoot.querySelector(
+    "in-app-notification-container"
+  );
+  const secondContainer = second.shadowRoot.querySelector(
+    "in-app-notification-container"
+  );
+
+  Assert.ok(
+    secondContainer,
+    "The second notification should contain a container"
+  );
+  Assert.notEqual(
+    firstContainer,
+    secondContainer,
+    "Each notification should receive its own template contents"
+  );
+  Assert.ok(
+    secondContainer.shadowRoot.querySelector(
+      '[is="in-app-notification-close-button"] img'
+    ),
+    "The second notification should copy the nested close button contents"
+  );
+  Assert.equal(
+    secondContainer.shadowRoot.querySelector(".in-app-notification-heading")
+      .textContent,
+    "Second notification",
+    "The second notification should display its own heading"
+  );
+  Assert.equal(
+    secondContainer.getAttribute("heading"),
+    "Second notification",
+    "The notification should apply data set before connection"
+  );
+  Assert.equal(
+    firstContainer.getAttribute("heading"),
+    null,
+    "Setting another notification's data should leave the first notification unchanged"
+  );
+
+  second.remove();
+});
+
 add_task(async function test_notificationAttributeTranslation() {
   const container = notification.shadowRoot.querySelector(
     "in-app-notification-container"

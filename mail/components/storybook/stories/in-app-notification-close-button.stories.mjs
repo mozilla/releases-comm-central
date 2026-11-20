@@ -13,9 +13,6 @@ export default {
 };
 
 const template = () => html`
-  <template id="inAppNotificationCloseButtonTemplate">
-    <img src="" data-l10n-id="in-app-notification-close-image" />
-  </template>
   <button
     is="in-app-notification-close-button"
     @notificationclose="${action("notificationclose")}"
