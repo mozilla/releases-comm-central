@@ -81,11 +81,13 @@ def target_tasks_ash(full_task_graph, parameters, graph_config):
 @register_target_task("tb_rust_vendor_check")
 def target_tasks_tb_rust_vendor_check(full_task_graph, parameters, graph_config):
     """Select the set of tasks required to run tb-rust check-upstream & vendor."""
+    return ["repo-update-tb-rust-vendor"]
 
-    def _filter(task):
-        return task.kind in ["repo-update"]
 
-    return [l for l, t in full_task_graph.tasks.items() if _filter(t)]
+@register_target_task("third_party_updatebot")
+def target_tasks_third_party_updatebot(full_task_graph, parameters, graph_config):
+    """Select the task that updates out of date libraries in comm/third_party."""
+    return ["repo-update-third-party-updatebot"]
 
 
 @register_target_task("tb_rust_cargo_audit")

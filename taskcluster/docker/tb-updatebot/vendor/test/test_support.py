@@ -93,6 +93,7 @@ def test_write_arcrc(mock_home, mock_chmod):
         pytest.param("AAAAAAA", "public/foo.txt", "D12345", 200, "D12345"),
         pytest.param("BBBBBBB", "public/checksums.json", '{"a": "b"}', 200, '{"a": "b"}'),
         pytest.param("CCCC404", "public/notfound.json", "", 404, None),
+        pytest.param("EEEE424", "public/missing.txt", "", 424, None),
         pytest.param("DDDD401", "public/unauthorized.txt", "", 401, None),
     ],
 )
@@ -104,7 +105,7 @@ def test_fetch_indexed_artifact(task_id, artifact_path, body, status, expected):
         body=body,
         status=status,
     )
-    if status in (200, 404):
+    if status in (200, 404, 424):
         artifact = vendor.support.fetch_indexed_artifact(task_id, artifact_path)
         assert artifact == expected
     else:

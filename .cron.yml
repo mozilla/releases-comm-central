@@ -102,3 +102,12 @@ jobs:
           - comm-beta
           - comm-release
       when: [{hour: 17, minute: 0}]
+
+    - name: third-party-updatebot
+      job:
+          type: decision-task
+          treeherder-symbol: 3rdparty
+          target-tasks-method: third_party_updatebot
+      run-on-projects:
+          - comm-central
+      when: [{hour: 8, minute: 0}]

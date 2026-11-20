@@ -21,6 +21,6 @@ ENV     SHELL               /bin/bash
 ENV     USER                worker
 ENV     LOGNAME             worker
 ENV     PYTHONUNBUFFERED    1
-ENV     PATH                "/builds/worker/fetches/rustc/bin:/builds/worker/fetches/cargo-vet:/builds/worker/bin:${PATH}"
+ENV     PATH                "/builds/worker/fetches/rustc/bin:/builds/worker/fetches/cargo-vet:/builds/worker/fetches/node/bin:/builds/worker/bin:${PATH}"
 
 RUN     cd /builds/worker && su -p worker -c ./setup.sh

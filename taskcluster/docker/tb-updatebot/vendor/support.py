@@ -9,7 +9,6 @@ Support functions for comm-central third party code management
 import argparse
 import json
 import os
-import shutil
 import stat
 import subprocess
 from pathlib import Path
@@ -22,14 +21,12 @@ from taskcluster.helper import TaskclusterConfig
 
 import taskcluster
 
+from .constants import MOZ_PHAB
+
 SECRET_URL_BASE = "http://taskcluster/secrets/v1/secret"
 ARTIFACT_URL_BASE = "http://taskcluster/api/queue/v1/task"
 
 TB_SHERIFF_MATRIX_ID = "!TWztIhgqLawNpRBZTC:mozilla.org"
-
-MOZ_PHAB = shutil.which("moz-phab")
-assert MOZ_PHAB is not None
-
 
 tc = TaskclusterConfig("http://taskcluster/")
 
@@ -41,7 +38,10 @@ def log(*args):
 def run_cmd(*args, **kwargs):
     """Wrapper around subprocess.run that logs the command to run."""
     log(f"Running command: {' '.join(args[0])}")
-    kwargs.update({"capture_output": True, "text": True, "check": True})
+    # No stdin, so an interactive prompt fails fast instead of hanging the task.
+    kwargs.update(
+        {"capture_output": True, "text": True, "check": True, "stdin": subprocess.DEVNULL}
+    )
     try:
         rv = subprocess.run(*args, **kwargs)
     except subprocess.CalledProcessError as e:
@@ -109,15 +109,8 @@ def write_arcrc(phabricator_url: str, phabricator_token: str):
     os.chmod(arc_filename, stat.S_IRUSR | stat.S_IWUSR)
 
 
-def write_try_task_config(comm_src_dir: Path) -> Path:
+def write_try_task_config(comm_src_dir: Path, try_task_config: dict) -> Path:
     try_task_config_file = comm_src_dir / "try_task_config.json"
-    try_task_config = {
-        "tasks": [
-            "build-linux64/opt",
-            "build-macosx64/opt",
-            "build-win64/opt",
-        ]
-    }
     with open(try_task_config_file, "w") as try_fp:
         json.dump(try_task_config, try_fp, indent=2)
     return try_task_config_file
@@ -143,7 +136,7 @@ def notify_user(body: str):
             tc_notify.email(
                 {
                     "address": user,
-                    "subject": "Rust Automation Notice",
+                    "subject": "Thunderbird Updatebot Notice",
                     "content": body,
                 }
             )
@@ -161,7 +154,8 @@ def fetch_indexed_artifact(previous_task_id: str, artifact_path: str) -> str or 
         response.raise_for_status()
     except requests.exceptions.HTTPError:
         log(f"Status code {response.status_code}.")
-        if response.status_code == 404:
+        # 424 is returned for artifacts the previous task declared but never wrote.
+        if response.status_code in (404, 424):
             return None
         raise
     return response.text

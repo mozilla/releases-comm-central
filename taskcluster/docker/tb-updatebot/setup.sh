@@ -29,8 +29,13 @@ ln -s "$VENV_DIR/bin/moz-phab" "$HOME/bin/moz-phab"
 cat - > "$HOME/bin/runme.sh" << _EOF_
 #!/bin/bash
 cd "$HOME"
+if command -v corepack > /dev/null; then
+  corepack enable --install-directory "$HOME/bin"
+  # Corepack's download prompt would otherwise hang the task waiting on stdin.
+  export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+fi
 source "$VENV_DIR/bin/activate"
-exec python3 -m vendor
+exec python3 -u -m "\${1:-vendor}"
 _EOF_
 
 chmod +x "$HOME/bin/runme.sh"

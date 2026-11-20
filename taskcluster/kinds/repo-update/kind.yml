@@ -78,3 +78,62 @@ tasks:
             toolchain:
                 - linux64-rust
                 - linux64-cargo-vet
+
+    third-party-updatebot:
+        description: Cron job for Updatebot for 3rdparty library updates
+        run-on-projects: []  # Only run via cron
+        priority: low
+        index:
+            product: thunderbird
+            job-name: third-party-updatebot
+            type: generic
+        treeherder:
+            kind: other
+            platform: updatebot/all
+            symbol: 3rdparty
+            tier: 1
+        worker-type: b-linux
+        worker:
+            docker-image: {in-tree: tb-updatebot}
+            max-run-time: 3600
+            env:
+                REVIEWERS: "#thunderbird-reviewers,#thunderbuild"
+            taskcluster-proxy: true
+            artifacts:
+                - type: file
+                  name: public/hg_diff.patch
+                  path: /builds/worker/hg_diff.patch
+                - type: file
+                  name: public/third_party_state.json
+                  path: /builds/worker/third_party_state.json
+        ssh-key-secret:
+            by-level:
+                "3": project/comm/thunderbird/releng/build/level-3/tbirdtry
+                default: null
+        phab-token-secret:
+            by-level:
+                "3": project/comm/thunderbird/releng/build/level-3/arc-phabricator-token
+                default: null
+        routes:
+            by-level:
+                "3":
+                    - notify.matrix-room.!TWztIhgqLawNpRBZTC:mozilla.org.on-failed
+                    - notify.matrix-room.!TWztIhgqLawNpRBZTC:mozilla.org.on-exception
+                default:
+                    - notify.email.{owner}.on-failed
+                    - notify.email.{owner}.on-exception
+        scopes:
+            by-level:
+                "3":
+                    - notify:matrix-room:!TWztIhgqLawNpRBZTC:mozilla.org
+                default:
+                    - notify:email:{owner}
+        run:
+            using: run-task
+            comm-checkout: true
+            clone-with: hg
+            cwd: '/builds/worker'
+            command: runme.sh vendor.thirdparty
+        fetches:
+            toolchain:
+                - linux64-node-24

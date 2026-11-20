@@ -5,9 +5,15 @@
 tb-rust vendor things.
 """
 
+import logging
+
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import resolve_keyed_by
 from taskgraph.util.taskcluster import find_task_id
+
+from taskcluster import TaskclusterRestFailure
+
+logger = logging.getLogger(__name__)
 
 transforms = TransformSequence()
 
@@ -42,17 +48,24 @@ def update_routes(config, jobs):
         yield job
 
 
+CRON_TARGET_TASKS_METHODS = {
+    "tb-rust-vendor": "tb_rust_vendor_check",
+    "third-party-updatebot": "third_party_updatebot",
+}
+
+
 @transforms.add
 def add_artifact_fetches(config, jobs):
     project = config.params["project"]
+    target_tasks_method = config.params["target_tasks_method"]
     for job in jobs:
-        try:
-            if project == "comm-central":
-                previous_task_id = find_task_id(
-                    f"comm.v2.{project}.latest.thunderbird.tb-rust-vendor"
-                )
-                job["dependencies"].append(previous_task_id)
-                job["worker"]["env"]["PREVIOUS_TASK_ID"] = previous_task_id
-        except KeyError:
-            pass
+        job_name = job["index"]["job-name"]
+        if CRON_TARGET_TASKS_METHODS.get(job_name) == target_tasks_method:
+            index_path = f"comm.v2.{project}.latest.thunderbird.{job_name}"
+            try:
+                job["worker"]["env"]["PREVIOUS_TASK_ID"] = find_task_id(index_path)
+            except TaskclusterRestFailure as e:
+                if e.status_code != 404:
+                    raise
+                logger.info(f"No previous task indexed at {index_path}")
         yield job
