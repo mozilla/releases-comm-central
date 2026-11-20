@@ -5,6 +5,9 @@
 account-prefs-sent-message-copies-description =
     Choose where to save copies of sent messages, and set up automatic Cc/Bcc rules
 
+account-prefs-sent-message-copies-graph-info =
+    Note: Microsoft Graph automatically saves sent messages to the server’s designated Sent Items folder.
+
 account-prefs-automatic-cc-bcc-description =
     Note: Checking these boxes adds automatic Cc/Bcc rows when composing new messages.
 

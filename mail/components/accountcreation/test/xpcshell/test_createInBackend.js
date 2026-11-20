@@ -204,3 +204,60 @@ add_task(function test_checkOutgoingServerAlreadyExistsSkipsUnconfigured() {
     MailServices.outgoingServer.deleteServer(existing);
   }
 });
+
+add_task(async function test_createGraphAccount() {
+  const existingOutgoingServerKeys = new Set(
+    MailServices.outgoingServer.servers.map(server => server.key)
+  );
+  const config = new AccountConfig();
+  config.source = AccountConfig.kSourceUser;
+  config.displayName = "Test User";
+  config.identity.emailAddress = "test@example.com";
+  config.identity.realname = "Test User";
+  config.incoming.type = "graph";
+  config.incoming.hostname = "graph.microsoft.com";
+  config.incoming.port = 443;
+  config.incoming.socketType = Ci.nsMsgSocketType.SSL;
+  config.incoming.auth = Ci.nsMsgAuthMethod.OAuth2;
+  config.incoming.username = "test@example.com";
+  config.incoming.exchangeURL = "https://graph.microsoft.com";
+
+  const account = await CreateInBackend.createAccountInBackend(config);
+
+  try {
+    Assert.equal(
+      account.incomingServer.type,
+      "graph",
+      "Should create a Graph incoming server"
+    );
+    Assert.equal(
+      account.incomingServer.authMethod,
+      Ci.nsMsgAuthMethod.OAuth2,
+      "Should create the Graph account with OAuth2 authentication"
+    );
+    Assert.equal(
+      account.incomingServer.getStringValue("ews_url"),
+      "https://graph.microsoft.com",
+      "Should store the Graph URL"
+    );
+
+    Assert.equal(
+      account.identities.length,
+      1,
+      "Graph account should have one outgoing identity."
+    );
+    Assert.ok(
+      !account.identities[0].doFcc,
+      "Graph accounts should have FCC disabled by default."
+    );
+  } finally {
+    MailServices.accounts.removeAccount(account, true);
+    for (const outgoingServer of Array.from(
+      MailServices.outgoingServer.servers
+    )) {
+      if (!existingOutgoingServerKeys.has(outgoingServer.key)) {
+        MailServices.outgoingServer.deleteServer(outgoingServer);
+      }
+    }
+  }
+});

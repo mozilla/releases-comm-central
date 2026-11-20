@@ -208,6 +208,12 @@ async function createAccountInBackend(config) {
     identity.composeHtml = false;
   }
 
+  // Graph API does its own FCC to the server-designated Sent Items folder.
+  // Default FCC to off to avoid duplicates by default.
+  if (config.incoming.type == "graph") {
+    identity.doFcc = false;
+  }
+
   identity.valid = true;
 
   if (
