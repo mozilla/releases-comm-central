@@ -18,6 +18,13 @@ origin:
 
   license-file: LICENSE
 
+updatebot:
+  maintainer-bz: ebaginski@thunderbird.net
+  maintainer-phab: "#thunderbird-reviewers"
+  tasks:
+    - type: vendoring
+      enabled: true
+
 vendoring:
   url: https://github.com/madler/zlib
   source-hosting: github
