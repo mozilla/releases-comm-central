@@ -16,8 +16,9 @@
 //   - User-Agent (header not retrievable by XHDR)
 // * Test all actions
 
-/* import-globals-from ../../../test/resources/filterTestUtils.js */
-load("../../../resources/filterTestUtils.js");
+const { FilterTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/FilterTestUtils.sys.mjs"
+);
 
 // These are the expected results for testing filter triggers
 var attribResults = {
@@ -137,14 +138,19 @@ function run_test() {
   var localserver = setupLocalServer(NNTP_PORT);
   var serverFilters = localserver.getFilterList();
 
-  createFilter(serverFilters, "subject", "Odd", "read");
-  createFilter(serverFilters, "from", "Odd Person", "read");
+  FilterTestUtils.createFilter(serverFilters, "subject", "Odd", "read");
+  FilterTestUtils.createFilter(serverFilters, "from", "Odd Person", "read");
   // A PRTime is the time in μs, but a JS date is time in ms.
-  createFilter(serverFilters, "date", new Date(2000, 0, 1) * 1000, "read");
-  createFilter(serverFilters, "size", 2, "read");
-  createFilter(serverFilters, "message-id", "odd", "read");
-  createFilter(serverFilters, "user-agent", "Odd/1.0", "read");
-  createFilter(serverFilters, "message-id", "8.unread", "read");
+  FilterTestUtils.createFilter(
+    serverFilters,
+    "date",
+    new Date(2000, 0, 1) * 1000,
+    "read"
+  );
+  FilterTestUtils.createFilter(serverFilters, "size", 2, "read");
+  FilterTestUtils.createFilter(serverFilters, "message-id", "odd", "read");
+  FilterTestUtils.createFilter(serverFilters, "user-agent", "Odd/1.0", "read");
+  FilterTestUtils.createFilter(serverFilters, "message-id", "8.unread", "read");
   localserver.setFilterList(serverFilters);
 
   handlers.forEach(function (handler) {
@@ -160,17 +166,27 @@ function run_test() {
 
   var folder = localserver.rootFolder.getChildNamed("test.filter");
   var folderFilters = folder.getFilterList();
-  createFilter(folderFilters, "subject", "First", "priority");
-  createFilter(folderFilters, "subject", "Odd", "delete");
-  createFilter(folderFilters, "from", "Odd Person", "kill");
-  createFilter(folderFilters, "date", new Date(2000, 0, 1) * 1000, "watch");
-  createFilter(folderFilters, "size", 2, "flag");
-  createFilter(folderFilters, "message-id", "odd", "stop");
+  FilterTestUtils.createFilter(folderFilters, "subject", "First", "priority");
+  FilterTestUtils.createFilter(folderFilters, "subject", "Odd", "delete");
+  FilterTestUtils.createFilter(folderFilters, "from", "Odd Person", "kill");
+  FilterTestUtils.createFilter(
+    folderFilters,
+    "date",
+    new Date(2000, 0, 1) * 1000,
+    "watch"
+  );
+  FilterTestUtils.createFilter(folderFilters, "size", 2, "flag");
+  FilterTestUtils.createFilter(folderFilters, "message-id", "odd", "stop");
   // This shouldn't be hit, because of the previous filter
-  createFilter(folderFilters, "message-id", "6.odd", "read");
-  createFilter(folderFilters, "user-agent", "Odd/1.0", "tag");
-  createFilter(folderFilters, "message-id", "8.unread", "read");
-  createFilter(folderFilters, "message-id", "8.unread", "unread");
+  FilterTestUtils.createFilter(folderFilters, "message-id", "6.odd", "read");
+  FilterTestUtils.createFilter(folderFilters, "user-agent", "Odd/1.0", "tag");
+  FilterTestUtils.createFilter(folderFilters, "message-id", "8.unread", "read");
+  FilterTestUtils.createFilter(
+    folderFilters,
+    "message-id",
+    "8.unread",
+    "unread"
+  );
   folderFilters.loggingEnabled = true;
   folder.setFilterList(folderFilters);
 

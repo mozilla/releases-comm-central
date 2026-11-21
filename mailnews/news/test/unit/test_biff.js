@@ -1,8 +1,9 @@
 // This tests that we can execute biff properly, specifically that filters are
 // run during biff, producing correct counts.
 
-/* import-globals-from ../../../test/resources/filterTestUtils.js */
-load("../../../resources/filterTestUtils.js");
+const { FilterTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/FilterTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -25,7 +26,7 @@ function run_test() {
   // Create a filter to mark one message read.
   const filters = localserver.getFilterList();
   filters.loggingEnabled = true;
-  createFilter(filters, "subject", "Odd", "read");
+  FilterTestUtils.createFilter(filters, "subject", "Odd", "read");
   localserver.setFilterList(filters);
 
   // This is a bit hackish, but we don't have any really functional callbacks
