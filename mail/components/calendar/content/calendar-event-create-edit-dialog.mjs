@@ -55,7 +55,7 @@ import "./calendar-dialog-navigation-row.mjs"; // eslint-disable-line import-x/n
 import "./calendar-dialog-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-dialog-subview-manager.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-dialog-toggleable-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
-import "./calendar-dialog-subview.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-event-description-subview.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-event-category-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-event-video-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 

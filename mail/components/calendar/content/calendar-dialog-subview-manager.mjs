@@ -7,7 +7,7 @@
  * their own ID. The subviews should have the hidden attribute by default. It
  * will be toggled by this manager.
  * The size of the default subview dictates the viewport size of any other
- * subview.
+ * subview. Add `resize-to-content` to a subview to let it use its own size.
  *
  * @tagname calendar-dialog-subview-manager
  * @attribute {string} default-subview - ID of the subview that should be shown by
@@ -28,9 +28,8 @@ class CalendarDialogSubviewManager extends HTMLElement {
   }
 
   /**
-   * Switch the visible subview. When going from the default subview to another
-   * subview, the dimensions are locked. Once back on the default subview,
-   * dimensions are unlocked again.
+   * Shows the requested subview. Locks the dimensions unless the subview has
+   * `resize-to-content`. Returning to the default subview unlocks the dimensions.
    *
    * @param {string} id - ID of the subview to show.
    * @fires subviewchanged Event fired when the subview changes. The detail is
@@ -50,17 +49,19 @@ class CalendarDialogSubviewManager extends HTMLElement {
       const currentSubview = this.querySelector(
         `[id="${this.#currentSubview}"]`
       );
-      const goingToDefault = this.#isDefaultSubview(id);
-      // Fix the size for any non-default subview, while letting the default
-      // subview resize dynamically.
-      if (!this.style.height && !goingToDefault) {
-        const subviewSize = currentSubview.getBoundingClientRect();
-        this.style.height = `${subviewSize.height}px`;
-        this.style.width = `${subviewSize.width}px`;
-      } else if (goingToDefault) {
+      const resizeToContent =
+        this.#isDefaultSubview(id) || newView.hasAttribute("resize-to-content");
+
+      if (resizeToContent) {
         this.style.height = "";
         this.style.width = "";
+      } else if (!this.style.height) {
+        const subviewSize = currentSubview.getBoundingClientRect();
+
+        this.style.height = `${subviewSize.height}px`;
+        this.style.width = `${subviewSize.width}px`;
       }
+
       currentSubview.hidden = true;
     }
     newView.hidden = false;

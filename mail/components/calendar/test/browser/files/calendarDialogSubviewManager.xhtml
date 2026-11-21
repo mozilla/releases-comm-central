@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <title>Calendar Dialog Suview Manager</title>
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/calendar/calendarDialog.css"
+    />
     <script
       type="module"
       src="moz-src:///comm/mail/components/calendar/content/calendar-dialog-subview-manager.mjs"
@@ -18,6 +22,14 @@
       </div>
       <div id="calendarDialogAnotherSubview" hidden="hidden">
         <p>Just another subview to show.</p>
+      </div>
+      <div
+        id="calendarDialogContentSizedSubview"
+        style="height: 50vh"
+        resize-to-content=""
+        hidden="hidden"
+      >
+        <p>A subview that grows to fit its content.</p>
       </div>
     </calendar-dialog-subview-manager>
   </body>

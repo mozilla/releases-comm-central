@@ -130,6 +130,28 @@
         ></button>
       </footer>
     </div>
-    #include calendarEventCreateEditDescriptionSubviewTemplate.inc.xhtml
+    <calendar-event-description-subview
+      id="calendarEventCreateEditDescriptionSubview"
+      initial-focus-id="descriptionEditor"
+      resize-to-content=""
+      hidden="hidden"
+    >
+      <div class="calendar-description-content" slot="main">
+        <div class="calendar-description-heading">
+          <img class="icon-description" src="" alt="" />
+          <h2
+            id="descriptionHeading"
+            data-l10n-id="calendar-dialog-description-label"
+          ></h2>
+        </div>
+        <div
+          id="descriptionEditor"
+          class="calendar-description-editor"
+          role="region"
+          aria-labelledby="descriptionHeading"
+          tabindex="-1"
+        ></div>
+      </div>
+    </calendar-event-description-subview>
   </calendar-dialog-subview-manager>
 </html:template>

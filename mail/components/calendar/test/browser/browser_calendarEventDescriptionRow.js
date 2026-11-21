@@ -11,10 +11,26 @@ const { startAxeMutationObserver } = ChromeUtils.importESModule(
 let browser;
 let dialog;
 let nextEvent;
+let calendar;
+let axeWatcher;
+let tab;
 
 add_setup(async function () {
   const tabmail = document.getElementById("tabmail");
-  const tab = tabmail.openTab("contentTab", {
+  registerCleanupFunction(async () => {
+    await axeWatcher?.finish();
+    dialog?.close();
+
+    if (tab) {
+      tabmail.closeTab(tab);
+    }
+
+    if (calendar) {
+      CalendarTestUtils.removeCalendar(calendar);
+    }
+  });
+
+  tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/components/calendar/test/browser/files/calendarEventCreateEditDialog.xhtml",
   });
 
@@ -25,19 +41,14 @@ add_setup(async function () {
   dialog = browser.contentDocument.querySelector(
     '[is="calendar-event-create-edit-dialog"]'
   );
-  const calendar = createCalendar({ type: "memory" });
+  calendar = createCalendar({ type: "memory" });
   nextEvent = await createEvent({ calendar, name: "Next event" });
 
-  await startAxeMutationObserver(browser, {
+  axeWatcher = await startAxeMutationObserver(browser, {
     container: '[is="calendar-event-create-edit-dialog"]',
     message: "Description navigation should pass accessibility checks.",
     specialPowers: SpecialPowers,
-  });
-
-  registerCleanupFunction(() => {
-    dialog.close();
-    tabmail.closeTab(tab);
-    CalendarTestUtils.removeCalendar(calendar);
+    autoFinish: false,
   });
 });
 
@@ -53,6 +64,8 @@ add_task(async function test_descriptionNavigation() {
   const button = row.shadowRoot.querySelector("button");
   const label = row.querySelector('[slot="label"]');
   const back = subview.shadowRoot.querySelector("button");
+  const heading = subview.querySelector("h2");
+  const editorRegion = subview.querySelector(".calendar-description-editor");
 
   Assert.equal(
     row.localName,
@@ -105,13 +118,27 @@ add_task(async function test_descriptionNavigation() {
   Assert.equal(event.target, row, "The row should request subview navigation.");
   Assert.ok(BrowserTestUtils.isVisible(subview), "Description should open.");
   Assert.ok(
-    subview.contains(browser.contentDocument.activeElement),
-    "Opening Description should focus its initial control."
+    heading.textContent.trim(),
+    "The Description heading should be translated on first entry."
   );
-  Assert.deepEqual(
-    manager.getBoundingClientRect().toJSON(),
-    size,
-    "Opening Description should keep the manager's size and position."
+  Assert.ok(
+    back.textContent.trim(),
+    "The Back button should be translated on first entry."
+  );
+  Assert.equal(
+    browser.contentDocument.activeElement,
+    editorRegion,
+    "Opening Description should move focus to the editor region."
+  );
+  Assert.greater(
+    manager.getBoundingClientRect().height,
+    size.height,
+    "Opening Description should grow to fit the editor."
+  );
+  Assert.equal(
+    manager.getBoundingClientRect().width,
+    size.width,
+    "Opening Description should keep the dialog's width."
   );
 
   back.focus();
@@ -222,5 +249,101 @@ add_task(async function test_descriptionRowReconnect() {
     "Back should focus the reconnected Description row."
   );
 
+  dialog.close();
+});
+
+add_task(async function test_descriptionShellContainsSuppliedContent() {
+  const shown = await dialog.show();
+  Assert.ok(shown, "The create dialog should open.");
+
+  const manager = dialog.querySelector("calendar-dialog-subview-manager");
+  const row = dialog.querySelector("#descriptionNavigationRow");
+  const subview = dialog.querySelector(
+    "#calendarEventCreateEditDescriptionSubview"
+  );
+  const button = row.shadowRoot.querySelector("button");
+  const back = subview.shadowRoot.querySelector("button");
+  const heading = subview.querySelector("h2");
+  const editorRegion = subview.querySelector(".calendar-description-editor");
+
+  Assert.ok(heading, "Description should have a heading.");
+  Assert.ok(editorRegion, "Description should have an editor region.");
+  Assert.equal(
+    back.parentElement.localName,
+    "footer",
+    "Back should appear in the subview footer."
+  );
+  Assert.ok(
+    subview.querySelector(".calendar-description-heading .icon-description"),
+    "The Description heading should include its document icon."
+  );
+  Assert.equal(
+    editorRegion.getAttribute("aria-labelledby"),
+    heading.id,
+    "The content region should use the heading as its accessible name."
+  );
+
+  const mainSlot = subview.shadowRoot.querySelector('slot[name="main"]');
+
+  Assert.ok(mainSlot, "Description should retain the shared main slot.");
+  Assert.equal(
+    mainSlot.assignedElements()[0],
+    editorRegion.parentElement,
+    "The main slot should show the supplied Description content."
+  );
+
+  EventUtils.synthesizeMouseAtCenter(button, {}, browser.contentWindow);
+
+  Assert.equal(
+    browser.contentDocument.activeElement,
+    editorRegion,
+    "Opening Description should focus the editor container."
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(subview.shadowRoot.querySelector("footer")),
+    "The footer should keep Back available below the editor."
+  );
+  Assert.greater(
+    editorRegion.clientHeight,
+    0,
+    "The Description editor should have a visible content area."
+  );
+  const position = dialog.getBoundingClientRect().toJSON();
+  const suppliedContent = browser.contentDocument.createElement("p");
+
+  suppliedContent.textContent = "Supplied description. ".repeat(2000);
+  editorRegion.append(suppliedContent);
+
+  Assert.greater(
+    editorRegion.scrollHeight,
+    editorRegion.clientHeight,
+    "Long content should overflow the shell's scroll region."
+  );
+
+  editorRegion.scrollTop = editorRegion.scrollHeight;
+  Assert.greater(
+    editorRegion.scrollTop,
+    0,
+    "The shell should scroll to show long content."
+  );
+  Assert.deepEqual(
+    dialog.getBoundingClientRect().toJSON(),
+    position,
+    "Supplied content should retain the dialog's size and position."
+  );
+
+  back.scrollIntoView();
+  EventUtils.synthesizeMouseAtCenter(back, {}, browser.contentWindow);
+  Assert.ok(
+    manager.isDefaultSubviewVisible(),
+    "Back should return to the main view before reopening Description."
+  );
+
+  EventUtils.synthesizeMouseAtCenter(button, {}, browser.contentWindow);
+  Assert.equal(
+    suppliedContent.parentElement,
+    editorRegion,
+    "Reopening Description should retain the supplied editor content."
+  );
   dialog.close();
 });

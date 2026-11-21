@@ -28,7 +28,10 @@ add_setup(async () => {
 });
 
 add_task(async function test_elementInit() {
-  await TestUtils.waitForCondition(() => subviewManager.isConnected);
+  await TestUtils.waitForCondition(
+    () => subviewManager.isConnected,
+    "The subview manager should connect."
+  );
   Assert.equal(
     subviewManager.querySelectorAll(":scope > :not([hidden])").length,
     1,
@@ -36,7 +39,7 @@ add_task(async function test_elementInit() {
   );
   Assert.ok(
     subviewManager.isDefaultSubviewVisible(),
-    "Visible subview matches the default subview"
+    "Visible subview should match the default subview."
   );
   Assert.equal(
     subviewManager.querySelector(":scope > :not([hidden])").id,
@@ -69,7 +72,11 @@ add_task(async function test_showSubview() {
   );
   subviewManager.showSubview("calendarDialogMassiveSubview");
   const event = await subviewEventPromise;
-  Assert.equal(event.detail, "calendarDialogMassiveSubview");
+  Assert.equal(
+    event.detail,
+    "calendarDialogMassiveSubview",
+    "The event should identify the newly visible subview."
+  );
   Assert.ok(
     BrowserTestUtils.isVisible(
       subviewManager.querySelector("#calendarDialogMassiveSubview")
@@ -153,6 +160,49 @@ add_task(async function test_showSubview() {
     "Should still be displaying default subview"
   );
   subviewManager.removeEventListener("subviewchanged", failListener);
+});
+
+add_task(async function test_resizeToContent() {
+  subviewManager.showDefaultSubview();
+
+  const defaultHeight = subviewManager.getBoundingClientRect().height;
+
+  subviewManager.showSubview("calendarDialogMassiveSubview");
+  subviewManager.showSubview("calendarDialogContentSizedSubview");
+
+  Assert.equal(
+    subviewManager.style.height,
+    "",
+    "A content-sized subview should release the height lock."
+  );
+  Assert.equal(
+    subviewManager.style.width,
+    "",
+    "A content-sized subview should release the width lock."
+  );
+  Assert.greater(
+    subviewManager.getBoundingClientRect().height,
+    defaultHeight,
+    "A content-sized subview should grow beyond the default view."
+  );
+
+  const contentHeight = subviewManager.getBoundingClientRect().height;
+
+  subviewManager.showSubview("calendarDialogAnotherSubview");
+
+  Assert.equal(
+    subviewManager.getBoundingClientRect().height,
+    contentHeight,
+    "An ordinary subview should keep the preceding view's height."
+  );
+
+  subviewManager.showDefaultSubview();
+
+  Assert.equal(
+    subviewManager.getBoundingClientRect().height,
+    defaultHeight,
+    "Returning to the default view should restore its content height."
+  );
 });
 
 add_task(async function test_showSubview_error() {

@@ -11,7 +11,9 @@
  *   parent returns to its default subview.
  * @slot main - The main subview content.
  * @slot footer - Additional footer content.
- * @attribute initial-focus-id - The ID of the initial focus element.
+ * @attribute {string} initial-focus-id - The ID of the element to focus on entry.
+ * @attribute {boolean} [resize-to-content] - Lets the subview use its own size
+ *   when shown by the subview manager.
  * @tagname calendar-dialog-subview
  */
 export class CalendarDialogSubview extends HTMLElement {
@@ -23,14 +25,18 @@ export class CalendarDialogSubview extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: "open" });
     const template = document.getElementById("calendarDialogSubviewTemplate");
     const content = template.content.cloneNode(true);
-    content.querySelector("button").addEventListener("click", this);
+    const backButton = content.querySelector("button");
 
-    document.l10n.connectRoot(shadowRoot);
-    shadowRoot.append(content);
+    backButton.addEventListener("click", this);
+
     const style = document.createElement("link");
+
     style.rel = "stylesheet";
     style.href = "chrome://messenger/skin/calendar/calendarDialogSubview.css";
-    shadowRoot.append(style);
+
+    document.l10n.connectRoot(shadowRoot);
+    shadowRoot.append(style, content);
+
     window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
   }
 
@@ -39,16 +45,21 @@ export class CalendarDialogSubview extends HTMLElement {
   }
 
   /**
-   * Focuses the element with the ID from `initial-focus-id`. If absent, focuses
-   * the shadow `main` element instead.
+   * Focuses the element named by `initial-focus-id`. Checks the shadow root
+   * first, then the document. If neither has the element, focuses the main
+   * container.
    */
   focus() {
     const initialFocusId = this.getAttribute("initial-focus-id");
+
     if (initialFocusId) {
       const focusableElement =
+        this.shadowRoot.getElementById(initialFocusId) ??
         this.ownerDocument.getElementById(initialFocusId);
+
       if (focusableElement) {
         focusableElement.focus();
+
         return;
       }
     }

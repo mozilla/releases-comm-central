@@ -28,10 +28,6 @@
     ></script>
     <script
       type="module"
-      src="moz-src:///comm/mail/components/calendar/content/calendar-dialog-subview.mjs"
-    ></script>
-    <script
-      type="module"
       src="resource://testing-common/mail/ReduxTestUtils.mjs"
     ></script>
     <style>
@@ -88,7 +84,7 @@
   </head>
   <body>
     <template id="calendarDialogSubviewTemplate">
-      <main class="calendar-event-create-edit-dialog-body">
+      <main class="calendar-event-create-edit-dialog-body" tabindex="-1">
         <slot name="main"></slot>
       </main>
       <footer class="calendar-event-create-edit-dialog-footer">
@@ -329,18 +325,29 @@
             ></button>
           </footer>
         </div>
-        <calendar-dialog-subview
+        <calendar-event-description-subview
           id="calendarEventCreateEditDescriptionSubview"
-          initial-focus-id="description"
+          initial-focus-id="descriptionEditor"
+          resize-to-content=""
           hidden="hidden"
         >
-          <div slot="main">
-            <label>
-              <span data-l10n-id="calendar-dialog-description-label"></span>
-              <textarea id="description"></textarea>
-            </label>
+          <div class="calendar-description-content" slot="main">
+            <div class="calendar-description-heading">
+              <img class="icon-description" src="" alt="" />
+              <h2
+                id="descriptionHeading"
+                data-l10n-id="calendar-dialog-description-label"
+              ></h2>
+            </div>
+            <div
+              id="descriptionEditor"
+              class="calendar-description-editor"
+              role="region"
+              aria-labelledby="descriptionHeading"
+              tabindex="-1"
+            ></div>
           </div>
-        </calendar-dialog-subview>
+        </calendar-event-description-subview>
       </calendar-dialog-subview-manager>
     </template>
     <button id="menuCreate" type="button">New Event</button>

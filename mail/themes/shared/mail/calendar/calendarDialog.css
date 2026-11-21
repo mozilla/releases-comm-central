@@ -681,3 +681,43 @@ li[is="calendar-dialog-attachment"] {
     background-image: var(--icon-close);
   }
 }
+
+.calendar-description-content {
+  display: flex;
+  flex: 1 1 533px;
+  flex-direction: column;
+  min-block-size: 0;
+  gap: calc(4 * var(--space-step));
+}
+
+.calendar-description-heading {
+  display: flex;
+  flex: none;
+  align-items: center;
+  min-block-size: 26px;
+  gap: calc(3 * var(--space-step));
+
+  & img {
+    inline-size: 16px;
+    block-size: 16px;
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+  }
+
+  & h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: var(--font-weight-bold);
+    line-height: 16px;
+  }
+}
+
+.calendar-description-editor {
+  flex: 1;
+  min-block-size: 0;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--color-surface-deep);
+  border-radius: var(--space-step);
+}
