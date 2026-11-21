@@ -7,6 +7,7 @@ import {
   canMoveCalendarEvent,
   snapshotCalendar,
 } from "./calendar-event-calendar-options.mjs";
+import { descriptionFromSource } from "./calendar-event-description-format.mjs";
 import { getEventVideoUrl } from "./calendar-event-save-fields.mjs";
 
 const { cal } = ChromeUtils.importESModule(
@@ -44,6 +45,7 @@ const { cal } = ChromeUtils.importESModule(
  * @property {string} title - The event title.
  * @property {string[]} categories - A copy of all selected names, including
  *   names absent from category preferences.
+ * @property {string} description - The Description document as HTML.
  * @property {string} videoUrl - The URL of the video conference, or an empty
  *   string. A CONFERENCE property without FEATURE=VIDEO gives an empty string.
  */
@@ -134,6 +136,23 @@ function snapshotDateTime(dateTime) {
  *   source permission checks at the time of loading.
  */
 function snapshotEvent(identity, event) {
+  const alternateDescription = event.getPropertyParameter(
+    "DESCRIPTION",
+    "ALTREP"
+  );
+  const prefix = "data:text/html,";
+  let descriptionHTML = "";
+
+  if (alternateDescription?.startsWith(prefix)) {
+    try {
+      descriptionHTML = decodeURIComponent(
+        alternateDescription.slice(prefix.length)
+      );
+    } catch {
+      // Use DESCRIPTION when the ALTREP value cannot be decoded.
+    }
+  }
+
   return {
     identity: { ...identity },
     calendar: snapshotCalendar(event.calendar),
@@ -149,6 +168,10 @@ function snapshotEvent(identity, event) {
       end: snapshotDateTime(event.endDate),
       title: event.title,
       categories: [...event.getCategories()],
+      description: descriptionFromSource(
+        descriptionHTML,
+        event.descriptionText ?? ""
+      ),
       videoUrl: getEventVideoUrl(event),
     },
   };

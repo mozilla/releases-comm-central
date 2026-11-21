@@ -21,6 +21,7 @@ import {
 } from "./calendar-event-calendar-options.mjs";
 import {
   clearCalendarEventDraft,
+  createInitialCalendarEventDraft,
   initializeFields,
   resetForCreate,
   resetFromSource,
@@ -319,14 +320,13 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Starts create mode with no selected categories.
-   * Field code adds other defaults.
+   * Starts create mode with the initial draft values.
    */
   #initializeDraft() {
     this.dispatch(
       startCreateSession({ sessionKey: this.calendarEventSessionKey })
     );
-    this.resetCreateDraft({ categories: [] });
+    this.resetCreateDraft(createInitialCalendarEventDraft());
   }
 
   /**

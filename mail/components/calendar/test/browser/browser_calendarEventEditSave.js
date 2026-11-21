@@ -1376,3 +1376,42 @@ add_task(async function test_nativeCloseRequestsKeepReturnValues() {
     "An omitted result should preserve the prior return value."
   );
 });
+
+add_task(async function test_loadFormattedDescriptionBeforeShow() {
+  const event = await createEvent({
+    calendar,
+    descriptionHTML:
+      '<h2>Agenda</h2><p><em>First</em><span style="font-weight: bold">Bold</span><img src="bad"><a href="javascript:alert(1)">unsafe</a><a href="tel:+15551234">Call</a></p>',
+  });
+  const divergent = event.clone();
+  divergent.setProperty("DESCRIPTION", "Different plain fallback");
+  const stored = await calendar.modifyItem(divergent, event);
+
+  dialog.setCalendarEventRoute({ calendarId: calendar.id, eventId: stored.id });
+  const shown = await dialog.show();
+
+  Assert.ok(shown, "The stored event should open in edit mode.");
+  Assert.equal(
+    dialog.draft.description,
+    '<h2>Agenda</h2><p><em>First</em><span style="font-weight: bold">Bold</span><a>unsafe</a><a href="tel:+15551234">Call</a></p>',
+    "The ready draft should preserve inline formatting and safe links."
+  );
+  Assert.ok(
+    !dialog.isDirty,
+    "Loading the description should leave the draft clean."
+  );
+
+  const plain = await createEvent({
+    calendar,
+    description: "<b>literal</b>\nsecond line",
+  });
+  dialog.setCalendarEventRoute({ calendarId: calendar.id, eventId: plain.id });
+  const replaced = await dialog.show();
+  Assert.ok(replaced, "The plain event should open.");
+  Assert.equal(
+    dialog.draft.description,
+    "&lt;b&gt;literal&lt;/b&gt;<br>second line",
+    "A plain description should retain literal markup and line breaks."
+  );
+  dialog.close();
+});

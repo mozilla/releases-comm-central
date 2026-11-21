@@ -34,6 +34,7 @@ import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
  *   loaded from the event.
  * @property {"default"|"busy"|"free"} [availability] - Unsaved availability.
  * @property {string} [title] - The event title.
+ * @property {string} [description] - The Description document as HTML.
  * @property {string[]} [categories] - Selected category names in draft order.
  *   Names need not appear in category preferences.
  *   Category order does not count as a change.
@@ -104,6 +105,15 @@ function valuesAreEqual(first, second) {
 }
 
 /**
+ * Returns the starting field values for a new event.
+ *
+ * @returns {CalendarEventDraft} The initial create draft.
+ */
+export function createInitialCalendarEventDraft() {
+  return { categories: [], description: "" };
+}
+
+/**
  * Returns a copy of the loaded event values that the dialog can edit.
  * The source session keeps the event and occurrence IDs. The draft has its own
  * calendar ID so a selection can change the destination without changing the
@@ -118,6 +128,7 @@ export function cloneDraftFromSourceSnapshot(snapshot) {
   const {
     calendarId,
     categories = [],
+    description,
     end,
     start,
     title,
@@ -127,6 +138,7 @@ export function cloneDraftFromSourceSnapshot(snapshot) {
   return structuredClone({
     calendarId,
     categories,
+    ...(description !== undefined && { description }),
     end,
     start,
     title,

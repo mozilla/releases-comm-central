@@ -1153,10 +1153,11 @@ add_task(async function test_createAndEditDraftLifecycle() {
     {
       calendarId: calendar.id,
       categories: [],
+      description: "",
       enabledRows: { video: false },
       videoUrl: "",
     },
-    "Create mode should start with the selected calendar default"
+    "Create mode should start with the default draft values."
   );
 
   dialog.resetCreateDraft({
@@ -1169,7 +1170,7 @@ add_task(async function test_createAndEditDraftLifecycle() {
       calendarId: calendar.id,
       title: "Field provider title",
     },
-    "Create draft accepts values from field defaults"
+    "The create draft should accept field defaults."
   );
   Assert.ok(!dialog.isDirty, "Create defaults set the starting values");
 
@@ -1187,13 +1188,14 @@ add_task(async function test_createAndEditDraftLifecycle() {
     {
       calendarId: calendar.id,
       categories: source.snapshot.event.categories,
+      description: "",
       end: source.snapshot.event.end,
       start: source.snapshot.event.start,
       title: calendarEvent.title,
       videoUrl: source.snapshot.event.videoUrl,
       enabledRows: { video: false },
     },
-    "Edit mode should copy source data into a draft"
+    "Edit mode should copy source data into a draft."
   );
 
   Assert.ok(!dialog.isDirty, "A newly loaded edit draft is clean");
@@ -1231,10 +1233,11 @@ add_task(async function test_createAndEditDraftLifecycle() {
     {
       calendarId: calendar.id,
       categories: [],
+      description: "",
       enabledRows: { video: false },
       videoUrl: "",
     },
-    "Clearing an edit route should remove its draft and restore the calendar default"
+    "Clearing an edit route should restore the create defaults."
   );
 });
 
@@ -1997,6 +2000,7 @@ add_task(async function test_saveButtonDisabledValidityState() {
     {
       calendarId: calendar.id,
       categories: source.snapshot.event.categories,
+      description: "",
       end: source.snapshot.event.end,
       start: source.snapshot.event.start,
       title: calendarEvent.title,
