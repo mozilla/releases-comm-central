@@ -27,9 +27,7 @@ wget-en-US:
 	$(MAKE) -C comm/mail/locales wget-en-US
 
 ifdef MAKENSISU
-ifndef MOZ_USE_MAKEFILE_INSTALLER_BUILD
 INSTALLER_REPACK_DEPS = comm/mail/installer/windows/nsis-stage.stamp
-endif
 endif
 
 installers-%: $(INSTALLER_REPACK_DEPS)

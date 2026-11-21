@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if CONFIG["MAKENSISU"] and not CONFIG["MOZ_USE_MAKEFILE_INSTALLER_BUILD"]:
+if CONFIG["MAKENSISU"]:
     FINAL_TARGET = "dist/bin"
 
     nsis_config_dir = f"{OBJDIR}/instgen"
@@ -44,10 +44,7 @@ if CONFIG["MAKENSISU"] and not CONFIG["MOZ_USE_MAKEFILE_INSTALLER_BUILD"]:
         extra_deps=nsis_srcdir_files
         + nsis_topsrcdir_files
         + nsis_locale_files
-        + [
-            nsis_preprocess_locale,
-            "!/buildid.h",
-        ],
+        + [nsis_preprocess_locale],
         flags=[
             f"--config-dir={nsis_config_dir}",
             f"--spec-out={OBJDIR}/nsis-stage.json",
