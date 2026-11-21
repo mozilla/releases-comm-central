@@ -121,7 +121,8 @@ function getDeclaredColor(element, property, inspector) {
     }
 
     const substitutedValue =
-      inspector.getSubstitutedValue(declaration, element) ?? declaration;
+      inspector.getSubstitutedValue(property, declaration, element) ??
+      declaration;
 
     value = substitutedValue.trim().toLowerCase();
 
