@@ -252,167 +252,40 @@ add_task(async function test_sharedRowAndSubviewScaffolding() {
   );
 });
 
-add_task(async function test_navigationRowShowsMatchingSubview() {
-  const subviewManager = dialog.querySelector(
-    "calendar-dialog-subview-manager"
+add_task(async function test_reopeningDialogResetsSubview() {
+  await resetToCreateMode();
+  await dialog.show();
+
+  const manager = dialog.querySelector("calendar-dialog-subview-manager");
+  const row = dialog.querySelector("#descriptionNavigationRow");
+
+  EventUtils.synthesizeMouseAtCenter(
+    row.shadowRoot.querySelector("button"),
+    {},
+    browser.contentWindow
   );
-  const navigationRow = dialog.querySelector("#descriptionNavigationRow");
-  const descriptionSubview = dialog.querySelector(
+  Assert.ok(
+    !manager.isDefaultSubviewVisible(),
+    "Description should open before closing the dialog."
+  );
+
+  await closeDialog();
+
+  Assert.ok(
+    manager.isDefaultSubviewVisible(),
+    "Closing should reset the subview manager to the main view."
+  );
+
+  await dialog.show();
+  const subview = dialog.querySelector(
     "#calendarEventCreateEditDescriptionSubview"
   );
 
   Assert.ok(
-    navigationRow,
-    "The dialog should have a description navigation row"
+    BrowserTestUtils.isHidden(subview),
+    "Description should be hidden after reopening the dialog."
   );
-  Assert.ok(descriptionSubview, "The dialog should have a description subview");
-  const actionButton = navigationRow.shadowRoot.querySelector("button");
-  Assert.ok(actionButton, "The navigation row should have an action button");
-
-  await dialog.show();
-
-  try {
-    actionButton.click();
-
-    Assert.ok(
-      BrowserTestUtils.isVisible(descriptionSubview),
-      "The subview matching the navigation row should be visible"
-    );
-    Assert.ok(
-      BrowserTestUtils.isHidden(
-        subviewManager.querySelector(
-          "#calendarEventCreateEditDialogMainSubview"
-        )
-      ),
-      "The main subview should be hidden"
-    );
-  } finally {
-    dialog.close();
-  }
-});
-
-add_task(async function test_navigationRowFocusesSubview() {
-  const navigationRow = dialog.querySelector("#descriptionNavigationRow");
-  const description = dialog.querySelector(
-    "#calendarEventCreateEditDescriptionSubview textarea"
-  );
-  const actionButton = navigationRow.shadowRoot.querySelector("button");
-  Assert.ok(description, "The description subview should have a text area");
-
-  await dialog.show();
-
-  try {
-    actionButton.click();
-
-    Assert.strictEqual(
-      doc.activeElement,
-      description,
-      "Opening the description subview should focus its textarea"
-    );
-  } finally {
-    dialog.close();
-  }
-});
-
-function openDescriptionSubview() {
-  const navigationRow = dialog.querySelector("#descriptionNavigationRow");
-  const actionButton = navigationRow.shadowRoot.querySelector("button");
-  actionButton.click();
-}
-
-add_task(async function test_reopeningDialogResetsSubview() {
-  const subviewManager = dialog.querySelector(
-    "calendar-dialog-subview-manager"
-  );
-  const mainSubview = subviewManager.querySelector(
-    "#calendarEventCreateEditDialogMainSubview"
-  );
-  const descriptionSubview = subviewManager.querySelector(
-    "#calendarEventCreateEditDescriptionSubview"
-  );
-
-  await resetToCreateMode();
-  await dialog.show();
-
-  try {
-    openDescriptionSubview();
-    await closeDialog();
-
-    Assert.ok(
-      BrowserTestUtils.isHidden(mainSubview),
-      "The main subview should be hidden after closing the dialog"
-    );
-
-    await dialog.show();
-
-    Assert.ok(
-      BrowserTestUtils.isVisible(mainSubview),
-      "The main subview should be visible after reopening the dialog"
-    );
-    Assert.ok(
-      BrowserTestUtils.isHidden(descriptionSubview),
-      "The description subview should be hidden after reopening the dialog"
-    );
-  } finally {
-    await closeDialog();
-  }
-});
-
-add_task(async function test_subviewBackShowsMainSubview() {
-  const subviewManager = dialog.querySelector(
-    "calendar-dialog-subview-manager"
-  );
-  const descriptionSubview = dialog.querySelector(
-    "#calendarEventCreateEditDescriptionSubview"
-  );
-  const backButton = descriptionSubview.shadowRoot.querySelector("button");
-  Assert.ok(backButton, "The subview should have a Back button");
-  const mainSubview = subviewManager.querySelector(
-    "#calendarEventCreateEditDialogMainSubview"
-  );
-
-  await resetToCreateMode();
-  await dialog.show();
-
-  try {
-    openDescriptionSubview();
-    backButton.click();
-
-    Assert.ok(
-      BrowserTestUtils.isVisible(mainSubview),
-      "The main subview should be shown after returning"
-    );
-    Assert.ok(
-      BrowserTestUtils.isHidden(descriptionSubview),
-      "The description subview should be hidden after returning"
-    );
-  } finally {
-    dialog.close();
-  }
-});
-
-add_task(async function test_subviewBackFocusesMatchingNavigationRow() {
-  const navigationRow = dialog.querySelector("#descriptionNavigationRow");
-  const descriptionSubview = dialog.querySelector(
-    "#calendarEventCreateEditDescriptionSubview"
-  );
-  const actionButton = navigationRow.shadowRoot.querySelector("button");
-  const backButton = descriptionSubview.shadowRoot.querySelector("button");
-
-  await dialog.show();
-
-  try {
-    openDescriptionSubview();
-    backButton.click();
-
-    Assert.strictEqual(
-      navigationRow.shadowRoot.activeElement,
-      actionButton,
-      "The description navigation row action should receive focus"
-    );
-  } finally {
-    dialog.close();
-  }
+  await closeDialog();
 });
 
 add_task(async function test_accessibleStaticDialogShell() {

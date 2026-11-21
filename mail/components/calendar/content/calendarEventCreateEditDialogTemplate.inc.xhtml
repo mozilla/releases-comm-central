@@ -73,6 +73,17 @@
         >
           <div class="calendar-event-create-edit-dialog-rows">
             #include calendarEventVideoRowTemplate.inc.xhtml
+            <calendar-dialog-navigation-row
+              id="descriptionNavigationRow"
+              subview-id="calendarEventCreateEditDescriptionSubview"
+            >
+              <img class="icon-description" slot="icon" src="" alt="" />
+              <span
+                slot="label"
+                data-l10n-id="calendar-event-add-description"
+              ></span>
+              <img class="icon-nav-right" slot="action" src="" alt="" />
+            </calendar-dialog-navigation-row>
             #include calendarEventCategoryRowTemplate.inc.xhtml
           </div>
         </section>

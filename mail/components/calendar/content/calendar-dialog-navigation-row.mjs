@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A row with an action button that triggers subview navigation.
+ * Opens a subview when the row action button is activated.
  *
  * Template ID: #calendarDialogNavigationRowTemplate
  *
@@ -38,11 +38,12 @@ export class CalendarDialogNavigationRow extends HTMLElement {
     style.rel = "stylesheet";
     style.href =
       "chrome://messenger/skin/calendar/calendarDialogNavigationRow.css";
+
+    document.l10n.connectRoot(shadowRoot);
     shadowRoot.append(template.content.cloneNode(true), style);
 
     this.#actionButton = shadowRoot.querySelector("button");
     this.#actionButton.addEventListener("click", this);
-    document.l10n.connectRoot(shadowRoot);
   }
 
   disconnectedCallback() {

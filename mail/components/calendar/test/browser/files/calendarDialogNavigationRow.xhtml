@@ -16,8 +16,12 @@
     <template id="calendarDialogNavigationRowTemplate">
       <div class="row">
         <slot name="icon"></slot>
-        <slot name="label"></slot>
-        <button class="button button-flat expand-button icon-button action-button" type="button">
+        <slot id="rowLabel" name="label"></slot>
+        <button
+          class="button button-flat expand-button icon-button action-button"
+          type="button"
+          aria-labelledby="rowLabel"
+        >
           <slot name="action"></slot>
         </button>
         <slot name="content"></slot>

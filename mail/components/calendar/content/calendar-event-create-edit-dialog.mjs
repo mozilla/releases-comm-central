@@ -106,6 +106,20 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   #subviewManager;
 
   /**
+   * Resolves when the first pending control translations finish.
+   *
+   * @type {?Promise<Event>}
+   */
+  #initialLocalization = null;
+
+  /**
+   * Checks whether the route that enabled subview navigation is still current.
+   *
+   * @type {?function(): boolean}
+   */
+  #isNavigationCurrent = null;
+
+  /**
    * The latest "create" or "edit" mode and work state for this dialog.
    *
    * @type {?CalendarEventCreateEditSession}
@@ -353,6 +367,15 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
 
       window.MozXULElement?.insertFTLIfNeeded("messenger/calendarDialog.ftl");
       document.l10n.setAttributes(this, "calendar-event-create-edit-dialog");
+
+      // Wait for Fluent to name the controls before first showing the dialog.
+      if (document.hasPendingL10nMutations) {
+        this.#initialLocalization = new Promise(resolve =>
+          document.addEventListener("L10nMutationsFinished", resolve, {
+            once: true,
+          })
+        );
+      }
     }
 
     this.addEventListener("calendar-dialog-open-subview", this);
@@ -539,29 +562,53 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Shows the subview requested by `row`. Focuses the shown subview.
+   * Opens the requested subview and moves focus to it.
    *
    * @param {HTMLElement} row - The navigation row that requested the subview.
    */
   #openSubview(row) {
+    // The dialog can switch events while it is open. Ignore navigation until
+    // the current event draft is ready.
+    if (!this.#isNavigationCurrent?.()) {
+      return;
+    }
+
     const subviewId = row.getAttribute("subview-id");
+
     this.#subviewManager.showSubview(subviewId);
     this.#subviewManager.querySelector(`[id="${subviewId}"]`).focus();
   }
 
   /**
-   * Shows the main subview. Focuses the navigation row corresponding to the
-   * subview that was just closed.
+   * Shows the main subview and focuses the row that opened the subview.
    *
    * @param {HTMLElement} subview - The subview that requested to close.
    */
   #closeSubview(subview) {
-    const correspondingNavigationRow = this.querySelector(
-      `calendar-dialog-navigation-row[subview-id="${subview.id}"]`
-    );
+    const row = this.querySelector(`[subview-id="${subview.id}"]`);
 
     this.#subviewManager.showDefaultSubview();
-    correspondingNavigationRow?.focusRowAction();
+    row?.focusRowAction();
+  }
+
+  /**
+   * Returns to the main view when the route clears. Moves focus to the
+   * dialog if the active subview closes.
+   */
+  #resetSubviewNavigation() {
+    if (!this.#isNavigationCurrent) {
+      return;
+    }
+
+    const shouldRestoreFocus =
+      this.open && !this.#subviewManager.isDefaultSubviewVisible();
+
+    this.#isNavigationCurrent = null;
+    this.#subviewManager.showDefaultSubview();
+
+    if (shouldRestoreFocus) {
+      this.focus();
+    }
   }
 
   /**
@@ -1292,8 +1339,6 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       ? calendarDisplayBox
       : fallbackContainer;
 
-    this.#subviewManager.showDefaultSubview();
-
     const wasOpen = this.open;
     const shown = await super.show(event);
 
@@ -1308,11 +1353,11 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Starts create mode, waits for the category row, and adds the calendar default.
+   * Starts create mode, waits for localized controls, and adds the calendar default.
    *
    * @param {CalendarEventDialogRouteRequest} route - The route number and a
    *   check that this request still belongs to the dialog.
-   * @returns {Promise<void>} Resolves after translating category controls and
+   * @returns {Promise<void>} Resolves after the controls are translated and
    *   applying an available calendar default, or after an old route stops
    *   without applying its remaining results. Loading or translation errors
    *   reject it.
@@ -1326,8 +1371,11 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     this.#initializeDraft();
     this.#renderSave();
 
-    // Wait for translated controls before opening and measuring the dialog.
-    await this.#categoryRow.renderComplete;
+    // Wait for localized controls before opening and measuring the dialog.
+    await Promise.all([
+      this.#categoryRow.renderComplete,
+      this.#initialLocalization,
+    ]);
 
     // Apply the queued choice refresh before choosing this route's default.
     await Promise.resolve();
@@ -1336,6 +1384,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     if (!route.isCurrent()) {
       return;
     }
+
+    this.#isNavigationCurrent = route.isCurrent;
 
     const calendars = this.selectValue("calendarChoices");
     const windowDefault = cal.view.getCompositeCalendar(window).defaultCalendar;
@@ -1427,8 +1477,10 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       })
     );
 
-    // Wait for choices to render even when the event has no selected names.
-    await this.#categoryRow.renderComplete;
+    await Promise.all([
+      this.#categoryRow.renderComplete,
+      this.#initialLocalization,
+    ]);
 
     // If the route changed during translation, leave the new route alone.
     if (!isCurrent()) {
@@ -1438,8 +1490,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     // Localize the dialog before enabling Save.
     await document.l10n.translateFragment(this);
 
-    // Only enable Save if this route is still current after localization.
     if (isCurrent()) {
+      this.#isNavigationCurrent = isCurrent;
       this.#editReady = true;
       this.#renderSave();
     }
@@ -1451,6 +1503,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
    * session key stays fixed so the next route uses the same dialog entries.
    */
   onCalendarEventRouteCleared() {
+    this.#resetSubviewNavigation();
     this.#editReady = false;
 
     this.dispatch(

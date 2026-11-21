@@ -103,10 +103,11 @@
     <template id="calendarDialogNavigationRowTemplate">
       <div class="row">
         <slot name="icon"></slot>
-        <slot name="label"></slot>
+        <slot id="rowLabel" name="label"></slot>
         <button
           class="button button-flat icon-button icon-only action-button"
           type="button"
+          aria-labelledby="rowLabel"
         >
           <slot name="action"></slot>
         </button>
@@ -223,23 +224,12 @@
                   id="descriptionNavigationRow"
                   subview-id="calendarEventCreateEditDescriptionSubview"
                 >
-                  <img
-                    slot="icon"
-                    class="icon-description"
-                    src=""
-                    data-l10n-id="calendar-dialog-description-row-icon"
-                  />
+                  <img class="icon-description" slot="icon" src="" alt="" />
                   <span
                     slot="label"
-                    data-l10n-id="calendar-dialog-description-label"
+                    data-l10n-id="calendar-event-add-description"
                   ></span>
-                  <img
-                    slot="action"
-                    class="icon-nav-right"
-                    src=""
-                    data-l10n-id="calendar-dialog-description-expand-icon"
-                  />
-                  <span slot="content"></span>
+                  <img class="icon-nav-right" slot="action" src="" alt="" />
                 </calendar-dialog-navigation-row>
                 <calendar-event-category-row
                   class="calendar-event-category-row labelless full-width"

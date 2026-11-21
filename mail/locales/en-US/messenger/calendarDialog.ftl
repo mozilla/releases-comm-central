@@ -298,3 +298,7 @@ calendar-event-video-url =
 calendar-event-video-url-clear =
   .aria-label = Clear video URL
   .title = Clear video URL
+
+## Description controls in the event create/edit dialog.
+
+calendar-event-add-description = Add description

@@ -8,10 +8,11 @@
 >
   <div class="row">
     <slot name="icon"></slot>
-    <slot name="label"></slot>
+    <slot id="rowLabel" name="label"></slot>
     <button
       class="button button-flat icon-button icon-only action-button"
       type="button"
+      aria-labelledby="rowLabel"
     >
       <slot name="action"></slot>
     </button>
