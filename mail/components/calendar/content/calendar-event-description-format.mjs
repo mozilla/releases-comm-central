@@ -80,3 +80,36 @@ export function descriptionFromSource(html, text) {
 
   return doc.body.innerHTML.replace(/\r?\n/g, "<br>");
 }
+
+/**
+ * Stores the description as plain text when the markup can be dropped. If
+ * formatting must be kept, the HTML setter also writes the plain fallback.
+ *
+ * @param {calIEvent} event - The event being saved.
+ * @param {string} [html=""] - The final editor document.
+ */
+export function applyDescription(event, html = "") {
+  const doc = new DOMParser().parseFromString("", "text/html");
+  const compose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
+    Ci.nsIMsgCompose
+  );
+
+  doc.body.append(parseDescriptionHTML(html, doc));
+
+  if (compose.nodeTreeConvertible(doc.body) != Ci.nsIMsgCompConvertible.Plain) {
+    event.descriptionHTML = doc.body.innerHTML;
+
+    return;
+  }
+
+  const flags =
+    Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
+    Ci.nsIDocumentEncoder.OutputLFLineBreak |
+    Ci.nsIDocumentEncoder.OutputPreformatted;
+
+  event.descriptionText = parser.convertToPlainText(
+    doc.body.innerHTML,
+    flags,
+    0
+  );
+}

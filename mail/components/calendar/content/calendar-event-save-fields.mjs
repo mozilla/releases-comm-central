@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { applyDescription } from "./calendar-event-description-format.mjs";
+
 const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
 );
@@ -152,7 +154,7 @@ export function prepareCalendarEventSave(draft, fields) {
 }
 
 /**
- * Copies changed title and date values into a mutable event.
+ * Copies changed title, description, and dates into a mutable event.
  * `baseline` contains the starting draft values. Comparing with that baseline
  * identifies user changes, even if another editor has since saved the event.
  * Unchanged values retain the event's latest saved data.
@@ -172,6 +174,10 @@ export function applyCalendarEventDraft(event, draft, baseline, occurrence) {
   // did not change must preserve updates from earlier saves.
   if (draft.title !== baseline.title) {
     event.title = draft.title;
+  }
+
+  if (draft.description !== baseline.description) {
+    applyDescription(event, draft.description);
   }
 
   for (const [key, property] of [

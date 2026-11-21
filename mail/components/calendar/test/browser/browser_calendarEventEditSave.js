@@ -27,6 +27,7 @@ let doc;
 let calendar;
 let otherCalendar;
 let transaction;
+let readDialog;
 
 add_setup(async function () {
   const initialView = window.gLastShownCalendarView.get();
@@ -79,6 +80,7 @@ add_setup(async function () {
   });
 
   registerCleanupFunction(async () => {
+    readDialog?.close();
     dialog.close();
     tabmail.closeTab(tab);
     CalendarTestUtils.removeCalendar(calendar);
@@ -1414,4 +1416,63 @@ add_task(async function test_loadFormattedDescriptionBeforeShow() {
     "A plain description should retain literal markup and line breaks."
   );
   dialog.close();
+});
+
+add_task(async function test_savedDescriptionInReadDialog() {
+  const event = await createEvent({ calendar, description: "Old description" });
+  await edit(event);
+
+  dialog.updateDraftSection("description", {
+    description: "<div><b>Saved agenda</b></div>",
+  });
+
+  const closed = BrowserTestUtils.waitForEvent(dialog, "close");
+  const result = await dialog.save();
+  Assert.equal(
+    result.status,
+    "success",
+    "Edit Save should write the description."
+  );
+  await closed;
+
+  const saved = await calendar.getItem(event.id);
+  Assert.ok(saved, "Save should keep the edited event in its calendar.");
+
+  window.openEventDialogForViewing(saved);
+  await waitForCalendarReady();
+
+  readDialog = document.querySelector('[is="calendar-dialog"]');
+  if (!readDialog.open) {
+    await BrowserTestUtils.waitForAttribute("open", readDialog);
+  }
+
+  const summary = readDialog.querySelector(
+    "#expandingDescription .plain-text-description"
+  );
+
+  Assert.equal(
+    summary.textContent,
+    "Saved agenda",
+    "Read should display the plain fallback."
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    readDialog.querySelector("#expandDescription"),
+    {},
+    window
+  );
+
+  const rich = readDialog.querySelector(
+    "#expandedDescription .rich-description"
+  );
+
+  await TestUtils.waitForCondition(
+    () =>
+      rich.contentDocument?.querySelector("b")?.textContent == "Saved agenda",
+    "The expanded Read dialog should display the saved bold text."
+  );
+
+  readDialog.close();
+  readDialog = null;
+  await calendar.deleteItem(saved);
 });

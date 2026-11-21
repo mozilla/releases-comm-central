@@ -1255,3 +1255,50 @@ add_task(async function test_calendarFieldValidationIsNotOverwritten() {
     "Save should retain the calendar field validation error."
   );
 });
+
+add_task(async function test_descriptionAtCreateTransaction() {
+  startCreate({
+    description: '<div><b>Meeting</b><br>Notes<img src="bad"></div>',
+  });
+  let created;
+  const result = await save({
+    transact(event) {
+      created = event;
+    },
+  });
+
+  Assert.equal(result.status, "success", "Create Save should succeed.");
+  Assert.ok(created, "The transaction should receive an event.");
+  Assert.equal(
+    created.descriptionHTML,
+    "<div><b>Meeting</b><br>Notes</div>",
+    "The transaction should receive the supported HTML."
+  );
+  Assert.equal(
+    created.descriptionText,
+    "Meeting\nNotes",
+    "The event should store the plain fallback with line breaks."
+  );
+
+  startCreate({ description: "<div>Plain &amp; literal</div>" });
+  const plain = await save({
+    transact(event) {
+      created = event;
+    },
+  });
+
+  Assert.equal(
+    plain.status,
+    "success",
+    "Plain Description Save should succeed."
+  );
+  Assert.equal(
+    created.descriptionText,
+    "Plain & literal",
+    "The event should store the literal plain text."
+  );
+  Assert.ok(
+    !created.getPropertyParameter("DESCRIPTION", "ALTREP"),
+    "Plain text should need no alternate property."
+  );
+});

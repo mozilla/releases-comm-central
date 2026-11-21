@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { canCreateCalendarEvent } from "./calendar-event-calendar-options.mjs";
+import { applyDescription } from "./calendar-event-description-format.mjs";
 import { prepareCalendarEventSave } from "./calendar-event-save-fields.mjs";
 import {
   selectCalendarEventDraftState,
@@ -117,11 +118,19 @@ function validateCalendar(store, sessionKey, calendar, validation) {
  *   enabled: boolean,
  *   values: CalendarEventDraft
  * }>} preparedSections - Copied field values and enabled states.
+ * @param {string} description - The final description HTML.
  * @returns {calIEvent} The new event with enabled field values.
  */
-function createEventFromFields(calendar, fields, preparedSections) {
+function createEventFromFields(
+  calendar,
+  fields,
+  preparedSections,
+  description
+) {
   const newEvent = new lazy.CalEvent();
+
   newEvent.calendar = calendar;
+
   // Field helpers write copied values from enabled fields to the new event.
   // Disabled fields add no values to the event. The draft keeps all field
   // values for retry.
@@ -129,6 +138,10 @@ function createEventFromFields(calendar, fields, preparedSections) {
     if (preparedSections[section].enabled) {
       field.apply(newEvent, preparedSections[section].values);
     }
+  }
+
+  if (description) {
+    applyDescription(newEvent, description);
   }
 
   return newEvent;
@@ -246,7 +259,12 @@ export async function saveCalendarEventCreate({
       return { status: "invalid" };
     }
 
-    const event = createEventFromFields(calendar, fields, preparedSections);
+    const event = createEventFromFields(
+      calendar,
+      fields,
+      preparedSections,
+      draft.description ?? ""
+    );
 
     if (!isCurrent()) {
       store.dispatch(operationReleased(operation));

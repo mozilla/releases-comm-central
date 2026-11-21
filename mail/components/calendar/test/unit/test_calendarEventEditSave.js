@@ -2706,3 +2706,74 @@ add_task(async function test_failedMovePreservesPendingDestinationEdits() {
   }
   restore();
 });
+
+add_task(async function test_descriptionEditPreservesLatestUnlessChanged() {
+  let event = await createEvent();
+  await startEdit(event);
+
+  const newer = event.clone();
+  newer.descriptionHTML = "<p><b>Newer description</b></p>";
+  event = await calendar.modifyItem(newer, event);
+  changeTitle("Edited title");
+  const unchanged = await save();
+
+  Assert.equal(unchanged.status, "success", "Saving the title should succeed.");
+  event = await calendar.getItem(event.id);
+  Assert.equal(
+    event.descriptionHTML,
+    "<p><b>Newer description</b></p>",
+    "A title change should retain the latest saved description."
+  );
+
+  await startEdit(event);
+  store.dispatch(
+    updateSection({
+      sessionKey,
+      section: "description",
+      patch: { description: "<div><u>Edited description</u></div>" },
+    })
+  );
+  const changed = await save();
+
+  Assert.equal(
+    changed.status,
+    "success",
+    "Saving the description should succeed."
+  );
+  event = await calendar.getItem(event.id);
+  Assert.equal(
+    event.descriptionText,
+    "Edited description",
+    "Edit Save should store plain text."
+  );
+  Assert.equal(
+    event.descriptionHTML,
+    "<div><u>Edited description</u></div>",
+    "Edit Save should store the supported format."
+  );
+
+  await startEdit(event);
+  store.dispatch(
+    updateSection({
+      sessionKey,
+      section: "description",
+      patch: { description: "" },
+    })
+  );
+  const cleared = await save();
+
+  Assert.equal(
+    cleared.status,
+    "success",
+    "Clearing the description should succeed."
+  );
+  event = await calendar.getItem(event.id);
+  Assert.ok(
+    !event.descriptionText,
+    "Clearing the description should remove the plain text."
+  );
+  Assert.ok(
+    !event.getPropertyParameter("DESCRIPTION", "ALTREP"),
+    "Clearing the description should remove the HTML."
+  );
+});
