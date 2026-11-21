@@ -139,8 +139,7 @@ async function show(event = null) {
   Assert.ok(await dialog.show(), "The category Save dialog should open.");
 
   if (!event) {
-    dialog.resetCreateDraft({
-      calendarId: calendar.id,
+    resetCalendarEventCreateDraft(dialog, calendar, {
       categories: [],
       title: "Created with categories",
       start: {

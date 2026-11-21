@@ -229,6 +229,38 @@ async function createEvent({
 }
 
 /**
+ * Resets a create draft with the test's field values.
+ * The default event starts at 13:00 today and lasts one hour.
+ *
+ * @param {CalendarEventCreateEditDialog} dialog - The open create dialog.
+ * @param {calICalendar} calendar - The default calendar for the draft.
+ * @param {CalendarEventDraft} overrides - Values that replace the defaults.
+ */
+function resetCalendarEventCreateDraft(dialog, calendar, overrides) {
+  const start = cal.dtz.now();
+
+  start.hour = 13;
+  start.minute = start.second = 0;
+
+  const end = start.clone();
+
+  end.addDuration(cal.createDuration("PT1H"));
+
+  const snapshot = date => ({
+    icalString: date.icalString,
+    timezoneId: date.timezone.tzid,
+    isDate: date.isDate,
+  });
+
+  dialog.resetCreateDraft({
+    calendarId: calendar.id,
+    start: snapshot(start),
+    end: snapshot(end),
+    ...overrides,
+  });
+}
+
+/**
  * Opens an event on the calendar.
  *
  * @param {HTMLElement} eventBox - Event box element to interact with.

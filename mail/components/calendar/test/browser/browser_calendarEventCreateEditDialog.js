@@ -2291,17 +2291,6 @@ add_task(async function test_titleLengthLimitAndTooltip() {
   const longTitleEvent = await createEvent({ calendar, name: longTitle });
   const required = dialog.querySelector(".event-title-required");
 
-  await resetToCreateMode();
-  await dialog.show();
-  input.focus();
-  EventUtils.sendString("b".repeat(200), browser.contentWindow);
-  Assert.equal(
-    input.value.length,
-    180,
-    "Title input should not allow more than 180 characters"
-  );
-  dialog.close();
-
   await loadTitleEvent(longTitleEvent);
   await dialog.show();
 

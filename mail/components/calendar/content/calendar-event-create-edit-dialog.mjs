@@ -506,35 +506,42 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Updates title validity for empty text, or when the user has edited a
-   * 'too long' title and it's still too long. `input.validity.tooLong` remains
-   * false when `input.value` is loaded. This correctly keeps an unchanged
-   * loaded title over 180 characters valid.
+   * Returns title validity from the text and the input's native length check.
+   * A loaded title can exceed 180 characters until the user edits it.
+   *
+   * @param {string} value - The title text.
+   * @param {boolean} isTooLong - The title input's native length result.
+   * @returns {CalendarEventDraftSectionValidity} The title validation result.
+   */
+  #getTitleValidity(value, isTooLong) {
+    if (!value.trim()) {
+      return {
+        valid: false,
+        messageId: "calendar-event-title-required",
+      };
+    }
+
+    if (isTooLong) {
+      return {
+        valid: false,
+        messageId: "calendar-event-title-too-long",
+      };
+    }
+
+    return { valid: true };
+  }
+
+  /**
+   * Stores the title input's validation result.
    *
    * @param {HTMLInputElement} input - The title input.
    */
   #setTitleValidity(input) {
-    let validity;
-
-    if (!input.value.trim()) {
-      validity = {
-        valid: false,
-        messageId: "calendar-event-title-required",
-      };
-    } else if (input.validity.tooLong) {
-      validity = {
-        valid: false,
-        messageId: "calendar-event-title-too-long",
-      };
-    } else {
-      validity = { valid: true };
-    }
-
     this.dispatch(
       setSectionValidity({
         section: "title",
         sessionKey: this.calendarEventSessionKey,
-        validity,
+        validity: this.#getTitleValidity(input.value, input.validity.tooLong),
       })
     );
   }
@@ -1056,10 +1063,24 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
         });
       };
 
+      // Read the title length result before Save notifies store listeners.
+      const isTitleTooLong =
+        this.querySelector(".event-title-input").validity.tooLong;
+
       return saveCalendarEventCreate({
         store,
         sessionKey: this.calendarEventSessionKey,
-        fields: this.saveFields,
+        fields: {
+          title: {
+            keys: ["title"],
+            validate: ({ title = "" }) =>
+              this.#getTitleValidity(title, isTitleTooLong),
+            apply: (event, { title }) => {
+              event.title = title;
+            },
+          },
+          ...this.saveFields,
+        },
         transact,
       });
     }
