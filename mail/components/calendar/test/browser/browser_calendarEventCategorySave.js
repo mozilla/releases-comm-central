@@ -71,7 +71,7 @@ add_setup(async function () {
   browser.contentWindow.doTransaction = (...args) => transaction(...args);
 
   // The fixture has no title or date controls. Supply their Save helpers and
-  // keep the production category helper.
+  // keep the category Save helper.
   Object.assign(dialog.saveFields, {
     title: {
       keys: ["title"],
@@ -156,39 +156,52 @@ async function show(event = null) {
 }
 
 /**
- * Selects a category with Space, waits for its chip, then closes the popup
- * with Escape. The chip is the label shown for a selected category.
+ * Selects a category with the keyboard and waits for its chip.
  *
- * @param {string} name - An available category name that is not yet selected.
- * @returns {Promise<void>} Resolves after the chip appears and the category
- *   choices close.
+ * @param {string} name - The category to select.
+ * @param {object} [options] - How to select the category.
+ * @param {boolean} [options.typeName=false] - Enter the name in the text field.
+ * @returns {Promise<void>} Resolves after the menu closes and the chip appears.
  */
-async function chooseCategory(name) {
+async function chooseCategory(name, { typeName = false } = {}) {
   const add = dialog.querySelector(".calendar-event-add-category");
+  const menu = dialog.querySelector(".calendar-event-category-choices");
+  const shown = BrowserTestUtils.waitForPopupEvent(menu, "shown");
 
-  Assert.ok(add, "The category row should contain its Add button.");
+  add.focus();
+  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
+  await shown;
 
-  add.click();
-  const choice = [
-    ...dialog.querySelectorAll(".calendar-event-category-choices input"),
-  ].find(input => input.dataset.category == name);
+  const hidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
 
-  Assert.ok(choice, "The category popup should contain the requested choice.");
+  if (typeName) {
+    EventUtils.sendString(name, browser.contentWindow);
+  } else {
+    const items = [...menu.querySelectorAll("menuitem")];
+    const itemIndex = items.findIndex(item => item.dataset.category == name);
 
-  const selected = BrowserTestUtils.waitForMutationCondition(
+    Assert.greaterOrEqual(
+      itemIndex,
+      0,
+      "The category menu should contain the requested choice."
+    );
+
+    for (let index = 0; index <= itemIndex; index++) {
+      EventUtils.synthesizeKey("KEY_ArrowDown", {}, browser.contentWindow);
+    }
+  }
+
+  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
+  await hidden;
+
+  await BrowserTestUtils.waitForMutationCondition(
     dialog,
     { childList: true, subtree: true },
     () =>
-      [...dialog.querySelectorAll(".calendar-event-category-label")].some(
-        label => label.textContent == name
+      dialog.querySelector(
+        `.calendar-event-category-chip[data-category="${name}"]`
       )
   );
-
-  choice.focus();
-  EventUtils.synthesizeKey(" ", {}, browser.contentWindow);
-  await selected;
-
-  EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
 }
 
 /**
@@ -223,7 +236,7 @@ async function keyboardSave() {
 add_task(async function test_keyboardSaveCreatesAndEditsCategories() {
   await show();
   await chooseCategory("Work");
-  await chooseCategory("Team");
+  await chooseCategory("Workshop", { typeName: true });
   await keyboardSave();
   const [original] = await calendar.getItemsAsArray(
     Ci.calICalendar.ITEM_FILTER_TYPE_EVENT,
@@ -238,8 +251,8 @@ add_task(async function test_keyboardSaveCreatesAndEditsCategories() {
   );
   Assert.deepEqual(
     original.getCategories(),
-    ["Work", "Team"],
-    "Create Save should persist the selected categories."
+    ["Work", "Workshop"],
+    "Create Save should persist the chosen and typed categories."
   );
 
   await show(original);
@@ -247,7 +260,7 @@ add_task(async function test_keyboardSaveCreatesAndEditsCategories() {
 
   Assert.deepEqual(
     (await calendar.getItem(original.id)).getCategories(),
-    ["Work", "Team"],
+    ["Work", "Workshop"],
     "Category controls should change only the draft before Save."
   );
 
@@ -255,7 +268,7 @@ add_task(async function test_keyboardSaveCreatesAndEditsCategories() {
 
   Assert.deepEqual(
     (await calendar.getItem(original.id)).getCategories(),
-    ["Work", "Team", "Personal"],
+    ["Work", "Workshop", "Personal"],
     "Edit Save should persist the latest category draft."
   );
 });

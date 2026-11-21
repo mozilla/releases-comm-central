@@ -9,7 +9,6 @@ const { startAxeMutationObserver } = ChromeUtils.importESModule(
 );
 
 let browser;
-let redux;
 let doc;
 let dialog;
 let row;
@@ -30,11 +29,10 @@ add_setup(async function () {
   );
   await SimpleTest.promiseFocus(browser);
 
-  redux = browser.contentWindow.ReduxTestUtils;
   doc = browser.contentWindow.document;
   dialog = doc.querySelector('[is="calendar-event-create-edit-dialog"]');
   row = dialog.querySelector(".calendar-event-category-row");
-  // Keep another field below the category row to check that lists stay in flow.
+  // Keep another field below the category row to check that the pills stay in flow.
   followingRow = doc.createElement("div");
   followingRow.textContent = "Other event fields";
   followingRow.style.blockSize = "80px";
@@ -60,65 +58,16 @@ add_setup(async function () {
 });
 
 /**
- * Sets draft categories and waits for the translated controls.
- * If `remaining` has names, opens More when some names do not fit the summary.
+ * Sets draft categories and waits for the pills and dialog layout.
  *
  * @param {string[]} names - The selected names.
- * @param {string[]} [remaining=[]] - Additional selected names.
- * @returns {Promise<void>} Resolves after rendering and layout.
+ * @returns {Promise<void>} Resolves after rendering and positioning the dialog.
  */
-async function showSamples(names, remaining = []) {
-  const choices = row.querySelector(".calendar-event-category-choices");
-  const overflow = row.querySelector(".calendar-event-category-overflow");
-
-  if (!choices.hidden) {
-    row.querySelector(".calendar-event-add-category").click();
-  }
-
-  if (!overflow.hidden) {
-    row.querySelector(".calendar-event-more-categories").click();
-  }
-
-  dialog.updateDraftSection("categories", {
-    categories: [...names, ...remaining],
-  });
+async function showSamples(names) {
+  dialog.updateDraftSection("categories", { categories: names });
   await row.renderComplete;
 
-  const more = row.querySelector(".calendar-event-more-categories");
-  const body = dialog.querySelector(".calendar-event-create-edit-dialog-body");
-
-  if (remaining.length && !more.hidden) {
-    more.click();
-  }
-
-  body.scrollTop = 0;
-
-  await waitForDialogWithinContainer();
-}
-
-/**
- * Supplies sample category options and opens Add category.
- *
- * @param {string[]} names - The sample category names.
- * @returns {Promise<void>} Resolves after rendering and layout.
- */
-async function showChoices(names) {
-  const choices = row.querySelector(".calendar-event-category-choices");
-
-  await redux.dispatchAction(
-    "moz-src:///comm/mail/components/calendar/content/state/calendarEventCategorySlice.mjs",
-    "setCategoryOptions",
-    {
-      sessionKey: dialog.calendarEventSessionKey,
-      options: names.map(name => ({ name, color: "", textColor: "" })),
-    }
-  );
-  await row.renderComplete;
-
-  if (choices.hidden) {
-    row.querySelector(".calendar-event-add-category").click();
-  }
-
+  dialog.querySelector(".calendar-event-create-edit-dialog-body").scrollTop = 0;
   await waitForDialogWithinContainer();
 }
 
@@ -187,21 +136,16 @@ add_task(async function test_emptyMarkupAndLabels() {
     0,
     "The category row should start without sample categories"
   );
-  Assert.ok(
-    BrowserTestUtils.isHidden(categoryChoices),
-    "Choices should start hidden"
+  Assert.equal(
+    categoryChoices.localName,
+    "menupopup",
+    "Add category should have a native popup menu"
   );
-  Assert.ok(
-    BrowserTestUtils.isHidden(
-      row.querySelector(".calendar-event-more-categories")
-    ),
-    "The overflow control should start hidden"
-  );
-  Assert.ok(
-    BrowserTestUtils.isHidden(
-      row.querySelector(".calendar-event-category-overflow")
-    ),
-    "Remaining categories should start hidden"
+  Assert.equal(categoryChoices.state, "closed", "The menu should start closed");
+  Assert.equal(
+    addCategoryButton.getAttribute("aria-controls"),
+    categoryChoices.id,
+    "Add category should identify the menu it opens"
   );
 });
 
@@ -315,95 +259,55 @@ add_task(async function test_chipsAndKeyboardControls() {
   );
 });
 
-add_task(async function test_overflowLabels() {
-  for (const remaining of [["Work"], ["Work", "Personal"]]) {
-    await showSamples(["A", "B", "C"], remaining);
+add_task(async function test_longLabelsWrapWithoutHidingPills() {
+  const longNames = ["A", "B", "C", "D"].map(letter => letter.repeat(100));
 
-    const more = row.querySelector(".calendar-event-more-categories");
-    const count = remaining.length;
+  await showSamples(longNames);
 
-    Assert.deepEqual(
-      doc.l10n.getAttributes(more),
-      { id: "calendar-event-more-categories", args: { count } },
-      "The overflow control should use the sample count for localization"
-    );
-  }
+  const list = row.querySelector(".calendar-event-category-list");
+  const listRect = list.getBoundingClientRect();
+  const chips = [...list.children];
 
-  await showSamples([]);
-});
+  Assert.equal(
+    chips.length,
+    longNames.length,
+    "The list should contain every selected category"
+  );
+  Assert.greater(
+    chips.at(-1).getBoundingClientRect().top,
+    chips[0].getBoundingClientRect().top,
+    "The selected pills should wrap onto more than one row"
+  );
 
-add_task(async function test_longLabelsRemainReadable() {
-  const longName = "A very long category label ".repeat(20);
-
-  await showSamples([]);
-
-  let previousHeight = dialog.getBoundingClientRect().height;
-
-  for (const count of [2, 3]) {
-    const names = Array(count).fill(longName);
-
-    // Open More for the third long name because only two fit in the summary.
-    await showSamples(names.slice(0, 2), names.slice(2));
-
-    const height = dialog.getBoundingClientRect().height;
-
-    Assert.greater(
-      height,
-      previousHeight,
-      "The dialog should grow when another row of category content appears"
-    );
-    previousHeight = height;
-
-    const list = row.querySelector(".calendar-event-category-list");
-    const listRect = list.getBoundingClientRect();
-
-    for (const chip of list.children) {
-      const label = chip.querySelector(".calendar-event-category-label");
-      const remove = chip.querySelector("button");
-      const style = browser.contentWindow.getComputedStyle(label);
-
-      Assert.equal(
-        style.whiteSpace,
-        "nowrap",
-        "Chip text should stay on one line"
-      );
-      Assert.equal(
-        style.textOverflow,
-        "ellipsis",
-        "Long labels should end with an ellipsis"
-      );
-      Assert.greater(
-        label.scrollWidth,
-        label.clientWidth,
-        "The long label should be clipped"
-      );
-      Assert.lessOrEqual(
-        remove.getBoundingClientRect().right,
-        listRect.right,
-        "The remove button should stay inside the summary"
-      );
-    }
-  }
-
-  await showSamples(["Work", "Personal", longName]);
-
-  for (const chip of row.querySelector(".calendar-event-category-list")
-    .children) {
+  for (const chip of chips) {
     const label = chip.querySelector(".calendar-event-category-label");
-
-    if (label.textContent == longName) {
-      continue;
-    }
+    const remove = chip.querySelector(".calendar-event-remove-category");
+    const style = browser.contentWindow.getComputedStyle(label);
 
     Assert.equal(
+      style.whiteSpace,
+      "nowrap",
+      "Pill text should stay on one line"
+    );
+    Assert.equal(
+      style.textOverflow,
+      "ellipsis",
+      "Long labels should end with an ellipsis"
+    );
+    Assert.greater(
       label.scrollWidth,
       label.clientWidth,
-      "Short labels should remain readable beside a long category"
+      "The long label should be clipped"
+    );
+    Assert.lessOrEqual(
+      remove.getBoundingClientRect().right,
+      listRect.right,
+      "The Remove button should stay inside the category list"
     );
   }
 });
 
-add_task(async function test_remainingCategoriesGrowAndScrollDialog() {
+add_task(async function test_selectedCategoriesGrowAndScrollDialog() {
   const body = dialog.querySelector(".calendar-event-create-edit-dialog-body");
   const header = dialog.querySelector(
     ".calendar-event-create-edit-dialog-header"
@@ -411,129 +315,82 @@ add_task(async function test_remainingCategoriesGrowAndScrollDialog() {
   const footer = dialog.querySelector(
     ".calendar-event-create-edit-dialog-footer"
   );
-  const overflow = row.querySelector(".calendar-event-category-overflow");
+  const list = row.querySelector(".calendar-event-category-list");
 
-  await showSamples(["A", "B", "C"]);
+  await showSamples(["Work"]);
 
   const initialHeight = dialog.getBoundingClientRect().height;
   const followingTop = followingRow.getBoundingClientRect().top;
+  const names = Array.from(
+    { length: 12 },
+    (_, index) => `Category ${index + 1}`
+  );
 
-  await showSamples(["A", "B", "C"], ["Personal", "Travel"]);
+  await showSamples(names);
 
   Assert.greater(
     dialog.getBoundingClientRect().height,
     initialHeight,
-    "Showing remaining categories should grow the dialog when space is available"
-  );
-  Assert.lessOrEqual(
-    dialog.getBoundingClientRect().bottom,
-    dialog.container.getBoundingClientRect().bottom - dialog.margin,
-    "The grown dialog should stay above the container bottom margin"
-  );
-  Assert.lessOrEqual(
-    dialog
-      .querySelector(".calendar-event-create-edit-dialog-footer")
-      .getBoundingClientRect().bottom,
-    dialog.container.getBoundingClientRect().bottom - dialog.margin,
-    "The Save footer should stay inside the container after the dialog grows"
+    "Wrapping pills should grow the dialog while there is space"
   );
   Assert.greater(
     followingRow.getBoundingClientRect().top,
     followingTop,
-    "Remaining categories should move the following fields down"
-  );
-  Assert.lessOrEqual(
-    overflow.getBoundingClientRect().bottom,
-    followingRow.getBoundingClientRect().top,
-    "Remaining categories should stay before the following fields"
-  );
-  Assert.lessOrEqual(
-    overflow.getBoundingClientRect().bottom,
-    row.getBoundingClientRect().bottom,
-    "Remaining categories should stay inside the category row"
-  );
-  Assert.greaterOrEqual(
-    overflow.getBoundingClientRect().top,
-    row.getBoundingClientRect().top,
-    "Remaining categories should stay below the category row top"
-  );
-  Assert.greaterOrEqual(
-    overflow.getBoundingClientRect().left,
-    row.getBoundingClientRect().left,
-    "Remaining categories should stay inside the category row start"
-  );
-  Assert.lessOrEqual(
-    overflow.getBoundingClientRect().right,
-    row.getBoundingClientRect().right,
-    "Remaining categories should stay inside the category row end"
+    "Pills on multiple lines should move the following field down"
   );
 
-  const remaining = Array.from(
-    { length: 20 },
-    (_, index) => `Category ${index}`
+  const manyNames = Array.from(
+    { length: 80 },
+    (_, index) => `Category ${index + 1}`
   );
 
-  await showSamples(["A", "B", "C"], remaining);
+  await showSamples(manyNames);
 
+  Assert.equal(
+    list.childElementCount,
+    manyNames.length,
+    "The category list should show every selected pill"
+  );
   Assert.lessOrEqual(
     dialog.getBoundingClientRect().height,
     parseFloat(dialog.style.maxHeight),
     "The dialog should stop growing at its available height"
   );
-  Assert.lessOrEqual(
-    dialog.getBoundingClientRect().bottom,
-    dialog.container.getBoundingClientRect().bottom - dialog.margin,
-    "The grown dialog should stay above the container bottom margin"
-  );
-  Assert.lessOrEqual(
-    dialog
-      .querySelector(".calendar-event-create-edit-dialog-footer")
-      .getBoundingClientRect().bottom,
-    dialog.container.getBoundingClientRect().bottom - dialog.margin,
-    "The Save footer should stay inside the container after the dialog grows"
-  );
   Assert.greater(
     body.scrollHeight,
     body.clientHeight,
-    "The dialog body should scroll when remaining categories exceed its height"
+    "The dialog body should scroll when the pills exceed the available height"
   );
   Assert.equal(
-    overflow.scrollHeight,
-    overflow.clientHeight,
-    "The remaining-category list should show every category without its own scrollbar"
+    list.scrollHeight,
+    list.clientHeight,
+    "The category list should rely on the dialog scrollbar"
   );
 
   const headerTop = header.getBoundingClientRect().top;
   const footerBottom = footer.getBoundingClientRect().bottom;
-
-  overflow.focus();
-  body.scrollTop = 0;
-
-  const bodyScrolled = BrowserTestUtils.waitForEvent(
+  const lastRemove = list.lastElementChild.querySelector(
+    ".calendar-event-remove-category"
+  );
+  const scrolled = BrowserTestUtils.waitForEvent(
     body,
     "scroll",
     false,
     () => body.scrollTop > 0
   );
 
-  EventUtils.synthesizeKey("KEY_End", {}, browser.contentWindow);
-  await bodyScrolled;
+  lastRemove.focus();
+  await scrolled;
 
-  Assert.greater(
-    body.scrollTop,
-    0,
-    "Keyboard input should scroll the dialog body"
-  );
-
-  Assert.equal(
-    overflow.scrollTop,
-    0,
-    "Keyboard input should not scroll the remaining-category list itself"
-  );
   Assert.equal(
     doc.activeElement,
-    overflow,
-    "The remaining-category list should retain keyboard focus"
+    lastRemove,
+    "The last Remove button should take focus"
+  );
+  Assert.lessOrEqual(
+    lastRemove.getBoundingClientRect().bottom,
+    body.getBoundingClientRect().bottom,
+    "Focusing the last Remove button should scroll it into view"
   );
   Assert.equal(
     header.getBoundingClientRect().top,
@@ -545,120 +402,4 @@ add_task(async function test_remainingCategoriesGrowAndScrollDialog() {
     footerBottom,
     "The Save footer should stay fixed when the dialog body scrolls"
   );
-  Assert.equal(
-    doc.l10n.getAttributes(row.querySelector(".calendar-event-more-categories"))
-      .args.count,
-    remaining.length +
-      3 -
-      row.querySelector(".calendar-event-category-list").childElementCount,
-    "The overflow control should receive the actual remaining count"
-  );
-});
-
-add_task(async function test_categoryChoicesGrowAndScrollDialog() {
-  const body = dialog.querySelector(".calendar-event-create-edit-dialog-body");
-  const choices = row.querySelector(".calendar-event-category-choices");
-
-  await showSamples([]);
-
-  const initialHeight = dialog.getBoundingClientRect().height;
-  const followingTop = followingRow.getBoundingClientRect().top;
-
-  await showChoices(["Work", "Personal"]);
-
-  Assert.greater(
-    dialog.getBoundingClientRect().height,
-    initialHeight,
-    "Showing category choices should grow the dialog when space is available"
-  );
-  Assert.lessOrEqual(
-    dialog.getBoundingClientRect().bottom,
-    dialog.container.getBoundingClientRect().bottom - dialog.margin,
-    "The grown dialog should stay above the container bottom margin"
-  );
-  Assert.lessOrEqual(
-    dialog
-      .querySelector(".calendar-event-create-edit-dialog-footer")
-      .getBoundingClientRect().bottom,
-    dialog.container.getBoundingClientRect().bottom - dialog.margin,
-    "The Save footer should stay inside the container after the dialog grows"
-  );
-  Assert.greater(
-    followingRow.getBoundingClientRect().top,
-    followingTop,
-    "Category choices should move the following fields down"
-  );
-  Assert.lessOrEqual(
-    choices.getBoundingClientRect().bottom,
-    followingRow.getBoundingClientRect().top,
-    "Category choices should stay before the following fields"
-  );
-  Assert.lessOrEqual(
-    choices.getBoundingClientRect().bottom,
-    row.getBoundingClientRect().bottom,
-    "Category choices should stay inside the category row"
-  );
-  Assert.greaterOrEqual(
-    choices.getBoundingClientRect().top,
-    row.getBoundingClientRect().top,
-    "Category choices should stay below the category row top"
-  );
-  Assert.greaterOrEqual(
-    choices.getBoundingClientRect().left,
-    row.getBoundingClientRect().left,
-    "Category choices should stay inside the category row start"
-  );
-  Assert.lessOrEqual(
-    choices.getBoundingClientRect().right,
-    row.getBoundingClientRect().right,
-    "Category choices should stay inside the category row end"
-  );
-
-  const names = Array.from({ length: 40 }, (_, index) => `Category ${index}`);
-
-  await showChoices(names);
-
-  Assert.lessOrEqual(
-    dialog.getBoundingClientRect().height,
-    parseFloat(dialog.style.maxHeight),
-    "The dialog should stop growing when category choices fill its available height"
-  );
-  Assert.lessOrEqual(
-    dialog.getBoundingClientRect().bottom,
-    dialog.container.getBoundingClientRect().bottom - dialog.margin,
-    "The grown dialog should stay above the container bottom margin"
-  );
-  Assert.lessOrEqual(
-    dialog
-      .querySelector(".calendar-event-create-edit-dialog-footer")
-      .getBoundingClientRect().bottom,
-    dialog.container.getBoundingClientRect().bottom - dialog.margin,
-    "The Save footer should stay inside the container after the dialog grows"
-  );
-  Assert.greater(
-    body.scrollHeight,
-    body.clientHeight,
-    "The dialog body should scroll when category choices exceed its height"
-  );
-  Assert.equal(
-    choices.scrollHeight,
-    choices.clientHeight,
-    "Category choices should show every item without their own scrollbar"
-  );
-
-  body.scrollTop = body.scrollHeight;
-
-  Assert.greater(
-    body.scrollTop,
-    0,
-    "The dialog body should scroll to show all category choices"
-  );
-  Assert.equal(
-    choices.scrollTop,
-    0,
-    "The category choices list should not scroll on its own"
-  );
-
-  await showChoices([]);
-  body.scrollTop = 0;
 });

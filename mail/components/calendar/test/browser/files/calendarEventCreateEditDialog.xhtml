@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/spacings.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/widgets.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
     <link
       rel="stylesheet"
       href="chrome://messenger/skin/calendar/calendarDialog.css"
@@ -237,42 +238,30 @@
                   class="calendar-event-category-row labelless full-width"
                 >
                   <div slot="content" class="calendar-event-category-content">
-                    <!--
-                      The row shows chips that fit here and puts the rest
-                      in the More list.
-                    -->
-                    <div class="calendar-event-category-summary">
-                      <ul
-                        class="calendar-event-category-list"
-                        data-l10n-id="calendar-event-selected-categories"
-                      ></ul>
-                      <button
-                        class="button button-flat calendar-event-more-categories"
-                        type="button"
-                        data-l10n-id="calendar-event-more-categories"
-                        data-l10n-args="{&quot;count&quot;:0}"
-                        hidden="hidden"
-                      ></button>
-                    </div>
+                    <ul
+                      class="calendar-event-category-list"
+                      data-l10n-id="calendar-event-selected-categories"
+                    ></ul>
                     <button
                       class="button button-flat icon-button calendar-event-add-category"
                       type="button"
                       data-l10n-id="calendar-event-add-category"
+                      aria-haspopup="menu"
+                      aria-controls="calendarEventCategoryMenu"
+                      aria-expanded="false"
                     ></button>
-                    <!--
-                      Choices also include saved names absent from preferences.
-                    -->
-                    <ul
+                    <xul:menupopup
+                      id="calendarEventCategoryMenu"
                       class="calendar-event-category-choices"
-                      data-l10n-id="calendar-event-category-choices"
-                      hidden="hidden"
-                    ></ul>
-                    <ul
-                      class="calendar-event-category-overflow"
-                      data-l10n-id="calendar-event-remaining-categories"
-                      tabindex="0"
-                      hidden="hidden"
-                    ></ul>
+                      nonnative=""
+                    >
+                      <input
+                        class="calendar-category-name-input"
+                        type="text"
+                        data-l10n-id="calendar-event-category-name"
+                      />
+                      <xul:menuseparator />
+                    </xul:menupopup>
                     <template class="calendar-event-category-chip-template">
                       <li class="calendar-event-category-chip">
                         <span class="calendar-event-category-label"></span>
@@ -312,7 +301,7 @@
             <div class="status-select"></div>
             <div class="privacy-select"></div>
             <!--
-              Match the production footer. aria-busy can delay announcements from
+              Match the event dialog footer. aria-busy can delay announcements from
               the body, so status text must remain outside that body during Save.
             -->
             <span

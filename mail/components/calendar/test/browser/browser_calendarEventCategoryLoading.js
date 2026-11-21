@@ -62,6 +62,12 @@ function createRow(sessionKey) {
     .getElementById("calendarEventCreateEditDialogTemplate")
     .content.querySelector("calendar-event-category-row")
     .cloneNode(true);
+  const menu = row.querySelector(".calendar-event-category-choices");
+
+  menu.id = `calendarEventCategoryMenu-${sessionKey}`;
+  row
+    .querySelector(".calendar-event-add-category")
+    .setAttribute("aria-controls", menu.id);
 
   container.style.inlineSize = "600px";
   container.append(row);
@@ -119,8 +125,8 @@ async function clearSession(sessionKey) {
  */
 function choiceNames(row) {
   return [
-    ...row.querySelectorAll(".calendar-event-category-choices input"),
-  ].map(input => input.dataset.category);
+    ...row.querySelectorAll(".calendar-event-category-choices menuitem"),
+  ].map(item => item.dataset.category);
 }
 
 add_task(async function test_loadsAndRefreshesOwnOptions() {
@@ -174,8 +180,10 @@ add_task(async function test_loadsAndRefreshesOwnOptions() {
 
   Assert.deepEqual(
     [
-      ...row.querySelectorAll(".calendar-event-category-choices input:checked"),
-    ].map(input => input.dataset.category),
+      ...row.querySelectorAll(
+        ".calendar-event-category-choices menuitem[checked]"
+      ),
+    ].map(item => item.dataset.category),
     ["Work"],
     "A draft update should check the selected category choice"
   );

@@ -552,26 +552,46 @@ li[is="calendar-dialog-attachment"] {
     }
   }
 
-  & .calendar-event-category-summary {
-    display: flex;
-    align-items: center;
-    gap: var(--space-base);
-    min-inline-size: 0;
-
-    &:not(:has(.calendar-event-category-chip)) {
-      display: none;
-    }
-  }
-
   & .calendar-event-category-list {
     display: flex;
     flex-wrap: wrap;
-    flex: 1;
     gap: var(--space-base);
     min-inline-size: 0;
     padding: 0;
     margin: 0;
     list-style: none;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  & .calendar-event-category-choices {
+    & > menuitem > .menu-icon {
+      margin-inline-end: 3px;
+    }
+
+    & > menuitem:not([checked]) > .menu-icon {
+      visibility: hidden;
+    }
+
+    & > menuitem > .menu-text {
+      padding-inline-start: 15px;
+      background-image: var(--icon-circle-small);
+      background-position: left center;
+      background-repeat: no-repeat;
+      -moz-context-properties: fill;
+      fill: var(--item-color);
+
+      &:dir(rtl) {
+        background-position-x: right;
+      }
+    }
+
+    & > .calendar-category-name-input {
+      margin-block: 1px;
+      margin-inline: 8px;
+    }
   }
 
   & .calendar-event-category-chip {
@@ -629,6 +649,14 @@ li[is="calendar-dialog-attachment"] {
       background-position-x: center;
     }
 
+    &:enabled:hover {
+      background-color: color-mix(in srgb, currentColor 10%, transparent);
+
+      &:active {
+        background-color: color-mix(in srgb, currentColor 20%, transparent);
+      }
+    }
+
     &:enabled:focus-visible {
       outline-color: currentColor;
     }
@@ -637,52 +665,11 @@ li[is="calendar-dialog-attachment"] {
     @media (forced-colors: active) {
       --button-hover-text-color: ButtonText;
 
-      &:enabled:hover {
+      &:enabled:hover,
+      &:enabled:hover:active {
         background-color: SelectedItem;
         color: SelectedItemText;
       }
-    }
-  }
-
-  & .calendar-event-more-categories {
-    flex-shrink: 0;
-    min-inline-size: 0;
-    margin: 0;
-  }
-
-  & .calendar-event-category-choices,
-  & .calendar-event-category-overflow {
-    /* The dialog body scrolls when the lists exceed the available height. */
-    box-sizing: border-box;
-    padding: calc(2 * var(--space-step));
-    margin: 0;
-    border: 1px solid var(--color-surface-border);
-    border-radius: var(--space-step);
-    background-color: var(--color-surface-base);
-    list-style: none;
-    z-index: 1;
-
-    &:focus-visible {
-      outline: var(--focus-outline);
-      outline-offset: calc(-1 * var(--focus-outline-offset));
-    }
-  }
-
-  & .calendar-event-category-choices label {
-    display: flex;
-    align-items: center;
-    gap: var(--space-step);
-    padding-block: var(--space-step);
-    overflow-wrap: anywhere;
-  }
-
-  & .calendar-event-category-overflow:not([hidden]) {
-    display: flex;
-    flex-direction: column;
-    gap: calc(2 * var(--space-step));
-
-    & .calendar-event-category-chip {
-      flex-shrink: 0;
     }
   }
 

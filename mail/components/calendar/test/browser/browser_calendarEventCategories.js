@@ -122,7 +122,7 @@ async function showCategories(event = null) {
 }
 
 /**
- * Returns selected labels from the summary and overflow lists in draft order.
+ * Returns the selected category labels in draft order.
  *
  * @returns {string[]} The rendered category names.
  */
@@ -147,106 +147,125 @@ async function waitForCategories(expected) {
   );
 }
 
+/**
+ * Opens Add category and waits for its native menu.
+ *
+ * @param {boolean} [withKeyboard=false] - Open the menu with Enter.
+ * @returns {Promise<XULPopupElement>} Resolves when the menu is shown.
+ */
+async function openCategoryMenu(withKeyboard = false) {
+  const add = dialog.querySelector(".calendar-event-add-category");
+  const menu = dialog.querySelector(".calendar-event-category-choices");
+  const shown = BrowserTestUtils.waitForPopupEvent(menu, "shown");
+
+  if (withKeyboard) {
+    add.focus();
+    EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
+  } else {
+    EventUtils.synthesizeMouseAtCenter(add, {}, browser.contentWindow);
+  }
+
+  await shown;
+
+  return menu;
+}
+
+/**
+ * Activates a category menu item and waits for the menu to close.
+ *
+ * @param {XULPopupElement} menu - The open category menu.
+ * @param {Element} item - The category to toggle.
+ * @returns {Promise<void>} Resolves when the menu is hidden.
+ */
+async function activateCategory(menu, item) {
+  const hidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+
+  menu.activateItem(item);
+  await hidden;
+}
+
 add_task(async function test_createChoicesAndKeyboardSelection() {
   await showCategories();
 
-  Assert.deepEqual(
-    dialog.draft.categories,
-    [],
-    "A create draft should start without selected categories"
-  );
-
   const add = dialog.querySelector(".calendar-event-add-category");
-
-  add.focus();
-  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
-  EventUtils.synthesizeKey("KEY_Tab", {}, browser.contentWindow);
-
-  const choices = [
-    ...dialog.querySelectorAll(".calendar-event-category-choices input"),
-  ];
+  const dialogHeight = dialog.getBoundingClientRect().height;
+  const menu = await openCategoryMenu(true);
+  const choices = [...menu.querySelectorAll("menuitem")];
 
   Assert.deepEqual(
-    choices.map(input => input.dataset.category),
+    choices.map(item => item.dataset.category),
     ["Personal", "Team", "Work"],
-    "Available choices should come from the configured category names"
+    "The menu should contain all configured categories in order"
   );
-
   Assert.equal(
-    doc.activeElement,
-    choices[0],
-    "Tab should reach the first category choice"
+    add.getAttribute("aria-expanded"),
+    "true",
+    "Add category should expose that its menu is open"
   );
-
-  EventUtils.synthesizeKey("KEY_ArrowDown", {}, browser.contentWindow);
-
   Assert.equal(
-    doc.activeElement,
-    choices[1],
-    "ArrowDown should reach the next category choice"
+    dialog.getBoundingClientRect().height,
+    dialogHeight,
+    "Opening the category menu should leave the dialog height unchanged"
   );
 
-  EventUtils.synthesizeKey("KEY_End", {}, browser.contentWindow);
-
-  Assert.equal(
-    doc.activeElement,
-    choices[2],
-    "End should reach the last category choice"
-  );
-
-  EventUtils.synthesizeKey(" ", {}, browser.contentWindow);
-  await waitForCategories(["Work"]);
-
-  Assert.deepEqual(
-    dialog.draft.categories,
-    ["Work"],
-    "Space should add the focused category to the draft"
-  );
-
-  Assert.deepEqual(
-    dialog.dirtySections,
-    ["categories"],
-    "Selection should change only the category section"
-  );
-
-  Assert.equal(
-    doc.activeElement.dataset.category,
-    "Work",
-    "Selection should retain focus on its replacement choice"
-  );
-
+  const work = choices[2];
   const service = Cc["@mozilla.org/accessibilityService;1"].getService(
     Ci.nsIAccessibilityService
   );
 
   await TestUtils.waitForCondition(
-    () => service.getAccessibleFor(doc.activeElement)?.name == "Work",
-    "The category checkbox should expose its name to screen readers"
+    () => service.getAccessibleFor(work)?.name == "Work",
+    "The Work menu item should expose its name to screen readers"
   );
 
   Assert.equal(
-    service.getAccessibleFor(doc.activeElement).role,
-    Ci.nsIAccessibleRole.ROLE_CHECKBUTTON,
-    "Choices should expose native checkbox semantics"
+    service.getAccessibleFor(work).role,
+    Ci.nsIAccessibleRole.ROLE_CHECK_MENU_ITEM,
+    "The Work item should expose a checkbox menu item role"
   );
+
+  const hidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, browser.contentWindow);
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, browser.contentWindow);
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, browser.contentWindow);
+  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
+  await hidden;
+  await waitForCategories(["Work"]);
+
+  Assert.deepEqual(
+    dialog.draft.categories,
+    ["Work"],
+    "Enter on the Work menu item should add Work to the draft"
+  );
+  Assert.deepEqual(
+    dialog.dirtySections,
+    ["categories"],
+    "Selection should change only the category section"
+  );
+  Assert.equal(
+    doc.activeElement,
+    add,
+    "Selecting a category should return focus to Add category"
+  );
+
+  await openCategoryMenu(true);
+
+  const escapeHidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
 
   EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
+  await escapeHidden;
 
-  Assert.ok(
-    dialog.open,
-    "Escape from category choices should keep the event dialog open"
-  );
-
+  Assert.ok(dialog.open, "Escape should keep the event dialog open");
   Assert.equal(
     doc.activeElement,
     add,
     "Escape should return focus to Add category"
   );
-
   Assert.equal(
     add.getAttribute("aria-expanded"),
     "false",
-    "Closing choices should update the disclosure state"
+    "Add category should expose that its menu is closed"
   );
 
   const remove = dialog.querySelector(".calendar-event-remove-category");
@@ -260,18 +279,175 @@ add_task(async function test_createChoicesAndKeyboardSelection() {
     [],
     "Enter on Remove should clear the draft category"
   );
-
   Assert.deepEqual(
     dialog.dirtySections,
     [],
     "Restoring the empty selection should clear the category dirty state"
   );
-
   Assert.equal(
     doc.activeElement,
     add,
     "Removing the final chip should return focus to Add category"
   );
+});
+
+add_task(async function test_arrowUpEntersCategoryMenuAtLastItem() {
+  await showCategories();
+
+  const menu = await openCategoryMenu(true);
+  const input = menu.querySelector(".calendar-category-name-input");
+  const team = menu.querySelector('[data-category="Team"]');
+  const teamActive = BrowserTestUtils.waitForEvent(team, "DOMMenuItemActive");
+  const mouseMove = { type: "mousemove" };
+
+  // Gecko can ignore the first mouse move after a menu opens.
+  EventUtils.synthesizeMouse(team, 5, 5, mouseMove, browser.contentWindow);
+  EventUtils.synthesizeMouse(team, 7, 7, mouseMove, browser.contentWindow);
+  await teamActive;
+
+  Assert.equal(doc.activeElement, input, "The name field should keep focus.");
+
+  const itemActive = BrowserTestUtils.waitForEvent(menu, "DOMMenuItemActive");
+
+  EventUtils.synthesizeKey("KEY_ArrowUp", {}, browser.contentWindow);
+
+  const { target } = await itemActive;
+
+  Assert.equal(
+    target.dataset.category,
+    "Work",
+    "Arrow Up from the name field should highlight the last item."
+  );
+
+  const hidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+
+  EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
+  await hidden;
+});
+
+add_task(async function test_refocusingCategoryNameClearsMenuHighlight() {
+  await showCategories(secondEvent);
+
+  const menu = await openCategoryMenu(true);
+  const input = menu.querySelector(".calendar-category-name-input");
+  const firstItem = menu.querySelector("menuitem");
+  const itemActive = BrowserTestUtils.waitForEvent(
+    firstItem,
+    "DOMMenuItemActive"
+  );
+
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, browser.contentWindow);
+  await itemActive;
+
+  Assert.ok(
+    firstItem.hasAttribute("_moz-menuactive"),
+    "Arrow Down should highlight the first item."
+  );
+
+  const itemInactive = BrowserTestUtils.waitForEvent(
+    firstItem,
+    "DOMMenuItemInactive"
+  );
+
+  // Click the field without moving the pointer over a menu item.
+  EventUtils.synthesizeMouseAtCenter(input, {}, browser.contentWindow);
+
+  Assert.equal(doc.activeElement, input, "The name field should regain focus.");
+  await itemInactive;
+
+  Assert.ok(
+    !menu.querySelector("menuitem[_moz-menuactive]"),
+    "No menu item should be highlighted when the name field regains focus."
+  );
+  Assert.ok(firstItem.hasAttribute("checked"), "Personal should stay checked.");
+  Assert.equal(menu.state, "open", "The category menu should stay open.");
+
+  const itemActiveAgain = BrowserTestUtils.waitForEvent(
+    firstItem,
+    "DOMMenuItemActive"
+  );
+
+  EventUtils.synthesizeKey("KEY_ArrowDown", {}, browser.contentWindow);
+  await itemActiveAgain;
+
+  Assert.ok(
+    firstItem.hasAttribute("_moz-menuactive"),
+    "Arrow Down should highlight the first item again."
+  );
+
+  const hidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+
+  EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
+  await hidden;
+});
+
+add_task(async function test_enterCategoryName() {
+  await showCategories();
+
+  const menu = await openCategoryMenu(true);
+  const input = menu.querySelector(".calendar-category-name-input");
+
+  Assert.equal(
+    doc.activeElement,
+    input,
+    "The menu should focus the name field."
+  );
+  Assert.equal(
+    doc.l10n.getAttributes(input).id,
+    "calendar-event-category-name",
+    "The name field should have a localized label and placeholder."
+  );
+
+  EventUtils.sendString("Discard this", browser.contentWindow);
+  EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
+
+  Assert.equal(input.value, "", "Escape should clear the typed name.");
+  Assert.equal(
+    menu.state,
+    "open",
+    "Clearing the name should leave the menu open."
+  );
+  Assert.deepEqual(
+    dialog.draft.categories,
+    [],
+    "Clearing the name should preserve the draft."
+  );
+
+  EventUtils.sendString("  Workshop  ", browser.contentWindow);
+
+  const hidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+
+  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
+  await hidden;
+  await waitForCategories(["Workshop"]);
+
+  Assert.deepEqual(
+    dialog.draft.categories,
+    ["Workshop"],
+    "Enter should trim the new name and add it to the event draft."
+  );
+  Assert.equal(
+    Services.prefs.getStringPref("calendar.categories.names"),
+    "Work,Personal,Team",
+    "Typing a name should preserve the configured category list."
+  );
+
+  await openCategoryMenu(true);
+
+  Assert.equal(
+    input.value,
+    "",
+    "Reopening the menu should show an empty name field."
+  );
+  Assert.ok(
+    menu.querySelector('[data-category="Workshop"][checked]'),
+    "The new category should appear checked in the list."
+  );
+
+  const dismissed = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+
+  EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
+  await dismissed;
 });
 
 add_task(async function test_categoryPillSpacingAndRemoveContrast() {
@@ -401,11 +577,8 @@ add_task(async function test_editSourceAndDraftOnlyChanges() {
     "Chips should use the configured category color"
   );
 
-  dialog.querySelector(".calendar-event-add-category").click();
-
-  const unknown = [
-    ...dialog.querySelectorAll(".calendar-event-category-choices input"),
-  ].find(input => input.dataset.category == "Unknown category");
+  const menu = await openCategoryMenu();
+  const unknown = menu.querySelector('[data-category="Unknown category"]');
 
   Assert.ok(
     unknown,
@@ -413,11 +586,11 @@ add_task(async function test_editSourceAndDraftOnlyChanges() {
   );
 
   Assert.ok(
-    unknown.checked,
+    unknown.hasAttribute("checked"),
     "The unknown category should retain its selected state"
   );
 
-  unknown.click();
+  await activateCategory(menu, unknown);
   await waitForCategories(["Work"]);
 
   Assert.deepEqual(
@@ -444,24 +617,34 @@ add_task(async function test_editSourceAndDraftOnlyChanges() {
 add_task(async function test_reselectedCategoryLeavesDraftClean() {
   await showCategories(firstEvent);
 
-  const service = Cc["@mozilla.org/accessibilityService;1"].getService(
-    Ci.nsIAccessibilityService
+  const menu = await openCategoryMenu();
+  let work = menu.querySelector('[data-category="Work"]');
+  const workLabel = work.querySelector(".menu-text");
+  const workStyle = browser.contentWindow.getComputedStyle(workLabel);
+
+  Assert.ok(work.hasAttribute("checked"), "Work should open checked");
+  Assert.ok(
+    menu.hasAttribute("nonnative"),
+    "The menu should use Thunderbird's themed renderer."
+  );
+  Assert.notEqual(
+    workStyle.backgroundImage,
+    "none",
+    "The category label should show a color swatch."
+  );
+  Assert.equal(
+    workStyle.fill,
+    "rgb(0, 0, 128)",
+    "The swatch should use the Work category color."
+  );
+  Assert.equal(
+    browser.contentWindow.getComputedStyle(work.querySelector(".menu-icon"))
+      .visibility,
+    "visible",
+    "A checked category should show a checkmark next to its swatch."
   );
 
-  dialog.querySelector(".calendar-event-add-category").click();
-
-  let work = dialog.querySelector(
-    '.calendar-event-category-choices input[data-category="Work"]'
-  );
-
-  Assert.ok(work, "Category choices should include the selected Work category");
-
-  await TestUtils.waitForCondition(
-    () => service.getAccessibleFor(work)?.name == "Work",
-    "The selected Work checkbox should be available to screen readers"
-  );
-
-  work.click();
+  await activateCategory(menu, work);
   await waitForCategories(["Unknown category"]);
 
   Assert.deepEqual(
@@ -470,18 +653,24 @@ add_task(async function test_reselectedCategoryLeavesDraftClean() {
     "Removing a selected category should mark the category section changed"
   );
 
-  work = dialog.querySelector(
-    '.calendar-event-category-choices input[data-category="Work"]'
+  await openCategoryMenu();
+  work = menu.querySelector('[data-category="Work"]');
+
+  Assert.ok(!work.hasAttribute("checked"), "Work should reopen unchecked");
+  Assert.equal(
+    browser.contentWindow.getComputedStyle(work.querySelector(".menu-icon"))
+      .visibility,
+    "hidden",
+    "An unchecked category should hide the checkmark."
+  );
+  Assert.equal(
+    browser.contentWindow.getComputedStyle(work.querySelector(".menu-text"))
+      .fill,
+    "rgb(0, 0, 128)",
+    "An unchecked category should keep its color swatch."
   );
 
-  Assert.ok(work, "An unchecked configured category should remain available");
-
-  await TestUtils.waitForCondition(
-    () => service.getAccessibleFor(work)?.name == "Work",
-    "The unchecked Work checkbox should be available to screen readers"
-  );
-
-  work.click();
+  await activateCategory(menu, work);
   await waitForCategories(["Unknown category", "Work"]);
 
   Assert.deepEqual(
@@ -520,14 +709,15 @@ add_task(async function test_oldControlsCannotChangeReplacementEvent() {
   const oldAdd = dialog.querySelector(".calendar-event-add-category");
   const oldRemove = dialog.querySelector(".calendar-event-remove-category");
   const oldChoice = dialog.querySelector(
-    ".calendar-event-category-choices input"
+    ".calendar-event-category-choices menuitem"
   );
 
   await showCategories(secondEvent);
 
   oldRemove.click();
-  oldChoice.checked = true;
-  oldChoice.dispatchEvent(new browser.contentWindow.Event("change"));
+  oldChoice.dispatchEvent(
+    new browser.contentWindow.Event("command", { bubbles: true })
+  );
   oldAdd.click();
 
   Assert.deepEqual(
@@ -626,220 +816,19 @@ add_task(async function test_lateCategoryRenderingCannotReplaceCurrentEvent() {
   );
 });
 
-add_task(async function test_responsiveCapacityAndOverflowActions() {
-  await showCategories();
-
-  // Long labels reach the CSS width limit before the row decides how many fit.
-  const names = [
-    "Alpha category".repeat(4),
-    "Bravo category".repeat(4),
-    "Charlie category".repeat(4),
-    "Delta",
-    "Echo",
-  ];
-
-  dialog.style.inlineSize = "300px";
-  dialog.updateDraftSection("categories", { categories: names });
-  await waitForCategories(names);
-
-  const list = dialog.querySelector(".calendar-event-category-list");
-
-  Assert.equal(list.childElementCount, 2, "A narrow row should show two chips");
-
-  Assert.equal(
-    doc.l10n.getAttributes(
-      dialog.querySelector(".calendar-event-more-categories")
-    ).args.count,
-    3,
-    "The narrow row should disclose exactly three remaining categories"
-  );
-
-  dialog.style.inlineSize = "1000px";
-  dialog.prepareLayout();
-
-  Assert.equal(list.childElementCount, 3, "A wide row should show three chips");
-
-  const more = dialog.querySelector(".calendar-event-more-categories");
-  const before = dialog.getBoundingClientRect();
-
-  Assert.equal(
-    doc.l10n.getAttributes(more).args.count,
-    2,
-    "The wide row should disclose exactly two remaining categories"
-  );
-
-  more.focus();
-  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
-
-  const overflow = dialog.querySelector(".calendar-event-category-overflow");
-  const after = dialog.getBoundingClientRect();
-
-  Assert.ok(
-    BrowserTestUtils.isVisible(overflow),
-    "Enter on More should show remaining categories"
-  );
-
-  Assert.greater(
-    after.height,
-    before.height,
-    "Opening remaining categories should grow the dialog when space is available"
-  );
-  Assert.equal(
-    after.width,
-    before.width,
-    "Opening remaining categories should preserve the dialog width"
-  );
-
-  const remove = overflow.querySelector("button");
-
-  remove.focus();
-  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
-  await waitForCategories([names[0], names[1], names[2], names[4]]);
-
-  Assert.deepEqual(
-    dialog.draft.categories,
-    [names[0], names[1], names[2], names[4]],
-    "Keyboard removal from overflow should change only the selected category"
-  );
-
-  EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
-
-  Assert.equal(
-    doc.activeElement,
-    dialog.querySelector(".calendar-event-more-categories"),
-    "Escape from overflow should return focus to its disclosure button"
-  );
-
-  Assert.ok(dialog.open, "Closing overflow should preserve the event dialog");
-
-  dialog.style.inlineSize = "600px";
-  dialog.prepareLayout();
-});
-
-add_task(async function test_unchangedLayoutPreservesControls() {
-  await showCategories();
-
-  const names = [
-    "Alpha category".repeat(4),
-    "Bravo category".repeat(4),
-    "Charlie category".repeat(4),
-  ];
-
-  dialog.style.inlineSize = "400px";
-  dialog.updateDraftSection("categories", { categories: names });
-  await waitForCategories(names);
-
-  const row = dialog.querySelector("calendar-event-category-row");
-  const content = row.querySelector(".calendar-event-category-content");
-  const width = content.clientWidth;
-  const list = row.querySelector(".calendar-event-category-list");
-  const more = row.querySelector(".calendar-event-more-categories");
-
-  Assert.equal(
-    list.childElementCount,
-    2,
-    "The long category labels should leave one chip in overflow"
-  );
-
-  more.focus();
-
-  const observer = new browser.contentWindow.MutationObserver(() => {});
-
-  observer.observe(row, {
-    attributes: true,
-    childList: true,
-    subtree: true,
-  });
-
-  dialog.prepareLayout();
-  dialog.prepareLayout();
-
-  const mutations = observer.takeRecords();
-
-  observer.disconnect();
-
-  Assert.equal(
-    mutations.length,
-    0,
-    "Preparing an unchanged layout should preserve the category controls"
-  );
-  Assert.equal(
-    doc.activeElement,
-    more,
-    "Preparing an unchanged layout should preserve focus on More"
-  );
-
-  const shortNames = ["A", "B", "C"];
-
-  dialog.updateDraftSection("categories", { categories: shortNames });
-  await waitForCategories(shortNames);
-
-  Assert.equal(
-    content.clientWidth,
-    width,
-    "Changing category labels should preserve the available row width"
-  );
-  Assert.equal(
-    list.childElementCount,
-    3,
-    "New category labels should be measured even when the width is unchanged"
-  );
-  Assert.ok(
-    row.querySelector(".calendar-event-more-categories").hidden,
-    "Fitting all new category labels should hide More"
-  );
-
-  dialog.updateDraftSection("categories", { categories: names });
-  await waitForCategories(names);
-
-  Assert.equal(
-    content.clientWidth,
-    width,
-    "Restoring long category labels should preserve the available row width"
-  );
-  Assert.equal(
-    list.childElementCount,
-    2,
-    "Restoring long category labels should measure chip capacity at the same width"
-  );
-
-  dialog.style.inlineSize = "600px";
-});
-
 add_task(async function test_pendingSaveDisablesCategoryControls() {
-  await showCategories();
-
-  const names = [
-    "Alpha category".repeat(4),
-    "Bravo category".repeat(4),
-    "Charlie category".repeat(4),
-    "Delta category".repeat(4),
-  ];
-
-  dialog.style.inlineSize = "400px";
-  dialog.updateDraftSection("categories", { categories: names });
-  await waitForCategories(names);
+  await showCategories(firstEvent);
 
   const row = dialog.querySelector("calendar-event-category-row");
-  const list = row.querySelector(".calendar-event-category-list");
   const operation = {
     sessionKey: dialog.calendarEventSessionKey,
     kind: "save",
     requestId: "category-disabled-controls",
   };
+  const menu = await openCategoryMenu();
+  const hidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+  const work = menu.querySelector('[data-category="Work"]');
 
-  Assert.equal(
-    list.childElementCount,
-    2,
-    "The narrow category row should show two chips before Save"
-  );
-
-  row.querySelector(".calendar-event-add-category").click();
-
-  const choice = row.querySelector(".calendar-event-category-choices input");
-  const checked = choice.checked;
-
-  choice.focus();
   pendingSaveOperation = operation;
 
   await redux.dispatchAction(
@@ -847,43 +836,32 @@ add_task(async function test_pendingSaveDisablesCategoryControls() {
     "operationStarted",
     operation
   );
+  await hidden;
 
   Assert.ok(
-    [...row.querySelectorAll("button, input")].every(
+    [...row.querySelectorAll("button, input, menuitem")].every(
       control => control.disabled
     ),
-    "Pending Save should disable every category button and checkbox"
+    "Pending Save should disable the category buttons and menu items"
   );
   Assert.equal(
     doc.activeElement,
     dialog,
-    "Disabling a focused category control should move focus to the dialog"
+    "Disabling the focused category control should move focus to the dialog"
   );
 
-  choice.click();
-
-  Assert.equal(
-    choice.checked,
-    checked,
-    "Clicking a disabled category checkbox should preserve its checked state"
-  );
-  Assert.deepEqual(
-    dialog.draft.categories,
-    names,
-    "Clicking a disabled category checkbox should preserve the draft"
-  );
-
-  dialog.style.inlineSize = "1000px";
-
-  await BrowserTestUtils.waitForMutationCondition(
-    list,
-    { childList: true },
-    () => list.childElementCount == 3
+  work.dispatchEvent(
+    new browser.contentWindow.Event("command", { bubbles: true })
   );
 
   Assert.ok(
-    row.querySelector(".calendar-event-more-categories").disabled,
-    "Resizing during Save should keep the replacement More button disabled"
+    work.hasAttribute("checked"),
+    "Pending Save should keep Work checked"
+  );
+  Assert.deepEqual(
+    dialog.draft.categories,
+    ["Work", "Unknown category"],
+    "A category command during Save should preserve the draft"
   );
 
   await redux.dispatchAction(
@@ -894,25 +872,21 @@ add_task(async function test_pendingSaveDisablesCategoryControls() {
   pendingSaveOperation = null;
 
   Assert.ok(
-    [...row.querySelectorAll("button, input")].every(
+    [...row.querySelectorAll("button, input, menuitem")].every(
       control => !control.disabled
     ),
-    "Releasing Save should enable every available category control"
+    "Releasing Save should enable all category controls"
   );
 
-  const work = [
-    ...row.querySelectorAll(".calendar-event-category-choices input"),
-  ].find(input => input.dataset.category == "Work");
+  await openCategoryMenu();
+  await activateCategory(menu, menu.querySelector('[data-category="Work"]'));
+  await waitForCategories(["Unknown category"]);
 
-  work.click();
-  await waitForCategories([...names, "Work"]);
-
-  Assert.ok(
-    dialog.draft.categories.includes("Work"),
-    "A re-enabled category checkbox should update the draft"
+  Assert.deepEqual(
+    dialog.draft.categories,
+    ["Unknown category"],
+    "A re-enabled category item should update the draft"
   );
-
-  dialog.style.inlineSize = "600px";
 });
 
 add_task(async function test_pendingRenderUsesCurrentDisabledState() {
@@ -949,6 +923,16 @@ add_task(async function test_pendingRenderUsesCurrentDisabledState() {
   dialog.updateDraftSection("categories", { categories: names });
   await started.promise;
 
+  const checkedItems = row.querySelectorAll(
+    ".calendar-event-category-choices menuitem[checked]"
+  );
+
+  Assert.deepEqual(
+    [...checkedItems].map(item => item.dataset.category),
+    ["Personal", "Team", "Work"],
+    "The menu should show the new selection while the Remove labels translate"
+  );
+
   pendingSaveOperation = operation;
 
   await redux.dispatchAction(
@@ -969,7 +953,7 @@ add_task(async function test_pendingRenderUsesCurrentDisabledState() {
     "The completed render should insert the newly selected category controls"
   );
   Assert.ok(
-    [...row.querySelectorAll("button, input")].every(
+    [...row.querySelectorAll("button, input, menuitem")].every(
       control => control.disabled
     ),
     "Controls inserted during Save should use the current disabled state"
@@ -983,65 +967,11 @@ add_task(async function test_pendingRenderUsesCurrentDisabledState() {
   pendingSaveOperation = null;
 
   Assert.ok(
-    [...row.querySelectorAll("button, input")].every(
+    [...row.querySelectorAll("button, input, menuitem")].every(
       control => !control.disabled
     ),
     "Releasing Save should enable the newly rendered category controls"
   );
-});
-
-add_task(async function test_ignoredChangesRestoreCheckboxState() {
-  await showCategories(firstEvent);
-
-  const operation = {
-    sessionKey: dialog.calendarEventSessionKey,
-    kind: "save",
-    requestId: "category-pending-save",
-  };
-
-  pendingSaveOperation = operation;
-
-  dialog.querySelector(".calendar-event-add-category").click();
-  // Simulate a pending Save so checkbox changes must be refused.
-  await redux.dispatchAction(
-    "moz-src:///comm/mail/components/calendar/content/state/calendarEventCreateEditSessionSlice.mjs",
-    "operationStarted",
-    operation
-  );
-
-  const choices = [
-    ...dialog.querySelectorAll(".calendar-event-category-choices input"),
-  ];
-  const work = choices.find(input => input.dataset.category == "Work");
-  const personal = choices.find(input => input.dataset.category == "Personal");
-
-  work.checked = false;
-  work.dispatchEvent(new browser.contentWindow.Event("change"));
-  personal.checked = true;
-  personal.dispatchEvent(new browser.contentWindow.Event("change"));
-
-  Assert.ok(
-    work.checked,
-    "An ignored removal should restore the selected checkbox"
-  );
-
-  Assert.ok(
-    !personal.checked,
-    "An ignored addition should restore the unselected checkbox"
-  );
-
-  Assert.deepEqual(
-    dialog.draft.categories,
-    ["Work", "Unknown category"],
-    "Pending Save should preserve the category draft"
-  );
-
-  await redux.dispatchAction(
-    "moz-src:///comm/mail/components/calendar/content/state/calendarEventCreateEditSessionSlice.mjs",
-    "operationReleased",
-    operation
-  );
-  pendingSaveOperation = null;
 });
 
 add_task(async function test_editWithNoSelectedCategoriesLoadsChoices() {
@@ -1050,11 +980,11 @@ add_task(async function test_editWithNoSelectedCategoriesLoadsChoices() {
 
   const add = dialog.querySelector(".calendar-event-add-category");
   const choices = [
-    ...dialog.querySelectorAll(".calendar-event-category-choices input"),
+    ...dialog.querySelectorAll(".calendar-event-category-choices menuitem"),
   ];
 
   Assert.deepEqual(
-    choices.map(input => input.dataset.category),
+    choices.map(item => item.dataset.category),
     ["Personal", "Team", "Work"],
     "An empty edit selection should still load all available choices"
   );
@@ -1069,10 +999,9 @@ add_task(async function test_editWithNoSelectedCategoriesLoadsChoices() {
     "An empty edit selection should initialize a clean baseline"
   );
 
-  add.focus();
-  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
-  choices[2].focus();
-  EventUtils.synthesizeKey(" ", {}, browser.contentWindow);
+  const menu = await openCategoryMenu();
+
+  await activateCategory(menu, menu.querySelector('[data-category="Work"]'));
   await waitForCategories(["Work"]);
 
   Assert.deepEqual(
@@ -1091,180 +1020,69 @@ add_task(async function test_editWithNoSelectedCategoriesLoadsChoices() {
 add_task(async function test_removingUnknownCategoryRestoresFocus() {
   await showCategories(firstEvent);
 
-  let add = dialog.querySelector(".calendar-event-add-category");
+  const add = dialog.querySelector(".calendar-event-add-category");
+  const menu = await openCategoryMenu();
+  const unknown = menu.querySelector('[data-category="Unknown category"]');
 
-  add.focus();
-  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
-
-  const unknown = [
-    ...dialog.querySelectorAll(".calendar-event-category-choices input"),
-  ].find(input => input.dataset.category == "Unknown category");
-
-  unknown.focus();
-  EventUtils.synthesizeKey(" ", {}, browser.contentWindow);
+  await activateCategory(menu, unknown);
   await waitForCategories(["Work"]);
 
   Assert.equal(
     doc.activeElement,
     add,
-    "Removing a choice absent from preferences should return focus to Add category"
+    "Removing a category absent from preferences should return focus to Add category"
   );
 
-  await showCategories(firstEvent);
+  await openCategoryMenu();
 
-  add = dialog.querySelector(".calendar-event-add-category");
-  add.focus();
-  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
-
-  const remove = dialog.querySelectorAll(
-    ".calendar-event-category-list button"
-  )[1];
-
-  remove.focus();
-  EventUtils.synthesizeKey("KEY_Enter", {}, browser.contentWindow);
-  await waitForCategories(["Work"]);
-
-  Assert.equal(
-    doc.activeElement,
-    dialog.querySelector(".calendar-event-category-list button"),
-    "Removing a chip while choices are open should focus the remaining chip"
+  Assert.ok(
+    !menu.querySelector('[data-category="Unknown category"]'),
+    "The removed category should disappear from the next menu"
   );
-});
 
-add_task(async function test_resizeKeepsMeasuredCategoryCapacity() {
-  await showCategories();
+  const hidden = BrowserTestUtils.waitForPopupEvent(menu, "hidden");
 
-  const row = dialog.querySelector(".calendar-event-category-row");
-  const add = row.querySelector(".calendar-event-add-category");
-  const names = [
-    "Alpha category".repeat(4),
-    "Bravo category".repeat(4),
-    "Charlie category".repeat(4),
-  ];
-
-  dialog.updateDraftSection("categories", { categories: names });
-  await waitForCategories(names);
-
-  const list = row.querySelector(".calendar-event-category-list");
-
-  for (const [initialWidth, initialCapacity, finalWidth, capacity] of [
-    [300, 2, 300, 2],
-    [1000, 3, 300, 2],
-    [300, 2, 1000, 3],
-  ]) {
-    dialog.style.inlineSize = `${initialWidth}px`;
-
-    await BrowserTestUtils.waitForMutationCondition(
-      list,
-      { childList: true },
-      () => list.childElementCount == initialCapacity
-    );
-
-    // Finish the initial resize before changing the dialog width again.
-    await new Promise(browser.contentWindow.requestAnimationFrame);
-
-    add.focus();
-
-    dialog.style.inlineSize = `${finalWidth}px`;
-
-    await BrowserTestUtils.waitForMutationCondition(
-      list,
-      { childList: true },
-      () => list.childElementCount == capacity
-    );
-
-    Assert.equal(
-      list.childElementCount,
-      capacity,
-      "Resizing the row should use the current width for its chip capacity"
-    );
-
-    const more = row.querySelector(".calendar-event-more-categories");
-
-    Assert.equal(
-      doc.l10n.getAttributes(more).args.count,
-      names.length - capacity,
-      "Resizing the row should report the current remaining category count"
-    );
-
-    Assert.equal(
-      more.hidden,
-      names.length <= capacity,
-      "The remaining count should be visible only when categories overflow"
-    );
-
-    Assert.equal(
-      doc.activeElement,
-      add,
-      "Changing chip capacity should preserve focus on Add category"
-    );
-  }
+  EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
+  await hidden;
 });
 
 add_task(async function test_categoryRowReconnects() {
-  await showCategories();
+  await showCategories(firstEvent);
 
   const row = dialog.querySelector("calendar-event-category-row");
   const parent = row.parentNode;
-  const names = [
-    "Alpha category".repeat(4),
-    "Bravo category".repeat(4),
-    "Charlie category".repeat(4),
-  ];
 
-  dialog.style.inlineSize = "300px";
-  dialog.updateDraftSection("categories", { categories: names });
-  await waitForCategories(names);
+  await openCategoryMenu();
+  EventUtils.sendString("Discard this", browser.contentWindow);
 
   row.remove();
   parent.append(row);
   await row.renderComplete;
 
-  const add = row.querySelector(".calendar-event-add-category");
-  const list = row.querySelector(".calendar-event-category-list");
+  Assert.deepEqual(
+    selectedLabels(),
+    ["Work", "Unknown category"],
+    "Reconnecting the category row should show the current draft's pills"
+  );
+
+  const menu = await openCategoryMenu(true);
+  const input = menu.querySelector(".calendar-category-name-input");
+  const work = menu.querySelector('[data-category="Work"]');
 
   Assert.equal(
-    list.childElementCount,
-    2,
-    "A reconnected category row should measure its current width"
+    input.value,
+    "",
+    "Reopening the reconnected menu should clear the old name."
   );
 
-  add.focus();
+  await activateCategory(menu, work);
+  await waitForCategories(["Unknown category"]);
 
-  dialog.style.inlineSize = "1000px";
-
-  await BrowserTestUtils.waitForMutationCondition(
-    list,
-    { childList: true },
-    () => list.childElementCount == 3
+  Assert.deepEqual(
+    dialog.draft.categories,
+    ["Unknown category"],
+    "The reconnected category menu should update the draft once per selection"
   );
-
-  Assert.equal(
-    list.childElementCount,
-    3,
-    "A reconnected category row should observe changes to its width"
-  );
-
-  Assert.equal(
-    doc.activeElement,
-    add,
-    "Resizing a reconnected row should preserve focus on Add category"
-  );
-
-  row.querySelector(".calendar-event-add-category").click();
-  dialog.querySelector(".calendar-selector").focus();
-  EventUtils.synthesizeKey("KEY_Escape", {}, browser.contentWindow);
-
-  Assert.ok(
-    row.querySelector(".calendar-event-category-choices").hidden,
-    "A reconnected row should close its choices after Escape outside the row"
-  );
-  Assert.ok(
-    dialog.open,
-    "Closing choices from another control should keep the dialog open"
-  );
-
-  dialog.style.inlineSize = "600px";
 });
 
 add_task(async function test_categoryRowClearsWhileDisconnected() {
@@ -1289,7 +1107,7 @@ add_task(async function test_categoryRowClearsWhileDisconnected() {
     "A row cleared while disconnected should remove its previous chips"
   );
   Assert.equal(
-    row.querySelector(".calendar-event-category-choices").childElementCount,
+    row.querySelectorAll(".calendar-event-category-choices menuitem").length,
     0,
     "A row cleared while disconnected should remove its previous choices"
   );

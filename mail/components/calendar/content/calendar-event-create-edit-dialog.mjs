@@ -1195,14 +1195,6 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Arranges translated category chips before the dialog measures itself.
-   */
-  prepareLayout() {
-    // A resize can be reported while the category row is temporarily removed.
-    this.#categoryRow?.prepareLayout();
-  }
-
-  /**
    * Applies calendar options and the selected value.
    *
    * @param {CalendarEventCalendarControlViewModel|undefined} oldValue - The
