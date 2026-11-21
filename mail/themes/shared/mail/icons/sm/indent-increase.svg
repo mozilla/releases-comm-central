@@ -1,0 +1,10 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16">
+  <path fill="context-fill" fill-opacity="context-fill-opacity" d="M2.5 10.5v-6l4 3-4 3Z"/>
+  <path fill="context-stroke" fill-opacity="context-stroke-opacity" d="M4.5 2c-.277 0-.5.1965-.5.4395v.1211c0 .243.223.4394.5.4394h10c.277 0 .5-.1964.5-.4394v-.1211C15 2.1965 14.777 2 14.5 2h-10Z"/>
+  <path fill="context-stroke" fill-opacity="context-stroke-opacity" d="M8.5 7c-.277 0-.5.2051-.5.459v.082c0 .254.223.459.5.459h6c.277 0 .5-.205.5-.459v-.082c0-.2539-.223-.459-.5-.459h-6Z"/>
+  <path fill="context-stroke" fill-opacity="context-stroke-opacity" d="M4.5 12c-.277 0-.5.223-.5.5s.223.5.5.5h10c.277 0 .5-.223.5-.5s-.223-.5-.5-.5h-10Z"/>
+  <path fill="context-stroke" fill-opacity="context-stroke-opacity" fill-rule="evenodd" d="M2.8 4.1c-.152-.1136-.354-.1319-.524-.0472C2.107 4.1375 2 4.3106 2 4.5v6c0 .1894.107.3625.276.4472.17.0847.372.0664.524-.0472l4-3c.126-.0944.2-.2426.2-.4s-.074-.3056-.2-.4l-4-3ZM3 9.5v-4l2.667 2L3 9.5Z" clip-rule="evenodd"/>
+</svg>

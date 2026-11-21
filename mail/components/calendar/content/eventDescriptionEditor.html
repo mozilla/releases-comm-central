@@ -1,0 +1,130 @@
+<!doctype html>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src chrome:"
+    />
+    <title data-l10n-id="calendar-dialog-description-label"></title>
+    <link rel="localization" href="messenger/calendarDialog.ftl" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/calendar/calendarEventDescriptionEditor.css"
+    />
+  </head>
+  <body>
+    <calendar-description-editor>
+      <div
+        class="description-formatting"
+        role="group"
+        data-l10n-id="calendar-description-formatting"
+      >
+        <button
+          class="button button-flat icon-button icon-only"
+          type="button"
+          data-format="bold"
+          aria-pressed="false"
+          data-l10n-id="calendar-description-bold"
+        ></button>
+        <button
+          class="button button-flat icon-button icon-only"
+          type="button"
+          data-format="italic"
+          aria-pressed="false"
+          data-l10n-id="calendar-description-italic"
+        ></button>
+        <button
+          class="button button-flat icon-button icon-only"
+          type="button"
+          data-format="strikethrough"
+          aria-pressed="false"
+          data-l10n-id="calendar-description-strikethrough"
+        ></button>
+        <button
+          class="button button-flat icon-button icon-only"
+          type="button"
+          data-format="link"
+          data-l10n-id="calendar-description-link"
+        ></button>
+        <button
+          class="button button-flat icon-button icon-only"
+          type="button"
+          data-format="makeUnorderedList"
+          aria-pressed="false"
+          data-l10n-id="calendar-description-bulleted-list"
+        ></button>
+        <button
+          class="button button-flat icon-button icon-only"
+          type="button"
+          data-format="makeOrderedList"
+          aria-pressed="false"
+          data-l10n-id="calendar-description-numbered-list"
+        ></button>
+        <button
+          class="button button-flat icon-button icon-only"
+          type="button"
+          data-format="increaseListLevel"
+          data-l10n-id="calendar-description-indent"
+        ></button>
+        <button
+          class="button button-flat icon-button icon-only"
+          type="button"
+          data-format="decreaseListLevel"
+          data-l10n-id="calendar-description-outdent"
+        ></button>
+        <div class="description-history">
+          <button
+            class="button button-flat icon-button icon-only"
+            type="button"
+            data-format="undo"
+            disabled
+            data-l10n-id="calendar-description-undo"
+          ></button>
+          <button
+            class="button button-flat icon-button icon-only"
+            type="button"
+            data-format="redo"
+            disabled
+            data-l10n-id="calendar-description-redo"
+          ></button>
+        </div>
+      </div>
+      <form class="description-link-form" hidden>
+        <input
+          type="text"
+          inputmode="url"
+          required
+          data-l10n-id="calendar-description-link-address"
+        />
+        <button
+          class="button"
+          type="submit"
+          data-l10n-id="calendar-description-apply-link"
+        ></button>
+        <button
+          class="button"
+          type="button"
+          data-format="removeLink"
+          data-l10n-id="calendar-description-remove-link"
+        ></button>
+        <button
+          class="button"
+          type="button"
+          data-format="cancelLink"
+          data-l10n-id="calendar-description-cancel-link"
+        ></button>
+      </form>
+      <div
+        class="description-input"
+        role="textbox"
+        aria-multiline="true"
+        data-l10n-id="calendar-description-input"
+        spellcheck="true"
+      ></div>
+    </calendar-description-editor>
+  </body>
+</html>

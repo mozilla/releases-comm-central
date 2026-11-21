@@ -488,6 +488,7 @@
   skin/classic/messenger/calendar/calendarDialogNavigationRow.css (../shared/mail/calendar/calendarDialogNavigationRow.css)
   skin/classic/messenger/calendar/calendarDialogRow.css         (../shared/mail/calendar/calendarDialogRow.css)
   skin/classic/messenger/calendar/calendarDialogSubview.css     (../shared/mail/calendar/calendarDialogSubview.css)
+  skin/classic/messenger/calendar/calendarEventDescriptionEditor.css (../shared/mail/calendar/calendarEventDescriptionEditor.css)
   skin/classic/messenger/calendar/calendarDialogToggleableRow.css (../shared/mail/calendar/calendarDialogToggleableRow.css)
   skin/classic/messenger/calendar/calendarPrompt.css            (../shared/mail/calendar/calendarPrompt.css)
 
@@ -817,6 +818,16 @@
   skin/classic/messenger/icons/xs/replies.svg                  (../shared/mail/icons/xs/replies.svg)
 
 # SM - 16x16px icons
+  skin/classic/messenger/icons/sm/indent-decrease.svg        (../shared/mail/icons/sm/indent-decrease.svg)
+  skin/classic/messenger/icons/sm/indent-increase.svg        (../shared/mail/icons/sm/indent-increase.svg)
+  skin/classic/messenger/icons/sm/list-bulleted.svg          (../shared/mail/icons/sm/list-bulleted.svg)
+  skin/classic/messenger/icons/sm/list-numbered.svg          (../shared/mail/icons/sm/list-numbered.svg)
+  skin/classic/messenger/icons/sm/redo.svg                   (../shared/mail/icons/sm/redo.svg)
+  skin/classic/messenger/icons/sm/text-bold.svg              (../shared/mail/icons/sm/text-bold.svg)
+  skin/classic/messenger/icons/sm/text-italic.svg            (../shared/mail/icons/sm/text-italic.svg)
+  skin/classic/messenger/icons/sm/text-link.svg              (../shared/mail/icons/sm/text-link.svg)
+  skin/classic/messenger/icons/sm/text-strikethrough.svg     (../shared/mail/icons/sm/text-strikethrough.svg)
+  skin/classic/messenger/icons/sm/undo.svg                   (../shared/mail/icons/sm/undo.svg)
   skin/classic/messenger/icons/sm/circle-question.svg          (../shared/mail/icons/sm/circle-question.svg)
   skin/classic/messenger/icons/sm/circle-check.svg             (../shared/mail/icons/sm/circle-check.svg)
   skin/classic/messenger/icons/sm/circle-close.svg             (../shared/mail/icons/sm/circle-close.svg)

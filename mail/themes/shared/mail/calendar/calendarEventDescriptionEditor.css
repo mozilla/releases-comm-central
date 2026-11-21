@@ -1,0 +1,145 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/icons.css");
+@import url("chrome://messenger/skin/spacings.css");
+@import url("chrome://messenger/skin/shared/variables.css");
+@import url("chrome://messenger/skin/widgets.css");
+
+html {
+  color-scheme: light dark;
+  color: var(--color-text-base);
+  background: var(--color-surface-base);
+  font: message-box;
+  font-size: 13px;
+  line-height: 16px;
+
+  @media not (prefers-contrast) {
+    color: light-dark(#1a202c, var(--color-text-base-dark));
+    background-color: light-dark(#feffff, var(--color-surface-base-dark));
+  }
+}
+
+body {
+  margin: 0;
+}
+
+calendar-description-editor {
+  display: flex;
+  flex-direction: column;
+  block-size: 100dvb;
+}
+
+.description-formatting {
+  display: flex;
+  flex: none;
+  align-items: center;
+  box-sizing: border-box;
+  block-size: 39px;
+  padding-inline: 7px;
+  border-block-end: 1px solid var(--color-surface-deep);
+  background-color: var(--color-surface-lower);
+
+  @media not (prefers-contrast) {
+    background-color: light-dark(#f7f7f7, var(--color-surface-lower-dark));
+  }
+
+  & .button {
+    --button-padding: var(--space-step);
+    flex: none;
+    box-sizing: border-box;
+    inline-size: 24px;
+    block-size: 24px;
+    margin: 0;
+    background-image: var(--description-icon);
+  }
+
+  & .button[aria-pressed="true"] {
+    background-color: var(--button-active-background-color);
+  }
+
+  & [data-format="bold"] {
+    --description-icon: var(--icon-text-bold-sm);
+  }
+
+  & [data-format="italic"] {
+    --description-icon: var(--icon-text-italic-sm);
+  }
+
+  & [data-format="strikethrough"] {
+    --description-icon: var(--icon-text-strikethrough-sm);
+  }
+
+  & [data-format="link"] {
+    --description-icon: var(--icon-text-link-sm);
+  }
+
+  & [data-format="makeUnorderedList"] {
+    --description-icon: var(--icon-list-bulleted-sm);
+  }
+
+  & [data-format="makeOrderedList"] {
+    --description-icon: var(--icon-list-numbered-sm);
+  }
+
+  & [data-format="increaseListLevel"] {
+    --description-icon: var(--icon-indent-increase-sm);
+  }
+
+  & [data-format="decreaseListLevel"] {
+    --description-icon: var(--icon-indent-decrease-sm);
+  }
+
+  & [data-format="undo"] {
+    --description-icon: var(--icon-undo-sm);
+  }
+
+  & [data-format="redo"] {
+    --description-icon: var(--icon-redo-sm);
+  }
+}
+
+.description-history {
+  display: flex;
+  margin-inline-start: auto;
+}
+
+.description-link-form:not([hidden]) {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(2 * var(--space-step));
+  padding: calc(2 * var(--space-step));
+  border-block-end: 1px solid var(--color-surface-deep);
+
+  & input {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  & .button {
+    min-inline-size: 0;
+    margin: 0;
+  }
+}
+
+.description-input {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  /* The border contributes one pixel to the 12px text inset. */
+  padding: calc(4 * var(--space-step) - 1px);
+
+  &:focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: calc(-1 * var(--focus-outline-offset));
+  }
+
+  & pre {
+    white-space: pre-wrap;
+  }
+}

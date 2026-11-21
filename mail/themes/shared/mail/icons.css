@@ -18,6 +18,16 @@
   --icon-sun-xs: url("chrome://messenger/skin/icons/new/sun-xs.svg");
 
   /* SM - 16x16px icons */
+  --icon-indent-decrease-sm: url("chrome://messenger/skin/icons/sm/indent-decrease.svg");
+  --icon-indent-increase-sm: url("chrome://messenger/skin/icons/sm/indent-increase.svg");
+  --icon-list-bulleted-sm: url("chrome://messenger/skin/icons/sm/list-bulleted.svg");
+  --icon-list-numbered-sm: url("chrome://messenger/skin/icons/sm/list-numbered.svg");
+  --icon-redo-sm: url("chrome://messenger/skin/icons/sm/redo.svg");
+  --icon-text-bold-sm: url("chrome://messenger/skin/icons/sm/text-bold.svg");
+  --icon-text-italic-sm: url("chrome://messenger/skin/icons/sm/text-italic.svg");
+  --icon-text-link-sm: url("chrome://messenger/skin/icons/sm/text-link.svg");
+  --icon-text-strikethrough-sm: url("chrome://messenger/skin/icons/sm/text-strikethrough.svg");
+  --icon-undo-sm: url("chrome://messenger/skin/icons/sm/undo.svg");
   --icon-folder-compact-sm: url("chrome://messenger/skin/icons/sm/folder-compact.svg");
   --icon-sparkle-star-sm: url("chrome://messenger/skin/icons/sm/sparkle-star.svg");
   --icon-upload-sm: url("chrome://messenger/skin/icons/sm/upload.svg");
