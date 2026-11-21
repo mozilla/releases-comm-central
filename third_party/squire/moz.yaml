@@ -1,0 +1,33 @@
+schema: 1
+
+bugzilla:
+  product: Thunderbird
+  component: Mail Window Front End
+
+origin:
+  name: Squire
+  description: Browser-based rich text editor
+  url: https://github.com/fastmail/Squire
+  release: 2.4.11 (2026-11-10T21:08:05.806Z).
+  revision: 2.4.11
+  license: MIT
+  license-file: LICENSE
+
+vendoring:
+  url: https://www.npmjs.com/package/squire-rte
+  source-hosting: yaml-dir
+  source-host-path: squire_vendor.SquireNpmHost
+  skip-vendoring-steps:
+    - fetch
+    - hg-add
+    - spurious-check
+    - update-moz-build
+  keep:
+    - squire_vendor.py
+  update-actions:
+    - action: run-command
+      command: python
+      args:
+        - squire_vendor.py
+        - "{revision}"
+      cwd: "{yaml_dir}"

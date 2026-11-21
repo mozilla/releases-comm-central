@@ -35,6 +35,7 @@ MOZ_SRC_FILES += [
     "redux/redux-toolkit/redux-toolkit.mjs",
     "redux/redux/redux.mjs",
     "redux/reselect/reselect.mjs",
+    "squire/squire-raw.mjs",
 ]
 
 TESTING_JS_MODULES.mail += [
@@ -119,6 +120,7 @@ LICENSED_UNDER["mit"].paths = [
     "redux/immer",
     "redux/redux-toolkit",
     "redux/reselect",
+    "squire",
 ]
 LICENSED_UNDER["getopt"].paths = [
     "niwcompat/getopt.c",

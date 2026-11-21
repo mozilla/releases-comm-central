@@ -21,4 +21,5 @@ comm/third_party/rnp/
 comm/third_party/rnp_experimental/
 comm/third_party/rust/
 comm/third_party/sax-js/
+comm/third_party/squire/
 comm/third_party/zlib/
