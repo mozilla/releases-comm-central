@@ -26,9 +26,9 @@ if CONFIG["MAKENSISU"]:
     nsis_locale_files = [
         f"/comm/mail/locales/en-US/installer/{f}"
         for f in [
-            "custom.properties",
-            "mui.properties",
-            "override.properties",
+            "custom.ftl",
+            "mui.ftl",
+            "override.ftl",
         ]
     ]
 
