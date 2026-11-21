@@ -644,7 +644,7 @@ add_task(async function test_dialogEditSingleEvent() {
   await openAndShowEvent();
 
   const dialog = document.getElementById("calendarDialog");
-  const eventId = dialog.getAttribute("event-id", false);
+  const eventId = dialog.getAttribute("event-id");
 
   await subtestEditEventPrompt(null, false);
 
@@ -658,7 +658,7 @@ add_task(async function test_dialogEditSingleOccurrence() {
   await openAndShowEvent({ baseDate: testDate, offset: 1 });
 
   const dialog = document.getElementById("calendarDialog");
-  const eventId = dialog.getAttribute("event-id", false);
+  const eventId = dialog.getAttribute("event-id");
 
   const editEventPromise = BrowserTestUtils.promiseAlertDialogOpen(
     null,
@@ -693,7 +693,7 @@ add_task(async function test_dialogEditAllOccurrences() {
   await openAndShowEvent({ baseDate: testDate, offset: 1 });
 
   const dialog = document.getElementById("calendarDialog");
-  const eventId = dialog.getAttribute("event-id", false);
+  const eventId = dialog.getAttribute("event-id");
 
   const editEventPromise = BrowserTestUtils.promiseAlertDialogOpen(
     null,
@@ -738,7 +738,7 @@ add_task(async function test_dialogEditSingleEventNewDialog() {
     await openAndShowEvent();
 
     const dialog = document.getElementById("calendarDialog");
-    const eventId = dialog.getAttribute("event-id", false);
+    const eventId = dialog.getAttribute("event-id");
 
     await subtestEditEventPrompt(null, false, true);
 
@@ -760,7 +760,7 @@ add_task(async function test_dialogEditSingleOccurrenceNewDialog() {
     await openAndShowEvent({ baseDate: testDate, offset: 1 });
 
     const dialog = document.getElementById("calendarDialog");
-    const eventId = dialog.getAttribute("event-id", false);
+    const eventId = dialog.getAttribute("event-id");
 
     const editEventPromise = BrowserTestUtils.promiseAlertDialogOpen(
       null,
@@ -803,7 +803,7 @@ add_task(async function test_dialogEditAllOccurrencesNewDialog() {
     await openAndShowEvent({ baseDate: testDate, offset: 1 });
 
     const dialog = document.getElementById("calendarDialog");
-    const eventId = dialog.getAttribute("event-id", false);
+    const eventId = dialog.getAttribute("event-id");
 
     const editEventPromise = BrowserTestUtils.promiseAlertDialogOpen(
       null,
@@ -1121,6 +1121,89 @@ add_task(async function test_setFullDescription() {
     beforeUnloadGuard
   );
   window.launchBrowser = originalLaunchBrowser;
+});
+
+add_task(async function test_deleteReminder() {
+  const dayReminder = createAlarmFromDuration("-P1D");
+  const sixDayReminder = createAlarmFromDuration("-P6D");
+  const alarms = [sixDayReminder, dayReminder];
+  await createEvent({ calendar, alarms });
+  await openAndShowEvent();
+
+  const dialog = document.getElementById("calendarDialog");
+  const eventId = dialog.getAttribute("event-id");
+  const remindersRow = dialog.querySelector("calendar-dialog-reminders-row");
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", remindersRow);
+
+  // Check the reminders are ordered correctly.
+  const remindersList = remindersRow.querySelector("#reminderList");
+  let firstReminder = remindersList.childNodes[0];
+
+  Assert.equal(
+    firstReminder.textContent,
+    dayReminder.toString(),
+    "First reminder should be ordered correctly"
+  );
+
+  const secondReminder = remindersList.childNodes[1];
+  Assert.equal(
+    secondReminder.textContent,
+    sixDayReminder.toString(),
+    "Second reminder should be ordered correctly"
+  );
+
+  // Clicking delete on the first reminder should remove it from the event.
+  const updateRemindersPromise = BrowserTestUtils.waitForEvent(
+    remindersRow,
+    "update-reminders"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    firstReminder.querySelector(".delete-button"),
+    {}
+  );
+  await updateRemindersPromise;
+
+  await BrowserTestUtils.waitForMutationCondition(
+    remindersList,
+    {
+      childList: true,
+      subtree: true,
+    },
+    () => remindersList.childNodes.length == 1,
+    "Reminders list should update after reminder deletion"
+  );
+
+  firstReminder = remindersList.childNodes[0];
+  Assert.equal(
+    firstReminder.textContent,
+    sixDayReminder.toString(),
+    "First reminder should be the correct reminder"
+  );
+
+  await TestUtils.waitForCondition(async () => {
+    const event = await calendar.getItem(eventId);
+    return event.getAlarms().length === 1;
+  }, "Event alarms should update after deletion");
+
+  // Close the dialog and reopen it to confirm the correct reminder is
+  // listed.
+  dialog.close();
+  const eventBox = await openAndShowEvent();
+  await BrowserTestUtils.waitForAttributeRemoval("hidden", remindersRow);
+
+  firstReminder = remindersList.childNodes[0];
+  Assert.equal(
+    firstReminder.textContent,
+    sixDayReminder.toString(),
+    "The first reminder should be the six-day reminder."
+  );
+  Assert.equal(
+    remindersList.childNodes.length,
+    1,
+    "There should be the correct number of reminder elements"
+  );
+
+  await cleanUp(dialog, eventBox);
 });
 
 /**

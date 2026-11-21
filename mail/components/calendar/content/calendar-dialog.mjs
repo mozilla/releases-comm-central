@@ -105,11 +105,18 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
   #updateEvent = null;
 
   /**
-   * The title element for the dialog
+   * The title element for the dialog.
    *
    * @type {HTMLElement}
    */
   #title;
+
+  /**
+   * The list of reminders on the event.
+   *
+   * @type {calIAlarm[]}
+   */
+  #reminders;
 
   connectedCallback() {
     if (!this.hasConnected) {
@@ -142,6 +149,8 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
       this.setAttribute("is", "calendar-dialog");
       this.setAttribute("closedby", "closerequest");
       this.addEventListener("cancel", this);
+
+      this.addEventListener("update-reminders", this);
 
       this.container = document.getElementById("calendarDisplayBox");
       this.#title = this.querySelector(".calendar-dialog-title");
@@ -260,6 +269,9 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
       case "setEventResponse":
         this.#setEventResponse(event.detail.status);
         break;
+      case "update-reminders":
+        this.#updateReminders(event.detail.reminders);
+        break;
     }
   }
 
@@ -367,7 +379,7 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
     this.#setLocation(event.getProperty("LOCATION") ?? "");
 
     // Sort the reminders by offset from event date.
-    const reminders = event
+    this.#reminders = event
       .getAlarms()
       .sort((a, b) =>
         cal.alarms
@@ -375,7 +387,9 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
           .compare(cal.alarms.calculateAlarmDate(event, a))
       );
 
-    this.querySelector("calendar-dialog-reminders-row").setReminders(reminders);
+    this.querySelector("calendar-dialog-reminders-row").setReminders(
+      this.#reminders
+    );
 
     const attendees = event.getAttendees();
     const organizer = event.organizer;
@@ -798,6 +812,30 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
       }
       case CANCEL:
         break;
+    }
+  }
+
+  /**
+   * Updates the reminders for the current event.
+   *
+   * @param {calIAlarm[]} reminders - The new list of reminders.
+   */
+  async #updateReminders(reminders) {
+    const newEvent = this.#event.clone();
+    newEvent.clearAlarms();
+
+    reminders.forEach(alarm => {
+      newEvent.addAlarm(alarm);
+    });
+
+    try {
+      await this.#applyNewEvent(newEvent);
+      this.#reminders = reminders;
+    } catch (error) {
+      // Reset reminders to original list of reminders in case of error.
+      this.querySelector("calendar-dialog-reminders-row").setReminders(
+        this.#reminders
+      );
     }
   }
 }

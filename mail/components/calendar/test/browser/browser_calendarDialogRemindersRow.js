@@ -116,4 +116,77 @@ add_task(async function test_setMultipleReminders() {
     "calendar-dialog-delete-reminder-button",
     "Delete image should have correct fluent ID"
   );
+
+  row.setReminders([]);
+});
+
+add_task(async function test_deleteReminders() {
+  const dayReminder = createAlarmFromDuration("-P1D");
+  const sixDayReminder = createAlarmFromDuration("-P6D");
+  const alarms = [sixDayReminder, dayReminder];
+
+  row.setReminders(alarms);
+
+  const reminderLabel = row.querySelector("#reminderCount");
+  let fluentData = document.l10n.getAttributes(reminderLabel);
+
+  Assert.equal(
+    fluentData.id,
+    "calendar-dialog-reminder-count",
+    "Reminder count label should be set"
+  );
+
+  Assert.equal(
+    fluentData.args.count,
+    2,
+    "Reminder count label should have the right count"
+  );
+
+  const remindersList = row.querySelector("#reminderList");
+  Assert.equal(
+    remindersList.childNodes.length,
+    2,
+    "There should be reminder elements created"
+  );
+
+  let firstReminder = remindersList.childNodes[0];
+  Assert.equal(
+    firstReminder.textContent,
+    sixDayReminder.toString(),
+    "First reminder should be unordered"
+  );
+
+  const firstReminderDeleteButton =
+    firstReminder.querySelector(".delete-button");
+
+  // Click delete button and make sure the reminder is removed from the row and
+  // an event is sent.
+  const updateRemindersPromise = BrowserTestUtils.waitForEvent(
+    row,
+    "update-reminders"
+  );
+  firstReminderDeleteButton.click();
+  await updateRemindersPromise;
+
+  fluentData = document.l10n.getAttributes(reminderLabel);
+  Assert.equal(
+    fluentData.args.count,
+    1,
+    "Reminder count label should have the right count"
+  );
+
+  Assert.equal(
+    remindersList.childNodes.length,
+    1,
+    "There should be the correct number of reminder elements"
+  );
+
+  firstReminder = remindersList.childNodes[0];
+  Assert.equal(
+    firstReminder.textContent,
+    dayReminder.toString(),
+    "First reminder should be unordered"
+  );
+
+  row.setReminders([]);
 });

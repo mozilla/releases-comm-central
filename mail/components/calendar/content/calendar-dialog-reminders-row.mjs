@@ -11,6 +11,21 @@ import "./calendar-dialog-create-reminder-form.mjs"; // eslint-disable-line impo
  * @tagname calendar-dialog-reminders-row
  */
 class CalendarDialogRemindersRow extends HTMLElement {
+  /**
+   * The reminder objects in the row.
+   *
+   * @type {calIAlarm[]}
+   */
+  #reminders = [];
+
+  /**
+   * A map containing the relationship between alarm objects (value) and the
+   * reminder elements (key) in this row.
+   *
+   * @type {WeakMap<HTMLElement,calIAlarm>}
+   */
+  #alarmByRow = new WeakMap();
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -25,12 +40,21 @@ class CalendarDialogRemindersRow extends HTMLElement {
     this.append(template);
   }
 
+  handleEvent(event) {
+    // The delete button click event is the only event in this custom element.
+    const reminderElement = event.target.closest("li");
+    this.#deleteReminder(reminderElement);
+  }
+
   /**
    * Sets the list of reminders.
    *
    * @param {CalAlarm[]} reminders - An array of the event reminders.
    */
   setReminders(reminders) {
+    this.#alarmByRow = new WeakMap();
+    this.#reminders = reminders;
+
     const remindersList = this.querySelector("#reminderList");
     document.l10n.setAttributes(
       this.querySelector("#reminderCount"),
@@ -64,9 +88,52 @@ class CalendarDialogRemindersRow extends HTMLElement {
 
         deleteButton.append(deleteImage);
         reminderListItem.append(deleteButton);
+        this.#alarmByRow.set(reminderListItem, reminder);
         return reminderListItem;
       })
     );
+
+    remindersList.querySelectorAll(".delete-button").forEach(deleteButton => {
+      deleteButton.addEventListener("click", this);
+    });
+  }
+
+  /**
+   * Removes the reminder from the list of reminders, and sends an event
+   * to the calendar dialog to update the reminders list.
+   *
+   * @param {HTMLElement} reminderElement - The list element of the reminder.
+   */
+  #deleteReminder(reminderElement) {
+    const selectedAlarm = this.#alarmByRow.get(reminderElement);
+    const reminderIndex = this.#reminders.indexOf(selectedAlarm);
+
+    if (reminderIndex === -1) {
+      return;
+    }
+
+    this.#reminders = this.#reminders.toSpliced(reminderIndex, 1);
+    reminderElement.remove();
+
+    this.dispatchEvent(
+      new CustomEvent("update-reminders", {
+        bubbles: true,
+        detail: { reminders: this.#reminders },
+      })
+    );
+
+    document.l10n.setAttributes(
+      this.querySelector("#reminderCount"),
+      "calendar-dialog-reminder-count",
+      { count: this.#reminders.length }
+    );
+
+    // Update focus to a button.
+    if (this.#reminders.length) {
+      this.querySelector(".delete-button").focus();
+    } else {
+      this.querySelector("#addReminder").focus();
+    }
   }
 }
 
