@@ -27,6 +27,8 @@ add_setup(async function () {
     set: [
       ["calendar.categories.names", "Work,Personal,Team"],
       ["calendar.category.color.work", "#000080"],
+      ["calendar.category.color.personal", "#ffee99"],
+      ["ui.prefersReducedMotion", 1],
     ],
   });
 
@@ -270,6 +272,96 @@ add_task(async function test_createChoicesAndKeyboardSelection() {
     add,
     "Removing the final chip should return focus to Add category"
   );
+});
+
+add_task(async function test_categoryPillSpacingAndRemoveContrast() {
+  await showCategories();
+  dialog.updateDraftSection("categories", { categories: ["Work", "Personal"] });
+  await waitForCategories(["Work", "Personal"]);
+
+  const categoryColors = [
+    { name: "Work", iconColor: "rgb(255, 255, 255)", tint: 255 },
+    { name: "Personal", iconColor: "rgb(0, 0, 0)", tint: 0 },
+  ];
+
+  for (const { name, iconColor, tint } of categoryColors) {
+    const chip = dialog.querySelector(
+      `.calendar-event-category-chip[data-category="${name}"]`
+    );
+    const remove = chip.querySelector(".calendar-event-remove-category");
+    const label = chip.querySelector(".calendar-event-category-label");
+    const chipStyle = browser.contentWindow.getComputedStyle(chip);
+    const removeStyle = browser.contentWindow.getComputedStyle(remove);
+    const chipRect = chip.getBoundingClientRect();
+    const labelRect = label.getBoundingClientRect();
+    const removeRect = remove.getBoundingClientRect();
+    const expectedHeight = Math.max(12, labelRect.height) + 12;
+    const endInset =
+      chipStyle.direction == "rtl"
+        ? removeRect.left - chipRect.left
+        : chipRect.right - removeRect.right;
+
+    Assert.equal(
+      chipStyle.paddingBlockStart,
+      "6px",
+      "The pill should have 6 px of vertical padding."
+    );
+    Assert.equal(
+      chipStyle.paddingInlineStart,
+      "9px",
+      "The pill should have 9 px of horizontal padding."
+    );
+    Assert.equal(removeRect.height, 12, "Remove should fit in a 12 px box.");
+    Assert.equal(removeRect.width, 12, "The Remove button should be square.");
+    Assert.equal(
+      chipRect.height,
+      expectedHeight,
+      "Only the label or the Remove button and the vertical padding should set the pill height."
+    );
+    Assert.equal(
+      Math.round(endInset),
+      9,
+      "The Remove button should sit at the end padding of the pill."
+    );
+    Assert.equal(
+      chipStyle.color,
+      iconColor,
+      "The pill label should use the same contrasting color as Remove."
+    );
+    Assert.equal(
+      removeStyle.color,
+      iconColor,
+      `Remove should contrast with the ${name} pill.`
+    );
+
+    EventUtils.synthesizeMouseAtCenter(
+      remove,
+      { type: "mousemove" },
+      browser.contentWindow
+    );
+
+    Assert.equal(
+      removeStyle.color,
+      iconColor,
+      "Hover should keep the Remove icon color."
+    );
+
+    const { r, g, b, a } = InspectorUtils.colorToRGBA(
+      removeStyle.backgroundColor
+    );
+
+    Assert.deepEqual(
+      [r, g, b],
+      [tint, tint, tint],
+      "Hover should tint the button toward the icon color."
+    );
+    Assert.greater(a, 0, "Hover should add a background tint to Remove.");
+    Assert.less(
+      a,
+      1,
+      "The pill color should remain visible through the hover tint."
+    );
+  }
 });
 
 add_task(async function test_editSourceAndDraftOnlyChanges() {

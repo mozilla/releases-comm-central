@@ -536,13 +536,14 @@ li[is="calendar-dialog-attachment"] {
     --icon-size: 12px;
     --button-padding: 0px;
     align-self: start;
+    min-block-size: var(--icon-size);
     border: 0;
     padding-inline-start: calc(var(--icon-size) + 2 * var(--space-step));
     padding-inline-end: 0;
     margin: 0;
-    font-size: 13px;
+    font-size: 1rem;
     font-weight: 500;
-    line-height: 17px;
+    line-height: 1.3;
     color: var(--color-text-highlight);
     background-image: var(--icon-circle-add-sm);
 
@@ -574,23 +575,23 @@ li[is="calendar-dialog-attachment"] {
   }
 
   & .calendar-event-category-chip {
+    --category-chip-background: var(--item-color, var(--color-surface-subtle));
+    --category-chip-foreground: contrast-color(var(--category-chip-background));
     display: flex;
     align-items: center;
     gap: calc(2 * var(--space-step));
     box-sizing: border-box;
     min-inline-size: 80px;
     max-inline-size: 100%;
-    justify-content: center;
-    min-block-size: calc(8 * var(--space-step));
-    padding: calc(2 * var(--space-step)) calc(3 * var(--space-step));
+    padding-block: calc(2 * var(--space-step));
+    padding-inline: calc(3 * var(--space-step));
     border-radius: var(--space-step);
     /* Keep the system font. Chip widths can differ from Zeplin's Inter font. */
-    font-size: 10px;
+    font-size: 0.769rem;
     font-weight: 700;
-    line-height: 12px;
-    /* Use neutral colors when the row supplies no usable category color. */
-    color: var(--item-text-color, var(--color-text-base));
-    background-color: var(--item-color, var(--color-surface-subtle));
+    line-height: 1.2;
+    color: var(--category-chip-foreground);
+    background-color: var(--category-chip-background);
 
     @media (forced-colors: active) {
       outline: 1px solid CanvasText;
@@ -601,9 +602,11 @@ li[is="calendar-dialog-attachment"] {
   & .calendar-event-category-label {
     /* Limit long labels before flex layout so shorter labels still have room.
      * Clip only label text. Keep the Remove button and its focus outline visible. */
+    flex-grow: 1;
     max-inline-size: 20ch;
     min-inline-size: 0;
     overflow: hidden;
+    text-align: center;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -611,15 +614,33 @@ li[is="calendar-dialog-attachment"] {
   & .calendar-event-remove-category {
     --icon-size: 12px;
     --button-padding: 0px;
+    --button-hover-text-color: var(--category-chip-foreground);
     flex-shrink: 0;
     block-size: var(--icon-size);
+    /* The main window gives buttons a 24 px minimum. The pill adds its own padding. */
+    min-block-size: 0;
     border: 0;
     margin: 0;
-    background-image: var(--icon-close-xs);
-    color: inherit;
+    background-image: var(--icon-close);
+    background-size: 16px;
+    color: var(--button-hover-text-color);
 
-    &:focus-visible {
-      outline-offset: var(--focus-outline-offset);
+    &:is(:dir(rtl), :-moz-locale-dir(rtl)) {
+      background-position-x: center;
+    }
+
+    &:enabled:focus-visible {
+      outline-color: currentColor;
+    }
+
+    /* TODO: Share these forced-colors styles across labels and categories. */
+    @media (forced-colors: active) {
+      --button-hover-text-color: ButtonText;
+
+      &:enabled:hover {
+        background-color: SelectedItem;
+        color: SelectedItemText;
+      }
     }
   }
 

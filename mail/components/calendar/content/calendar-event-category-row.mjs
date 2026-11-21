@@ -446,7 +446,6 @@ export class CalendarEventCategoryRow extends calendarEventSessionRow(
       label.textContent = categoryName;
       label.title = categoryName;
       chip.style.setProperty("--item-color", option.color);
-      chip.style.setProperty("--item-text-color", option.textColor);
 
       document.l10n.setAttributes(button, "calendar-event-remove-category", {
         category: categoryName,
