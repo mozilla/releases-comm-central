@@ -11,8 +11,9 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 var gAuthFailedPrompts = 0;
 // The continuation lines the server received during AUTH.
@@ -21,8 +22,6 @@ var gAuthLines = [];
 var gServer;
 var gIncomingServer;
 
-/* exported alert, confirmExPS */
-// for alertTestUtils.js
 function alert() {}
 
 function confirmExPS() {
@@ -49,7 +48,9 @@ add_setup(function () {
   }, new Pop3Daemon());
   gServer.start();
 
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alert, confirmExPS });
+
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   gIncomingServer = createPop3ServerAndLocalFolders(gServer.port);
   gIncomingServer.authMethod = Ci.nsMsgAuthMethod.passwordEncrypted;

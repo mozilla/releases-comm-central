@@ -8,12 +8,16 @@ const { MessageSend } = ChromeUtils.importESModule(
 const { MailUtils } = ChromeUtils.importESModule(
   "resource:///modules/MailUtils.sys.mjs"
 );
+var { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
+);
 const { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 let promptChoices;
 let alertCount;
@@ -33,7 +37,8 @@ function alertPS() {
 
 add_setup(function () {
   localAccountUtils.loadLocalMailAccount();
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alertPS, confirmExPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 });
 
 /**

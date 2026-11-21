@@ -69,6 +69,7 @@ TESTING_JS_MODULES.mailnews += [
     "test/fakeserver/POP3Server.sys.mjs",
     "test/fakeserver/Smtpd.sys.mjs",
     "test/fakeserver/SMTPServer.sys.mjs",
+    "test/resources/AlertTestUtils.sys.mjs",
     "test/resources/HttpsProxy.sys.mjs",
     "test/resources/IMAPpump.sys.mjs",
     "test/resources/LocalAccountUtils.sys.mjs",

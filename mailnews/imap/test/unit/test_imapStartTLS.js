@@ -7,8 +7,9 @@
  * before the TLS handshake, which could have been injected, is not used.
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 const { ServerTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/ServerTestUtils.sys.mjs"
@@ -19,7 +20,6 @@ const { CAPABILITY, STARTTLS, onStartup } = IMAP_RFC3501_handler.prototype;
 let imapServer, incomingServer;
 let alerts = [];
 
-/* exported alertPS to alertTestUtils.js */
 function alertPS(parent, title, text) {
   alerts.push(text);
 }
@@ -42,7 +42,8 @@ add_setup(async function () {
   incomingServer.password = "password";
   incomingServer.port = 143;
   incomingServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alertPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   registerCleanupFunction(() => {
     IMAP_RFC3501_handler.prototype.CAPABILITY = CAPABILITY;

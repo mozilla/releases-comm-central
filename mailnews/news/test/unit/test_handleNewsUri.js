@@ -90,7 +90,7 @@ add_setup(function () {
 
   // Replace Services.prompt with a mock so confirm() doesn't try to open
   // a real window (which would fail in xpcshell).  This is the same pattern
-  // used by registerAlertTestUtils() in alertTestUtils.js.
+  // used by AlertTestUtils.register() in AlertTestUtils.sys.mjs.
   Services.prompt = {
     QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
 

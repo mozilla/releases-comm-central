@@ -7,7 +7,6 @@
  * with offline store locking correctly.
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );

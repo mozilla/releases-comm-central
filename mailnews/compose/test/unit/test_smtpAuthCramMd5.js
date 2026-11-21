@@ -17,8 +17,9 @@ var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 var gAuthFailedPrompts = 0;
 // The continuation lines the server received during AUTH.
@@ -28,8 +29,6 @@ var gServer;
 var gSmtpServer;
 var gIdentity;
 
-/* exported alert, confirmExPS */
-// for alertTestUtils.js
 function alert() {}
 
 function confirmExPS() {
@@ -58,7 +57,9 @@ add_setup(function () {
   });
   gServer.start();
 
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alert, confirmExPS });
+
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   localAccountUtils.loadLocalMailAccount();
   gSmtpServer = getBasicSmtpServer(gServer.port);

@@ -5,9 +5,7 @@
 
 // async support
 /* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
-load("../../../resources/alertTestUtils.js");
 
 // Globals
 

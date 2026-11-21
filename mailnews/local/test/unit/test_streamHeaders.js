@@ -9,9 +9,6 @@
  * adapted from test_pop3Pump.js by Kent James <kent@caspia.com>
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
-
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/POP3pump.js");
 

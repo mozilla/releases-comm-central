@@ -7,19 +7,20 @@
  * once, while a different one is still shown.
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 var server, incomingServer;
 var alerts = [];
 
-/* exported alertPS to alertTestUtils.js */
 function alertPS(parent, title, text) {
   alerts.push(text);
 }
 
 add_setup(function () {
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alertPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
   const daemon = new ImapDaemon();
   server = makeServer(daemon, "", {
     // The client sends CAPABILITY before and after authenticating, so the

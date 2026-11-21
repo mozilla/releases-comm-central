@@ -8,8 +8,9 @@
  * wrong command, and that folder discovery on it doesn't remove folders.
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 const { IMAPServer } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/IMAPServer.sys.mjs"
@@ -22,7 +23,6 @@ const { ID } = IMAP_RFC2197_extension;
 
 let server, incomingServer;
 
-/* exported alertPS to alertTestUtils.js */
 function alertPS() {}
 
 add_setup(async function () {
@@ -44,7 +44,8 @@ add_setup(async function () {
   incomingServer.password = "password";
   incomingServer.port = server.port;
   account.incomingServer = incomingServer;
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alertPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   registerCleanupFunction(() => {
     IMAP_RFC2197_extension.ID = ID;

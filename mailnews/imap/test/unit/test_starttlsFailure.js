@@ -8,8 +8,9 @@
  * it drop the connection when it's attempted.
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -23,7 +24,6 @@ var gGotAlert = new Promise(resolve => {
   gAlertResolve = resolve;
 });
 
-/* exported alert to alertTestUtils.js */
 function alertPS(parent, aDialogTitle, aText) {
   gAlertResolve(aText);
 }
@@ -55,7 +55,9 @@ add_setup(async function () {
     .getChildNamed("Inbox")
     .QueryInterface(Ci.nsIMsgImapMailFolder);
 
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alertPS });
+
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(true, listener);

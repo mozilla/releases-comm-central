@@ -9,8 +9,9 @@
  * the queued operations never run.
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -44,7 +45,8 @@ function promptPasswordPS(
 }
 
 add_setup(async function () {
-  registerAlertTestUtils();
+  AlertTestUtils.register({ promptPasswordPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
   setupIMAPPump();
 
   IMAPPump.daemon.createMailbox("secondFolder", { subscribed: true });

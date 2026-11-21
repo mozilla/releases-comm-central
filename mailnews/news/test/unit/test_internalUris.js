@@ -7,8 +7,9 @@
  * If you manually generate a news URI somewhere, please add it to this test.
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -31,7 +32,8 @@ var kCancelArticle =
   "This message was cancelled from within ";
 
 add_setup(function setupTest() {
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alertPS, confirmExPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   daemon = setupNNTPDaemon();
   server = makeServer(NNTP_RFC2980_handler, daemon);

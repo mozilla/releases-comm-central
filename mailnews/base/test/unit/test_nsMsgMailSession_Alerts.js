@@ -7,9 +7,11 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
-registerAlertTestUtils();
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
+AlertTestUtils.register({ alertPS });
+registerCleanupFunction(() => AlertTestUtils.cleanup());
 
 var gDialogTitle = null;
 var gText = null;
@@ -19,8 +21,6 @@ function reset() {
   gText = null;
 }
 
-/* exported alert */
-// Used in alertTestUtils.
 function alertPS(aParent, aDialogTitle, aText) {
   Assert.equal(gDialogTitle, null);
   Assert.equal(gText, null);

@@ -5,9 +5,6 @@
  *   - Check that verifyLogon fails
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
-
 var server;
 var daemon;
 var incomingServer;

@@ -8,8 +8,9 @@
 
 Services.prefs.setIntPref("mailnews.tcptimeout", 2);
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
@@ -32,7 +33,8 @@ function alertPS(parent, aDialogTitle, aText) {
 }
 
 add_setup(function () {
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alertPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
   setupIMAPPump();
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",

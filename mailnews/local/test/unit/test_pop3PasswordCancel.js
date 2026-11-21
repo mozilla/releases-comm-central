@@ -15,14 +15,13 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 var gPasswordPrompts = 0;
 var gAuthFailedPrompts = 0;
 
-/* exported alert, confirmExPS, promptPasswordPS */
-// for alertTestUtils.js
 function alert() {}
 
 function confirmExPS() {
@@ -44,7 +43,8 @@ function promptPasswordPS(parent, title, text, password) {
 }
 
 add_setup(function () {
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alert, confirmExPS, promptPasswordPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
   localAccountUtils.loadLocalMailAccount();
 
   // The NTLM auth module is not what is tested here.

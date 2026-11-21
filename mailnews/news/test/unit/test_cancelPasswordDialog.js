@@ -6,8 +6,9 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 const daemon = setupNNTPDaemon();
 const server = makeServer(NNTP_RFC4643_extension, daemon);
@@ -21,7 +22,8 @@ registerCleanupFunction(() => {
  */
 add_task(async function cancelPasswordDialog() {
   // Mock the password prompt.
-  registerAlertTestUtils();
+  AlertTestUtils.register({ promptUsernameAndPasswordPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   // Enforce server auth and trigger a list group request.
   const incomingServer = setupLocalServer(server.port);

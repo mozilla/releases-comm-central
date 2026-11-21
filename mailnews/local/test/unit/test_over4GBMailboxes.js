@@ -14,9 +14,10 @@ Services.prefs.setCharPref(
   "@mozilla.org/msgstore/berkeleystore;1"
 );
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 load("../../../resources/POP3pump.js");
 
 var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
@@ -55,7 +56,8 @@ function resetAlertPromise() {
 }
 
 add_setup(async function () {
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alertPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   localAccountUtils.loadLocalMailAccount();
 
@@ -325,7 +327,7 @@ add_task(async function copyIntoOver4GiB_success_check1() {
   // Append 2 new 2MB messages to the folder.
   gExpectedNewMessages = 2;
 
-  // Reset the Promise for alertTestUtils.js.
+  // Reset the Promise resolved by alertPS().
   // This message will be preserved in CompactUnder4GB.
   resetAlertPromise();
   const file = do_get_file("../../../data/mime-torture");

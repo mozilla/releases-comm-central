@@ -7,8 +7,9 @@
  *   - A correct state at the end of attempting to send.
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -24,7 +25,6 @@ var testFile = do_get_file("data/429891_testcase.eml");
 var kSender = "from@foo.invalid";
 var kTo = "to@foo.invalid";
 
-// for alertTestUtils.js
 function alertPS(parent, aDialogTitle, aText) {
   dump("Hiding Alert {\n" + aText + "\n} End Alert\n");
 }
@@ -36,7 +36,9 @@ add_task(async function run_the_test() {
   const sendLaterListener = new PromiseTestUtils.PromiseSendLaterListener();
   msgSendLater.addListener(sendLaterListener);
 
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alertPS });
+
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   // Test file - for bug 429891
   originalData = await IOUtils.readUTF8(testFile.path);

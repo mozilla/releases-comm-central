@@ -18,8 +18,9 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 // The challenge the server sends in response to AUTH NTLM.
 var gChallenge;
@@ -30,8 +31,6 @@ var gServer;
 var gSmtpServer;
 var gIdentity;
 
-/* exported alert, confirmExPS, promptPasswordPS */
-// for alertTestUtils.js
 function alert() {}
 
 function confirmExPS() {
@@ -61,7 +60,9 @@ add_setup(function () {
   });
   gServer.start();
 
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alert, confirmExPS, promptPasswordPS });
+
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   localAccountUtils.loadLocalMailAccount();
   gSmtpServer = getBasicSmtpServer(gServer.port);

@@ -1,8 +1,9 @@
 /**
  * Tests sending messages to addresses with non-ASCII characters.
  */
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/alertTestUtils.js");
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
+);
 
 var test = null;
 var server;
@@ -17,7 +18,6 @@ var kToValidACE = "to@xn--vlid-loa.foo.invalid";
 var kToInvalid = "b\u00F8rken.to@invalid.foo.invalid";
 var kToInvalidWithoutDomain = "b\u00F8rken.to";
 
-// for alertTestUtils.js
 let resolveAlert;
 function alertPS(parent, aDialogText, aText) {
   const sendL10n = new Localization(["messenger/messageSend.ftl"], true);
@@ -192,7 +192,8 @@ async function doSendTest(aRecipient, aRecipientExpected, waitForPrompt) {
 }
 
 add_setup(function () {
-  registerAlertTestUtils();
+  AlertTestUtils.register({ alertPS });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();

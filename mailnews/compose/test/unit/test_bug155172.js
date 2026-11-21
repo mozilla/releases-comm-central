@@ -2,30 +2,20 @@
  * Authentication tests for SMTP.
  */
 
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/passwordStorage.js */
-load("../../../resources/alertTestUtils.js");
 load("../../../resources/passwordStorage.js");
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
+);
+const { AlertTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
 );
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 var gNewPassword = null;
-
-// for alertTestUtils.js
-function confirmExPS() {
-  // Just return 2 which will is pressing button 2 - enter a new password.
-  return 2;
-}
-
-function promptPasswordPS(aParent, aDialogTitle, aText, aPassword) {
-  aPassword.value = gNewPassword;
-  return true;
-}
 
 var server;
 
@@ -39,7 +29,18 @@ var kPasswordWrong = "wrong";
 var kPasswordSaved = "smtptest";
 
 add_task(async function () {
-  registerAlertTestUtils();
+  AlertTestUtils.register({
+    confirmExPS() {
+      // Just return 2 which will is pressing button 2 - enter a new password.
+      return 2;
+    },
+
+    promptPasswordPS(parent, dialogTitle, text, password) {
+      password.value = gNewPassword;
+      return true;
+    },
+  });
+  registerCleanupFunction(() => AlertTestUtils.cleanup());
 
   function createHandler(d) {
     var handler = new SMTP_RFC2821_handler(d);
