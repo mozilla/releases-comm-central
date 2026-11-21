@@ -520,6 +520,31 @@ li[is="calendar-dialog-attachment"] {
   }
 }
 
+.calendar-event-create-edit-dialog-main-subview > .calendar-event-create-edit-dialog-footer {
+  padding-block-end: calc(var(--space-step) * 6);
+  padding-inline: calc(var(--space-step) * 4);
+
+  > .availability-selector {
+    --background-image-width: 16px;
+    --end-padding: 16px;
+    --start-padding: calc(3 * var(--space-step) - var(--button-border-size));
+    box-sizing: border-box;
+    min-inline-size: 120px;
+    block-size: 32px;
+    margin: 0;
+    background-image: var(--icon-nav-down);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 16px;
+
+    @media not (prefers-contrast) {
+      --button-background-color: var(--color-surface-lower);
+      --button-border-color: var(--color-surface-border);
+      --button-text-color: var(--color-text-base);
+    }
+  }
+}
+
 [is="calendar-event-create-edit-dialog"] {
   & .calendar-event-create-edit-dialog-body .calendar-event-category-row {
     border-block-start: 0;

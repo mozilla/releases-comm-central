@@ -34,6 +34,10 @@ const { cal } = ChromeUtils.importESModule(
  */
 
 /**
+ * @typedef {"default"|"busy"|"free"} CalendarEventAvailability
+ */
+
+/**
  * Serializable event fields for a dialog source session.
  *
  * @typedef {object} CalendarEventSourceEventSnapshot
@@ -43,6 +47,7 @@ const { cal } = ChromeUtils.importESModule(
  * @property {?CalendarEventDateTimeSnapshot} start - The start data.
  * @property {?CalendarEventDateTimeSnapshot} end - The end data.
  * @property {string} title - The event title.
+ * @property {CalendarEventAvailability} availability - The saved availability.
  * @property {string[]} categories - A copy of all selected names, including
  *   names absent from category preferences.
  * @property {string} description - The Description document as HTML.
@@ -167,6 +172,7 @@ function snapshotEvent(identity, event) {
       start: snapshotDateTime(event.startDate),
       end: snapshotDateTime(event.endDate),
       title: event.title,
+      availability: availabilityFromTransparency(event.getProperty("TRANSP")),
       categories: [...event.getCategories()],
       description: descriptionFromSource(
         descriptionHTML,
@@ -175,6 +181,24 @@ function snapshotEvent(identity, event) {
       videoUrl: getEventVideoUrl(event),
     },
   };
+}
+
+/**
+ * Returns the Availability choice for an iCalendar `TRANSP` value.
+ *
+ * @param {?string} transparency - The saved transparency or a calendar default.
+ * @returns {CalendarEventAvailability} Default if the value is missing or
+ *   unsupported.
+ */
+export function availabilityFromTransparency(transparency) {
+  switch (String(transparency).toUpperCase()) {
+    case "OPAQUE":
+      return "busy";
+    case "TRANSPARENT":
+      return "free";
+    default:
+      return "default";
+  }
 }
 
 /**

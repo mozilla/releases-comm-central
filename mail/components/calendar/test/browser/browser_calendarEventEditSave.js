@@ -120,6 +120,89 @@ async function edit(event, recurrenceId = null) {
   await doc.l10n.translateFragment(dialog);
 }
 
+add_task(async function test_editSavesAndReloadsAvailability() {
+  let saved = await createEvent({ calendar, name: "Availability round trip" });
+  const choices = [
+    { value: "busy", transparency: "OPAQUE" },
+    { value: "free", transparency: "TRANSPARENT" },
+    { value: "default", transparency: null },
+  ];
+  let previousChoice = "default";
+
+  for (const { value, transparency } of choices) {
+    await edit(saved);
+    const select = dialog.querySelector(".availability-selector");
+
+    Assert.equal(
+      select.value,
+      previousChoice,
+      "Editing should show the event's saved availability"
+    );
+
+    select.value = value;
+    select.dispatchEvent(
+      new browser.contentWindow.Event("change", { bubbles: true })
+    );
+
+    const result = await dialog.save();
+
+    Assert.equal(result.status, "success", "Save should update the event");
+
+    saved = await calendar.getItem(saved.id);
+
+    Assert.strictEqual(
+      saved.getProperty("TRANSP"),
+      transparency,
+      `The saved event should reflect the ${value} choice`
+    );
+
+    previousChoice = value;
+  }
+
+  await edit(saved);
+
+  Assert.equal(
+    dialog.querySelector(".availability-selector").value,
+    "default",
+    "Reopening an event saved as Default should show Default"
+  );
+
+  dialog.close();
+});
+
+add_task(async function test_titleEditPreservesNewerAvailability() {
+  const original = await createEvent({ calendar, name: "Before title edit" });
+  await edit(original);
+
+  const updated = original.clone();
+  updated.setProperty("TRANSP", "transparent");
+  await calendar.modifyItem(updated, original);
+
+  dialog.updateDraftSection("title", { title: "After title edit" });
+  const result = await dialog.save();
+
+  Assert.equal(result.status, "success", "Save should update the event title");
+
+  const saved = await calendar.getItem(original.id);
+
+  Assert.equal(saved.title, "After title edit", "Save should store the title");
+  Assert.equal(
+    saved.getProperty("TRANSP"),
+    "transparent",
+    "A title-only edit should preserve the newer availability"
+  );
+
+  await edit(saved);
+
+  Assert.equal(
+    dialog.querySelector(".availability-selector").value,
+    "free",
+    "Editing should recognize a lowercase availability value"
+  );
+
+  dialog.close();
+});
+
 add_task(async function test_storeUpdatesBeforeConnection() {
   const original = await createEvent({ calendar, name: "Before connection" });
   const container = doc.createElement("div");

@@ -194,11 +194,13 @@ export async function saveCalendarEventEdit({
         const prepared = prepareCalendarEventSave(draft, fields);
 
         for (const [section, field] of Object.entries(fields)) {
-          // Keep the selected event's categories if the draft left them alone.
+          // Keep the selected event's values if the draft left them alone.
           // The selected event may be newer or may be the parent series.
           if (
-            section == "categories" &&
-            !haveCategoriesChanged(draft, baseline)
+            (section == "categories" &&
+              !haveCategoriesChanged(draft, baseline)) ||
+            (section == "availability" &&
+              draft.availability === baseline.availability)
           ) {
             continue;
           }

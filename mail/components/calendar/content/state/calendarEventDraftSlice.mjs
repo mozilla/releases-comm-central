@@ -32,7 +32,7 @@ import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
  * @property {Record<string, boolean>} [enabledRows] - Optional row enabled state.
  * @property {string} [videoUrl] - The video URL entered in the Video row or
  *   loaded from the event.
- * @property {"default"|"busy"|"free"} [availability] - Unsaved availability.
+ * @property {CalendarEventAvailability} [availability] - Unsaved availability.
  * @property {string} [title] - The event title.
  * @property {string} [description] - The Description document as HTML.
  * @property {string[]} [categories] - Selected category names in draft order.
@@ -126,6 +126,7 @@ export function createInitialCalendarEventDraft() {
  */
 export function cloneDraftFromSourceSnapshot(snapshot) {
   const {
+    availability,
     calendarId,
     categories = [],
     description,
@@ -136,6 +137,7 @@ export function cloneDraftFromSourceSnapshot(snapshot) {
   } = snapshot.event;
 
   return structuredClone({
+    availability,
     calendarId,
     categories,
     ...(description !== undefined && { description }),

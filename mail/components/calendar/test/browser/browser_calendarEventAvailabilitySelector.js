@@ -34,6 +34,11 @@ add_setup(async function () {
   redux = browser.contentWindow.ReduxTestUtils;
   dialog = doc.querySelector('[is="calendar-event-create-edit-dialog"]');
   dialog.container = doc.getElementById("dialog-container");
+
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.events.defaultTransparency.standard.transparent", false]],
+  });
+
   await startAxeMutationObserver(browser, {
     container: '[is="calendar-event-create-edit-dialog"]',
     message: "Availability states should pass axe",
@@ -93,9 +98,10 @@ add_task(async function test_optionsAndDraftOnlyChanges() {
     "The native selector should have an accessible name"
   );
 
-  Assert.ok(
-    !("availability" in initial),
-    "Rendering should not initialize the draft field"
+  Assert.equal(
+    initial.availability,
+    "busy",
+    "The create draft should start with the timed event preference"
   );
 
   const service = Cc["@mozilla.org/accessibilityService;1"].getService(
@@ -117,7 +123,7 @@ add_task(async function test_optionsAndDraftOnlyChanges() {
 
   Assert.equal(
     accessible.value,
-    "Default",
+    "Busy",
     "Screen readers should receive the selected value"
   );
 
@@ -129,7 +135,7 @@ add_task(async function test_optionsAndDraftOnlyChanges() {
 
   const before = dialog.getBoundingClientRect().toJSON();
 
-  for (const value of ["busy", "free", "default"]) {
+  for (const value of ["free", "busy", "default"]) {
     const actionPromise = browser.contentWindow.ReduxTestUtils.waitForAction(
       "calendarEventDraft/updateSection"
     );
@@ -169,8 +175,8 @@ add_task(async function test_optionsAndDraftOnlyChanges() {
 
     Assert.deepEqual(
       dialog.dirtySections,
-      ["availability"],
-      "Selection should dirty only availability"
+      value === initial.availability ? [] : ["availability"],
+      "Only a change from the starting value should make availability dirty"
     );
 
     Assert.deepEqual(
@@ -281,8 +287,13 @@ add_task(async function test_savedEventAndRouteReplacement() {
   const opened = await dialog.show();
 
   Assert.ok(opened, "The edit dialog should open");
-  dialog.resetCreateDraft({ title: event.title, availability: "busy" });
   const select = dialog.querySelector(".availability-selector");
+
+  Assert.equal(
+    select.value,
+    "default",
+    "An event without saved availability should display Default"
+  );
 
   select.value = "free";
   select.dispatchEvent(
@@ -313,13 +324,14 @@ add_task(async function test_savedEventAndRouteReplacement() {
 
   Assert.equal(
     replacement.value,
-    "default",
-    "An absent field should display Default"
+    "busy",
+    "The replacement create route should display the timed event preference"
   );
 
-  Assert.ok(
-    !("availability" in dialog.draft),
-    "A new route should not initialize availability"
+  Assert.equal(
+    dialog.draft.availability,
+    "busy",
+    "The replacement create route should start with the timed event preference"
   );
 
   dialog.close();

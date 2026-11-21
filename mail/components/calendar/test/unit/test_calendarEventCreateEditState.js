@@ -80,6 +80,7 @@ add_setup(function () {
 function sourceSnapshot() {
   return {
     event: {
+      availability: "free",
       calendarId: "calendar-id",
       categories: [],
       end: {
@@ -131,6 +132,7 @@ add_task(function test_sourceSnapshotStartsAnIsolatedDraft() {
   Assert.deepEqual(
     draft.baseline,
     {
+      availability: "free",
       calendarId: "calendar-id",
       categories: [],
       end: snapshot.event.end,

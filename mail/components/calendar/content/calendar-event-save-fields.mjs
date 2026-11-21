@@ -18,8 +18,9 @@ const { cal } = ChromeUtils.importESModule(
  * For enabled fields, create Save calls `validate` when supplied. After
  * validation succeeds, create Save calls `apply` for those fields.
  * Disabled fields add no properties to a new event.
- * Edit Save skips unchanged categories and Video. For each field it saves,
- * edit Save calls `apply` for an enabled row or `remove` for a disabled row.
+ * Edit Save skips unchanged categories, availability, and Video. For each field
+ * it saves, edit Save calls `apply` for an enabled row or `remove` for a disabled
+ * row.
  * Both paths keep disabled fields' input in the draft for retry.
  * Field code supplies defaults and checks permissions for its own values.
  *
@@ -117,6 +118,28 @@ export const calendarEventVideoSaveField = {
   remove: event => {
     if (isVideoConference(event)) {
       event.deleteProperty("CONFERENCE");
+    }
+  },
+};
+
+/**
+ * Writes Busy or Free to the event's `TRANSP` property. Default clears it.
+ *
+ * @type {CalendarEventSaveField}
+ */
+export const calendarEventAvailabilitySaveField = {
+  keys: ["availability"],
+  apply(event, { availability }) {
+    switch (availability) {
+      case "busy":
+        event.setProperty("TRANSP", "OPAQUE");
+        break;
+      case "free":
+        event.setProperty("TRANSP", "TRANSPARENT");
+        break;
+      case "default":
+        event.deleteProperty("TRANSP");
+        break;
     }
   },
 };

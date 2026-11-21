@@ -20,6 +20,10 @@ let recurringEvent;
 const DIALOG_MARGIN = 12;
 
 add_setup(async function () {
+  await SpecialPowers.pushPrefEnv({
+    set: [["calendar.events.defaultTransparency.standard.transparent", false]],
+  });
+
   const tab = tabmail.openTab("contentTab", {
     url: "chrome://mochitests/content/browser/comm/mail/components/calendar/test/browser/files/calendarEventCreateEditDialog.xhtml",
   });
@@ -1151,6 +1155,7 @@ add_task(async function test_createAndEditDraftLifecycle() {
   Assert.deepEqual(
     dialog.draft,
     {
+      availability: "busy",
       calendarId: calendar.id,
       categories: [],
       description: "",
@@ -1187,6 +1192,7 @@ add_task(async function test_createAndEditDraftLifecycle() {
     dialog.draft,
     {
       calendarId: calendar.id,
+      availability: source.snapshot.event.availability,
       categories: source.snapshot.event.categories,
       description: "",
       end: source.snapshot.event.end,
@@ -1231,6 +1237,7 @@ add_task(async function test_createAndEditDraftLifecycle() {
   Assert.deepEqual(
     dialog.draft,
     {
+      availability: "busy",
       calendarId: calendar.id,
       categories: [],
       description: "",
@@ -1999,6 +2006,7 @@ add_task(async function test_saveButtonDisabledValidityState() {
     dialog.draft,
     {
       calendarId: calendar.id,
+      availability: source.snapshot.event.availability,
       categories: source.snapshot.event.categories,
       description: "",
       end: source.snapshot.event.end,

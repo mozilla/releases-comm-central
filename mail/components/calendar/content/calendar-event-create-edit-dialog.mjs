@@ -12,9 +12,11 @@ import { saveCalendarEventEdit } from "./calendar-event-edit-save.mjs";
 import { saveCalendarEventCreate } from "./calendar-event-create-save.mjs";
 import { descriptionToPlainText } from "./calendar-event-description-format.mjs";
 import {
+  calendarEventAvailabilitySaveField,
   calendarEventCategorySaveField,
   calendarEventVideoSaveField,
 } from "./calendar-event-save-fields.mjs";
+import { availabilityFromTransparency } from "./calendar-event-source-loader.mjs";
 import {
   loadCalendarOptions,
   observeCalendarOptions,
@@ -243,7 +245,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   /**
    * Maps each field section to the helper that checks and copies its values.
    * Each helper lists draft properties in `keys` and copies them to an event
-   * with `apply`. Categories are registered here; other fields add their helpers.
+   * with `apply`. This dialog registers Availability, Categories, and Video.
    *
    * Create Save uses helpers for all fields, including title and dates. Helpers
    * can supply `validate` to check input and display errors. Edit Save uses
@@ -254,6 +256,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
    * @type {Record<string, CalendarEventSaveField>}
    */
   saveFields = {
+    availability: calendarEventAvailabilitySaveField,
     categories: calendarEventCategorySaveField,
     video: calendarEventVideoSaveField,
   };
@@ -324,13 +327,27 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
   }
 
   /**
-   * Starts create mode with the initial draft values.
+   * Starts create mode with the initial draft values. Sets availability from
+   * the timed-event preference.
+   *
+   * @param {CalendarEventDialogRouteRequest} route - The current create route.
    */
-  #initializeDraft() {
+  #initializeDraft(route) {
+    const transparency = cal.item.getEventDefaultTransparency(false);
+
     this.dispatch(
       startCreateSession({ sessionKey: this.calendarEventSessionKey })
     );
-    this.resetCreateDraft(createInitialCalendarEventDraft());
+
+    // A store observer can replace the route while create mode starts.
+    if (!route.isCurrent()) {
+      return;
+    }
+
+    this.resetCreateDraft({
+      ...createInitialCalendarEventDraft(),
+      availability: availabilityFromTransparency(transparency),
+    });
   }
 
   /**
@@ -1445,7 +1462,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       return;
     }
 
-    this.#initializeDraft();
+    this.#initializeDraft(route);
     this.#renderSave();
 
     // Wait for localized controls before opening and measuring the dialog.
