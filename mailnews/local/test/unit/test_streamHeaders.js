@@ -9,26 +9,22 @@
  * adapted from test_pop3Pump.js by Kent James <kent@caspia.com>
  */
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
 
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
+var gPOP3Pump = new POP3Pump();
 var testSubjects = ["Hello, did you receive my bugmail?"];
 
 var gHdr;
 
 add_task(async function loadMessages() {
-  let pop3Resolve;
-  const pop3Promise = new Promise(resolve => {
-    pop3Resolve = resolve;
-  });
   gPOP3Pump.files = ["../../../data/draft1"];
-  gPOP3Pump.onDone = pop3Resolve;
-  gPOP3Pump.run();
-  await pop3Promise;
+  await gPOP3Pump.run();
 
   // Get message headers for the inbox folder.
   var msgCount = 0;

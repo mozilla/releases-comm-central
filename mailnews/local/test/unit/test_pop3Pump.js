@@ -1,9 +1,11 @@
 /**
  * The intent of this file is to demonstrate a minimal
- * POP3 unit test using the testing file POP3Pump.js
+ * POP3 unit test using POP3Pump.sys.mjs
  */
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
+var gPOP3Pump = new POP3Pump();
 
 var testSubjects = [
   "[Bug 397009] A filter will let me tag, but not untag",

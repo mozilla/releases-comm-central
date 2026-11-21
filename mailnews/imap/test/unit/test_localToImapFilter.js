@@ -19,8 +19,9 @@
  * or a problem with the copy filter.
  */
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -29,6 +30,7 @@ var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
+var gPOP3Pump = new POP3Pump();
 var gEmptyLocal1, gEmptyLocal2;
 var gFiles = ["../../../data/bugmail1", "../../../data/draft1"];
 
@@ -100,15 +102,9 @@ add_task(async function getLocalMessages() {
   filter.appendAction(moveAction);
   filter.enabled = true;
   filterList.insertFilterAt(0, filter);
-  let resolveOnDone;
-  const promiseOnDone = new Promise(resolve => {
-    resolveOnDone = resolve;
-  });
   gPOP3Pump.files = gFiles;
-  gPOP3Pump.onDone = resolveOnDone;
-  gPOP3Pump.run();
 
-  await promiseOnDone;
+  await gPOP3Pump.run();
 });
 
 add_task(async function test_update1_copyFilter() {

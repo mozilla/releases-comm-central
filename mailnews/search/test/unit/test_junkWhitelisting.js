@@ -11,8 +11,9 @@
 load("../../../resources/abSetup.js");
 
 // add fake POP3 server driver
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -34,25 +35,20 @@ var { MailServices } = ChromeUtils.importESModule(
 var kDomainTest = 0;
 var kDomainExample = 1;
 
+var gPOP3Pump = new POP3Pump();
 var Files = ["../../../data/bugmail1", "../../../data/bugmail3"];
 
 var hdrs = [];
 
-function run_test() {
+add_task(async function testJunkAllowList() {
   loadABFile(
     "../../../addrbook/test/unit/data/cardForEmail",
     kPABData.fileName
   );
 
-  do_test_pending();
-
-  // kick off copying
   gPOP3Pump.files = Files;
-  gPOP3Pump.onDone = continueTest;
-  gPOP3Pump.run();
-}
+  await gPOP3Pump.run();
 
-function continueTest() {
   // get the message headers
   for (const header of localAccountUtils.inboxFolder.messages) {
     hdrs.push(header);
@@ -64,8 +60,7 @@ function continueTest() {
   // Free our globals
   hdrs = null;
   gPOP3Pump = null;
-  do_test_finished();
-}
+});
 
 function doChecks(server) {
   const spamSettings = server.spamSettings;

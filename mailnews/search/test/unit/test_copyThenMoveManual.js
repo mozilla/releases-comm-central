@@ -5,8 +5,9 @@
  * Original author: Kent James <kent@caspia.com>
  */
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -15,6 +16,7 @@ const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
+var gPOP3Pump = new POP3Pump();
 var gFiles = ["../../../data/bugmail1"];
 var gCopyFolder;
 var gMoveFolder;
@@ -46,9 +48,6 @@ add_setup(async function () {
   gFilterList.insertFilterAt(0, gFilter);
 
   registerCleanupFunction(() => {
-    if (gPOP3Pump._server) {
-      gPOP3Pump._server.stop();
-    }
     gPOP3Pump = null;
   });
 });

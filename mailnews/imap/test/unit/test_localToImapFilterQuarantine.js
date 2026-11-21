@@ -22,8 +22,10 @@ Services.prefs.setCharPref(
   "@mozilla.org/msgstore/berkeleystore;1"
 );
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
+var gPOP3Pump = new POP3Pump();
 
 var gSubfolder;
 
@@ -58,14 +60,8 @@ add_task(async function getLocalMessages() {
   filter.enabled = true;
   filterList.insertFilterAt(0, filter);
 
-  let resolveDone;
-  const promise = new Promise(resolve => {
-    resolveDone = resolve;
-  });
   gPOP3Pump.files = ["../../../data/bugmail1"];
-  gPOP3Pump.onDone = resolveDone;
-  gPOP3Pump.run();
-  await promise;
+  await gPOP3Pump.run();
 });
 
 add_task(async function updateSubfolderAndTest() {
@@ -83,14 +79,8 @@ add_task(async function updateSubfolderAndTest() {
 });
 
 add_task(async function get2Messages() {
-  let resolveDone;
-  const promise = new Promise(resolve => {
-    resolveDone = resolve;
-  });
   gPOP3Pump.files = ["../../../data/bugmail10", "../../../data/draft1"];
-  gPOP3Pump.onDone = resolveDone;
-  gPOP3Pump.run();
-  await promise;
+  await gPOP3Pump.run();
 });
 
 add_task(async function updateSubfolderAndTest2() {

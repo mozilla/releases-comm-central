@@ -8,17 +8,18 @@
  * Some of the tests will be removed when support for over 4GiB folders is enabled by default.
  */
 
-// Need to do this before loading POP3Pump.js
+// Need to do this before creating the POP3Pump.
 Services.prefs.setCharPref(
   "mail.serverDefaultStoreContractID",
   "@mozilla.org/msgstore/berkeleystore;1"
 );
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
 const { AlertTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/AlertTestUtils.sys.mjs"
 );
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
 
 var { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
@@ -34,6 +35,7 @@ var kSparseBlockSize = 102400000;
 var kSizeLimit = 0x100000000; // 4GiB
 var kNearLimit = kSizeLimit - 0x1000000; // -16MiB
 
+var gPOP3Pump = new POP3Pump();
 var gInboxFile = null; // The mbox file storing the Inbox folder.
 var gInboxSize = 0; // The size of the Inbox folder.
 var gInbox; // The nsIMsgFolder object of the Inbox folder in Local Folders.
@@ -137,14 +139,8 @@ add_task(async function downloadUnder4GiB() {
   }
 
   gPOP3Pump.files = ["../../../data/mime-torture"];
-  let pop3Resolve;
-  const pop3OnDonePromise = new Promise(resolve => {
-    pop3Resolve = resolve;
-  });
-  gPOP3Pump.onDone = pop3Resolve;
   // It must succeed.
-  gPOP3Pump.run(Cr.NS_OK);
-  await pop3OnDonePromise;
+  await gPOP3Pump.run(Cr.NS_OK);
 });
 
 /**
@@ -176,15 +172,9 @@ add_task(async function downloadOver4GiB_fail() {
     "../../../data/mime-torture",
     "../../../data/mime-torture",
   ];
-  let pop3Resolve;
-  const pop3OnDonePromise = new Promise(resolve => {
-    pop3Resolve = resolve;
-  });
-  gPOP3Pump.onDone = pop3Resolve;
   // The download must fail.
-  gPOP3Pump.run(Cr.NS_ERROR_FAILURE);
+  await gPOP3Pump.run(Cr.NS_ERROR_FAILURE);
   info("Download successfully failed!");
-  await pop3OnDonePromise;
 });
 
 /**
@@ -195,11 +185,6 @@ add_task(async function downloadOver4GiB_success_check() {
   Services.prefs.setBoolPref("mailnews.allowMboxOver4GB", true);
   // Grow inbox to size greater than the max limit (+16 MiB).
   gExpectedNewMessages = 16;
-  // We are in the .onDone() callback of the previous run of gPOP3Pump
-  // so we need a new POP3Pump so that internal variables of the previous
-  // one don't get confused.
-  gPOP3Pump = new POP3Pump();
-  gPOP3Pump._incomingServer = gPOP3Pump._createPop3ServerAndLocalFolders();
   gPOP3Pump.files = [
     "../../../data/mime-torture",
     "../../../data/mime-torture",
@@ -218,14 +203,8 @@ add_task(async function downloadOver4GiB_success_check() {
     "../../../data/mime-torture",
     "../../../data/mime-torture",
   ];
-  let pop3Resolve;
-  const pop3OnDonePromise = new Promise(resolve => {
-    pop3Resolve = resolve;
-  });
-  gPOP3Pump.onDone = pop3Resolve;
   // The download must not fail.
-  gPOP3Pump.run(Cr.NS_OK);
-  await pop3OnDonePromise;
+  await gPOP3Pump.run(Cr.NS_OK);
 
   /**
    * Bug 608449

@@ -6,11 +6,16 @@
    mbox->maildir are correct.
  */
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+
+// Create the pump before switching the default store, so the local folders
+// stay mbox and only the POP3 server becomes maildir in add_setup.
+var gPOP3Pump = new POP3Pump();
 
 Services.prefs.setCharPref(
   "mail.serverDefaultStoreContractID",
@@ -37,7 +42,7 @@ function dumpFolder(f) {
 
 add_setup(async function () {
   const storeID = "@mozilla.org/msgstore/maildirstore;1";
-  resetPluggableStoreLocal(storeID);
+  gPOP3Pump.resetPluggableStore(storeID, { keepLocalFolders: true });
 
   // We want to test cross-server copy, so don't defer.
   gPOP3Pump.fakeServer.deferredToAccount = "";
@@ -158,33 +163,3 @@ add_task(async function mboxToMaildir() {
 add_task(function testCleanup() {
   gPOP3Pump = null;
 });
-
-// Clone of POP3pump resetPluggableStore that does not reset local folders.
-function resetPluggableStoreLocal(aStoreContractID) {
-  Services.prefs.setCharPref(
-    "mail.serverDefaultStoreContractID",
-    aStoreContractID
-  );
-
-  // Cleanup existing files, server and account instances, if any.
-  if (gPOP3Pump._server) {
-    gPOP3Pump._server.stop();
-  }
-
-  if (gPOP3Pump.fakeServer && gPOP3Pump.fakeServer.valid) {
-    gPOP3Pump.fakeServer.closeCachedConnections();
-    MailServices.accounts.removeIncomingServer(gPOP3Pump.fakeServer, false);
-  }
-
-  gPOP3Pump.fakeServer = localAccountUtils.create_incoming_server(
-    "pop3",
-    gPOP3Pump.kPOP3_PORT,
-    "fred",
-    "wilma"
-  );
-
-  // localAccountUtils.clearAll();
-
-  gPOP3Pump._incomingServer = gPOP3Pump.fakeServer;
-  gPOP3Pump._mailboxStoreContractID = aStoreContractID;
-}

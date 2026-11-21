@@ -5,8 +5,10 @@
  * Original author: David Bienvenu <dbienvenu@mozilla.com>
  */
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
+var gPOP3Pump = new POP3Pump();
 var gFiles = ["../../../data/bugmail10", "../../../data/basic1"];
 
 Services.prefs.setBoolPref("mail.server.default.leave_on_server", true);

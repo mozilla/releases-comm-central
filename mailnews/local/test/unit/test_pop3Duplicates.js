@@ -3,15 +3,17 @@
  * in the pop3 download code.
  */
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
+var gPOP3Pump = new POP3Pump();
 
 var testSubjects = [
   "[Bug 397009] A filter will let me tag, but not untag",
   "Hello, did you receive my bugmail?",
 ];
 
-function run_test() {
+add_task(async function testDeleteDuplicates() {
   // Set duplicate action to be delete duplicates.
   Services.prefs.setIntPref(
     "mail.server.default.dup_action",
@@ -23,12 +25,8 @@ function run_test() {
     "../../../data/draft1",
     "../../../data/bugmail1",
   ];
-  gPOP3Pump.onDone = continueTest;
-  do_test_pending();
-  gPOP3Pump.run();
-}
+  await gPOP3Pump.run();
 
-function continueTest() {
   // get message headers for the inbox folder
   var msgCount = 0;
   for (const hdr of localAccountUtils.inboxFolder.msgDatabase.enumerateMessages()) {
@@ -36,5 +34,4 @@ function continueTest() {
   }
   Assert.equal(msgCount, 2);
   gPOP3Pump = null;
-  do_test_finished();
-}
+});

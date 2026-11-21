@@ -5,29 +5,26 @@
  * Original author: David Bienvenu <dbienvenu@mozilla.com>
  */
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
+var gPOP3Pump = new POP3Pump();
 
 var testSubjects = [
   "[Bug 397009] A filter will let me tag, but not untag",
   "Hello, did you receive my bugmail?",
 ];
-var gExpectedFiles;
 
-function run_test() {
+add_task(async function testTempFileHandling() {
   Services.prefs.setBoolPref("mailnews.downloadToTempFile", true);
-  gExpectedFiles = createExpectedTemporaryFiles(2);
+  const expectedFiles = createExpectedTemporaryFiles(2);
   // add 2 messages
   gPOP3Pump.files = ["../../../data/bugmail1", "../../../data/draft1"];
-  gPOP3Pump.onDone = continueTest;
-  do_test_pending();
-  gPOP3Pump.run();
-}
+  await gPOP3Pump.run();
 
-function continueTest() {
-  dump("temp file path = " + gExpectedFiles[0].path + "\n");
-  dump("temp file path = " + gExpectedFiles[1].path + "\n");
-  for (const expectedFile of gExpectedFiles) {
+  dump("temp file path = " + expectedFiles[0].path + "\n");
+  dump("temp file path = " + expectedFiles[1].path + "\n");
+  for (const expectedFile of expectedFiles) {
     Assert.ok(!expectedFile.exists());
   }
 
@@ -38,8 +35,7 @@ function continueTest() {
   }
   Assert.equal(msgCount, 2);
   gPOP3Pump = null;
-  do_test_finished();
-}
+});
 
 function createExpectedTemporaryFiles(numFiles) {
   function createTemporaryFile() {

@@ -6,11 +6,14 @@
  * messages, testing for duplicated keys in bug 1202105.
  */
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
+
+var gPOP3Pump = new POP3Pump();
 
 add_task(async function runPump() {
   gPOP3Pump.files = [

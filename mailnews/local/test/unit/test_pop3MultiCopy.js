@@ -5,12 +5,14 @@
  * This tests that copied multiple messages in maildir are correct.
  */
 
-/* import-globals-from ../../../test/resources/POP3pump.js */
-load("../../../resources/POP3pump.js");
+const { POP3Pump } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/POP3Pump.sys.mjs"
+);
 const { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
+var gPOP3Pump = new POP3Pump();
 var testSubjects = [
   "[Bug 397009] A filter will let me tag, but not untag",
   "Hello, did you receive my bugmail?",
