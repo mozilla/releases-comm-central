@@ -21,7 +21,14 @@ PPL_LOCALE_ARGS = \
   --l10n-dir=$(commtopsrcdir)/mail/locales/en-US/installer \
   $(NULL)
 else
-PPL_LOCALE_ARGS=$(call EXPAND_LOCALE_SRCDIR,mail/locales)/installer
+ifeq (en-US,$(AB_CD))
+PPL_LOCALE_ARGS=$(topsrcdir)/comm/mail/locales/en-US/installer
+else
+PPL_LOCALE_ARGS = \
+  --l10n-dir=$(L10NBASEDIR)/$(AB_CD)/mail/installer \
+  --l10n-dir=$(topsrcdir)comm/mail/locales/en-US/installer \
+  $(NULL)
+endif
 endif
 
 stage_installer:
