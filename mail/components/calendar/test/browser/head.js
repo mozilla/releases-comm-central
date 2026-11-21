@@ -154,6 +154,7 @@ function createCalendar({
  * @param {CalAlarm[]} [options.alarms=[]] - Calendar alarms.
  * @param {string[]} [options.attachments=[]] - Attached files.
  * @param {calIAttendee[]} [options.attendees=[]] - Event Attendees.
+ * @param {calIAttendee} [options.organizer] - The event organizer.
  * @returns {CalEvent} - The created event.
  */
 async function createEvent({
@@ -171,6 +172,7 @@ async function createEvent({
   alarms = [],
   attachments = [],
   attendees = [],
+  organizer,
 } = {}) {
   let start = new Date(baseDate);
   start.setDate(baseDate.getDate() + offset);
@@ -184,6 +186,10 @@ async function createEvent({
   end.setDate(baseDate.getDate() + offset + days);
   end = cal.dtz.jsDateToDateTime(end, 0);
   const event = new CalEvent();
+
+  if (organizer) {
+    event.organizer = organizer;
+  }
 
   for (const attendeeData of attendees) {
     const attendee = new CalAttendee();

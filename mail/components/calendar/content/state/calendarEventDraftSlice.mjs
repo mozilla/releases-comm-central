@@ -40,6 +40,8 @@ import { rootReducer } from "moz-src:///comm/mail/base/content/state/store.mjs";
  *   Category order does not count as a change.
  * @property {?CalendarEventDateTimeSnapshot} [start] - The start date and time.
  * @property {?CalendarEventDateTimeSnapshot} [end] - The end date and time.
+ * @property {CalendarEventGuestSnapshot[]} [attendees] - The event attendees.
+ * @property {?CalendarEventGuestSnapshot} [organizer] - The event organizer.
  */
 
 /**
@@ -126,22 +128,26 @@ export function createInitialCalendarEventDraft() {
  */
 export function cloneDraftFromSourceSnapshot(snapshot) {
   const {
+    attendees = [],
     availability,
     calendarId,
     categories = [],
     description,
     end,
+    organizer = null,
     start,
     title,
     videoUrl = "",
   } = snapshot.event;
 
   return structuredClone({
+    attendees,
     availability,
     calendarId,
     categories,
     ...(description !== undefined && { description }),
     end,
+    organizer,
     start,
     title,
     videoUrl,

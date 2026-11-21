@@ -1191,11 +1191,13 @@ add_task(async function test_createAndEditDraftLifecycle() {
   Assert.deepEqual(
     dialog.draft,
     {
+      attendees: [],
       calendarId: calendar.id,
       availability: source.snapshot.event.availability,
       categories: source.snapshot.event.categories,
       description: "",
       end: source.snapshot.event.end,
+      organizer: null,
       start: source.snapshot.event.start,
       title: calendarEvent.title,
       videoUrl: source.snapshot.event.videoUrl,
@@ -2005,11 +2007,13 @@ add_task(async function test_saveButtonDisabledValidityState() {
   Assert.deepEqual(
     dialog.draft,
     {
+      attendees: [],
       calendarId: calendar.id,
       availability: source.snapshot.event.availability,
       categories: source.snapshot.event.categories,
       description: "",
       end: source.snapshot.event.end,
+      organizer: null,
       start: source.snapshot.event.start,
       title: calendarEvent.title,
       videoUrl: source.snapshot.event.videoUrl,

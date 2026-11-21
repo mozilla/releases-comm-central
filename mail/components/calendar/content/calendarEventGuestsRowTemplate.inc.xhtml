@@ -1,0 +1,27 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<calendar-event-guests-row
+  id="guestsNavigationRow"
+  subview-id="calendarEventCreateEditGuestsSubview"
+>
+  <img
+    slot="icon"
+    class="icon-attendees"
+    src=""
+    data-l10n-id="calendar-dialog-attendees-row-icon"
+  />
+  <span
+    slot="label"
+    class="guests-label"
+    data-l10n-id="calendar-event-add-guests"
+  ></span>
+  <img
+    slot="action"
+    class="icon-nav-right"
+    src=""
+    data-l10n-id="calendar-event-add-guests-expand-icon"
+  />
+  <div class="guests-summary" hidden="hidden"></div>
+</calendar-event-guests-row>

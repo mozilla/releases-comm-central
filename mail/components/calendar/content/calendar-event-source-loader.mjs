@@ -53,6 +53,17 @@ const { cal } = ChromeUtils.importESModule(
  * @property {string} description - The Description document as HTML.
  * @property {string} videoUrl - The URL of the video conference, or an empty
  *   string. A CONFERENCE property without FEATURE=VIDEO gives an empty string.
+ * @property {CalendarEventGuestSnapshot[]} attendees - The event attendees.
+ * @property {?CalendarEventGuestSnapshot} organizer - The event organizer.
+ */
+
+/**
+ * Serializable guest data for an event snapshot.
+ *
+ * @typedef {object} CalendarEventGuestSnapshot
+ * @property {string} id - The guest ID.
+ * @property {?string} commonName - The guest's display name.
+ * @property {?string} participationStatus - The guest's response.
  */
 
 /**
@@ -122,6 +133,20 @@ function snapshotDateTime(dateTime) {
 }
 
 /**
+ * Copies guest values into a plain object.
+ *
+ * @param {calIAttendee} attendee - The attendee or organizer.
+ * @returns {CalendarEventGuestSnapshot} The copied guest values.
+ */
+function snapshotGuest(attendee) {
+  return {
+    id: attendee.id,
+    commonName: attendee.commonName,
+    participationStatus: attendee.participationStatus,
+  };
+}
+
+/**
  * Returns copied event values and calendar data for the dialog state.
  *
  * The returned `identity` holds the IDs used to find the saved event.
@@ -179,6 +204,8 @@ function snapshotEvent(identity, event) {
         event.descriptionText ?? ""
       ),
       videoUrl: getEventVideoUrl(event),
+      attendees: event.getAttendees().map(snapshotGuest),
+      organizer: event.organizer ? snapshotGuest(event.organizer) : null,
     },
   };
 }

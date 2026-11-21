@@ -29,6 +29,10 @@
     ></script>
     <script
       type="module"
+      src="moz-src:///comm/mail/components/calendar/content/calendar-event-guests-row.mjs"
+    ></script>
+    <script
+      type="module"
       src="resource://testing-common/mail/ReduxTestUtils.mjs"
     ></script>
     <style>
@@ -222,6 +226,29 @@
                     ></button>
                   </div>
                 </calendar-event-video-row>
+                <calendar-event-guests-row
+                  id="guestsNavigationRow"
+                  subview-id="calendarEventCreateEditGuestsSubview"
+                >
+                  <img
+                    slot="icon"
+                    class="icon-attendees"
+                    src=""
+                    data-l10n-id="calendar-dialog-attendees-row-icon"
+                  />
+                  <span
+                    slot="label"
+                    class="guests-label"
+                    data-l10n-id="calendar-event-add-guests"
+                  ></span>
+                  <img
+                    slot="action"
+                    class="icon-nav-right"
+                    src=""
+                    data-l10n-id="calendar-event-add-guests-expand-icon"
+                  />
+                  <div class="guests-summary" hidden="hidden"></div>
+                </calendar-event-guests-row>
                 <calendar-dialog-navigation-row
                   id="descriptionNavigationRow"
                   subview-id="calendarEventCreateEditDescriptionSubview"
@@ -343,6 +370,12 @@
             ></div>
           </div>
         </calendar-event-description-subview>
+        <calendar-dialog-subview
+          id="calendarEventCreateEditGuestsSubview"
+          hidden="hidden"
+        >
+          <div slot="main"></div>
+        </calendar-dialog-subview>
       </calendar-dialog-subview-manager>
     </template>
     <button id="menuCreate" type="button">New Event</button>

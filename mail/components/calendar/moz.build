@@ -42,6 +42,7 @@ MOZ_SRC_FILES += [
     "content/calendar-event-dialog-route-controller.mjs",
     "content/calendar-event-dialog-source-mixin.mjs",
     "content/calendar-event-edit-save.mjs",
+    "content/calendar-event-guests-row.mjs",
     "content/calendar-event-save-fields.mjs",
     "content/calendar-event-session-row.mjs",
     "content/calendar-event-source-loader.mjs",

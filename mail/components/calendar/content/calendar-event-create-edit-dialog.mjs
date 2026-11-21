@@ -63,6 +63,7 @@ import "./calendar-dialog-toggleable-row.mjs"; // eslint-disable-line import-x/n
 import "./calendar-event-description-subview.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-event-category-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-event-video-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
+import "./calendar-event-guests-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 
 const { cal } = ChromeUtils.importESModule(
   "resource:///modules/calendar/calUtils.sys.mjs"
@@ -369,6 +370,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
         this.calendarEventSessionKey
       );
 
+      this.#guestsRow.bindEventSession(this.calendarEventSessionKey);
       this.#calendarSelect = this.querySelector(".calendar-selector");
       this.#availabilitySelect = this.querySelector(".availability-selector");
       this.addEventListener("cancel", this);
@@ -1232,6 +1234,10 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     return this.querySelector("calendar-event-category-row");
   }
 
+  get #guestsRow() {
+    return this.querySelector("calendar-event-guests-row");
+  }
+
   /**
    * Applies calendar options and the selected value.
    *
@@ -1537,7 +1543,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
 
   /**
    * Copies the saved event into a draft.
-   * Waits for category controls and dialog text before enabling edit Save.
+   * Waits for category controls, guest summary, and dialog text before enabling Save.
    *
    * @param {CalendarEventDialogSource} source - The loaded source data and a
    *   check that the source still belongs to the current route.
@@ -1573,6 +1579,7 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
 
     await Promise.all([
       this.#categoryRow.renderComplete,
+      this.#guestsRow.renderComplete,
       this.#initialLocalization,
     ]);
 

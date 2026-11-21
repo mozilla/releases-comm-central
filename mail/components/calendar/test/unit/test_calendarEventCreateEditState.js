@@ -133,9 +133,11 @@ add_task(function test_sourceSnapshotStartsAnIsolatedDraft() {
     draft.baseline,
     {
       availability: "free",
+      attendees: [],
       calendarId: "calendar-id",
       categories: [],
       end: snapshot.event.end,
+      organizer: null,
       start: snapshot.event.start,
       title: "Original title",
       videoUrl: "",

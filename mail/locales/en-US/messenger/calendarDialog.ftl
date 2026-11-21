@@ -336,3 +336,16 @@ calendar-description-undo =
 calendar-description-redo =
     .title = Redo
     .aria-label = Redo
+
+calendar-event-add-guests = Add guests
+
+calendar-event-add-guests-expand-icon =
+  .alt = Add guests
+
+# Variables:
+#   $count (Number): Number of invited guests, including the organizer.
+calendar-event-guests-invited =
+    { $count ->
+        [one] { $count } guest invited
+       *[other] { $count } guests invited
+    }

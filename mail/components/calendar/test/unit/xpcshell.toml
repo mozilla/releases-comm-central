@@ -22,6 +22,8 @@
 
 ["test_calendarEventEditSave.js"]
 
+["test_calendarEventGuests.js"]
+
 ["test_calendarEventSourceState.js"]
 
 ["test_calendarEventVideoSave.js"]

@@ -12,6 +12,8 @@ import { selectCalendarEventCreateEditSession } from "./calendarEventCreateEditS
 import { selectCalendarSelection } from "./calendarEventCalendarSlice.mjs";
 import { selectCategoryOptions } from "./calendarEventCategorySlice.mjs";
 
+const EMPTY_ATTENDEES = Object.freeze([]);
+
 /**
  * A selector is a function that reads a value from the Redux application state.
  * `sessionKey` selects one dialog's data from the document's shared store.
@@ -98,6 +100,17 @@ import { selectCategoryOptions } from "./calendarEventCategorySlice.mjs";
  *   or null when absent.
  * @property {?CalendarEventDraftSectionValidity} validity - The validation
  *   result, or null when absent.
+ */
+
+/**
+ * Counts for the Guests row.
+ *
+ * @typedef {object} CalendarEventGuestsViewModel
+ * @property {number} invited - Total guests, including the organizer.
+ * @property {number} attending - Attendees with an ACCEPTED response.
+ * @property {number} notAttending - Attendees with a DECLINED response.
+ * @property {number} maybe - Attendees with a TENTATIVE response.
+ * @property {number} pending - Attendees with a NEEDS-ACTION response.
  */
 
 /**
@@ -557,4 +570,51 @@ export const selectVideoUrl = createSelector(
 export const selectVideoDisabled = createSelector(
   [selectCurrentDraft, selectCurrentOperation],
   (draft, operation) => !draft || operation?.status == "pending"
+);
+
+/**
+ * Returns the invited count and four response counts. Counts attendees with
+ * other responses and an organizer outside the attendee list in the
+ * invited total only.
+ *
+ * @type {CalendarEventCreateEditSelector<CalendarEventGuestsViewModel>}
+ */
+export const selectGuestsViewModel = createSelector(
+  [
+    (state, sessionKey) =>
+      selectCurrentDraft(state, sessionKey)?.attendees ?? EMPTY_ATTENDEES,
+    (state, sessionKey) =>
+      selectCurrentDraft(state, sessionKey)?.organizer ?? null,
+  ],
+  (attendees, organizer) => {
+    const organizerIsAttendee =
+      organizer?.id &&
+      attendees.some(
+        attendee => attendee.id.toLowerCase() == organizer.id.toLowerCase()
+      );
+    const counts = {
+      invited: attendees.length + (organizer && !organizerIsAttendee ? 1 : 0),
+      attending: 0,
+      notAttending: 0,
+      maybe: 0,
+      pending: 0,
+    };
+    for (const attendee of attendees) {
+      switch (attendee.participationStatus) {
+        case "ACCEPTED":
+          counts.attending++;
+          break;
+        case "DECLINED":
+          counts.notAttending++;
+          break;
+        case "TENTATIVE":
+          counts.maybe++;
+          break;
+        case "NEEDS-ACTION":
+          counts.pending++;
+          break;
+      }
+    }
+    return counts;
+  }
 );

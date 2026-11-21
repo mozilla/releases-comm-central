@@ -73,6 +73,7 @@
         >
           <div class="calendar-event-create-edit-dialog-rows">
             #include calendarEventVideoRowTemplate.inc.xhtml
+            #include calendarEventGuestsRowTemplate.inc.xhtml
             <calendar-dialog-navigation-row
               id="descriptionNavigationRow"
               subview-id="calendarEventCreateEditDescriptionSubview"
@@ -154,5 +155,6 @@
         ></div>
       </div>
     </calendar-event-description-subview>
+    #include calendarEventCreateEditGuestsSubviewTemplate.inc.xhtml
   </calendar-dialog-subview-manager>
 </html:template>
