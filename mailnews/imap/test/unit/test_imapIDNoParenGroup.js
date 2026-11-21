@@ -16,9 +16,6 @@
  * usable.
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-load("../../../resources/logHelper.js");
-
 var { PromiseTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );

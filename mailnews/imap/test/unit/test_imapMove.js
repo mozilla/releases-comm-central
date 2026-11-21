@@ -8,8 +8,6 @@ var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-load("../../../resources/logHelper.js");
 var { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );

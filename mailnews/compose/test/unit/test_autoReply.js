@@ -19,8 +19,6 @@ const { MimeParser } = ChromeUtils.importESModule(
   "resource:///modules/mimeParser.sys.mjs"
 );
 
-load("../../../resources/logHelper.js"); // watch for errors in the error console
-
 const kSender = "from@foo.invalid";
 
 var gIncomingMailFile = do_get_file("../../../data/bugmail10"); // mail to reply to

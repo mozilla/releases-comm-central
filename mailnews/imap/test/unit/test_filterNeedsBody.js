@@ -6,9 +6,6 @@
  * adapted from test_imapFilterActions.js
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-load("../../../resources/logHelper.js");
-
 // Globals
 var gFilter; // a message filter with a subject search
 var gAction; // current message action (reused)

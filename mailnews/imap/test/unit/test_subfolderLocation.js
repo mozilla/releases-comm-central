@@ -3,10 +3,6 @@
 
 // Test proper location of new imap offline subfolders for maildir.
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-load("../../../resources/logHelper.js");
-
 // Globals
 
 // Messages to load must have CRLF line endings, that is Windows style
