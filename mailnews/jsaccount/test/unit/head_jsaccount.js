@@ -1,6 +1,9 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
+var { MailShutdown } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailShutdown.sys.mjs"
+);
 var CC = Components.Constructor;
 
 var { MailServices } = ChromeUtils.importESModule(
@@ -54,5 +57,5 @@ for (const { contractID, classID, source } of contracts) {
 do_get_profile();
 
 registerCleanupFunction(function () {
-  load("../../../../mailnews/resources/mailShutdown.js");
+  MailShutdown.simulate();
 });

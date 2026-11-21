@@ -1,3 +1,6 @@
+var { MailShutdown } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailShutdown.sys.mjs"
+);
 // We can be executed from multiple depths
 // Provide gDEPTH if not already defined
 if (typeof gDEPTH == "undefined") {
@@ -256,7 +259,7 @@ async function createImapSubfolder(name) {
 }
 
 registerCleanupFunction(function () {
-  load(gDEPTH + "mailnews/resources/mailShutdown.js");
+  MailShutdown.simulate();
 });
 
 // Setup the SMTP daemon and server

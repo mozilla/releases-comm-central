@@ -11,9 +11,14 @@ var { ctypes } = ChromeUtils.importESModule(
 var { localAccountUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/LocalAccountUtils.sys.mjs"
 );
+var { MailShutdown } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailShutdown.sys.mjs"
+);
 
 // Ensure the profile directory is set up.
 do_get_profile();
+
+registerCleanupFunction(() => MailShutdown.simulate());
 
 // Import fakeserver
 var { nsMailServer } = ChromeUtils.importESModule(

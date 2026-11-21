@@ -1,3 +1,6 @@
+var { MailShutdown } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailShutdown.sys.mjs"
+);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -19,5 +22,5 @@ do_get_profile();
 var gDEPTH = "../../../../";
 
 registerCleanupFunction(function () {
-  load(gDEPTH + "mailnews/resources/mailShutdown.js");
+  MailShutdown.simulate();
 });

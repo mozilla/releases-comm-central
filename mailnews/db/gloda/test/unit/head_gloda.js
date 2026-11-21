@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { MailShutdown } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailShutdown.sys.mjs"
+);
 var { GlodaConstants } = ChromeUtils.importESModule(
   "resource:///modules/gloda/GlodaConstants.sys.mjs"
 );
@@ -15,5 +18,5 @@ do_get_profile();
 var gDEPTH = "../../../../../";
 
 registerCleanupFunction(function () {
-  load(gDEPTH + "mailnews/resources/mailShutdown.js");
+  MailShutdown.simulate();
 });

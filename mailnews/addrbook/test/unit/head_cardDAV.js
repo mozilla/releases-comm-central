@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { MailShutdown } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailShutdown.sys.mjs"
+);
 const { CardDAVDirectory } = ChromeUtils.importESModule(
   "resource:///modules/CardDAVDirectory.sys.mjs"
 );
@@ -15,7 +18,7 @@ const { TestUtils } = ChromeUtils.importESModule(
 do_get_profile();
 
 registerCleanupFunction(function () {
-  load("../../../resources/mailShutdown.js");
+  MailShutdown.simulate();
 });
 
 async function initDirectory() {
