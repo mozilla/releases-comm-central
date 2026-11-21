@@ -14,7 +14,7 @@ var { collectSingleAddress } = ChromeUtils.importESModule(
  */
 function run_test() {
   // Test - Get the address collector
-  loadABFile("data/collect", kPABData.fileName);
+  loadABFile(do_get_file("data/collect.sql"), kPABData.fileName);
 
   // Set the new pref afterwards to ensure we change correctly
   Services.prefs.setCharPref("mail.collect_addressbook", kCABData.URI);

@@ -42,7 +42,7 @@ function checkPopulate(aTo, aCheckTo) {
 }
 
 function run_test() {
-  loadABFile("data/listexpansion", kPABData.fileName);
+  loadABFile(do_get_file("data/listexpansion.sql"), kPABData.fileName);
 
   // XXX Getting all directories ensures we create all ABs because mailing
   // lists need help initialising themselves

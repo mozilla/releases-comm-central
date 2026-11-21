@@ -7,8 +7,9 @@
  */
 
 // add address book setup
-/* import-globals-from ../../../test/resources/abSetup.js */
-load("../../../resources/abSetup.js");
+const { kPABData, loadABFile } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AddrBookTestUtils.sys.mjs"
+);
 
 // add fake POP3 server driver
 const { POP3Pump } = ChromeUtils.importESModule(
@@ -42,7 +43,7 @@ var hdrs = [];
 
 add_task(async function testJunkAllowList() {
   loadABFile(
-    "../../../addrbook/test/unit/data/cardForEmail",
+    do_get_file("../../../addrbook/test/unit/data/cardForEmail.sql"),
     kPABData.fileName
   );
 

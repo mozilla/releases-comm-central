@@ -13,6 +13,7 @@ import { GlodaIndexer } from "resource:///modules/gloda/GlodaIndexer.sys.mjs";
 import { GlodaMsgIndexer } from "resource:///modules/gloda/IndexMsg.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
 import { MsgHdrToMimeMessage } from "resource:///modules/gloda/MimeMessage.sys.mjs";
+import { kPABData } from "resource://testing-common/mailnews/AddrBookTestUtils.sys.mjs";
 import { SyntheticMessageSet } from "resource://testing-common/mailnews/MessageGenerator.sys.mjs";
 
 var log = console.createInstance({
@@ -254,10 +255,6 @@ function permute(aArray, aPermutationId) {
  *  personal address book.
  */
 export function makeABCardForAddressPair(nameAndAddress) {
-  // kPABData is copied from abSetup.js
-  const kPABData = {
-    URI: "jsaddrbook://abook.sqlite",
-  };
   const addressBook = MailServices.ab.getDirectory(kPABData.URI);
 
   const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(

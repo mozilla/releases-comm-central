@@ -2,20 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
- * Sets up the directory service provider to return the app dir as the profile
- * directory for the address book to use for locating its files during the
- * tests.
- *
- * Note there are further configuration setup items below this.
- */
-
 /**
- * General Configuration Data that applies to the address book.
+ * The Personal Address Book.
  */
-
-// Personal Address Book configuration items.
-var kPABData = {
+export const kPABData = {
   URI: "jsaddrbook://abook.sqlite",
   fileName: "abook.sqlite",
   dirName: "Personal Address Book",
@@ -25,8 +15,10 @@ var kPABData = {
   position: 1,
 };
 
-// Collected Address Book configuration items.
-var kCABData = {
+/**
+ * The Collected Addresses address book.
+ */
+export const kCABData = {
   URI: "jsaddrbook://history.sqlite",
   fileName: "history.sqlite",
   dirName: "Collected Addresses",
@@ -36,24 +28,23 @@ var kCABData = {
   position: 2,
 };
 
-// This currently applies to all address books of local type.
-var kNormalPropertiesURI =
+/**
+ * The properties dialog of local address books.
+ */
+export const kNormalPropertiesURI =
   "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml";
 
 /**
- * Installs a pre-prepared address book file into the profile directory.
- * This version is for JS/SQLite address books, if you create a new type,
- * replace this function to test them.
+ * Create a JS/SQLite address book file in the profile from an SQL dump.
+ * The test must have called do_get_profile() first.
  *
- * @param {string} source - Path to the source data, without extension
- * @param {string} dest - Final file name in the profile, with extension
+ * @param {nsIFile} sourceFile - The SQL file to run.
+ * @param {string} destName - The file name of the address book in the
+ *   profile, e.g. kPABData.fileName.
  */
-function loadABFile(source, dest) {
-  const sourceFile = do_get_file(`${source}.sql`);
-  const destFile = do_get_profile();
-  destFile.append(dest);
-
-  info(`Creating ${destFile.path} from ${sourceFile.path}`);
+export function loadABFile(sourceFile, destName) {
+  const destFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
+  destFile.append(destName);
 
   const fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
     Ci.nsIFileInputStream

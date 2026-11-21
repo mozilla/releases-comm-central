@@ -40,8 +40,8 @@ function checkPopulate(aTo, aCheckTo) {
 }
 
 function run_test() {
-  loadABFile("../../../data/abLists1", kPABData.fileName);
-  loadABFile("../../../data/abLists2", kCABData.fileName);
+  loadABFile(do_get_file("../../../data/abLists1.sql"), kPABData.fileName);
+  loadABFile(do_get_file("../../../data/abLists2.sql"), kCABData.fileName);
 
   // Test - Check we can initialize with fewest specified
   // parameters and don't fail/crash like we did in bug 411646.

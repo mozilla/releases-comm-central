@@ -13,8 +13,9 @@ const { PromiseTestUtils } = ChromeUtils.importESModule(
 );
 
 // add address book setup
-/* import-globals-from ../../../test/resources/abSetup.js */
-load("../../../resources/abSetup.js");
+const { kPABData, loadABFile } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AddrBookTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -188,7 +189,7 @@ add_task(async function testAbSearch() {
   localAccountUtils.loadLocalMailAccount();
 
   loadABFile(
-    "../../../addrbook/test/unit/data/cardForEmail",
+    do_get_file("../../../addrbook/test/unit/data/cardForEmail.sql"),
     kPABData.fileName
   );
 

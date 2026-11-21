@@ -37,7 +37,10 @@ var lastNames = [
 var inputs = [firstNames, lastNames];
 
 add_task(async () => {
-  loadABFile("../../../data/tb2hexpopularity", kPABData.fileName);
+  loadABFile(
+    do_get_file("../../../data/tb2hexpopularity.sql"),
+    kPABData.fileName
+  );
 
   // Test - Create a new search component
 

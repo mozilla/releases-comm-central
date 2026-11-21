@@ -7,8 +7,9 @@
  * when using a display name from the address book.
  */
 
-/* import-globals-from ../../../test/resources/abSetup.js */
-load("../../../resources/abSetup.js");
+const { kPABData } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/AddrBookTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"

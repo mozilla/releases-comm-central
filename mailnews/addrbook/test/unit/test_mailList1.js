@@ -20,7 +20,7 @@ function checkLists(childNodes, number) {
 }
 
 function run_test() {
-  loadABFile("../../../data/abLists1", kPABData.fileName);
+  loadABFile(do_get_file("../../../data/abLists1.sql"), kPABData.fileName);
 
   // Test - Get the directory.
 

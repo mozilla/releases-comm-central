@@ -29,7 +29,7 @@ function check_correct_card(card) {
 }
 
 function run_test() {
-  loadABFile("data/cardForEmail", kPABData.fileName);
+  loadABFile(do_get_file("data/cardForEmail.sql"), kPABData.fileName);
 
   // Test - Get the directory
   const AB = MailServices.ab.getDirectory(kPABData.URI);

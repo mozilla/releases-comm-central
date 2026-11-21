@@ -8,7 +8,7 @@
  * Tests getMailListFromName() and mailListNameExists() which relies on it.
  */
 add_task(function testGetMailListFromName() {
-  loadABFile("../../../data/abLists1", kPABData.fileName);
+  loadABFile(do_get_file("../../../data/abLists1.sql"), kPABData.fileName);
 
   for (const listName of ["TestList1", "TestList2", "TestList3"]) {
     Assert.ok(

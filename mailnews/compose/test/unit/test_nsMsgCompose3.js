@@ -58,7 +58,10 @@ function checkPopulate(aTo, aCheckTo) {
 }
 
 function run_test() {
-  loadABFile("../../../data/tb2hexpopularity", kPABData.fileName);
+  loadABFile(
+    do_get_file("../../../data/tb2hexpopularity.sql"),
+    kPABData.fileName
+  );
 
   // Check the popularity index on a couple of cards.
   const AB = MailServices.ab.getDirectory(kPABData.URI);

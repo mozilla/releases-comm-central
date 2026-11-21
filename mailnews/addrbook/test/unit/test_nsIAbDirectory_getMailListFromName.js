@@ -13,7 +13,7 @@
  * also tests the hasMailListWithName function as it uses the same code.
  */
 add_task(function testGetMailListFromName() {
-  loadABFile("../../../data/abLists1", kPABData.fileName);
+  loadABFile(do_get_file("../../../data/abLists1.sql"), kPABData.fileName);
 
   // Test all top level lists are returned.
   const root = MailServices.ab.getDirectory(kPABData.URI);

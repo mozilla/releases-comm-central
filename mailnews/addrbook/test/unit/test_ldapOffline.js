@@ -29,7 +29,7 @@ function run_test() {
   const kLDAPFileName = "ldap-1.sqlite";
 
   // Test setup - copy the data file into place
-  loadABFile("data/cardForEmail", kLDAPFileName);
+  loadABFile(do_get_file("data/cardForEmail.sql"), kLDAPFileName);
 
   // And tell the ldap directory we want this file.
   abDir.replicationFileName = kLDAPFileName;
