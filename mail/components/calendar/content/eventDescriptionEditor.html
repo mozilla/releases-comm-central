@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; style-src chrome:"
+      content="default-src 'none'; script-src moz-src:; style-src chrome:; style-src-attr 'unsafe-inline'"
     />
     <title data-l10n-id="calendar-dialog-description-label"></title>
     <link rel="localization" href="messenger/calendarDialog.ftl" />
@@ -15,6 +15,14 @@
       rel="stylesheet"
       href="chrome://messenger/skin/calendar/calendarEventDescriptionEditor.css"
     />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/calendar/calendarEventDescriptionContent.css"
+    />
+    <script
+      type="module"
+      src="moz-src:///comm/mail/components/calendar/content/calendar-event-description-editor.mjs"
+    ></script>
   </head>
   <body>
     <calendar-description-editor>
@@ -48,6 +56,7 @@
           class="button button-flat icon-button icon-only"
           type="button"
           data-format="link"
+          aria-haspopup="dialog"
           data-l10n-id="calendar-description-link"
         ></button>
         <button
@@ -93,31 +102,44 @@
           ></button>
         </div>
       </div>
-      <form class="description-link-form" hidden>
-        <input
-          type="text"
-          inputmode="url"
-          required
-          data-l10n-id="calendar-description-link-address"
-        />
-        <button
-          class="button"
-          type="submit"
-          data-l10n-id="calendar-description-apply-link"
-        ></button>
-        <button
-          class="button"
-          type="button"
-          data-format="removeLink"
-          data-l10n-id="calendar-description-remove-link"
-        ></button>
-        <button
-          class="button"
-          type="button"
-          data-format="cancelLink"
-          data-l10n-id="calendar-description-cancel-link"
-        ></button>
-      </form>
+      <dialog
+        class="description-link-popup"
+        aria-labelledby="descriptionLinkTitle"
+      >
+        <form class="description-link-form">
+          <h1
+            id="descriptionLinkTitle"
+            class="description-link-title"
+            data-l10n-id="calendar-description-link-popup"
+          ></h1>
+          <input
+            type="text"
+            inputmode="url"
+            required
+            autofocus
+            data-l10n-id="calendar-description-link-address"
+          />
+          <div class="description-link-actions">
+            <button
+              class="button"
+              type="button"
+              data-format="removeLink"
+              data-l10n-id="calendar-description-remove-link"
+            ></button>
+            <button
+              class="button button-flat"
+              type="button"
+              data-format="cancelLink"
+              data-l10n-id="calendar-description-cancel-link"
+            ></button>
+            <button
+              class="button button-primary"
+              type="submit"
+              data-l10n-id="calendar-description-apply-link"
+            ></button>
+          </div>
+        </form>
+      </dialog>
       <div
         class="description-input"
         role="textbox"

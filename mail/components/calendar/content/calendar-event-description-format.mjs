@@ -82,6 +82,21 @@ export function descriptionFromSource(html, text) {
 }
 
 /**
+ * Converts description markup to plain text and preserves preformatted lines.
+ *
+ * @param {string} html - The description HTML.
+ * @returns {string} The plain-text description.
+ */
+export function descriptionToPlainText(html) {
+  const flags =
+    Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
+    Ci.nsIDocumentEncoder.OutputLFLineBreak |
+    Ci.nsIDocumentEncoder.OutputPreformatted;
+
+  return parser.convertToPlainText(html, flags, 0);
+}
+
+/**
  * Stores the description as plain text when the markup can be dropped. If
  * formatting must be kept, the HTML setter also writes the plain fallback.
  *
@@ -102,14 +117,5 @@ export function applyDescription(event, html = "") {
     return;
   }
 
-  const flags =
-    Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
-    Ci.nsIDocumentEncoder.OutputLFLineBreak |
-    Ci.nsIDocumentEncoder.OutputPreformatted;
-
-  event.descriptionText = parser.convertToPlainText(
-    doc.body.innerHTML,
-    flags,
-    0
-  );
+  event.descriptionText = descriptionToPlainText(doc.body.innerHTML);
 }

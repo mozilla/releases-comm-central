@@ -106,30 +106,67 @@ calendar-description-editor {
   margin-inline-start: auto;
 }
 
-.description-link-form:not([hidden]) {
+.description-link-popup {
+  box-sizing: border-box;
+  inline-size: min(24em, calc(100% - 6 * var(--space-step)));
+  max-block-size: calc(100% - 6 * var(--space-step));
+  padding: calc(4 * var(--space-step));
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--border-radius-medium);
+  background-color: var(--color-surface-lower);
+  color: inherit;
+
+  &::backdrop {
+    background-color: rgb(0 0 0 / 30%);
+  }
+}
+
+.description-link-form {
   display: flex;
-  flex: none;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: calc(2 * var(--space-step));
-  padding: calc(2 * var(--space-step));
-  border-block-end: 1px solid var(--color-surface-deep);
+  flex-direction: column;
+  gap: calc(3 * var(--space-step));
 
   & input {
-    flex: 1;
     min-inline-size: 0;
+    padding-block: var(--space-step);
+    padding-inline: calc(2 * var(--space-step));
+    border: 1px solid var(--input-border-color);
+    border-radius: var(--input-text-border-radius);
+    background-color: var(--color-surface-base);
+    color: inherit;
+    font: inherit;
+
+    &:focus-visible {
+      outline: var(--focus-outline);
+    }
   }
 
   & .button {
     min-inline-size: 0;
+    max-inline-size: 100%;
     margin: 0;
+    padding-block: var(--space-step);
+    padding-inline: calc(2 * var(--space-step));
   }
+}
+
+.description-link-title {
+  margin: 0;
+  font-size: inherit;
+}
+
+.description-link-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: var(--space-step);
 }
 
 .description-input {
   flex: 1 1 auto;
   min-block-size: 0;
   overflow: auto;
+  contain: paint;
   overflow-wrap: anywhere;
   /* The border contributes one pixel to the 12px text inset. */
   padding: calc(4 * var(--space-step) - 1px);

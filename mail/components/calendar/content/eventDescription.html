@@ -2,11 +2,17 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
-<!doctype html>
 <html>
   <head>
     <title></title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src chrome:"
+    />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/calendar/calendarEventDescriptionContent.css"
+    />
   </head>
   <body></body>
 </html>

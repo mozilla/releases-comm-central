@@ -10,6 +10,7 @@ import { CalendarEventDialogSourceMixin } from "./calendar-event-dialog-source-m
 import { store } from "moz-src:///comm/mail/base/content/state/store.mjs";
 import { saveCalendarEventEdit } from "./calendar-event-edit-save.mjs";
 import { saveCalendarEventCreate } from "./calendar-event-create-save.mjs";
+import { descriptionToPlainText } from "./calendar-event-description-format.mjs";
 import {
   calendarEventCategorySaveField,
   calendarEventVideoSaveField,
@@ -51,6 +52,7 @@ import {
   selectTitleViewModel,
   selectCalendarValidity,
   selectCanSave,
+  selectDescriptionDocument,
 } from "./state/calendar-event-create-edit-selectors.mjs";
 import "./calendar-dialog-navigation-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
 import "./calendar-dialog-row.mjs"; // eslint-disable-line import-x/no-unassigned-import
@@ -302,6 +304,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
           ),
         draftState: state =>
           selectCalendarEventDraftState(state, this.calendarEventSessionKey),
+        descriptionDocument: state =>
+          selectDescriptionDocument(state, this.calendarEventSessionKey),
         titleViewModel: state =>
           selectTitleViewModel(state, this.calendarEventSessionKey),
         calendarControl: state =>
@@ -344,6 +348,10 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       this.querySelector("calendar-event-video-row").bindEventSession(
         this.calendarEventSessionKey
       );
+      this.querySelector("calendar-event-description-subview").bindEventSession(
+        this.calendarEventSessionKey
+      );
+
       this.#calendarSelect = this.querySelector(".calendar-selector");
       this.#availabilitySelect = this.querySelector(".availability-selector");
       this.addEventListener("cancel", this);
@@ -811,6 +819,8 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       this.#draftState = newValue;
       this.#updateDraftViewModel();
       this.#renderSave();
+    } else if (fieldName == "descriptionDocument") {
+      this.#renderDescriptionPreview(newValue);
     } else if (fieldName == "sourceSession") {
       this.#sourceSession = newValue;
     } else if (fieldName == "calendarControl") {
@@ -824,6 +834,36 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     } else if (fieldName == "titleViewModel") {
       this.#renderTitle(newValue);
     }
+  }
+
+  /**
+   * Shows a plain-text preview of the current Description in the main view.
+   *
+   * @param {?string} description - The draft HTML, or null before a draft exists.
+   */
+  #renderDescriptionPreview(description) {
+    const row = this.querySelector("#descriptionNavigationRow");
+
+    if (!row) {
+      return;
+    }
+
+    const preview = row.querySelector(".calendar-event-description-preview");
+    const text = description ? descriptionToPlainText(description).trim() : "";
+    const slot = text ? "content" : "";
+
+    preview.textContent = text;
+
+    if (preview.slot == slot) {
+      return;
+    }
+
+    const labelId = text
+      ? "calendar-dialog-description-label"
+      : "calendar-event-add-description";
+
+    preview.slot = slot;
+    document.l10n.setAttributes(row.querySelector('[slot="label"]'), labelId);
   }
 
   /**
@@ -895,7 +935,9 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     });
   }
 
-  /** Removes saved route IDs without starting another route load. */
+  /**
+   * Removes saved route IDs without starting another route load.
+   */
   #clearSavedRouteAttributes() {
     // Closing already cleared the session. Remove the saved route IDs
     // without starting a new route load from each attribute callback.
@@ -954,7 +996,9 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     super.attributeChangedCallback(attribute, oldValue, newValue);
   }
 
-  /** Discards the draft and closes the dialog unless Save is pending. */
+  /**
+   * Discards the draft and closes the dialog unless Save is pending.
+   */
   close() {
     if (this.#createEditSession?.operation.status != "pending") {
       super.close();
@@ -1038,7 +1082,9 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     });
   }
 
-  /** Displays observed Save progress and failures for keyboard and speech users. */
+  /**
+   * Displays observed Save progress and failures for keyboard and speech users.
+   */
   #renderSave() {
     const body = this.querySelector(".calendar-event-create-edit-dialog-body");
 
@@ -1139,6 +1185,11 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     }
   }
 
+  /**
+   * Returns the dialog's category row.
+   *
+   * @returns {?CalendarEventCategoryRow} The category row, or null when absent.
+   */
   get #categoryRow() {
     return this.querySelector("calendar-event-category-row");
   }
@@ -1283,10 +1334,20 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
     }
   }
 
+  /**
+   * Returns the button for the event actions menu.
+   *
+   * @returns {?HTMLButtonElement} The menu button, or null when absent.
+   */
   get #menuButton() {
     return this.querySelector("#calendarEventCreateEditDialogMenuButton");
   }
 
+  /**
+   * Returns the event actions popup.
+   *
+   * @returns {?XULPopupElement} The actions popup, or null when absent.
+   */
   get #menu() {
     return this.querySelector("#calendarEventCreateEditDialogMenu");
   }
@@ -1296,6 +1357,9 @@ export class CalendarEventCreateEditDialog extends CalendarEventDialogSourceMixi
       this.#requestDeleteEvent(),
   };
 
+  /**
+   * Opens the event actions menu anchored to its button.
+   */
   #openMenu() {
     this.#menu.openPopup(this.#menuButton, "after_end");
   }

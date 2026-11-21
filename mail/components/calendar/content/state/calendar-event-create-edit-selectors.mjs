@@ -133,6 +133,16 @@ export const selectCurrentDraft = createSelector(
 );
 
 /**
+ * Returns the Description document, or null before the route has a draft.
+ *
+ * @type {CalendarEventCreateEditSelector<?string>}
+ */
+export const selectDescriptionDocument = createSelector(
+  [selectCurrentDraft],
+  draft => (draft ? (draft.description ?? "") : null)
+);
+
+/**
  * Returns names of field sections that differ from their starting values.
  * Returns an empty array when the draft is absent.
  *

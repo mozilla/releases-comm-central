@@ -1423,7 +1423,8 @@ add_task(async function test_savedDescriptionInReadDialog() {
   await edit(event);
 
   dialog.updateDraftSection("description", {
-    description: "<div><b>Saved agenda</b></div>",
+    description:
+      '<div><b>Saved agenda</b></div><pre align="center">Notes</pre><ul><li align="right">Action</li></ul>',
   });
 
   const closed = BrowserTestUtils.waitForEvent(dialog, "close");
@@ -1450,10 +1451,11 @@ add_task(async function test_savedDescriptionInReadDialog() {
     "#expandingDescription .plain-text-description"
   );
 
-  Assert.equal(
-    summary.textContent,
-    "Saved agenda",
-    "Read should display the plain fallback."
+  Assert.ok(
+    ["Saved agenda", "Notes", "Action"].every(text =>
+      summary.textContent.includes(text)
+    ),
+    "Read should display the plain description fallback."
   );
 
   EventUtils.synthesizeMouseAtCenter(
@@ -1470,6 +1472,27 @@ add_task(async function test_savedDescriptionInReadDialog() {
     () =>
       rich.contentDocument?.querySelector("b")?.textContent == "Saved agenda",
     "The expanded Read dialog should display the saved bold text."
+  );
+
+  const readDoc = rich.contentDocument;
+  const notes = readDoc.querySelector("pre");
+  const action = readDoc.querySelector("li");
+
+  Assert.ok(notes, "Read should contain the saved preformatted block.");
+  Assert.ok(action, "Read should contain the saved list item.");
+  await TestUtils.waitForCondition(
+    () => notes.getBoundingClientRect().width > 0,
+    "Read should lay out the saved preformatted block."
+  );
+  Assert.equal(
+    readDoc.defaultView.getComputedStyle(notes).textAlign,
+    "center",
+    "Read should center the saved preformatted text."
+  );
+  Assert.equal(
+    readDoc.defaultView.getComputedStyle(action).textAlign,
+    "right",
+    "Read should right-align the saved list item."
   );
 
   readDialog.close();

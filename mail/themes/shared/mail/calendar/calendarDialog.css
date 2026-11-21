@@ -497,6 +497,11 @@ li[is="calendar-dialog-attachment"] {
     border-block-end: 1px solid var(--color-surface-border);
     padding-block: var(--calendar-dialog-gap);
   }
+
+  .calendar-event-description-preview {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
 }
 
 .calendar-event-create-edit-dialog-footer {
