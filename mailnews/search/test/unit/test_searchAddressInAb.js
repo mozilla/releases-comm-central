@@ -5,8 +5,12 @@
 // Testing of to, cc, toorcc in addressbook search features added in bug 187768
 // Added testing of AllAddresses from bug 310359
 
-/* import-globals-from ../../../test/resources/searchTestUtils.js */
-load("../../../resources/searchTestUtils.js");
+const { MailSearchTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailSearchTestUtils.sys.mjs"
+);
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 
 // add address book setup
 /* import-globals-from ../../../test/resources/abSetup.js */
@@ -179,7 +183,7 @@ var Files = [
   "../../../data/bugmail8",
 ];
 
-function run_test() {
+add_task(async function testAbSearch() {
   // Setup local mail accounts.
   localAccountUtils.loadLocalMailAccount();
 
@@ -191,153 +195,171 @@ function run_test() {
   // test that validity table terms are valid
 
   // offline mail table
-  testValidityTable(offlineMail, IsInAB, Sender, true);
-  testValidityTable(offlineMail, IsInAB, To, true);
-  testValidityTable(offlineMail, IsInAB, ToOrCC, true);
-  testValidityTable(offlineMail, IsInAB, AllAddresses, true);
-  testValidityTable(offlineMail, IsInAB, CCopy, true);
-  testValidityTable(offlineMail, IsInAB, Keywords, false);
-  testValidityTable(offlineMail, IsntInAB, Sender, true);
-  testValidityTable(offlineMail, IsntInAB, To, true);
-  testValidityTable(offlineMail, IsntInAB, ToOrCC, true);
-  testValidityTable(offlineMail, IsntInAB, AllAddresses, true);
-  testValidityTable(offlineMail, IsntInAB, CCopy, true);
-  testValidityTable(offlineMail, IsntInAB, Keywords, false);
-  testValidityTable(offlineMail, IsBefore, Sender, false);
-  testValidityTable(offlineMail, IsBefore, To, false);
-  testValidityTable(offlineMail, IsBefore, ToOrCC, false);
-  testValidityTable(offlineMail, IsBefore, AllAddresses, false);
-  testValidityTable(offlineMail, IsBefore, CCopy, false);
-  testValidityTable(offlineMail, IsBefore, Keywords, false);
-  testValidityTable(offlineMail, Is, AllAddresses, true);
-  testValidityTable(offlineMail, Isnt, AllAddresses, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsInAB, Sender, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsInAB, To, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsInAB, ToOrCC, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsInAB, AllAddresses, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsInAB, CCopy, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsInAB, Keywords, false);
+  MailSearchTestUtils.assertValidity(offlineMail, IsntInAB, Sender, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsntInAB, To, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsntInAB, ToOrCC, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsntInAB, AllAddresses, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsntInAB, CCopy, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsntInAB, Keywords, false);
+  MailSearchTestUtils.assertValidity(offlineMail, IsBefore, Sender, false);
+  MailSearchTestUtils.assertValidity(offlineMail, IsBefore, To, false);
+  MailSearchTestUtils.assertValidity(offlineMail, IsBefore, ToOrCC, false);
+  MailSearchTestUtils.assertValidity(
+    offlineMail,
+    IsBefore,
+    AllAddresses,
+    false
+  );
+  MailSearchTestUtils.assertValidity(offlineMail, IsBefore, CCopy, false);
+  MailSearchTestUtils.assertValidity(offlineMail, IsBefore, Keywords, false);
+  MailSearchTestUtils.assertValidity(offlineMail, Is, AllAddresses, true);
+  MailSearchTestUtils.assertValidity(offlineMail, Isnt, AllAddresses, true);
 
   // offline mail filter table
-  testValidityTable(offlineMailFilter, IsInAB, Sender, true);
-  testValidityTable(offlineMailFilter, IsInAB, To, true);
-  testValidityTable(offlineMailFilter, IsInAB, ToOrCC, true);
-  testValidityTable(offlineMailFilter, IsInAB, AllAddresses, true);
-  testValidityTable(offlineMailFilter, IsInAB, CCopy, true);
-  testValidityTable(offlineMailFilter, IsInAB, Keywords, false);
-  testValidityTable(offlineMailFilter, IsntInAB, Sender, true);
-  testValidityTable(offlineMailFilter, IsntInAB, To, true);
-  testValidityTable(offlineMailFilter, IsntInAB, AllAddresses, true);
-  testValidityTable(offlineMailFilter, IsntInAB, ToOrCC, true);
-  testValidityTable(offlineMailFilter, IsntInAB, CCopy, true);
-  testValidityTable(offlineMailFilter, IsntInAB, Keywords, false);
-  testValidityTable(offlineMailFilter, IsBefore, Sender, false);
-  testValidityTable(offlineMailFilter, IsBefore, To, false);
-  testValidityTable(offlineMailFilter, IsBefore, ToOrCC, false);
-  testValidityTable(offlineMailFilter, IsBefore, AllAddresses, false);
-  testValidityTable(offlineMailFilter, IsBefore, CCopy, false);
-  testValidityTable(offlineMailFilter, IsBefore, Keywords, false);
-  testValidityTable(offlineMailFilter, Is, AllAddresses, true);
-  testValidityTable(offlineMailFilter, Isnt, AllAddresses, true);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsInAB, Sender, true);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsInAB, To, true);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsInAB, ToOrCC, true);
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsInAB,
+    AllAddresses,
+    true
+  );
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsInAB, CCopy, true);
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsInAB,
+    Keywords,
+    false
+  );
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsntInAB, Sender, true);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsntInAB, To, true);
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsntInAB,
+    AllAddresses,
+    true
+  );
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsntInAB, ToOrCC, true);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsntInAB, CCopy, true);
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsntInAB,
+    Keywords,
+    false
+  );
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsBefore,
+    Sender,
+    false
+  );
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsBefore, To, false);
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsBefore,
+    ToOrCC,
+    false
+  );
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsBefore,
+    AllAddresses,
+    false
+  );
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsBefore, CCopy, false);
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsBefore,
+    Keywords,
+    false
+  );
+  MailSearchTestUtils.assertValidity(offlineMailFilter, Is, AllAddresses, true);
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    Isnt,
+    AllAddresses,
+    true
+  );
 
   // online mail
-  testValidityTable(onlineMail, IsInAB, Sender, false);
-  testValidityTable(onlineMail, IsInAB, To, false);
-  testValidityTable(onlineMail, IsInAB, ToOrCC, false);
-  testValidityTable(onlineMail, IsInAB, CCopy, false);
-  testValidityTable(onlineMail, IsInAB, Keywords, false);
-  testValidityTable(onlineMail, IsntInAB, Sender, false);
-  testValidityTable(onlineMail, IsntInAB, To, false);
-  testValidityTable(onlineMail, IsntInAB, ToOrCC, false);
-  testValidityTable(onlineMail, IsntInAB, CCopy, false);
-  testValidityTable(onlineMail, IsntInAB, Keywords, false);
-  testValidityTable(onlineMail, IsBefore, Sender, false);
-  testValidityTable(onlineMail, IsBefore, To, false);
-  testValidityTable(onlineMail, IsBefore, ToOrCC, false);
-  testValidityTable(onlineMail, IsBefore, CCopy, false);
-  testValidityTable(onlineMail, IsBefore, Keywords, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsInAB, Sender, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsInAB, To, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsInAB, ToOrCC, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsInAB, CCopy, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsInAB, Keywords, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsntInAB, Sender, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsntInAB, To, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsntInAB, ToOrCC, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsntInAB, CCopy, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsntInAB, Keywords, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsBefore, Sender, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsBefore, To, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsBefore, ToOrCC, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsBefore, CCopy, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsBefore, Keywords, false);
 
   // online mail filter
-  testValidityTable(onlineMailFilter, IsInAB, Sender, true);
-  testValidityTable(onlineMailFilter, IsInAB, To, true);
-  testValidityTable(onlineMailFilter, IsInAB, ToOrCC, true);
-  testValidityTable(onlineMailFilter, IsInAB, CCopy, true);
-  testValidityTable(onlineMailFilter, IsInAB, Keywords, false);
-  testValidityTable(onlineMailFilter, IsntInAB, Sender, true);
-  testValidityTable(onlineMailFilter, IsntInAB, To, true);
-  testValidityTable(onlineMailFilter, IsntInAB, ToOrCC, true);
-  testValidityTable(onlineMailFilter, IsntInAB, CCopy, true);
-  testValidityTable(onlineMailFilter, IsntInAB, Keywords, false);
-  testValidityTable(onlineMailFilter, IsBefore, Sender, false);
-  testValidityTable(onlineMailFilter, IsBefore, To, false);
-  testValidityTable(onlineMailFilter, IsBefore, ToOrCC, false);
-  testValidityTable(onlineMailFilter, IsBefore, CCopy, false);
-  testValidityTable(onlineMailFilter, IsBefore, Keywords, false);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsInAB, Sender, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsInAB, To, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsInAB, ToOrCC, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsInAB, CCopy, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsInAB, Keywords, false);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsntInAB, Sender, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsntInAB, To, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsntInAB, ToOrCC, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsntInAB, CCopy, true);
+  MailSearchTestUtils.assertValidity(
+    onlineMailFilter,
+    IsntInAB,
+    Keywords,
+    false
+  );
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsBefore, Sender, false);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsBefore, To, false);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsBefore, ToOrCC, false);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsBefore, CCopy, false);
+  MailSearchTestUtils.assertValidity(
+    onlineMailFilter,
+    IsBefore,
+    Keywords,
+    false
+  );
 
   // news
-  testValidityTable(news, IsInAB, Sender, false);
-  testValidityTable(news, IsInAB, To, false);
-  testValidityTable(news, IsInAB, ToOrCC, false);
-  testValidityTable(news, IsInAB, CCopy, false);
-  testValidityTable(news, IsInAB, Keywords, false);
-  testValidityTable(news, IsntInAB, Sender, false);
-  testValidityTable(news, IsntInAB, To, false);
-  testValidityTable(news, IsntInAB, ToOrCC, false);
-  testValidityTable(news, IsntInAB, CCopy, false);
-  testValidityTable(news, IsntInAB, Keywords, false);
-  testValidityTable(news, IsBefore, Sender, false);
-  testValidityTable(news, IsBefore, To, false);
-  testValidityTable(news, IsBefore, ToOrCC, false);
-  testValidityTable(news, IsBefore, CCopy, false);
-  testValidityTable(news, IsBefore, Keywords, false);
+  MailSearchTestUtils.assertValidity(news, IsInAB, Sender, false);
+  MailSearchTestUtils.assertValidity(news, IsInAB, To, false);
+  MailSearchTestUtils.assertValidity(news, IsInAB, ToOrCC, false);
+  MailSearchTestUtils.assertValidity(news, IsInAB, CCopy, false);
+  MailSearchTestUtils.assertValidity(news, IsInAB, Keywords, false);
+  MailSearchTestUtils.assertValidity(news, IsntInAB, Sender, false);
+  MailSearchTestUtils.assertValidity(news, IsntInAB, To, false);
+  MailSearchTestUtils.assertValidity(news, IsntInAB, ToOrCC, false);
+  MailSearchTestUtils.assertValidity(news, IsntInAB, CCopy, false);
+  MailSearchTestUtils.assertValidity(news, IsntInAB, Keywords, false);
+  MailSearchTestUtils.assertValidity(news, IsBefore, Sender, false);
+  MailSearchTestUtils.assertValidity(news, IsBefore, To, false);
+  MailSearchTestUtils.assertValidity(news, IsBefore, ToOrCC, false);
+  MailSearchTestUtils.assertValidity(news, IsBefore, CCopy, false);
+  MailSearchTestUtils.assertValidity(news, IsBefore, Keywords, false);
 
   // Get a message into the local filestore. function testAbSearch() continues the testing after the copy.
-  do_test_pending();
-  copyListener.onStopCopy(null);
-  return true;
-}
+  await copyFileMessages(Files);
 
-/** @implements {nsIMsgCopyServiceListener} */
-var copyListener = {
-  onStartCopy() {},
-  onProgress() {},
-  setMessageKey() {},
-  getMessageId() {
-    return null;
-  },
-  onStopCopy() {
-    var fileName = Files.shift();
-    if (fileName) {
-      var file = do_get_file(fileName);
-      MailServices.copy.copyFileMessage(
-        file,
-        localAccountUtils.inboxFolder,
-        null,
-        false,
-        0,
-        "",
-        copyListener,
-        false
-      );
-    } else {
-      testAbSearch();
-    }
-  },
-};
-
-// Runs at completion of copy
-
-// process each test from queue, calls itself upon completion of each search
-function testAbSearch() {
-  print("Test AbSearch");
-  var test = Tests.shift();
-  if (test) {
-    new TestSearch(
+  for (const test of Tests) {
+    await MailSearchTestUtils.assertHitCount(
       localAccountUtils.inboxFolder,
-      test.value,
-      test.attrib,
-      test.op,
-      test.count,
-      testAbSearch
+      test,
+      test.count
     );
-  } else {
-    copyEmptyAddressMessages();
   }
-}
+});
 
 const EmptyAddressFiles = [
   "../../../data/bugmail9",
@@ -347,74 +369,42 @@ const EmptyAddressFiles = [
   "../../../data/bugmail391717-missing-to",
 ];
 
-function copyEmptyAddressMessages() {
-  const fileName = EmptyAddressFiles.shift();
-  if (!fileName) {
-    testEmptyAddresses();
-    return;
+add_task(async function testEmptyAddresses() {
+  await copyFileMessages(EmptyAddressFiles);
+
+  for (const [attrib, op, count] of [
+    [Sender, IsntInAB, 8],
+    [Sender, IsInAB, 5],
+    [To, IsntInAB, 7],
+    [To, IsInAB, 7],
+    [AllAddresses, IsntInAB, 7],
+  ]) {
+    await MailSearchTestUtils.assertHitCount(
+      localAccountUtils.inboxFolder,
+      { value: ABUri, attrib, op },
+      count
+    );
   }
+});
 
-  MailServices.copy.copyFileMessage(
-    do_get_file(fileName),
-    localAccountUtils.inboxFolder,
-    null,
-    false,
-    0,
-    "",
-    {
-      onStartCopy() {},
-      onProgress() {},
-      setMessageKey() {},
-      getMessageId() {
-        return null;
-      },
-      onStopCopy() {
-        copyEmptyAddressMessages();
-      },
-    },
-    false
-  );
-}
-
-function testEmptyAddresses() {
-  new TestSearch(
-    localAccountUtils.inboxFolder,
-    ABUri,
-    Sender,
-    IsntInAB,
-    8,
-    () =>
-      new TestSearch(
-        localAccountUtils.inboxFolder,
-        ABUri,
-        Sender,
-        IsInAB,
-        5,
-        () =>
-          new TestSearch(
-            localAccountUtils.inboxFolder,
-            ABUri,
-            To,
-            IsntInAB,
-            7,
-            () =>
-              new TestSearch(
-                localAccountUtils.inboxFolder,
-                ABUri,
-                To,
-                IsInAB,
-                7,
-                () =>
-                  new TestSearch(
-                    localAccountUtils.inboxFolder,
-                    ABUri,
-                    AllAddresses,
-                    IsntInAB,
-                    7,
-                    do_test_finished
-                  )
-              )
-          )
-      )
-  );
+/**
+ * Copy message files into the local inbox, one after the other.
+ *
+ * @param {string[]} fileNames - Paths relative to the test file.
+ */
+async function copyFileMessages(fileNames) {
+  for (const fileName of fileNames) {
+    const listener = new PromiseTestUtils.PromiseCopyListener();
+    MailServices.copy.copyFileMessage(
+      do_get_file(fileName),
+      localAccountUtils.inboxFolder,
+      null,
+      false,
+      0,
+      "",
+      listener,
+      null
+    );
+    await listener.promise;
+  }
 }

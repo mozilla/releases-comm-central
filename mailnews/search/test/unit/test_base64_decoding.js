@@ -5,11 +5,14 @@
 // This tests that we do not crash when loading the email bodySearchCrash,
 // which was fixed in bug 465805
 
-/* import-globals-from ../../../test/resources/searchTestUtils.js */
-load("../../../resources/searchTestUtils.js");
-
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
+);
+const { MailSearchTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailSearchTestUtils.sys.mjs"
+);
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
 );
 
 var Contains = Ci.nsMsgSearchOp.Contains;
@@ -65,60 +68,30 @@ var Tests = [
   },
 ];
 
-function run_test() {
-  // Setup local mail accounts.
+add_setup(async function () {
   localAccountUtils.loadLocalMailAccount();
-
-  // Get a message into the local filestore. function testBodySearch() continues the testing after the copy.
-  do_test_pending();
-  copyListener.onStopCopy(null);
-  return true;
-}
-
-/** @implements {nsIMsgCopyServiceListener} */
-var copyListener = {
-  onStartCopy() {},
-  onProgress() {},
-  setMessageKey() {},
-  getMessageId() {
-    return null;
-  },
-  onStopCopy() {
-    const fileName = Files.shift();
-    if (fileName) {
-      const file = do_get_file(fileName);
-      MailServices.copy.copyFileMessage(
-        file,
-        localAccountUtils.inboxFolder,
-        null,
-        false,
-        0,
-        "",
-        copyListener,
-        false
-      );
-    } else {
-      testBodySearch();
-    }
-  },
-};
-
-// Runs at completion of copy
-
-// process each test from queue, calls itself upon completion of each search
-function testBodySearch() {
-  print("Test Body Search");
-  var test = Tests.shift();
-  if (test) {
-    new TestSearch(
+  for (const fileName of Files) {
+    const listener = new PromiseTestUtils.PromiseCopyListener();
+    MailServices.copy.copyFileMessage(
+      do_get_file(fileName),
       localAccountUtils.inboxFolder,
-      test.value,
-      test.attrib,
-      test.op,
-      test.count,
-      testBodySearch
+      null,
+      false,
+      0,
+      "",
+      listener,
+      null
     );
-  } else {
-    do_test_finished();
+    await listener.promise;
   }
-}
+});
+
+add_task(async function testBodySearch() {
+  for (const test of Tests) {
+    await MailSearchTestUtils.assertHitCount(
+      localAccountUtils.inboxFolder,
+      test,
+      test.count
+    );
+  }
+});

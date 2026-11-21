@@ -13,8 +13,12 @@ const { SmimeUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/SmimeUtils.sys.mjs"
 );
 
-/* import-globals-from ../../../test/resources/searchTestUtils.js */
-load("../../../resources/searchTestUtils.js");
+const { MailSearchTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailSearchTestUtils.sys.mjs"
+);
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -298,34 +302,6 @@ function fixFile(file) {
   return targetFile;
 }
 
-/** @implements {nsIMsgCopyServiceListener} */
-var copyListener = {
-  onStartCopy() {},
-  onProgress() {},
-  setMessageKey() {},
-  getMessageId() {
-    return null;
-  },
-  onStopCopy() {
-    var fileName = Files.shift();
-    if (fileName) {
-      var file = fixFile(do_get_file(fileName));
-      MailServices.copy.copyFileMessage(
-        file,
-        localAccountUtils.inboxFolder,
-        null,
-        false,
-        0,
-        "",
-        copyListener,
-        false
-      );
-    } else {
-      testBodySearch();
-    }
-  },
-};
-
 add_setup(async function () {
   do_get_profile();
 
@@ -361,71 +337,79 @@ add_task(async function run_tests() {
   // test that validity table terms are valid
 
   // offline mail table
-  testValidityTable(offlineMail, Contains, Body, true);
-  testValidityTable(offlineMail, DoesntContain, Body, true);
-  testValidityTable(offlineMail, Is, Body, true);
-  testValidityTable(offlineMail, Isnt, Body, true);
-  testValidityTable(offlineMail, IsEmpty, Body, false);
-  testValidityTable(offlineMail, IsntEmpty, Body, false);
-  testValidityTable(offlineMail, IsBefore, Body, false);
+  MailSearchTestUtils.assertValidity(offlineMail, Contains, Body, true);
+  MailSearchTestUtils.assertValidity(offlineMail, DoesntContain, Body, true);
+  MailSearchTestUtils.assertValidity(offlineMail, Is, Body, true);
+  MailSearchTestUtils.assertValidity(offlineMail, Isnt, Body, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsEmpty, Body, false);
+  MailSearchTestUtils.assertValidity(offlineMail, IsntEmpty, Body, false);
+  MailSearchTestUtils.assertValidity(offlineMail, IsBefore, Body, false);
 
   // offline mail filter table
-  testValidityTable(offlineMailFilter, Contains, Body, true);
-  testValidityTable(offlineMailFilter, DoesntContain, Body, true);
-  testValidityTable(offlineMailFilter, Is, Body, true);
-  testValidityTable(offlineMailFilter, Isnt, Body, true);
-  testValidityTable(offlineMailFilter, IsEmpty, Body, false);
-  testValidityTable(offlineMailFilter, IsntEmpty, Body, false);
-  testValidityTable(offlineMailFilter, IsBefore, Body, false);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, Contains, Body, true);
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    DoesntContain,
+    Body,
+    true
+  );
+  MailSearchTestUtils.assertValidity(offlineMailFilter, Is, Body, true);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, Isnt, Body, true);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsEmpty, Body, false);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsntEmpty, Body, false);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, IsBefore, Body, false);
 
   // online mail
-  testValidityTable(onlineMail, Contains, Body, true);
-  testValidityTable(onlineMail, DoesntContain, Body, true);
-  testValidityTable(onlineMail, Is, Body, false);
-  testValidityTable(onlineMail, Isnt, Body, false);
-  testValidityTable(onlineMail, IsEmpty, Body, false);
-  testValidityTable(onlineMail, IsntEmpty, Body, false);
-  testValidityTable(onlineMail, IsBefore, Body, false);
+  MailSearchTestUtils.assertValidity(onlineMail, Contains, Body, true);
+  MailSearchTestUtils.assertValidity(onlineMail, DoesntContain, Body, true);
+  MailSearchTestUtils.assertValidity(onlineMail, Is, Body, false);
+  MailSearchTestUtils.assertValidity(onlineMail, Isnt, Body, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsEmpty, Body, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsntEmpty, Body, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsBefore, Body, false);
 
   // online mail filter
-  /* testValidityTable(onlineMailFilter, Contains, Body, true);
-  testValidityTable(onlineMailFilter, DoesntContain, Body, true);
-  testValidityTable(onlineMailFilter, Is, Body, false);
-  testValidityTable(onlineMailFilter, Isnt, Body, false);
-  testValidityTable(onlineMailFilter, IsEmpty, Body, false);
-  testValidityTable(onlineMailFilter, IsntEmpty, Body, false);
-  testValidityTable(onlineMailFilter, IsBefore, Body, false);*/
+  /* MailSearchTestUtils.assertValidity(onlineMailFilter, Contains, Body, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, DoesntContain, Body, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, Is, Body, false);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, Isnt, Body, false);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsEmpty, Body, false);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsntEmpty, Body, false);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsBefore, Body, false);*/
 
   // News does not support body tests
-  testValidityTable(news, Contains, Body, false);
-  testValidityTable(news, DoesntContain, Body, false);
-  testValidityTable(news, Is, Body, false);
-  testValidityTable(news, Isnt, Body, false);
-  testValidityTable(news, IsEmpty, Body, false);
-  testValidityTable(news, IsntEmpty, Body, false);
-  testValidityTable(news, IsBefore, Body, false);
+  MailSearchTestUtils.assertValidity(news, Contains, Body, false);
+  MailSearchTestUtils.assertValidity(news, DoesntContain, Body, false);
+  MailSearchTestUtils.assertValidity(news, Is, Body, false);
+  MailSearchTestUtils.assertValidity(news, Isnt, Body, false);
+  MailSearchTestUtils.assertValidity(news, IsEmpty, Body, false);
+  MailSearchTestUtils.assertValidity(news, IsntEmpty, Body, false);
+  MailSearchTestUtils.assertValidity(news, IsBefore, Body, false);
 
-  do_test_pending();
-  copyListener.onStopCopy(null);
-});
+  for (const fileName of Files) {
+    const listener = new PromiseTestUtils.PromiseCopyListener();
+    MailServices.copy.copyFileMessage(
+      fixFile(do_get_file(fileName)),
+      localAccountUtils.inboxFolder,
+      null,
+      false,
+      0,
+      "",
+      listener,
+      null
+    );
+    await listener.promise;
+  }
 
-// process each test from queue, calls itself upon completion of each search
-function testBodySearch() {
-  var test = Tests.shift();
-  if (test) {
+  for (const test of Tests) {
     Services.prefs.setIntPref(
       "mail.matchdiacritics",
       test.matchdiacritics ?? DIACRITICS_ALWAYS
     );
-    new TestSearch(
+    await MailSearchTestUtils.assertHitCount(
       localAccountUtils.inboxFolder,
-      test.value,
-      Body,
-      test.op,
-      test.count,
-      testBodySearch
+      { value: test.value, attrib: Body, op: test.op },
+      test.count
     );
-  } else {
-    do_test_finished();
   }
-}
+});

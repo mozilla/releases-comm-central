@@ -4,8 +4,12 @@
 
 // Testing of search by junk percent and junk score origin
 
-/* import-globals-from ../../../test/resources/searchTestUtils.js */
-load("../../../resources/searchTestUtils.js");
+const { MailSearchTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailSearchTestUtils.sys.mjs"
+);
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -251,75 +255,66 @@ var Tests = [
   },
 ];
 
-function run_test() {
+add_task(async function testJunkSearch() {
   localAccountUtils.loadLocalMailAccount();
 
   // test that validity table terms are valid
 
   // offline mail table
-  testValidityTable(offlineMail, Is, JunkPercent, true);
-  testValidityTable(offlineMail, Isnt, JunkPercent, false);
-  testValidityTable(offlineMail, IsGreaterThan, JunkPercent, true);
-  testValidityTable(offlineMail, IsLessThan, JunkPercent, true);
+  MailSearchTestUtils.assertValidity(offlineMail, Is, JunkPercent, true);
+  MailSearchTestUtils.assertValidity(offlineMail, Isnt, JunkPercent, false);
+  MailSearchTestUtils.assertValidity(
+    offlineMail,
+    IsGreaterThan,
+    JunkPercent,
+    true
+  );
+  MailSearchTestUtils.assertValidity(
+    offlineMail,
+    IsLessThan,
+    JunkPercent,
+    true
+  );
 
-  testValidityTable(offlineMail, Is, JunkScoreOrigin, true);
-  testValidityTable(offlineMail, Isnt, JunkScoreOrigin, true);
-  testValidityTable(offlineMail, IsGreaterThan, JunkScoreOrigin, false);
-  testValidityTable(offlineMail, IsLessThan, JunkScoreOrigin, false);
+  MailSearchTestUtils.assertValidity(offlineMail, Is, JunkScoreOrigin, true);
+  MailSearchTestUtils.assertValidity(offlineMail, Isnt, JunkScoreOrigin, true);
+  MailSearchTestUtils.assertValidity(
+    offlineMail,
+    IsGreaterThan,
+    JunkScoreOrigin,
+    false
+  );
+  MailSearchTestUtils.assertValidity(
+    offlineMail,
+    IsLessThan,
+    JunkScoreOrigin,
+    false
+  );
 
-  // Get a message into the local filestore. function testJunkSearch() continues the testing after the copy.
-  do_test_pending();
-  var file = do_get_file(fileName);
+  const listener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
-    file,
+    do_get_file(fileName),
     localAccountUtils.inboxFolder,
     null,
     false,
     0,
     "",
-    copyListener,
-    false
+    listener,
+    null
   );
-  return true;
-}
+  const { messageKeys } = await listener.promise;
+  const hdr = localAccountUtils.inboxFolder.getMsgHdr(messageKeys[0]);
 
-var hdr;
-/** @implements {nsIMsgCopyServiceListener} */
-var copyListener = {
-  onStartCopy() {},
-  onProgress() {},
-  setMessageKey(aKey) {
-    hdr = localAccountUtils.inboxFolder.getMsgHdr(aKey);
-  },
-  getMessageId() {
-    return null;
-  },
-  onStopCopy() {
-    testJunkSearch();
-  },
-};
-
-// Runs at completion of each copy
-// process each test from queue, calls itself upon completion of each search
-function testJunkSearch() {
-  var test = Tests.shift();
-  if (test) {
+  for (const test of Tests) {
     if (test.junkScore) {
       hdr.setStringProperty("junkpercent", test.junkPercent);
       hdr.setStringProperty("junkscoreorigin", test.junkScoreOrigin);
       hdr.setStringProperty("junkscore", test.junkScore);
     }
-
-    new TestSearch(
+    await MailSearchTestUtils.assertHitCount(
       localAccountUtils.inboxFolder,
-      test.testValue,
-      test.attrib,
-      test.op,
-      test.count,
-      testJunkSearch
+      { value: test.testValue, attrib: test.attrib, op: test.op },
+      test.count
     );
-  } else {
-    hdr = null;
-    do_test_finished();
   }
-}
+});

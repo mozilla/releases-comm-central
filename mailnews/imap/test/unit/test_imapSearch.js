@@ -39,8 +39,9 @@ var gMessage = "bugmail12"; // message file used as the test message
  * This tests some search attributes not tested by other specific tests,
  * e.g., test_searchTag.js or test_searchJunk.js
  */
-/* import-globals-from ../../../test/resources/searchTestUtils.js */
-load("../../../resources/searchTestUtils.js");
+const { MailSearchTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailSearchTestUtils.sys.mjs"
+);
 
 var Isnt = Ci.nsMsgSearchOp.Isnt;
 var Is = Ci.nsMsgSearchOp.Is;
@@ -304,30 +305,26 @@ add_setup(async function () {
   Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
 });
 
-// process each test from queue, calls itself upon completion of each search
 add_task(async function testSearch() {
-  while (searchTests.length) {
-    const test = searchTests.shift();
+  for (const test of searchTests) {
     if (test.dbHeader) {
       // Test of a custom db header.
       const customValue = mailTestUtils
         .firstMsgHdr(IMAPPump.inbox)
         .getStringProperty(test.dbHeader);
       Assert.equal(customValue, test.testString);
-    } else {
-      await new Promise(resolve => {
-        new TestSearch(
-          IMAPPump.inbox,
-          test.testString,
-          test.testAttribute,
-          test.op,
-          test.count,
-          resolve,
-          null,
-          test.customHeader ? test.customHeader : "X-Bugzilla-Watch-Reason"
-        );
-      });
+      continue;
     }
+    await MailSearchTestUtils.assertHitCount(
+      IMAPPump.inbox,
+      {
+        value: test.testString,
+        attrib: test.testAttribute,
+        op: test.op,
+        arbitraryHeader: test.customHeader ?? "X-Bugzilla-Watch-Reason",
+      },
+      test.count
+    );
   }
 });
 

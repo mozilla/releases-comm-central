@@ -6,8 +6,12 @@
  * Testing of custom search features.
  *
  */
-/* import-globals-from ../../../test/resources/searchTestUtils.js */
-load("../../../resources/searchTestUtils.js");
+const { MailSearchTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailSearchTestUtils.sys.mjs"
+);
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -15,7 +19,6 @@ var { MailServices } = ChromeUtils.importESModule(
 
 var kCustomId = "xpcomtest@mozilla.org#test";
 var kFailingId = "xpcomtest@mozilla.org#failing";
-var gHdr;
 
 var Tests = [
   {
@@ -95,58 +98,36 @@ var failingTerm = {
   },
 };
 
-function run_test() {
+add_task(async function testCustomTermSearch() {
   localAccountUtils.loadLocalMailAccount();
   MailServices.filters.addCustomTerm(customTerm);
   MailServices.filters.addCustomTerm(failingTerm);
 
-  /** @implements {nsIMsgCopyServiceListener} */
-  var copyListener = {
-    onStartCopy() {},
-    onProgress() {},
-    setMessageKey(aKey) {
-      gHdr = localAccountUtils.inboxFolder.getMsgHdr(aKey);
-    },
-    getMessageId() {
-      return null;
-    },
-    onStopCopy() {
-      doTest();
-    },
-  };
-
-  // Get a message into the local filestore.
-  // function testSearch() continues the testing after the copy.
-  const bugmail1 = do_get_file("../../../data/bugmail1");
-  do_test_pending();
-
+  const listener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
-    bugmail1,
+    do_get_file("../../../data/bugmail1"),
     localAccountUtils.inboxFolder,
     null,
     false,
     0,
     "",
-    copyListener,
-    false
+    listener,
+    null
   );
-}
+  const { messageKeys } = await listener.promise;
+  const hdr = localAccountUtils.inboxFolder.getMsgHdr(messageKeys[0]);
 
-function doTest() {
-  const test = Tests.shift();
-  if (test) {
-    gHdr.setStringProperty("theTestProperty", test.setValue);
-    new TestSearch(
+  for (const test of Tests) {
+    hdr.setStringProperty("theTestProperty", test.setValue);
+    await MailSearchTestUtils.assertHitCount(
       localAccountUtils.inboxFolder,
-      test.testValue,
-      Ci.nsMsgSearchAttrib.Custom,
-      test.op,
-      test.count,
-      doTest,
-      test.customId
+      {
+        value: test.testValue,
+        attrib: Ci.nsMsgSearchAttrib.Custom,
+        op: test.op,
+        customId: test.customId,
+      },
+      test.count
     );
-  } else {
-    gHdr = null;
-    do_test_finished();
   }
-}
+});

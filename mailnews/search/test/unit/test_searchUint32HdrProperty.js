@@ -6,8 +6,12 @@
  * Testing of Uint32HdrProperty search attribute. Adapted from test_search.js
  */
 
-/* import-globals-from ../../../test/resources/searchTestUtils.js */
-load("../../../resources/searchTestUtils.js");
+const { MailSearchTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailSearchTestUtils.sys.mjs"
+);
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -88,57 +92,33 @@ var Tests = [
   },
 ];
 
-function run_test() {
+add_task(async function testUint32HdrPropertySearch() {
   localAccountUtils.loadLocalMailAccount();
 
-  /** @implements {nsIMsgCopyServiceListener} */
-  var copyListener = {
-    onStartCopy() {},
-    onProgress() {},
-    setMessageKey() {},
-    getMessageId() {
-      return null;
-    },
-    onStopCopy() {
-      testSearch();
-    },
-  };
-
-  // Get a message into the local filestore. function testSearch() continues
-  // the testing after the copy.
-  var bugmail1 = do_get_file("../../../data/bugmail1");
-  do_test_pending();
+  const listener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
-    bugmail1,
+    do_get_file("../../../data/bugmail1"),
     localAccountUtils.inboxFolder,
     null,
     false,
     0,
     "",
-    copyListener,
-    false
+    listener,
+    null
   );
-}
+  await listener.promise;
 
-// process each test from queue, calls itself upon completion of each search
-function testSearch() {
-  var test = Tests.shift();
-  if (test) {
-    if (test.setup) {
-      test.setup();
-    }
-    new TestSearch(
+  for (const test of Tests) {
+    test.setup?.();
+    await MailSearchTestUtils.assertHitCount(
       localAccountUtils.inboxFolder,
-      test.value,
-      Ci.nsMsgSearchAttrib.Uint32HdrProperty,
-      test.op,
-      test.count,
-      testSearch,
-      null,
-      null,
-      test.hdrProperty
+      {
+        value: test.value,
+        attrib: Ci.nsMsgSearchAttrib.Uint32HdrProperty,
+        op: test.op,
+        hdrProperty: test.hdrProperty,
+      },
+      test.count
     );
-  } else {
-    do_test_finished();
   }
-}
+});

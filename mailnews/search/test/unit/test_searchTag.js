@@ -9,8 +9,12 @@
  * Does not do comprehensive testing.
  *
  */
-/* import-globals-from ../../../test/resources/searchTestUtils.js */
-load("../../../resources/searchTestUtils.js");
+const { MailSearchTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailSearchTestUtils.sys.mjs"
+);
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -381,57 +385,105 @@ var Tests = [
   },
 ];
 
-var hdr;
-
-function run_test() {
+add_task(async function testKeywordSearch() {
   localAccountUtils.loadLocalMailAccount();
 
   // test that validity table terms are valid
 
   // offline mail table
-  testValidityTable(offlineMail, Contains, Keywords, true);
-  testValidityTable(offlineMail, DoesntContain, Keywords, true);
-  testValidityTable(offlineMail, Is, Keywords, true);
-  testValidityTable(offlineMail, Isnt, Keywords, true);
-  testValidityTable(offlineMail, IsEmpty, Keywords, true);
-  testValidityTable(offlineMail, IsntEmpty, Keywords, true);
-  testValidityTable(offlineMail, IsBefore, Keywords, false);
+  MailSearchTestUtils.assertValidity(offlineMail, Contains, Keywords, true);
+  MailSearchTestUtils.assertValidity(
+    offlineMail,
+    DoesntContain,
+    Keywords,
+    true
+  );
+  MailSearchTestUtils.assertValidity(offlineMail, Is, Keywords, true);
+  MailSearchTestUtils.assertValidity(offlineMail, Isnt, Keywords, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsEmpty, Keywords, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsntEmpty, Keywords, true);
+  MailSearchTestUtils.assertValidity(offlineMail, IsBefore, Keywords, false);
 
   // offline mail filter table
-  testValidityTable(offlineMailFilter, Contains, Keywords, true);
-  testValidityTable(offlineMailFilter, DoesntContain, Keywords, true);
-  testValidityTable(offlineMailFilter, Is, Keywords, true);
-  testValidityTable(offlineMailFilter, Isnt, Keywords, true);
-  testValidityTable(offlineMailFilter, IsEmpty, Keywords, true);
-  testValidityTable(offlineMailFilter, IsntEmpty, Keywords, true);
-  testValidityTable(offlineMailFilter, IsBefore, Keywords, false);
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    Contains,
+    Keywords,
+    true
+  );
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    DoesntContain,
+    Keywords,
+    true
+  );
+  MailSearchTestUtils.assertValidity(offlineMailFilter, Is, Keywords, true);
+  MailSearchTestUtils.assertValidity(offlineMailFilter, Isnt, Keywords, true);
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsEmpty,
+    Keywords,
+    true
+  );
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsntEmpty,
+    Keywords,
+    true
+  );
+  MailSearchTestUtils.assertValidity(
+    offlineMailFilter,
+    IsBefore,
+    Keywords,
+    false
+  );
 
   // online mail
-  testValidityTable(onlineMail, Contains, Keywords, true);
-  testValidityTable(onlineMail, DoesntContain, Keywords, true);
-  testValidityTable(onlineMail, Is, Keywords, false);
-  testValidityTable(onlineMail, Isnt, Keywords, false);
-  testValidityTable(onlineMail, IsEmpty, Keywords, false);
-  testValidityTable(onlineMail, IsntEmpty, Keywords, false);
-  testValidityTable(onlineMail, IsBefore, Keywords, false);
+  MailSearchTestUtils.assertValidity(onlineMail, Contains, Keywords, true);
+  MailSearchTestUtils.assertValidity(onlineMail, DoesntContain, Keywords, true);
+  MailSearchTestUtils.assertValidity(onlineMail, Is, Keywords, false);
+  MailSearchTestUtils.assertValidity(onlineMail, Isnt, Keywords, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsEmpty, Keywords, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsntEmpty, Keywords, false);
+  MailSearchTestUtils.assertValidity(onlineMail, IsBefore, Keywords, false);
 
   // online mail filter
-  testValidityTable(onlineMailFilter, Contains, Keywords, true);
-  testValidityTable(onlineMailFilter, DoesntContain, Keywords, true);
-  testValidityTable(onlineMailFilter, Is, Keywords, true);
-  testValidityTable(onlineMailFilter, Isnt, Keywords, true);
-  testValidityTable(onlineMailFilter, IsEmpty, Keywords, true);
-  testValidityTable(onlineMailFilter, IsntEmpty, Keywords, true);
-  testValidityTable(onlineMailFilter, IsBefore, Keywords, false);
+  MailSearchTestUtils.assertValidity(
+    onlineMailFilter,
+    Contains,
+    Keywords,
+    true
+  );
+  MailSearchTestUtils.assertValidity(
+    onlineMailFilter,
+    DoesntContain,
+    Keywords,
+    true
+  );
+  MailSearchTestUtils.assertValidity(onlineMailFilter, Is, Keywords, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, Isnt, Keywords, true);
+  MailSearchTestUtils.assertValidity(onlineMailFilter, IsEmpty, Keywords, true);
+  MailSearchTestUtils.assertValidity(
+    onlineMailFilter,
+    IsntEmpty,
+    Keywords,
+    true
+  );
+  MailSearchTestUtils.assertValidity(
+    onlineMailFilter,
+    IsBefore,
+    Keywords,
+    false
+  );
 
   // news
-  testValidityTable(news, Contains, Keywords, false);
-  testValidityTable(news, DoesntContain, Keywords, false);
-  testValidityTable(news, Is, Keywords, false);
-  testValidityTable(news, Isnt, Keywords, false);
-  testValidityTable(news, IsEmpty, Keywords, false);
-  testValidityTable(news, IsntEmpty, Keywords, false);
-  testValidityTable(news, IsBefore, Keywords, false);
+  MailSearchTestUtils.assertValidity(news, Contains, Keywords, false);
+  MailSearchTestUtils.assertValidity(news, DoesntContain, Keywords, false);
+  MailSearchTestUtils.assertValidity(news, Is, Keywords, false);
+  MailSearchTestUtils.assertValidity(news, Isnt, Keywords, false);
+  MailSearchTestUtils.assertValidity(news, IsEmpty, Keywords, false);
+  MailSearchTestUtils.assertValidity(news, IsntEmpty, Keywords, false);
+  MailSearchTestUtils.assertValidity(news, IsBefore, Keywords, false);
 
   // delete any existing tags
   const tagArray = MailServices.tags.getAllTags();
@@ -443,51 +495,26 @@ function run_test() {
   MailServices.tags.addTagForKey(Tag1, Tag1, null, null);
   MailServices.tags.addTagForKey(Tag4, Tag4, null, null);
 
-  /** @implements {nsIMsgCopyServiceListener} */
-  var copyListener = {
-    onStartCopy() {},
-    onProgress() {},
-    setMessageKey(aKey) {
-      hdr = localAccountUtils.inboxFolder.getMsgHdr(aKey);
-    },
-    getMessageId() {
-      return null;
-    },
-    onStopCopy() {
-      testKeywordSearch();
-    },
-  };
-
-  // Get a message into the local filestore. function testKeywordSearch() continues the testing after the copy.
-  var bugmail1 = do_get_file("../../../data/bugmail1");
-  do_test_pending();
+  const listener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
-    bugmail1,
+    do_get_file("../../../data/bugmail1"),
     localAccountUtils.inboxFolder,
     null,
     false,
     0,
     "",
-    copyListener,
-    false
+    listener,
+    null
   );
-}
+  const { messageKeys } = await listener.promise;
+  const hdr = localAccountUtils.inboxFolder.getMsgHdr(messageKeys[0]);
 
-// process each test from queue, calls itself upon completion of each search
-function testKeywordSearch() {
-  var test = Tests.shift();
-  if (test) {
+  for (const test of Tests) {
     hdr.setStringProperty("keywords", test.msgTag);
-    new TestSearch(
+    await MailSearchTestUtils.assertHitCount(
       localAccountUtils.inboxFolder,
-      test.testTag,
-      Ci.nsMsgSearchAttrib.Keywords,
-      test.op,
-      test.count,
-      testKeywordSearch
+      { value: test.testTag, attrib: Keywords, op: test.op },
+      test.count
     );
-  } else {
-    hdr = null;
-    do_test_finished();
   }
-}
+});

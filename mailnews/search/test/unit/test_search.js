@@ -8,8 +8,12 @@
  * This tests some search attributes not tested by other specific tests,
  * e.g., test_searchTag.js or test_searchJunk.js
  */
-/* import-globals-from ../../../test/resources/searchTestUtils.js */
-load("../../../resources/searchTestUtils.js");
+const { MailSearchTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/MailSearchTestUtils.sys.mjs"
+);
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+);
 
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
@@ -575,75 +579,53 @@ var Tests = [
   },
 ];
 
-function run_test() {
+add_task(async function testSearch() {
   localAccountUtils.loadLocalMailAccount();
-
-  /** @implements {nsIMsgCopyServiceListener} */
-  var copyListener = {
-    onStartCopy() {},
-    onProgress() {},
-    setMessageKey() {},
-    getMessageId() {
-      return null;
-    },
-    onStopCopy() {
-      testSearch();
-    },
-  };
 
   // set value of headers we want parsed into the db
   Services.prefs.setCharPref(
     "mailnews.customDBHeaders",
     "oneLiner twoLiner threeLiner noSpace withSpace X-Duplicated-Header-DB"
   );
-  // Get a message into the local filestore. function testSearch() continues
-  // the testing after the copy.
-  var bugmail12 = do_get_file("../../../data/bugmail12");
-  do_test_pending();
+  const listener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
-    bugmail12,
+    do_get_file("../../../data/bugmail12"),
     localAccountUtils.inboxFolder,
     null,
     false,
     0,
     "",
-    copyListener,
-    false
+    listener,
+    null
   );
-}
+  await listener.promise;
 
-// process each test from queue, calls itself upon completion of each search
-function testSearch() {
-  var test = Tests.shift();
-  if (test && test.dbHeader) {
-    //  test of a custom db header
-    dump("testing dbHeader " + test.dbHeader + "\n");
-    const customValue = mailTestUtils
-      .firstMsgHdr(localAccountUtils.inboxFolder)
-      .getStringProperty(test.dbHeader);
-    Assert.equal(customValue, test.testString);
-    do_timeout(0, testSearch);
-  } else if (test) {
-    dump("testing for string '" + test.testString + "'\n");
-    new TestSearch(
+  for (const test of Tests) {
+    if (test.dbHeader) {
+      //  test of a custom db header
+      const customValue = mailTestUtils
+        .firstMsgHdr(localAccountUtils.inboxFolder)
+        .getStringProperty(test.dbHeader);
+      Assert.equal(customValue, test.testString);
+      continue;
+    }
+    await MailSearchTestUtils.assertHitCount(
       localAccountUtils.inboxFolder,
-      test.testString,
-      test.testAttribute,
-      test.op,
-      test.count,
-      testSearch,
-      null,
-      test.customHeader ? test.customHeader : "X-Bugzilla-Watch-Reason"
+      {
+        value: test.testString,
+        attrib: test.testAttribute,
+        op: test.op,
+        arbitraryHeader: test.customHeader ?? "X-Bugzilla-Watch-Reason",
+      },
+      test.count
     );
-  } else {
-    testSearchWithoutTerms();
   }
-}
+});
 
 // Unlike a filter, a search with no terms at all must match every message.
 // Virtual folders and the quick search views rely on that, and reach it
 // through nsIMsgSearchSession.MatchHdr rather than through search().
-function testSearchWithoutTerms() {
+add_task(function testSearchWithoutTerms() {
   const inbox = localAccountUtils.inboxFolder;
   for (const subject of ["second message", "third message"]) {
     inbox.addMessage(
@@ -670,6 +652,4 @@ function testSearchWithoutTerms() {
       `a search without terms should match "${msgHdr.subject}"`
     );
   }
-
-  do_test_finished();
-}
+});
