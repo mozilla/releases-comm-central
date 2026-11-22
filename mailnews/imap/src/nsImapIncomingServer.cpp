@@ -41,11 +41,9 @@
 #include "nsEmbedCID.h"
 #include "nsIPromptService.h"
 #include "mozilla/Utf8.h"
-#include "mozilla/LoadInfo.h"
 #include "nsNSSComponent.h"
 
 using namespace mozilla;
-using mozilla::net::LoadInfo;
 
 namespace {
 
@@ -856,12 +854,6 @@ nsresult nsImapIncomingServer::CreateProtocolInstance(
   RefPtr<nsImapProtocol> protocolInstance(new nsImapProtocol());
   rv = protocolInstance->Initialize(hostSession, this);
   NS_ENSURE_SUCCESS(rv, rv);
-  // It implements nsIChannel, and all channels require loadInfo.
-  nsCOMPtr<nsILoadInfo> loadInfo = MOZ_TRY(
-      LoadInfo::Create(nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
-                       nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-                       nsIContentPolicy::TYPE_OTHER));
-  protocolInstance->SetLoadInfo(loadInfo);
 
   // take the protocol instance and add it to the connectionCache
   m_connectionCache.AppendObject(protocolInstance);

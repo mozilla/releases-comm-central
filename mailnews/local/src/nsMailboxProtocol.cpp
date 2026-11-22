@@ -330,7 +330,6 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
           // TODO: unify this with the code that sets up streaming
           // out the first message...
           m_transport = nullptr;  // open new stream transport
-          m_outputStream = nullptr;
           m_runningUrl->SetCurMoveCopyMsgIndex(curMoveCopyMsgIndex);
           nsCOMPtr<nsIMsgDBHdr> nextMsg;
           rv = m_runningUrl->GetMoveCopyMsgHdrForIndex(curMoveCopyMsgIndex,

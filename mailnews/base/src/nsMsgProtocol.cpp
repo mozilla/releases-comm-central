@@ -10,32 +10,23 @@
 #include "nsMemory.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"
-#include "nsISocketTransportService.h"
-#include "nsISocketTransport.h"
-#include "nsITLSSocketControl.h"
 #include "nsITransportSecurityInfo.h"
 #include "nsILoadGroup.h"
 #include "nsILoadInfo.h"
 #include "nsIIOService.h"
 #include "nsNetUtil.h"
 #include "nsIWebProgressListener.h"
-#include "nsIPipe.h"
 #include "nsIPrompt.h"
 #include "prprf.h"
-#include "plbase64.h"
 #include "nsIStringBundle.h"
-#include "nsIProxyInfo.h"
 #include "nsThreadUtils.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsMsgUtils.h"
 #include "nsILineInputStream.h"
-#include "nsIAsyncInputStream.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsIInputStreamPump.h"
-#include "nsICancelable.h"
 #include "nsMimeTypes.h"
 #include "mozilla/Components.h"
-#include "mozilla/Preferences.h"
 #include "mozilla/ProfilerMarkers.h"
 #include "mozilla/SlicedInputStream.h"
 #include "nsContentSecurityManager.h"
@@ -73,28 +64,10 @@ nsresult nsMsgProtocol::InitFromURI(nsIURI* aUrl) {
 
 nsMsgProtocol::~nsMsgProtocol() {}
 
-static int32_t gSocketTimeout = 60;
-
-nsresult nsMsgProtocol::GetQoSBits(uint8_t* aQoSBits) {
-  NS_ENSURE_ARG_POINTER(aQoSBits);
-  const char* protocol = GetType();
-
-  if (!protocol) return NS_ERROR_NOT_IMPLEMENTED;
-
-  nsAutoCString prefName("mail.");
-  prefName.Append(protocol);
-  prefName.AppendLiteral(".qos");
-
-  int32_t val = Preferences::GetInt(prefName.get());
-  *aQoSBits = (uint8_t)std::clamp(val, 0, 0xff);
-  return NS_OK;
-}
-
 nsresult nsMsgProtocol::CloseSocket() {
   nsresult rv = NS_OK;
   // release all of our socket state
   m_socketIsOpen = false;
-  m_outputStream = nullptr;
   // we need to call Cancel so that we remove the socket transport from the
   // mActiveTransportList.  see bug #30648
   if (m_request) {
@@ -108,17 +81,6 @@ nsresult nsMsgProtocol::CloseSocket() {
 
   return rv;
 }
-
-/*
- * Writes the data contained in dataBuffer into the current output stream. It
- * also informs the transport layer that this data is now available for
- * transmission. Returns a positive number for success, 0 for failure (not all
- * the bytes were written to the stream, etc). We need to make another pass
- * through this file to install an error system (mscott)
- *
- * No logging is done in the base implementation, so aSuppressLogging is
- * ignored.
- */
 
 // Whenever data arrives from the connection, core netlib notifices the protocol
 // by calling OnDataAvailable. We then read and process the incoming data from
@@ -157,12 +119,6 @@ NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest* request) {
     rv = m_channelListener->OnStartRequest(this);
   }
 
-  nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
-
-  if (strans)
-    strans->SetTimeout(nsISocketTransport::TIMEOUT_READ_WRITE, gSocketTimeout);
-
-  NS_ENSURE_SUCCESS(rv, rv);
   return rv;
 }
 
@@ -483,20 +439,6 @@ NS_IMETHODIMP nsMsgProtocol::SetContentLength(int64_t aContentLength) {
 NS_IMETHODIMP nsMsgProtocol::GetSecurityInfo(
     nsITransportSecurityInfo** secInfo) {
   *secInfo = nullptr;
-  if (m_transport) {
-    nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
-    if (strans) {
-      nsCOMPtr<nsITLSSocketControl> tlsSocketControl;
-      if (NS_SUCCEEDED(
-              strans->GetTlsSocketControl(getter_AddRefs(tlsSocketControl)))) {
-        nsCOMPtr<nsITransportSecurityInfo> transportSecInfo;
-        if (NS_SUCCEEDED(tlsSocketControl->GetSecurityInfo(
-                getter_AddRefs(transportSecInfo)))) {
-          transportSecInfo.forget(secInfo);
-        }
-      }
-    }
-  }
   return NS_OK;
 }
 
@@ -580,8 +522,6 @@ NS_IMETHODIMP nsMsgProtocol::CancelWithReason(nsresult aStatus,
 }
 
 NS_IMETHODIMP nsMsgProtocol::Cancel(nsresult status) {
-  if (m_proxyRequest) m_proxyRequest->Cancel(status);
-
   if (m_request) return m_request->Cancel(status);
 
   NS_WARNING("no request to cancel");
@@ -625,152 +565,6 @@ NS_IMETHODIMP nsMsgProtocol::SetParentProcessChannelHandle(
 
   mParentProcessChannelHandle = aValue;
   return NS_OK;
-}
-
-nsresult nsMsgProtocol::DoGSSAPIStep1(const nsACString& service,
-                                      const char* username,
-                                      nsCString& response) {
-  nsresult rv;
-
-  m_authModule = nsIAuthModule::CreateInstance("sasl-gssapi");
-  NS_ENSURE_TRUE(m_authModule, NS_ERROR_FAILURE);
-
-  m_authModule->Init(service, nsIAuthModule::REQ_DEFAULT, u""_ns,
-                     NS_ConvertUTF8toUTF16(username), u""_ns);
-
-  void* outBuf;
-  uint32_t outBufLen;
-  rv = m_authModule->GetNextToken((void*)nullptr, 0, &outBuf, &outBufLen);
-  if (NS_SUCCEEDED(rv) && outBuf) {
-    char* base64Str = PL_Base64Encode((char*)outBuf, outBufLen, nullptr);
-    if (base64Str)
-      response.Adopt(base64Str);
-    else
-      rv = NS_ERROR_OUT_OF_MEMORY;
-    free(outBuf);
-  }
-
-  // If this fails, then it means that we cannot do GSSAPI SASL.
-  return rv;
-}
-
-nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString& commandResponse,
-                                      nsCString& response) {
-  nsresult rv;
-  void *inBuf, *outBuf;
-  uint32_t inBufLen, outBufLen;
-  uint32_t len = commandResponse.Length();
-
-  // Cyrus SASL may send us zero length tokens (grrrr)
-  if (len > 0) {
-    // decode into the input secbuffer
-    inBufLen = (len * 3) / 4;  // sufficient size (see plbase64.h)
-    inBuf = moz_xmalloc(inBufLen);
-    if (!inBuf) return NS_ERROR_OUT_OF_MEMORY;
-
-    // strip off any padding (see bug 230351)
-    const char* challenge = commandResponse.get();
-    while (len > 0 && challenge[len - 1] == '=') len--;
-
-    // We need to know the exact length of the decoded string to give to
-    // the GSSAPI libraries. But NSPR's base64 routine doesn't seem capable
-    // of telling us that. So, we figure it out for ourselves.
-
-    // For every 4 characters, add 3 to the destination
-    // If there are 3 remaining, add 2
-    // If there are 2 remaining, add 1
-    // 1 remaining is an error
-    inBufLen =
-        (len / 4) * 3 + ((len % 4 == 3) ? 2 : 0) + ((len % 4 == 2) ? 1 : 0);
-
-    rv = (PL_Base64Decode(challenge, len, (char*)inBuf))
-             ? m_authModule->GetNextToken(inBuf, inBufLen, &outBuf, &outBufLen)
-             : NS_ERROR_FAILURE;
-
-    free(inBuf);
-  } else {
-    rv = m_authModule->GetNextToken(NULL, 0, &outBuf, &outBufLen);
-  }
-  if (NS_SUCCEEDED(rv)) {
-    // And in return, we may need to send Cyrus zero length tokens back
-    if (outBuf) {
-      char* base64Str = PL_Base64Encode((char*)outBuf, outBufLen, nullptr);
-      if (base64Str)
-        response.Adopt(base64Str);
-      else
-        rv = NS_ERROR_OUT_OF_MEMORY;
-    } else
-      response.Adopt((char*)moz_xmemdup("", 1));
-  }
-
-  return rv;
-}
-
-nsresult nsMsgProtocol::DoNtlmStep1(const nsACString& username,
-                                    const nsAString& password,
-                                    nsCString& response) {
-  nsresult rv;
-
-  // This fails in FIPS mode, where NTLM is disabled.
-  m_authModule = nsIAuthModule::CreateInstance("ntlm");
-  NS_ENSURE_TRUE(m_authModule, NS_ERROR_FAILURE);
-
-  m_authModule->Init(""_ns, 0, u""_ns, NS_ConvertUTF8toUTF16(username),
-                     PromiseFlatString(password));
-
-  void* outBuf;
-  uint32_t outBufLen;
-  rv = m_authModule->GetNextToken((void*)nullptr, 0, &outBuf, &outBufLen);
-  if (NS_SUCCEEDED(rv) && outBuf) {
-    char* base64Str = PL_Base64Encode((char*)outBuf, outBufLen, nullptr);
-    if (base64Str)
-      response.Adopt(base64Str);
-    else
-      rv = NS_ERROR_OUT_OF_MEMORY;
-    free(outBuf);
-  }
-
-  return rv;
-}
-
-nsresult nsMsgProtocol::DoNtlmStep2(nsCString& commandResponse,
-                                    nsCString& response) {
-  nsresult rv;
-  void *inBuf, *outBuf;
-  uint32_t inBufLen, outBufLen;
-  uint32_t len = commandResponse.Length();
-
-  // strip off any padding (see bug 230351)
-  const char* challenge = commandResponse.get();
-  while (len > 0 && challenge[len - 1] == '=') len--;
-
-  // The server may have answered OK without sending a challenge.
-  if (!len) {
-    response = "*";
-    return NS_ERROR_FAILURE;
-  }
-
-  // decode into the input secbuffer
-  inBufLen = (len * 3) / 4;  // exact size once padding is stripped
-  inBuf = moz_xmalloc(inBufLen);
-  if (!inBuf) return NS_ERROR_OUT_OF_MEMORY;
-
-  rv = (PL_Base64Decode(challenge, len, (char*)inBuf))
-           ? m_authModule->GetNextToken(inBuf, inBufLen, &outBuf, &outBufLen)
-           : NS_ERROR_FAILURE;
-
-  free(inBuf);
-  if (NS_SUCCEEDED(rv) && outBuf) {
-    char* base64Str = PL_Base64Encode((char*)outBuf, outBufLen, nullptr);
-    if (base64Str)
-      response.Adopt(base64Str);
-    else
-      rv = NS_ERROR_OUT_OF_MEMORY;
-  }
-
-  if (NS_FAILED(rv)) response = "*";
-
-  return rv;
 }
 
 char16_t* FormatStringWithHostNameByName(const char16_t* stringName,

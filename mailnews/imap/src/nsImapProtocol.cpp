@@ -85,6 +85,7 @@
 // TLS alerts
 #include "NSSErrorsService.h"
 
+#include "mozilla/Base64.h"
 #include "mozilla/Components.h"
 #include "mozilla/SyncRunnable.h"
 #include "mozilla/intl/LocaleService.h"
@@ -287,8 +288,8 @@ NS_IMETHODIMP nsMsgImapLineDownloadCache::GetMsgHdrs(nsACString& aMsgHdrs) {
 
 // The following macros actually implement addref, release and query interface
 // for our component.
-NS_IMPL_ADDREF_INHERITED(nsImapProtocol, nsMsgProtocol)
-NS_IMPL_RELEASE_INHERITED(nsImapProtocol, nsMsgProtocol)
+NS_IMPL_ADDREF(nsImapProtocol)
+NS_IMPL_RELEASE(nsImapProtocol)
 
 NS_INTERFACE_MAP_BEGIN(nsImapProtocol)
   NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIImapProtocol)
@@ -509,8 +510,7 @@ class nsImapProtocolMainLoopRunnable final : public mozilla::Runnable {
 };
 
 nsImapProtocol::nsImapProtocol()
-    : nsMsgProtocol(nullptr),
-      m_urlReadyToRunMonitor("imapUrlReadyToRun"),
+    : m_urlReadyToRunMonitor("imapUrlReadyToRun"),
       m_pseudoInterruptMonitor("imapPseudoInterrupt"),
       m_dataMemberMonitor("imapDataMember"),
       m_threadDeathMonitor("imapThreadDeath"),
@@ -1023,9 +1023,8 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo) {
   // remember so we can know whether we can issue a start tls or not...
   m_connectionType = connectionType;
   if (m_transport && m_mockChannel) {
-    uint8_t qos;
-    rv = GetQoSBits(&qos);
-    if (NS_SUCCEEDED(rv)) m_transport->SetQoSBits(qos);
+    m_transport->SetQoSBits(static_cast<uint8_t>(
+        std::clamp(Preferences::GetInt("mail.imap.qos"), 0, 0xff)));
 
     // Ensure that the socket can get the notification callbacks
     SetSecurityCallbacksFromChannel(m_transport, m_mockChannel);
@@ -2328,16 +2327,6 @@ nsresult nsImapProtocol::SendData(const char* dataBuffer,
 /////////////////////////////////////////////////////////////////////////////////////////////
 // Begin protocol state machine functions...
 //////////////////////////////////////////////////////////////////////////////////////////////
-
-// ProcessProtocolState - we override this only so we'll link - it should never
-// get called.
-
-nsresult nsImapProtocol::ProcessProtocolState(nsIURI* url,
-                                              nsIInputStream* inputStream,
-                                              uint64_t sourceOffset,
-                                              uint32_t length) {
-  return NS_OK;
-}
 
 class UrlListenerNotifierEvent : public mozilla::Runnable {
  public:
@@ -8408,6 +8397,79 @@ nsresult nsImapProtocol::GetPassword(nsString& password,
     }
   }
   if (!password.IsEmpty()) m_lastPasswordSent = password;
+  return rv;
+}
+
+// Strip off any padding (see bug 230351).
+static nsDependentCSubstring StripBase64Padding(const nsACString& base64) {
+  uint32_t len = base64.Length();
+  while (len > 0 && base64[len - 1] == '=') len--;
+  return Substring(base64, 0, len);
+}
+
+nsresult nsImapProtocol::GetNextAuthToken(const nsACString& challenge,
+                                          nsACString& response) {
+  response.Truncate();
+
+  nsAutoCString input;
+  nsresult rv = Base64Decode(StripBase64Padding(challenge), input);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  void* outBuf = nullptr;
+  uint32_t outBufLen = 0;
+  rv = m_authModule->GetNextToken(input.IsEmpty() ? nullptr : input.get(),
+                                  input.Length(), &outBuf, &outBufLen);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (outBuf) {
+    nsresult encodeRv =
+        Base64Encode(static_cast<const char*>(outBuf), outBufLen, response);
+    free(outBuf);
+    NS_ENSURE_SUCCESS(encodeRv, encodeRv);
+  }
+  // May be NS_SUCCESS_AUTH_FINISHED.
+  return rv;
+}
+
+nsresult nsImapProtocol::DoGSSAPIStep1(const nsACString& service,
+                                       const char* username,
+                                       nsACString& response) {
+  m_authModule = nsIAuthModule::CreateInstance("sasl-gssapi");
+  NS_ENSURE_TRUE(m_authModule, NS_ERROR_FAILURE);
+
+  m_authModule->Init(service, nsIAuthModule::REQ_DEFAULT, u""_ns,
+                     NS_ConvertUTF8toUTF16(username), u""_ns);
+
+  // If this fails, then it means that we cannot do GSSAPI SASL.
+  return GetNextAuthToken(""_ns, response);
+}
+
+nsresult nsImapProtocol::DoGSSAPIStep2(const nsACString& challenge,
+                                       nsACString& response) {
+  // Cyrus SASL may send us zero length tokens, and expect them back.
+  return GetNextAuthToken(challenge, response);
+}
+
+nsresult nsImapProtocol::DoNtlmStep1(const nsACString& username,
+                                     const nsAString& password,
+                                     nsACString& response) {
+  // This fails in FIPS mode, where NTLM is disabled.
+  m_authModule = nsIAuthModule::CreateInstance("ntlm");
+  NS_ENSURE_TRUE(m_authModule, NS_ERROR_FAILURE);
+
+  m_authModule->Init(""_ns, 0, u""_ns, NS_ConvertUTF8toUTF16(username),
+                     PromiseFlatString(password));
+
+  return GetNextAuthToken(""_ns, response);
+}
+
+nsresult nsImapProtocol::DoNtlmStep2(const nsACString& challenge,
+                                     nsACString& response) {
+  // The server may have answered OK without sending a challenge.
+  nsresult rv = NS_ERROR_FAILURE;
+  if (!StripBase64Padding(challenge).IsEmpty()) {
+    rv = GetNextAuthToken(challenge, response);
+  }
+  if (NS_FAILED(rv)) response.AssignLiteral("*");
   return rv;
 }
 

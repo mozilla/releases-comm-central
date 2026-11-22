@@ -15,15 +15,12 @@
 #include "nsIInterfaceRequestor.h"
 #include "nsIProgressEventSink.h"
 #include "nsITransport.h"
-#include "nsIAuthModule.h"
 #include "nsString.h"
 #include "nsHashPropertyBag.h"
 #include "nsMailChannel.h"
 
 class nsIPrompt;
 class nsIMsgMailNewsUrl;
-class nsIProxyInfo;
-class nsICancelable;
 
 // This is a helper class used to encapsulate code shared between all of the
 // mailnews protocol objects (imap, news, pop, smtp, etc.) In particular,
@@ -64,9 +61,6 @@ class nsMsgProtocol : public nsIStreamListener,
  protected:
   virtual ~nsMsgProtocol();
 
-  virtual const char* GetType() { return nullptr; }
-  nsresult GetQoSBits(uint8_t* aQoSBits);
-
   // a Protocol typically overrides this method. They free any of their own
   // connection state and then they call up into the base class to free the
   // generic connection objects
@@ -83,30 +77,14 @@ class nsMsgProtocol : public nsIStreamListener,
 
   virtual nsresult InitFromURI(nsIURI* aUrl);
 
-  nsresult DoNtlmStep1(const nsACString& username, const nsAString& password,
-                       nsCString& response);
-  nsresult DoNtlmStep2(nsCString& commandResponse, nsCString& response);
-
-  nsresult DoGSSAPIStep1(const nsACString& service, const char* username,
-                         nsCString& response);
-  nsresult DoGSSAPIStep2(nsCString& commandResponse, nsCString& response);
-  // Output stream for writing commands to the socket
-  nsCOMPtr<nsIOutputStream>
-      m_outputStream;  // this will be obtained from the transport interface
-
-  // Output stream for writing commands to the socket
   nsCOMPtr<nsITransport> m_transport;
   nsCOMPtr<nsIRequest> m_request;
-  nsCOMPtr<nsICancelable> m_proxyRequest;
 
   bool m_socketIsOpen;  // mscott: we should look into keeping this state in the
                         // nsSocketTransport... I'm using it to make sure I open
                         // the socket the first time a URL is loaded into the
                         // connection
   uint32_t m_flags;     // used to store flag information
-
-  // auth module for access to NTLM functions
-  nsCOMPtr<nsIAuthModule> m_authModule;
 
   // the following is a catch all for nsIChannel related data
   nsCOMPtr<nsIURI> m_originalUrl;  // the original url
@@ -122,8 +100,6 @@ class nsMsgProtocol : public nsIStreamListener,
   nsCString mCharset;
   int64_t mContentLength;
   nsCOMPtr<nsILoadInfo> m_loadInfo;
-
-  nsString m_lastPasswordSent;  // used to prefill the password prompt
 
   // if a url isn't going to result in any content then we want to suppress
   // calls to OnStartRequest, OnDataAvailable and OnStopRequest
