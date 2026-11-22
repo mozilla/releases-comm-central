@@ -114,6 +114,9 @@ support-files = [
 
 ["test_imapMessageUriEscaped.js"]
 
+["test_imapMessageUriQuery.js"]
+prefs = ["mail.server.default.autosync_offline_stores=false"]
+
 ["test_imapMove.js"]
 
 ["test_imapMoveDuringMove.js"]

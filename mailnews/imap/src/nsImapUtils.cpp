@@ -60,6 +60,11 @@ nsresult nsParseImapMessageURI(const nsACString& uri, nsACString& folderURI,
     int32_t keyEndSeparator = uriStr.FindCharInSet("/?&", keySeparator);
     nsAutoString folderPath;
     folderURI = StringHead(uriStr, keySeparator);
+    // MIME URL repair can move query parameters before the message key.
+    int32_t queryStart = folderURI.FindChar('?');
+    if (queryStart != kNotFound) {
+      folderURI.Truncate(queryStart);
+    }
     folderURI.Cut(4, 8);  // cut out the _message part of imap-message:
     // folder uri's don't have fully escaped usernames.
     int32_t atPos = folderURI.FindChar('@');
