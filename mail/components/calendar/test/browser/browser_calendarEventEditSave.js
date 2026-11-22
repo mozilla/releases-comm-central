@@ -576,6 +576,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
   const closeButton = dialog.querySelector(".close-button");
   const titleInput = dialog.querySelector(".event-title-input");
   const videoRow = dialog.querySelector("calendar-event-video-row");
+  const guestsRow = dialog.querySelector("#guestsNavigationRow");
   const descriptionRow = dialog.querySelector("#descriptionNavigationRow");
   const availability = dialog.querySelector(".availability-selector");
   const categoryRow = dialog.querySelector(".calendar-event-category-row");
@@ -588,6 +589,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
 
   Assert.ok(titleInput, "The dialog should have a title input.");
   Assert.ok(availability, "The footer should contain Availability.");
+  Assert.ok(guestsRow, "The dialog should have a Guests row.");
   Assert.ok(descriptionRow, "The dialog should have a Description row.");
   Assert.ok(
     descriptionRow.shadowRoot,
@@ -613,6 +615,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
     [{}, closeButton, "Tab should reach Close."],
     [{}, titleInput, "Tab should reach the title."],
     [{}, videoRow, "Tab should reach Video."],
+    [{}, guestsRow, "Tab should reach Guests."],
     [{}, descriptionRow, "Tab should reach Description."],
     [{}, addCategory, "Tab should reach Add category."],
     [{}, availability, "Tab should reach Availability."],
@@ -632,6 +635,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
       descriptionRow,
       "Shift+Tab should return to Description.",
     ],
+    [{ shiftKey: true }, guestsRow, "Shift+Tab should return to Guests."],
     [{ shiftKey: true }, videoRow, "Shift+Tab should return to Video."],
     [{ shiftKey: true }, titleInput, "Shift+Tab should return to the title."],
     [{ shiftKey: true }, closeButton, "Shift+Tab should return to Close."],
@@ -645,6 +649,7 @@ add_task(async function test_keyboardSaveClearsStateAndUpdatesCalendar() {
     [{}, closeButton, "Tab should reach Close again."],
     [{}, titleInput, "Tab should reach the title again."],
     [{}, videoRow, "Tab should reach Video again."],
+    [{}, guestsRow, "Tab should reach Guests again."],
     [{}, descriptionRow, "Tab should reach Description again."],
     [{}, addCategory, "Tab should reach Add category again."],
     [{}, availability, "Tab should reach Availability again."],
