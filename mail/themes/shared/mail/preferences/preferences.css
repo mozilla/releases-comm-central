@@ -1164,6 +1164,56 @@ calendar-notifications-setting {
   gap: calc(4 * var(--space-step));
 }
 
+.settings-callout {
+  margin-block-end: calc(3 * var(--space-base));
+  padding: calc(2 * var(--space-base));
+  background-color: var(--color-surface-subtle);
+  border-radius: var(--border-radius-medium);
+
+  & .settings-callout-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: calc(2 * var(--space-step));
+    margin: 0;
+    font-size: inherit;
+  }
+
+  & .settings-callout-description {
+    margin-block: var(--space-step) calc(2 * var(--space-step));
+    color: var(--color-text-secondary);
+  }
+
+  & .settings-callout-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-step);
+    max-inline-size: 100%;
+  }
+
+  & .settings-callout-arrow {
+    content: var(--icon-nav-forward);
+    inline-size: 1em;
+    block-size: 1em;
+    flex-shrink: 0;
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+
+    &:-moz-locale-dir(rtl) {
+      content: var(--icon-nav-back);
+    }
+  }
+}
+
+.beta-features-intro {
+  margin-block-end: calc(4 * var(--space-base));
+}
+
+/* Hide the 'empty' message if there are beta feature available */
+.beta-features-content:has(> .beta-feature) .beta-features-empty {
+  display: none;
+}
+
 /* QR Export for Mobile */
 
 #qrExportContent {

@@ -31,6 +31,16 @@ var { makeMozIconImageSet } = ChromeUtils.importESModule(
   "resource:///modules/MozIconUtils.mjs"
 );
 
+/*
+ * The usual 'lazy' name is already used in general.js, which shares globals
+ * with this file.
+ */
+const chatLazy = {};
+ChromeUtils.defineESModuleGetters(chatLazy, {
+  MailNotificationManager:
+    "resource:///modules/MailNotificationManager.sys.mjs",
+});
+
 var gChatPane = {
   init() {
     this.updateDisabledState();
@@ -116,7 +126,7 @@ var gChatPane = {
   },
 
   previewSound() {
-    MailNotificationManager.playSound(
+    chatLazy.MailNotificationManager.playSound(
       Services.prefs.getBranch("mail.chat.play_sound")
     );
   },

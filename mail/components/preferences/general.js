@@ -37,7 +37,7 @@ var { UpdateUtils } = ChromeUtils.importESModule(
 var { TagUtils } = ChromeUtils.importESModule(
   "resource:///modules/TagUtils.sys.mjs"
 );
-var { makeMozIconImageSet, makeMozIconSrcSet } = ChromeUtils.importESModule(
+var { makeMozIconSrcSet } = ChromeUtils.importESModule(
   "resource:///modules/MozIconUtils.mjs"
 );
 
@@ -54,8 +54,6 @@ ChromeUtils.defineLazyGetter(this, "gIsPackagedApp", () => {
 });
 
 ChromeUtils.defineESModuleGetters(this, {
-  MailNotificationManager:
-    "resource:///modules/MailNotificationManager.sys.mjs",
   SearchIntegration: "resource:///modules/SearchIntegration.sys.mjs",
   SearchService: "moz-src:///toolkit/components/search/SearchService.sys.mjs",
 });
@@ -81,12 +79,6 @@ Preferences.addAll([
   { id: "mailnews.start_page.enabled", type: "bool" },
   { id: "mailnews.start_page.url", type: "string" },
   { id: "mail.accounthub.manualconfig.enabled", type: "bool" },
-  { id: "mail.biff.show_tray_icon", type: "bool" },
-  { id: "mail.biff.play_sound", type: "bool" },
-  { id: "mail.biff.play_sound.type", type: "int" },
-  { id: "mail.biff.play_sound.url", type: "string" },
-  { id: "mail.biff.show_alert", type: "bool" },
-  { id: "mail.biff.use_system_alert", type: "bool" },
   { id: "general.autoScroll", type: "bool" },
   { id: "general.smoothScroll", type: "bool" },
   { id: "widget.gtk.overlay-scrollbars.enabled", type: "bool", inverted: true },
@@ -226,31 +218,11 @@ var gGeneralPane = {
       );
     }
 
-    const offerExperimentalFeatures = Services.prefs.getBoolPref(
-      "mail.experimental_features_settings.enabled",
-      true
-    );
-
-    const conversationViewExperimental = document.getElementById(
-      "conversationViewExperimental"
-    );
-    if (conversationViewExperimental) {
-      conversationViewExperimental.hidden = !offerExperimentalFeatures;
-    }
-
     if (AppConstants.platform == "win") {
       this.updateCloseToTray();
     }
 
     this.updateStartPage();
-    this.updatePlaySound(
-      !Preferences.get("mail.biff.play_sound").value,
-      Preferences.get("mail.biff.play_sound.url").value,
-      Preferences.get("mail.biff.play_sound.type").value
-    );
-    if (AppConstants.platform != "macosx") {
-      this.updateShowAlert();
-    }
     await this.updateWebSearch();
 
     // Search integration -- check whether we should hide or disable integration
@@ -513,11 +485,6 @@ var gGeneralPane = {
     Preferences.addSyncFromPrefListener(menulist, () =>
       this.readFontSelection()
     );
-    Preferences.addSyncFromPrefListener(
-      document.getElementById("soundUrlLocation"),
-      () => this.readSoundLocation()
-    );
-
     if (!Services.policies.isAllowed("about:config")) {
       document.getElementById("configEditor").disabled = true;
     }
@@ -554,144 +521,12 @@ var gGeneralPane = {
       : startPage.value;
   },
 
-  customizeMailAlert() {
-    gSubDialog.open(
-      "chrome://messenger/content/preferences/notifications.xhtml",
-      { features: "resizable=no" }
-    );
-  },
-
-  configureDockOptions() {
-    gSubDialog.open(
-      "chrome://messenger/content/preferences/dockoptions.xhtml",
-      { features: "resizable=no" }
-    );
-  },
-
-  convertURLToLocalFile(aFileURL) {
-    // convert the file url into a nsIFile
-    if (aFileURL) {
-      return Services.io
-        .getProtocolHandler("file")
-        .QueryInterface(Ci.nsIFileProtocolHandler)
-        .getFileFromURLSpec(aFileURL);
-    }
-    return null;
-  },
-
-  readSoundLocation() {
-    var soundUrlLocation = document.getElementById("soundUrlLocation");
-    soundUrlLocation.value = Preferences.get("mail.biff.play_sound.url").value;
-    if (soundUrlLocation.value) {
-      soundUrlLocation.label = this.convertURLToLocalFile(
-        soundUrlLocation.value
-      ).leafName;
-      soundUrlLocation.style.backgroundImage = makeMozIconImageSet(
-        soundUrlLocation.label,
-        16
-      );
-    }
-  },
-
-  previewSound() {
-    MailNotificationManager.playSound(
-      Services.prefs.getBranch("mail.biff.play_sound")
-    );
-  },
-
-  async browseForSoundFile() {
-    var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-
-    // if we already have a sound file, then use the path for that sound file
-    // as the initial path in the dialog.
-    var localFile = this.convertURLToLocalFile(
-      document.getElementById("soundUrlLocation").value
-    );
-    if (localFile) {
-      fp.displayDirectory = localFile.parent;
-    }
-
-    // XXX todo, persist the last sound directory and pass it in
-    fp.init(
-      window.browsingContext,
-      await document.l10n.formatValue("sound-file-picker-title"),
-      Ci.nsIFilePicker.modeOpen
-    );
-    fp.appendFilters(Ci.nsIFilePicker.filterAudio);
-    fp.appendFilters(Ci.nsIFilePicker.filterAll);
-
-    fp.open(rv => {
-      if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
-        return;
-      }
-      // convert the nsIFile into a nsIFile url
-      Preferences.get("mail.biff.play_sound.url").value = fp.fileURL.spec;
-      this.readSoundLocation(); // XXX We shouldn't have to be doing this by hand
-      this.updatePlaySound();
-    });
-  },
-
-  updatePlaySound(soundsDisabled, soundUrlLocation, soundType) {
-    // Update the sound type radio buttons based on the state of the
-    // play sound checkbox.
-    if (soundsDisabled === undefined) {
-      soundsDisabled = !document.getElementById("newMailNotification").checked;
-      soundUrlLocation = document.getElementById("soundUrlLocation").value;
-    }
-
-    // The UI is different on OS X as the user can only choose between letting
-    // the system play a default sound or setting a custom one. Therefore,
-    // "soundTypeEl" does not exist on OS X.
-    if (AppConstants.platform != "macosx") {
-      var soundTypeEl = document.getElementById("soundType");
-      if (soundType === undefined) {
-        soundType = soundTypeEl.value;
-      }
-
-      soundTypeEl.disabled = soundsDisabled;
-      document.getElementById("soundUrlLocation").disabled =
-        soundsDisabled || soundType != 1;
-      document.getElementById("browseForSound").disabled =
-        soundsDisabled || soundType != 1;
-      document.getElementById("playSound").disabled =
-        soundsDisabled || (!soundUrlLocation && soundType != 0);
-    } else {
-      // On OS X, if there is no selected custom sound then default one will
-      // be played. We keep consistency by disabling the "Play sound" checkbox
-      // if the user hasn't selected a custom sound file yet.
-      document.getElementById("newMailNotification").disabled =
-        !soundUrlLocation;
-      document.getElementById("playSound").disabled = !soundUrlLocation;
-      // The sound type radiogroup is hidden, but we have to keep the
-      // play_sound.type pref set appropriately.
-      Preferences.get("mail.biff.play_sound.type").value =
-        !soundsDisabled && soundUrlLocation ? 1 : 0;
-    }
-  },
-
   updateStartPage() {
     document.getElementById("mailnewsStartPageUrl").disabled = !Preferences.get(
       "mailnews.start_page.enabled"
     ).value;
     document.getElementById("browseForStartPageUrl").disabled =
       !Preferences.get("mailnews.start_page.enabled").value;
-  },
-
-  updateShowAlert() {
-    // The button does not exist on all platforms.
-    const customizeAlertButton = document.getElementById("customizeMailAlert");
-    if (customizeAlertButton) {
-      customizeAlertButton.disabled = !Preferences.get("mail.biff.show_alert")
-        .value;
-    }
-    // The checkmark does not exist on all platforms.
-    const systemNotification = document.getElementById(
-      "useSystemNotificationAlert"
-    );
-    if (systemNotification) {
-      systemNotification.disabled = !Preferences.get("mail.biff.show_alert")
-        .value;
-    }
   },
 
   updateCloseToTray() {
@@ -3023,10 +2858,6 @@ Preferences.get("mail.prompt_purge_threshold").on(
 Preferences.get("layers.acceleration.disabled").on(
   "change",
   gGeneralPane.updateHardwareAcceleration
-);
-Preferences.get("mail.biff.show_alert").on(
-  "change",
-  gGeneralPane.updateShowAlert
 );
 if (AppConstants.platform == "win") {
   Preferences.get("mail.closeToTray").on(

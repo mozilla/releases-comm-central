@@ -9,10 +9,6 @@ var { CalendarTestUtils } = ChromeUtils.importESModule(
 );
 
 add_setup(async function () {
-  await SpecialPowers.pushPrefEnv({
-    set: [["mail.experimental_features_settings.enabled", false]],
-  });
-
   const calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
 
   registerCleanupFunction(async () => {
@@ -20,19 +16,28 @@ add_setup(async function () {
   });
 });
 
-add_task(async function test_experimentalFeatures_disabled() {
-  let { prefsDocument } = await openNewPrefsTab();
+add_task(async function test_experimentalFeaturesDisabled() {
+  await using _prefs = await SpecialPowers.prefEnv({
+    set: [["mail.experimental_features_settings.enabled", false]],
+  });
 
-  const conversationViewExperimental = prefsDocument.getElementById(
-    "conversationViewExperimental"
+  let { prefsDocument } = await openNewPrefsTab(
+    "paneAppearance",
+    "appearanceCategory"
   );
 
-  if (conversationViewExperimental) {
-    Assert.ok(
-      conversationViewExperimental.hidden,
-      "The conversation view experimental option in the 'General' settings tab should be hidden"
-    );
-  }
+  Assert.ok(
+    !prefsDocument.getElementById("category-beta-features"),
+    "Beta Features should not be shown in navigation when experimental features are disabled"
+  );
+  Assert.ok(
+    !prefsDocument.getElementById("paneBetaFeatures"),
+    "Beta Features should not have a pane when experimental features are disabled"
+  );
+  Assert.ok(
+    !prefsDocument.getElementById("conversationViewSettingsLink"),
+    "Appearance should not link to Conversation View when experimental features are disabled"
+  );
 
   await closePrefsTab();
 
@@ -42,8 +47,8 @@ add_task(async function test_experimentalFeatures_disabled() {
   ));
 
   Assert.ok(
-    prefsDocument.getElementById("newCalendarDialogExperimental").hidden,
-    "The new calendar dialog experimental option in the 'Calendar' settings tab should be hidden"
+    !prefsDocument.getElementById("newCalendarDialogSettingsLink"),
+    "Calendar should not link to Calendar Event Dialog when experimental features are disabled"
   );
 
   await closePrefsTab();

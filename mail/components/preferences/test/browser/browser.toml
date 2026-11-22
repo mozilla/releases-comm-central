@@ -14,6 +14,8 @@ subsuite = "thunderbird"
 
 ["browser_appearance.js"]
 
+["browser_betaFeatures.js"]
+
 ["browser_chat.js"]
 
 ["browser_cloudfile.js"]
@@ -31,6 +33,9 @@ support-files = [
 ["browser_fontChooser.js"]
 
 ["browser_general.js"]
+
+["browser_notifications.js"]
+
 support-files = ["files/complete.oga"]
 
 ["browser_openPreferences.js"]

@@ -181,26 +181,33 @@
                 data-l10n-id="prompt-delete-label"
                 preference="calendar.item.promptDelete"/>
     </hbox>
-#ifndef MOZ_ESR
-    <html:div id="newCalendarDialogExperimental">
-      <separator/>
-      <vbox>
-        <hbox class="align-baseline">
-          <html:legend data-l10n-id="new-calendar-legend"></html:legend>
-          <html:span
-            class="badge experimental"
-            role="presentation"
-            data-l10n-id="label-experiment"></html:span>
-        </hbox>
-        <vbox>
-          <checkbox id="calendarDialog"
-                    data-l10n-id="new-calendar-checkbox-label"
-                    preference="calendar.dialogs.new.enabled"/>
-          <description data-l10n-id="new-calendar-checkbox-description"
-                        class="tip-caption indent"/>
-        </vbox>
-      </vbox>
-    </html:div>
-#endif
   </html:fieldset>
   </html:div>
+
+#ifndef MOZ_ESR
+  <html:div
+    class="settings-callout"
+    data-category="paneCalendar"
+    data-experimental-features-link="true"
+  >
+    <html:h2 class="settings-callout-title">
+      <html:span data-l10n-id="beta-calendar-dialog-callout-title"></html:span>
+      <html:span
+        class="badge experimental"
+        data-l10n-id="conversation-view-beta-badge"
+      ></html:span>
+    </html:h2>
+    <html:p
+      class="settings-callout-description"
+      data-l10n-id="beta-calendar-dialog-description"
+    ></html:p>
+    <html:a
+      id="newCalendarDialogSettingsLink"
+      class="settings-callout-link"
+      href="#betaFeatures-newCalendarDialog"
+    >
+      <html:span data-l10n-id="conversation-view-try-beta-link"></html:span>
+      <html:img class="settings-callout-arrow" alt="" />
+    </html:a>
+  </html:div>
+#endif

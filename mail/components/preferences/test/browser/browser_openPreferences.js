@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { cal } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calUtils.sys.mjs"
+);
+
 function getStoredLastSelected() {
   return Services.xulStore.getValue(
     "about:preferences",
@@ -18,6 +22,40 @@ add_task(async () => {
   is(prefsWindow.gLastCategory.category, "paneGeneral");
 
   await closePrefsTab();
+});
+
+add_task(async function test_calendarCategoryAvailability() {
+  const allCalendars = cal.manager.getCalendars().map(calendar => ({
+    calendar,
+    isDisabled: calendar.getProperty("disabled"),
+  }));
+
+  try {
+    // Disable all the calendars for the test.
+    for (const { calendar } of allCalendars) {
+      calendar.setProperty("disabled", true);
+    }
+
+    const { prefsDocument } = await openNewPrefsTab("paneGeneral");
+    Assert.ok(
+      !prefsDocument.getElementById("category-calendar"),
+      "'Calendar' should not be shown in sidenav when no calendar is enabled"
+    );
+  } finally {
+    try {
+      await closePrefsTab();
+    } finally {
+      // Reset the calendars back to their original state.
+      for (const { calendar, isDisabled } of allCalendars) {
+        if (isDisabled === null) {
+          calendar.setProperty("disabled", false);
+          calendar.deleteProperty("disabled");
+        } else {
+          calendar.setProperty("disabled", isDisabled);
+        }
+      }
+    }
+  }
 });
 
 add_task(async () => {

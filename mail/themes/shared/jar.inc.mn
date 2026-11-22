@@ -845,6 +845,8 @@
   skin/classic/messenger/icons/sm/video.svg                    (../shared/mail/icons/sm/video.svg)
 
 # LG - 24x24px icons
+  skin/classic/messenger/icons/lg/flask.svg                    (../shared/mail/icons/lg/flask.svg)
+  skin/classic/messenger/icons/lg/notification.svg            (../shared/mail/icons/lg/notification.svg)
   skin/classic/messenger/icons/lg/upload.svg                   (../shared/mail/icons/lg/upload.svg)
   skin/classic/messenger/icons/lg/mobile-export.svg            (../shared/mail/icons/lg/mobile-export.svg)
   skin/classic/messenger/icons/lg/mobile-import.svg            (../shared/mail/icons/lg/mobile-import.svg)

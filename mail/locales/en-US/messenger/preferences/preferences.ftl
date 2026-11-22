@@ -46,15 +46,16 @@ pane-qr-export-title = Export for Mobile
 category-qr-export =
     .tooltiptext = Export for Mobile
 
-pane-beta-features-title = Beta Features
+pane-beta-features-title = Beta features
 category-beta-features =
     .tooltiptext = { pane-beta-features-title }
 
-experimental-features-legend = Experimental Features
+pane-beta-features-description = These features are still in development. They might change or not work as expected, so turn on only the ones you want to try.
+
+beta-features-empty-title = No beta features right now
+beta-features-empty-description = Features still in development will show up here when they’re available to try.
 
 general-language-and-fonts-header = Language & Fonts
-
-general-email-notifications-header = Email notifications
 
 general-files-and-attachment-header = Files & attachments
 general-files-and-attachment-description = Select what files are saved and where they are saved on your computer.
@@ -211,6 +212,8 @@ start-in-tray-label =
     .label = Start { -brand-short-name } in the tray
     .accesskey = S
 
+notifications-mail-header = Notifications
+
 new-message-arrival-legend = When a new message arrives:
 mail-play-sound-label =
     .label = { PLATFORM() ->
@@ -254,6 +257,18 @@ mail-select-audio-button =
     .accesskey = A
 
 sound-file-picker-title = Choose Sound
+
+calendar-notification-settings-link = Calendar notifications
+
+chat-notification-settings-link = Chat notifications
+
+notifications-calendar-description = Reminder sound, dialog and missed reminders
+
+notifications-calendar-settings-link = Open Calendar settings
+
+notifications-chat-description = Chat message alerts and sounds
+
+notifications-chat-settings-link = Open Chat settings
 
 enable-global-search-label =
     .label = Turn on search across all email accounts
@@ -649,10 +664,16 @@ conversation-view-legend = Conversation view
 show-conversation-view-label =
     .label = Show conversation view
     .accesskey = c
-conversation-view-preview-description = This is an early preview feature. It groups related messages together, but it might not always work as expected.
+
+conversation-view-limitations-description = Group related messages into a conversation. New messages may not appear in conversations right away, and some messages may appear more than once.
+
 conversation-view-settings-link = Configure Conversation View in Beta Features
 
-label-experiment = Experimental
+conversation-view-callout-description = Group related messages into a conversation.
+
+conversation-view-beta-badge = Beta
+
+conversation-view-try-beta-link = Try it in Beta Features
 
 dark-mode-message-appearance = Message appearance
 
@@ -683,27 +704,14 @@ recent-sort-order-alphabetic =
 max-recent-label = Maximum number of recent folders:
     .accesskey = M
 
-account-hub-legend = Account hub
+beta-calendar-dialog-legend = Calendar event dialog
 
-account-hub-checkbox-label =
-    .label = Create accounts in the new Account Hub
-    .accesskey = C
-
-account-hub-checkbox-description = Experimental new mail account creation flow
-
-account-hub-manual-config-checkbox-label =
-    .label = Use the new manual configuration flow in Account Hub
-    .accesskey = c
-
-account-hub-manual-config-checkbox-description = New account hub manual configuration flow
-
-new-calendar-legend = New Calendar Event Dialog
-
-new-calendar-checkbox-label =
+beta-calendar-dialog-checkbox-label =
     .label = View calendar events in the new dialog
 
-new-calendar-checkbox-description = Experimental new calendar dialog for viewing events
-new-calendar-dialog-settings-link = Configure New Calendar Event Dialog in Beta Features
+beta-calendar-dialog-description = A redesigned calendar dialog for viewing event details.
+
+beta-calendar-dialog-callout-title = New calendar event dialog
 
 ## Compose Tab
 

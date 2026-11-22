@@ -1,0 +1,154 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<html:template id="paneNotifications">
+  <hbox id="mailNotificationsCategory"
+        class="subcategory"
+        data-category="paneNotifications">
+    <html:h1 data-l10n-id="notifications-mail-header"/>
+  </hbox>
+
+  <html:div data-category="paneNotifications">
+  <html:fieldset data-category="paneNotifications">
+    <html:legend data-l10n-id="new-message-arrival-legend"></html:legend>
+#if defined(XP_MACOSX) || defined(XP_WIN)
+    <hbox align="center">
+      <description flex="1" data-l10n-id="change-dock-icon-description"/>
+      <hbox>
+        <button is="highlightable-button" id="dockOptions"
+                data-l10n-id="app-icon-options"
+                search-l10n-ids="
+                  dock-icon-notification-dialog-title,
+                  dock-icon-animate-label.label,
+                  dock-icon-legend,
+                  dock-badge-show-label.value,
+                  total-unread-messages-radio.label,
+                  total-new-messages-radio.label,
+                  notification-badge-system-info"/>
+      </hbox>
+    </hbox>
+#endif
+    <hbox align="center">
+      <checkbox id="newMailNotificationAlert"
+                data-l10n-id="new-email-alert-label"
+                preference="mail.biff.show_alert"/>
+      <spacer flex="1"/>
+      <hbox>
+        <button is="highlightable-button" id="customizeMailAlert"
+                data-l10n-id="customize-alerts-label"
+                search-l10n-ids="
+                  notifications-dialog-title,
+                  customize-alert-description,
+                  preview-text-checkbox.label,
+                  subject-checkbox.label,
+                  sender-checkbox.label,
+                  open-time-label-before.value,
+                  open-time-label-after.value"/>
+      </hbox>
+    </hbox>
+#ifndef XP_MACOSX
+    <hbox align="center" class="indent">
+      <checkbox id="useSystemNotificationAlert"
+                data-l10n-id="biff-use-system-alert"
+                preference="mail.biff.use_system_alert"/>
+    </hbox>
+#ifdef XP_WIN
+    <vbox>
+      <checkbox id="newMailNotificationTrayIcon"
+                preference="mail.biff.show_tray_icon"
+                data-l10n-id="tray-icon-unread-label"/>
+      <description class="indent tip-caption"
+                    flex="1"
+                    data-l10n-id="tray-icon-unread-description"/>
+    </vbox>
+#endif
+#endif
+
+    <hbox align="center">
+      <checkbox id="newMailNotification"
+                preference="mail.biff.play_sound"
+                data-l10n-id="mail-play-sound-label"/>
+      <spacer flex="1"/>
+      <button is="highlightable-button" id="playSound"
+              data-l10n-id="mail-play-button"/>
+    </hbox>
+#ifndef XP_MACOSX
+    <radiogroup id="soundType"
+                class="indent"
+                preference="mail.biff.play_sound.type"
+                orient="vertical"
+                aria-labelledby="newMailNotification">
+      <hbox>
+        <radio id="system" value="0" data-l10n-id="mail-system-sound-label"/>
+        <spacer flex="1"/>
+      </hbox>
+      <hbox>
+        <radio id="custom" value="1" data-l10n-id="use-custom-sound-label"/>
+        <spacer flex="1"/>
+      </hbox>
+    </radiogroup>
+#endif
+    <hbox align="center" class="input-container">
+      <html:input id="soundUrlLocation"
+                  type="text"
+                  class="input-filefield indent"
+                  readonly="readonly"
+                  preference="mail.biff.play_sound.url"
+                  preference-editable="true"
+                  aria-labelledby="custom"/>
+      <button is="highlightable-button" id="browseForSound"
+              data-l10n-id="mail-select-audio-button"/>
+    </hbox>
+  </html:fieldset>
+  </html:div>
+
+  <html:div
+    id="calendarNotificationsSection"
+    class="settings-callout"
+    data-category="paneNotifications"
+  >
+    <html:h2
+      class="settings-callout-title"
+      data-l10n-id="calendar-notification-settings-link"
+    ></html:h2>
+    <html:p
+      class="settings-callout-description"
+      data-l10n-id="notifications-calendar-description"
+    ></html:p>
+    <html:a
+      id="calendarNotificationSettingsLink"
+      class="settings-callout-link"
+      href="#calendar-calendarNotifications"
+    >
+      <html:span
+        data-l10n-id="notifications-calendar-settings-link"
+      ></html:span>
+      <html:img class="settings-callout-arrow" alt="" />
+    </html:a>
+  </html:div>
+
+  <html:div
+    id="chatNotificationsSection"
+    class="settings-callout"
+    data-category="paneNotifications"
+  >
+    <html:h2
+      class="settings-callout-title"
+      data-l10n-id="chat-notification-settings-link"
+    ></html:h2>
+    <html:p
+      class="settings-callout-description"
+      data-l10n-id="notifications-chat-description"
+    ></html:p>
+    <html:a
+      id="chatNotificationSettingsLink"
+      class="settings-callout-link"
+      href="#chat-chatNotifications"
+    >
+      <html:span
+        data-l10n-id="notifications-chat-settings-link"
+      ></html:span>
+      <html:img class="settings-callout-arrow" alt="" />
+    </html:a>
+  </html:div>
+</html:template>

@@ -38,7 +38,9 @@
   --icon-video-sm: url("chrome://messenger/skin/icons/sm/video.svg");
 
   /* LG - 24x24px icons */
+  --icon-flask-lg: url("chrome://messenger/skin/icons/lg/flask.svg");
   --icon-mobile-export-lg: url("chrome://messenger/skin/icons/lg/mobile-export.svg");
+  --icon-notification-lg: url("chrome://messenger/skin/icons/lg/notification.svg");
 
   --icon-account-settings: url("chrome://messenger/skin/icons/new/compact/account-settings.svg");
   --icon-add: url("chrome://messenger/skin/icons/new/compact/add.svg");

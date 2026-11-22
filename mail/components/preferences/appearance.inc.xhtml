@@ -62,6 +62,34 @@
     </hbox>
   </html:fieldset>
 
+#ifdef NIGHTLY_BUILD
+  <html:div
+    class="settings-callout"
+    data-category="paneAppearance"
+    data-experimental-features-link="true"
+  >
+    <html:h2 class="settings-callout-title">
+      <html:span data-l10n-id="conversation-view-legend"></html:span>
+      <html:span
+        class="badge experimental"
+        data-l10n-id="conversation-view-beta-badge"
+      ></html:span>
+    </html:h2>
+    <html:p
+      class="settings-callout-description"
+      data-l10n-id="conversation-view-callout-description"
+    ></html:p>
+    <html:a
+      id="conversationViewSettingsLink"
+      class="settings-callout-link"
+      href="#betaFeatures-conversationView"
+    >
+      <html:span data-l10n-id="conversation-view-try-beta-link"></html:span>
+      <html:img class="settings-callout-arrow" alt="" />
+    </html:a>
+  </html:div>
+#endif
+
   <html:fieldset data-category="paneAppearance">
     <html:legend data-l10n-id="default-message-list-legend"></html:legend>
     <separator class="thin"/>

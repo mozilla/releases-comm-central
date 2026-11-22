@@ -1,0 +1,73 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template id="paneBetaFeatures">
+  <hbox
+    id="betaFeaturesCategory"
+    class="subcategory"
+    data-category="paneBetaFeatures"
+  >
+    <html:h1 data-l10n-id="pane-beta-features-title"></html:h1>
+  </hbox>
+
+  <html:div class="beta-features-content" data-category="paneBetaFeatures">
+    <html:p
+      class="beta-features-intro"
+      data-l10n-id="pane-beta-features-description"
+    ></html:p>
+    <!--
+      CSS hides the following message when the build includes at least one
+      beta feature.
+    -->
+    <html:div class="beta-features-empty">
+      <html:h2 data-l10n-id="beta-features-empty-title"></html:h2>
+      <html:p data-l10n-id="beta-features-empty-description"></html:p>
+    </html:div>
+#ifdef NIGHTLY_BUILD
+<!--
+This kind of works, but it uses Gloda, which means new messages are slower
+to index, there's message duplication, and a bunch of other edge cases that are
+annoying. This is why it's only in Daily, because we're not ready to accept bug
+reports. Once we have Panorama, we can hook it to that back-end and we can roll
+it out in beta as well
+-->
+    <html:fieldset
+      class="beta-feature"
+      data-subcategory="conversationView"
+    >
+      <html:legend data-l10n-id="conversation-view-legend"></html:legend>
+      <vbox>
+        <checkbox
+          id="conversationView"
+          data-l10n-id="show-conversation-view-label"
+          preference="mail.thread.conversation.enabled"
+        />
+        <description
+          class="tip-caption indent"
+          data-l10n-id="conversation-view-limitations-description"
+        />
+      </vbox>
+    </html:fieldset>
+#endif
+#ifndef MOZ_ESR
+    <html:fieldset
+      class="beta-feature"
+      data-subcategory="newCalendarDialog"
+    >
+      <html:legend data-l10n-id="beta-calendar-dialog-legend"></html:legend>
+      <vbox>
+        <checkbox
+          id="calendarDialog"
+          data-l10n-id="beta-calendar-dialog-checkbox-label"
+          preference="calendar.dialogs.new.enabled"
+        />
+        <description
+          class="tip-caption indent"
+          data-l10n-id="beta-calendar-dialog-description"
+        />
+      </vbox>
+    </html:fieldset>
+#endif
+  </html:div>
+</html:template>

@@ -37,16 +37,6 @@ var gCalendarGeneralPane = {
   init() {
     this.onChangedUseSystemTimezonePref();
 
-    const offerExperimentalFeatures = Services.prefs.getBoolPref(
-      "mail.experimental_features_settings.enabled",
-      true
-    );
-
-    const newCalendarDialogExperimental = document.getElementById("newCalendarDialogExperimental");
-    if (newCalendarDialogExperimental) {
-      newCalendarDialogExperimental.hidden = !offerExperimentalFeatures;
-    }
-
     const formatter = cal.dtz.formatter;
     const dateFormattedLong = formatter.formatDateLong(cal.dtz.now());
     const dateFormattedShort = formatter.formatDateShort(cal.dtz.now());

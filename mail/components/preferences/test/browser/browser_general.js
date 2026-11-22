@@ -2,14 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { MockFilePicker } = ChromeUtils.importESModule(
-  "resource://testing-common/MockFilePicker.sys.mjs"
-);
-
-var { MockSound } = ChromeUtils.importESModule(
-  "resource://testing-common/MockSound.sys.mjs"
-);
-
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -93,107 +85,6 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  await testCheckboxes(
-    "paneGeneral",
-    "incomingMailCategory",
-    {
-      checkboxID: "newMailNotification",
-      pref: "mail.biff.play_sound",
-      enabledElements: ["#soundType radio"],
-    },
-    {
-      checkboxID: "newMailNotificationAlert",
-      pref: "mail.biff.show_alert",
-      enabledElements: ["#customizeMailAlert"],
-    }
-  );
-}).skip(AppConstants.platform == "macosx");
-
-add_task(async () => {
-  await SpecialPowers.pushPrefEnv({
-    set: [["mail.biff.play_sound", true]],
-  });
-
-  await testRadioButtons("paneGeneral", "incomingMailCategory", {
-    pref: "mail.biff.play_sound.type",
-    states: [
-      {
-        id: "system",
-        prefValue: 0,
-      },
-      {
-        id: "custom",
-        prefValue: 1,
-        enabledElements: ["#soundUrlLocation", "#browseForSound"],
-      },
-    ],
-  });
-}).skip(AppConstants.platform == "macosx");
-
-add_task(async function test_sounds() {
-  // To hear the sound in this test, add `--setpref media.volume_scale=1.0` to
-  // your command. You won't hear the system sound as nsISound is mocked out.
-
-  await SpecialPowers.pushPrefEnv({
-    set: [
-      ["mail.biff.play_sound", true],
-      ["mail.biff.play_sound.type", 0],
-      ["mail.biff.play_sound.url", ""],
-    ],
-  });
-  MockSound.init();
-
-  const { prefsDocument, prefsWindow } = await openNewPrefsTab(
-    "paneGeneral",
-    "incomingMailCategory"
-  );
-  const playSoundButton = prefsDocument.getElementById("playSound");
-  const soundUrlTextbox = prefsDocument.getElementById("soundUrlLocation");
-  const browseButton = prefsDocument.getElementById("browseForSound");
-
-  if (AppConstants.platform != "macosx") {
-    const [systemRadio, customRadio] =
-      prefsDocument.querySelectorAll("#soundType radio");
-    Assert.ok(systemRadio.selected);
-    Assert.ok(!playSoundButton.disabled);
-    EventUtils.synthesizeMouseAtCenter(playSoundButton, {}, prefsWindow);
-    Assert.deepEqual(
-      MockSound.played,
-      [`(event)${Ci.nsISound.EVENT_NEW_MAIL_RECEIVED}`],
-      "should have played the system sound"
-    );
-    MockSound.reset();
-
-    EventUtils.synthesizeMouseAtCenter(customRadio, {}, prefsWindow);
-  }
-  Assert.ok(playSoundButton.disabled);
-  Assert.equal(soundUrlTextbox.value, "");
-
-  const soundFile = new FileUtils.File(getTestFilePath("files/complete.oga"));
-  const soundUrl = Services.io.newFileURI(soundFile).spec;
-  MockFilePicker.init(window);
-  MockFilePicker.setFiles([soundFile]);
-  MockFilePicker.returnValue = MockFilePicker.returnOK;
-  EventUtils.synthesizeMouseAtCenter(browseButton, {}, prefsWindow);
-  await TestUtils.waitForCondition(
-    () => soundUrlTextbox.value,
-    "waiting for sound url to be set"
-  );
-  Assert.equal(soundUrlTextbox.value, soundUrl);
-
-  Assert.equal(Services.prefs.getIntPref("mail.biff.play_sound.type"), 1);
-  const audioPromise = TestUtils.topicObserved("notification-audio-ended");
-  EventUtils.synthesizeMouseAtCenter(playSoundButton, {}, prefsWindow);
-  const [audioElement] = await audioPromise;
-  Assert.equal(MockSound.played.length, 0);
-  Assert.equal(audioElement.src, soundUrl);
-
-  await closePrefsTab();
-
-  MockSound.cleanup();
-});
-
-add_task(async () => {
   await testRadioButtons("paneGeneral", "changeAddressDisplayFormat", {
     pref: "mail.addressDisplayFormat",
     states: [
@@ -244,14 +135,6 @@ add_task(async () => {
       pref: "mail.dark-reader.show-toggle",
     }
   );
-
-  // Nightly experimental prefs.
-  if (AppConstants.NIGHTLY_BUILD) {
-    await testCheckboxes("paneGeneral", "readingAndDisplayCategory", {
-      checkboxID: "conversationView",
-      pref: "mail.thread.conversation.enabled",
-    });
-  }
 });
 
 add_task(async () => {
@@ -732,96 +615,6 @@ add_task(async function testMultilingualEnabled() {
     prefsDocument.getElementById("messengerLanguagesBox").hidden,
     AppConstants.MOZ_ENTERPRISE,
     "The languages box should be hidden only on enterprise builds"
-  );
-  await closePrefsTab();
-});
-
-/**
- * Tests the new mail alert dialogs.
- */
-add_task(async function testNewMailAlertDialogs() {
-  await SpecialPowers.pushPrefEnv({
-    set: [
-      ["mail.biff.show_alert", true],
-      ["mail.biff.alert.enabled_actions", "mark-as-read"],
-    ],
-  });
-  const { prefsDocument } = await openNewPrefsTab(
-    "paneGeneral",
-    "incomingMailCategory"
-  );
-  if (AppConstants.platform != "linux") {
-    await promiseSubDialog(
-      prefsDocument.getElementById("dockOptions"),
-      "chrome://messenger/content/preferences/dockoptions.xhtml",
-      () => {},
-      "cancel"
-    );
-  }
-  await promiseSubDialog(
-    prefsDocument.getElementById("customizeMailAlert"),
-    "chrome://messenger/content/preferences/notifications.xhtml",
-    async dialogWindow => {
-      const dialogDocument = dialogWindow.document;
-      const list = dialogDocument.getElementById("enabledActions");
-      Assert.deepEqual(
-        Array.from(list.children, cb => cb.id),
-        [
-          "mark-as-read",
-          "delete",
-          "mark-as-starred",
-          "mark-as-spam",
-          "archive",
-        ],
-        "actions checkboxes should all be shown and in order"
-      );
-      Assert.deepEqual(
-        Array.from(list.children, cb => cb.checked),
-        [true, false, false, false, false],
-        "only the mark-as-read checkbox should be checked"
-      );
-      EventUtils.synthesizeMouseAtCenter(list.children[0], {}, dialogWindow);
-      EventUtils.synthesizeMouseAtCenter(list.children[1], {}, dialogWindow);
-      EventUtils.synthesizeMouseAtCenter(list.children[3], {}, dialogWindow);
-    },
-    "accept"
-  );
-  Assert.equal(
-    Services.prefs.getStringPref("mail.biff.alert.enabled_actions"),
-    "delete,mark-as-spam",
-    "preference should have been updated"
-  );
-  await promiseSubDialog(
-    prefsDocument.getElementById("customizeMailAlert"),
-    "chrome://messenger/content/preferences/notifications.xhtml",
-    async dialogWindow => {
-      const dialogDocument = dialogWindow.document;
-      const list = dialogDocument.getElementById("enabledActions");
-      Assert.deepEqual(
-        Array.from(list.children, cb => cb.id),
-        [
-          "mark-as-read",
-          "delete",
-          "mark-as-starred",
-          "mark-as-spam",
-          "archive",
-        ],
-        "actions checkboxes should all be shown and in order"
-      );
-      Assert.deepEqual(
-        Array.from(list.children, cb => cb.checked),
-        [false, true, false, true, false],
-        "the delete and mark-as-spam checkboxes should be checked"
-      );
-      EventUtils.synthesizeMouseAtCenter(list.children[0], {}, dialogWindow);
-      EventUtils.synthesizeMouseAtCenter(list.children[3], {}, dialogWindow);
-    },
-    "accept"
-  );
-  Assert.equal(
-    Services.prefs.getStringPref("mail.biff.alert.enabled_actions"),
-    "mark-as-read,delete",
-    "preference should have been updated"
   );
   await closePrefsTab();
 });

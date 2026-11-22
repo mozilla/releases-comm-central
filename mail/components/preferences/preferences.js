@@ -36,6 +36,8 @@ ChromeUtils.defineESModuleGetters(
   {
     qrExportPane: "chrome://messenger/content/preferences/qrExport.mjs",
     appearancePane: "chrome://messenger/content/preferences/appearance.mjs",
+    notificationsPane:
+      "chrome://messenger/content/preferences/notificationsPane.mjs",
   },
   { global: "current" }
 );
@@ -95,6 +97,10 @@ document.addEventListener("DOMContentLoaded", init, { once: true });
 
 var gCategoryInits = new Map();
 var gLastCategory = { category: undefined, subcategory: undefined };
+const experimentalFeaturesSettingsEnabled = Services.prefs.getBoolPref(
+  "mail.experimental_features_settings.enabled",
+  true
+);
 
 async function init_category_if_required(category) {
   const categoryInfo = gCategoryInits.get(category);
@@ -117,6 +123,14 @@ function register_module(categoryName, categoryObject) {
       if (template) {
         // Replace the template element with the nodes inside of it.
         const frag = template.content;
+        if (!experimentalFeaturesSettingsEnabled) {
+          const links = frag.querySelectorAll(
+            "[data-experimental-features-link]"
+          );
+          for (const link of links) {
+            link.remove();
+          }
+        }
         await document.l10n.translateFragment(frag);
 
         // Actually insert them into the DOM.
@@ -138,6 +152,7 @@ function register_module(categoryName, categoryObject) {
 async function init() {
   register_module("paneGeneral", gGeneralPane);
   register_module("paneAppearance", appearancePane);
+  register_module("paneNotifications", notificationsPane);
   register_module("paneCompose", gComposePane);
   register_module("panePrivacy", gPrivacyPane);
   register_module("paneCalendar", gCalendarPane);
@@ -150,10 +165,22 @@ async function init() {
   } else {
     document.getElementById("paneChat").remove(); // Exclude from search.
     document.getElementById("category-chat").remove(); // Remove tab.
+    document
+      .getElementById("paneNotifications")
+      .content.getElementById("chatNotificationsSection")
+      .remove();
   }
   if (!calendarDeactivator.isCalendarActivated) {
     document.getElementById("paneCalendar").remove(); // Exclude from search.
     document.getElementById("category-calendar").remove(); // Remove tab.
+    document
+      .getElementById("paneNotifications")
+      .content.getElementById("calendarNotificationsSection")
+      .remove();
+    document
+      .getElementById("paneBetaFeatures")
+      .content.querySelector('[data-subcategory="newCalendarDialog"]')
+      ?.remove();
   }
 
   if (Services.prefs.getBoolPref("mail.qrexport.enabled", true)) {
@@ -161,6 +188,12 @@ async function init() {
   } else {
     document.getElementById("paneQrExport").remove(); // Exclude from search.
     document.getElementById("category-qrexport").remove(); // Remove tab.
+  }
+  if (experimentalFeaturesSettingsEnabled) {
+    register_module("paneBetaFeatures", { init() {} });
+  } else {
+    document.getElementById("paneBetaFeatures").remove();
+    document.getElementById("category-beta-features").remove();
   }
 
   gSearchResultsPane.init();
@@ -292,13 +325,11 @@ async function gotoPref(aCategory) {
 
   search(category, "data-category");
 
-  const mainContent = document.querySelector(".main-content");
-  mainContent.scrollTop = 0;
+  document.getElementById("preferencesContainer").scrollTo(0, 0);
 
   spotlight(subcategory, category);
 
   document.dispatchEvent(new CustomEvent("paneSelected", { bubbles: true }));
-  document.getElementById("preferencesContainer").scrollTo(0, 0);
   document.getElementById("paneDeck").setAttribute("lastSelected", category);
   Services.xulStore.setValue(
     "about:preferences",
@@ -388,7 +419,7 @@ async function scrollAndHighlight(subcategory) {
  * @returns {Element} The closest displayed header.
  */
 function getClosestDisplayedHeader(element) {
-  let header = element.closest("groupbox");
+  let header = element.closest("groupbox, fieldset");
   const searchHeader = header.querySelector(".search-header");
   if (
     searchHeader &&
@@ -403,10 +434,15 @@ function getClosestDisplayedHeader(element) {
 function scrollContentTo(element) {
   const STICKY_CONTAINER_HEIGHT =
     document.querySelector(".sticky-container").clientHeight;
-  const mainContent = document.querySelector(".main-content");
-  const top = element.getBoundingClientRect().top - STICKY_CONTAINER_HEIGHT;
-  mainContent.scroll({
-    top,
+  const container = document.getElementById("preferencesContainer");
+  const targetScrollTop =
+    container.scrollTop +
+    element.getBoundingClientRect().top -
+    container.getBoundingClientRect().top -
+    container.clientTop -
+    STICKY_CONTAINER_HEIGHT;
+  container.scroll({
+    top: targetScrollTop,
     behavior: "smooth",
   });
 }
