@@ -168,3 +168,80 @@ add_task(async function testBinaryAfterPlainTextAttachment() {
     )
   );
 });
+
+/**
+ * Test that a link file is attached as is, not as the target it points to.
+ */
+add_task(async function testLinkFileAttachment() {
+  const target = await IOUtils.createUniqueFile(PathUtils.tempDir, "target");
+  await IOUtils.writeUTF8(target, "TARGET-MARKER");
+  const linkContent = `[Desktop Entry]\nType=Link\nURL=${PathUtils.toFileURI(target)}\n`;
+  const link = await IOUtils.createUniqueFile(
+    PathUtils.tempDir,
+    "link.desktop"
+  );
+  await IOUtils.writeUTF8(link, linkContent);
+  registerCleanupFunction(async () => {
+    await IOUtils.remove(target);
+    await IOUtils.remove(link);
+  });
+
+  await createMessage(await IOUtils.getFile(link));
+  const msgData = mailTestUtils.loadMessageToString(
+    gDraftFolder,
+    mailTestUtils.firstMsgHdr(gDraftFolder)
+  );
+  const encoded = msgData.match(
+    /filename="link\.desktop"\r\nContent-Transfer-Encoding: base64\r\n\r\n([^-]+)/
+  );
+  Assert.ok(encoded, "Draft should contain the base64 encoded link file");
+  Assert.equal(
+    atob(encoded[1].replace(/\s/g, "")),
+    linkContent,
+    "Attachment should contain the link file content, not the link target"
+  );
+});
+
+/**
+ * Test that the content type of a file without a known extension is sniffed.
+ */
+add_task(async function testSniffedContentType() {
+  Services.prefs.setIntPref(
+    "mail.strictly_mime.parm_folding",
+    ParamFoldingPref.RFC2231
+  );
+  for (const [data, expectedType] of [
+    [new TextEncoder().encode("Just some text\r\n"), "text/plain"],
+    [
+      new Uint8Array([0x7f, 0x45, 0x4c, 0x46, 0x02, 0x01, 0x00]),
+      "application/octet-stream",
+    ],
+  ]) {
+    const path = await IOUtils.createUniqueFile(PathUtils.tempDir, "noext");
+    registerCleanupFunction(() => IOUtils.remove(path));
+    await IOUtils.write(path, data);
+    const attachment = Cc[
+      "@mozilla.org/messengercompose/attachment;1"
+    ].createInstance(Ci.nsIMsgAttachment);
+    attachment.url = PathUtils.toFileURI(path);
+    attachment.name = PathUtils.filename(path);
+
+    const fields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
+    fields.from = "Nobody <nobody@tinderbox.test>";
+    await richCreateMessage(fields, [attachment]);
+
+    const msgData = mailTestUtils.loadMessageToString(
+      gDraftFolder,
+      mailTestUtils.firstMsgHdr(gDraftFolder)
+    );
+    Assert.stringMatches(
+      msgData,
+      new RegExp(
+        `Content-Type: ${expectedType}[^\\r]*\\r\\nContent-Disposition: attachment; filename="${attachment.name}"`
+      ),
+      `Content type of the attachment should be ${expectedType}`
+    );
+  }
+});
