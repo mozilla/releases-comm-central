@@ -88,6 +88,8 @@ tags = ["foldernames"]
 
 ["test_getMsgTextFromStream.js"]
 
+["test_groupByLocation.js"]
+
 ["test_headerFoldingInDatabase.js"]
 
 ["test_hostnameUtils.js"]

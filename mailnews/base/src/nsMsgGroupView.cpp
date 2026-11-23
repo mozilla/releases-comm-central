@@ -171,6 +171,9 @@ nsresult nsMsgGroupView::HashHdr(nsIMsgDBHdr* msgHdr, nsString& aHashKey) {
       msgHdr->GetRecipients(cStringKey);
       CopyASCIItoUTF16(cStringKey, aHashKey);
       break;
+    case nsMsgViewSortType::byLocation:
+      rv = GetLocationCollationKey(msgHdr, aHashKey);
+      break;
     case nsMsgViewSortType::byAccount:
     case nsMsgViewSortType::byTags: {
       nsCOMPtr<nsIMsgDatabase> dbToUse = m_db;
