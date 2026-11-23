@@ -739,7 +739,7 @@ var threadPane = {
 
   getDefaultColumns() {
     this.columns = ThreadPaneColumns.getDefaultColumns().filter(
-      c => c.id != "threadCol"
+      c => !c.custom && c.id != "threadCol"
     );
     this.columns.find(c => c.id == "locationCol").hidden = false;
   },

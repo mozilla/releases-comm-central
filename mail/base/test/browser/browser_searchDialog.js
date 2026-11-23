@@ -7,6 +7,9 @@
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
 );
+const { ThreadPaneColumns } = ChromeUtils.importESModule(
+  "chrome://messenger/content/ThreadPaneColumns.mjs"
+);
 
 const SEARCH_DIALOG_URL = "chrome://messenger/content/searchDialog.xhtml";
 const searchWindows = new Set();
@@ -517,4 +520,51 @@ add_task(async function test_columnWidths() {
     );
   }
   await BrowserTestUtils.closeWindow(reopened);
+});
+
+add_task(async function test_searchWithCustomColumns() {
+  const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  about3Pane.displayFolder(testFolder);
+  await TestUtils.waitForCondition(
+    () => about3Pane.dbViewWrapperListener.allMessagesLoaded,
+    "The folder should load before registering custom columns"
+  );
+  const customColumns = [
+    { id: "searchCustomCol", hidden: false },
+    { id: "searchHiddenCustomCol", hidden: true },
+  ];
+  for (const { id, hidden } of customColumns) {
+    ThreadPaneColumns.addCustomColumn(id, {
+      name: id,
+      hidden,
+      textCallback: () => "Custom column",
+    });
+    registerCleanupFunction(() => ThreadPaneColumns.removeCustomColumn(id));
+  }
+
+  const win = await openSearchDialog();
+  Assert.ok(
+    win.document.querySelector("search-value input"),
+    "The dialog should initialize its search criterion with custom columns registered"
+  );
+  Assert.ok(
+    !win.threadPane.columns.some(column => column.custom),
+    "Search results should exclude custom columns"
+  );
+  const tree = await searchMessages(win);
+
+  win.onResetSearch();
+  const picker = tree.querySelector("th.last-column .button-column-picker");
+  const popup = tree.querySelector("menupopup.menupopup-column-picker");
+  EventUtils.synthesizeMouseAtCenter(picker, {}, win);
+  await BrowserTestUtils.waitForPopupEvent(popup, "shown");
+  popup.activateItem(popup.querySelector("#restoreColumnOrder"));
+  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
+
+  Assert.ok(
+    !win.threadPane.columns.some(column => column.custom),
+    "Restoring default columns should exclude custom columns"
+  );
+  await searchMessages(win);
+  await BrowserTestUtils.closeWindow(win);
 });
