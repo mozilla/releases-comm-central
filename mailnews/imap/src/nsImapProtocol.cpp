@@ -1106,9 +1106,9 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning) {
           nullptr;  // force us to release our last reference on the url
       m_urlInProgress = false;
     }
+    // Need to null this out whether we have an m_runningUrl or not
+    m_imapMailFolderSink = nullptr;
   }
-  // Need to null this out whether we have an m_runningUrl or not
-  m_imapMailFolderSink = nullptr;
 
   // we want to make sure the imap protocol's last reference to the url gets
   // released back on the UI thread. This ensures that the objects the imap url
@@ -1166,7 +1166,7 @@ bool nsImapProtocol::RunImapThreadMainLoop() {
   // close streams via UI thread if it's not already done
   if (m_imapProtocolSink) m_imapProtocolSink->CloseStreams();
 
-  m_imapMailFolderSink = nullptr;
+  SetMailFolderSink(nullptr);
   m_imapMailFolderSinkSelected = nullptr;
   m_imapMessageSink = nullptr;
 
@@ -1590,7 +1590,7 @@ void nsImapProtocol::ImapThreadMainLoop() {
       if (ProcessCurrentURL()) {
         // Another URL has been setup to run. Process it on next loop.
         m_nextUrlReadyToRun = true;
-        m_imapMailFolderSink = nullptr;
+        SetMailFolderSink(nullptr);
       } else {
         // No more URLs setup to run. Set idle pending if user has configured
         // idle and if a URL is not in progress and if the server has IDLE
@@ -1606,7 +1606,7 @@ void nsImapProtocol::ImapThreadMainLoop() {
           Log("ImapThreadMainLoop", nullptr, "idlePending set");
         } else {
           // if not idle used, don't need to remember folder sink
-          m_imapMailFolderSink = nullptr;
+          SetMailFolderSink(nullptr);
         }
       }
     } else {
@@ -1618,7 +1618,7 @@ void nsImapProtocol::ImapThreadMainLoop() {
         Idle();
         if (!m_idle) {
           // Server rejected IDLE. Treat like IDLE not enabled or available.
-          m_imapMailFolderSink = nullptr;
+          SetMailFolderSink(nullptr);
         }
         idlePending = false;
         sleepTime = PR_SecondsToInterval(kSleepTimeSeconds);
@@ -2152,7 +2152,7 @@ bool nsImapProtocol::ProcessCurrentURL() {
       NS_ReleaseOnMainThread("nsImapProtocol, copyState", copyState.forget());
     }
     // we might need this to stick around for IDLE support
-    m_imapMailFolderSink = imapMailFolderSink;
+    SetMailFolderSink(imapMailFolderSink);
     imapMailFolderSink = nullptr;
   } else
     MOZ_LOG(IMAP, LogLevel::Info, ("null imapMailFolderSink"));
@@ -7922,7 +7922,7 @@ void nsImapProtocol::EndIdle(bool waitForResponse /* = true */) {
   // retry or signal a failed status when SetUrlState is called in
   // ProcessCurrentUrl to invoke nsIUrlListener.onStopRunningUrl.
   if (!waitForResponse || GetServerStateParser().LastCommandSuccessful())
-    m_imapMailFolderSink = nullptr;
+    SetMailFolderSink(nullptr);
 }
 
 void nsImapProtocol::Search(const char* searchCriteria, bool useUID,

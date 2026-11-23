@@ -448,6 +448,8 @@ class nsImapProtocol : public nsIImapProtocol,
   bool m_idleResponseReadyToHandle;
   nsWeakPtr m_server;
 
+  // Written on both the main thread and the IMAP thread. Every write must
+  // hold mMonitor; use SetMailFolderSink() on the IMAP thread.
   RefPtr<ImapMailFolderSinkProxy> m_imapMailFolderSink;
   RefPtr<ImapMailFolderSinkProxy> m_imapMailFolderSinkSelected;
   RefPtr<ImapMessageSinkProxy> m_imapMessageSink;
@@ -457,6 +459,10 @@ class nsImapProtocol : public nsIImapProtocol,
 
   // helper function to setup imap sink interface proxies
   nsresult SetupSinkProxy();
+  void SetMailFolderSink(ImapMailFolderSinkProxy* aSink) {
+    mozilla::ReentrantMonitorAutoEnter mon(mMonitor);
+    m_imapMailFolderSink = aSink;
+  }
   // End thread support stuff
   nsresult LoadImapUrlInternal();
 
