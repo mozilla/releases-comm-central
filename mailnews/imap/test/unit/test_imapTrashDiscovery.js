@@ -84,6 +84,15 @@ add_task(async function test_missingTrash() {
   await checkTrashDiscovery({ exists: false });
 });
 
+add_task(async function test_missingNonAsciiTrash() {
+  await checkTrashDiscovery({
+    prefix: "",
+    name: "回收筒",
+    trashPref: "回收筒",
+    exists: false,
+  });
+});
+
 add_task(async function test_nonAsciiSpecialUseTrash() {
   await checkTrashDiscovery({
     prefix: "",
@@ -171,11 +180,12 @@ async function checkTrashDiscovery({
       return response;
     },
   });
+  // Leave allowUTF8Accept at its default to test the fallback to MUTF-7
+  // when the server does not advertise UTF8=ACCEPT.
   const incomingServer = createLocalIMAPServer(server.port);
   incomingServer.maximumConnectionsNumber = 1;
   // Issue SELECT on each update, even if Trash is already selected.
   incomingServer.forceSelect = true;
-  incomingServer.allowUTF8Accept = false;
   incomingServer.serverDirectory = serverDirectory;
   if (trashPref !== undefined) {
     incomingServer.setStringValue("trash_folder_name", trashPref);

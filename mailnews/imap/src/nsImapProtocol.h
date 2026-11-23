@@ -387,6 +387,7 @@ class nsImapProtocol : public nsIImapProtocol,
   nsCString m_serverKey;
   char* m_dataOutputBuf;
   RefPtr<nsMsgLineStreamBuffer> m_inputStreamBuffer;
+  nsCString m_trashFolderPathUtf8;
   nsCString m_trashFolderPath;
   // Resolved lazily and reset for each URL or mailbox discovery.
   nsCString m_canonicalTrashFolderPath;

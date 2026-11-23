@@ -914,11 +914,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
     m_canonicalTrashFolderPath.Truncate();
     nsAutoCString trashFolderPath;
     if (NS_SUCCEEDED(imapServer->GetTrashFolderName(trashFolderPath))) {
-      if (m_allowUTF8Accept)
-        m_trashFolderPath = trashFolderPath;
-      else
-        CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(trashFolderPath),
-                         m_trashFolderPath);
+      m_trashFolderPathUtf8 = trashFolderPath;
     }
 
     bool preferPlainText =
@@ -2030,6 +2026,14 @@ bool nsImapProtocol::ProcessCurrentURL() {
   }
 
   if (!DeathSignalReceived() && (NS_SUCCEEDED(GetConnectionStatus()))) {
+    // Use the connection's negotiated encoding before discovering mailboxes.
+    if (m_allowUTF8Accept) {
+      m_trashFolderPath = m_trashFolderPathUtf8;
+    } else {
+      CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(m_trashFolderPathUtf8),
+                       m_trashFolderPath);
+    }
+
     // if the server supports a language extension then we should
     // attempt to issue the language extension.
     if (GetServerStateParser().GetCapabilityFlag() & kHasLanguageCapability)
