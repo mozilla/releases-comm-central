@@ -103,19 +103,17 @@ class nsMsgDatabase : public nsIMsgDatabase {
    *                        The database is present (and was opened), but the
    *                        summary file is missing.
    */
-  virtual nsresult Open(nsMsgDBService* aDBService, nsIFile* aFolderName,
-                        bool aCreate, bool aLeaveInvalidDB);
+  nsresult Open(nsMsgDBService* aDBService, nsIFile* aFolderName, bool aCreate,
+                bool aLeaveInvalidDB);
   virtual nsresult IsHeaderRead(nsIMsgDBHdr* hdr, bool* pRead);
   virtual nsresult MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
                                nsIDBChangeListener* instigator);
   virtual nsresult MarkHdrReadInDB(nsIMsgDBHdr* msgHdr, bool bRead,
                                    nsIDBChangeListener* instigator);
-  nsresult OpenInternal(nsMsgDBService* aDBService, nsIFile* summaryFile,
-                        bool aCreate, bool aLeaveInvalidDB, bool sync);
   nsresult CheckForErrors(nsresult err, bool sync, nsMsgDBService* aDBService,
                           nsIFile* summaryFile);
-  virtual nsresult OpenMDB(nsIFile* dbfile, bool create, bool sync);
-  virtual nsresult CloseMDB(bool commit);
+  nsresult OpenMDB(nsIFile* dbfile, bool create);
+  nsresult CloseMDB(bool commit);
   virtual nsresult CreateMsgHdr(nsIMdbRow* hdrRow, nsMsgKey key,
                                 nsIMsgDBHdr** result);
   virtual nsresult GetThreadForMsgKey(nsMsgKey msgKey, nsIMsgThread** result);

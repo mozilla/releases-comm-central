@@ -1096,29 +1096,14 @@ nsresult nsMsgDatabase::GetMDBFactory(nsIMdbFactory** aMdbFactory) {
 // aLeaveInvalidDB: true if caller wants back a db even out of date.
 // If so, they'll extract out the interesting info from the db, close it,
 // delete it, and then try to open the db again, prior to reparsing.
-nsresult nsMsgDatabase::Open(nsMsgDBService* aDBService, nsIFile* aFolderName,
+nsresult nsMsgDatabase::Open(nsMsgDBService* aDBService, nsIFile* summaryFile,
                              bool aCreate, bool aLeaveInvalidDB) {
-  return nsMsgDatabase::OpenInternal(aDBService, aFolderName, aCreate,
-                                     aLeaveInvalidDB,
-                                     true /* open synchronously */);
-}
-
-NS_IMETHODIMP nsMsgDatabase::OpenFromFile(nsIFile* aFolderName) {
-  // This is here to open the database without using the database service.
-  // It is used only for migrating to the new global database.
-  MOZ_ASSERT(StaticPrefs::mail_panorama_enabled_AtStartup());
-  return nsMsgDatabase::OpenInternal(nullptr, aFolderName, false, false, true);
-}
-
-nsresult nsMsgDatabase::OpenInternal(nsMsgDBService* aDBService,
-                                     nsIFile* summaryFile, bool aCreate,
-                                     bool aLeaveInvalidDB, bool sync) {
   MOZ_LOG(DBLog, LogLevel::Info,
           ("nsMsgDatabase::Open(%s, %s, %p, %s)",
            summaryFile->HumanReadablePath().get(), aCreate ? "TRUE" : "FALSE",
            this, aLeaveInvalidDB ? "TRUE" : "FALSE"));
 
-  nsresult rv = OpenMDB(summaryFile, aCreate, sync);
+  nsresult rv = OpenMDB(summaryFile, aCreate);
   if (NS_FAILED(rv)) {
     MOZ_LOG(DBLog, LogLevel::Info,
             ("error opening db %" PRIx32, static_cast<uint32_t>(rv)));
@@ -1134,12 +1119,14 @@ nsresult nsMsgDatabase::OpenInternal(nsMsgDBService* aDBService,
 
   m_create = aCreate;
   m_leaveInvalidDB = aLeaveInvalidDB;
-  if (!sync && NS_SUCCEEDED(rv)) {
-    aDBService->AddToCache(this);
-    // remember open options for when the parsing is complete.
-    return rv;
-  }
   return CheckForErrors(rv, true, aDBService, summaryFile);
+}
+
+NS_IMETHODIMP nsMsgDatabase::OpenFromFile(nsIFile* aFolderName) {
+  // This is here to open the database without using the database service.
+  // It is used only for migrating to the new global database.
+  MOZ_ASSERT(StaticPrefs::mail_panorama_enabled_AtStartup());
+  return Open(nullptr, aFolderName, false, false);
 }
 
 nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
@@ -1238,7 +1225,7 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
  * If successful, this routine will set up the m_mdbStore and m_mdbEnv of
  * the database object so other database calls can work.
  */
-nsresult nsMsgDatabase::OpenMDB(nsIFile* dbFile, bool create, bool sync) {
+nsresult nsMsgDatabase::OpenMDB(nsIFile* dbFile, bool create) {
   PROFILER_MARKER_TEXT("nsMsgDatabase::OpenMDB", MAILNEWS,
                        MarkerOptions(MarkerTiming::IntervalStart()),
                        dbFile->HumanReadablePath());
@@ -1299,7 +1286,7 @@ nsresult nsMsgDatabase::OpenMDB(nsIFile* dbFile, bool create, bool sync) {
       }
     }
     nsCOMPtr<nsIMdbThumb> thumb = m_thumb;
-    if (NS_SUCCEEDED(ret) && thumb && sync) {
+    if (NS_SUCCEEDED(ret) && thumb) {
       mdb_count outTotal;        // total somethings to do in operation
       mdb_count outCurrent;      // subportion of total completed so far
       mdb_bool outDone = false;  // is operation finished?
