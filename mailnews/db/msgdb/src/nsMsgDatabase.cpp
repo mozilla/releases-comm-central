@@ -981,8 +981,6 @@ nsMsgDatabase::nsMsgDatabase()
       m_mdbStore(nullptr),
       m_mdbAllMsgHeadersTable(nullptr),
       m_mdbAllThreadsTable(nullptr),
-      m_create(false),
-      m_leaveInvalidDB(false),
       m_mdbTokensInitialized(false),
       m_hdrRowScopeToken(0),
       m_hdrTableKindToken(0),
@@ -1117,9 +1115,7 @@ nsresult nsMsgDatabase::Open(nsMsgDBService* aDBService, nsIFile* summaryFile,
     return rv;
   }
 
-  m_create = aCreate;
-  m_leaveInvalidDB = aLeaveInvalidDB;
-  return CheckForErrors(rv, true, aDBService, summaryFile);
+  return CheckForErrors(rv, aCreate, aLeaveInvalidDB, aDBService, summaryFile);
 }
 
 NS_IMETHODIMP nsMsgDatabase::OpenFromFile(nsIFile* aFolderName) {
@@ -1129,7 +1125,8 @@ NS_IMETHODIMP nsMsgDatabase::OpenFromFile(nsIFile* aFolderName) {
   return Open(nullptr, aFolderName, false, false);
 }
 
-nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
+nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool create,
+                                       bool leaveInvalid,
                                        nsMsgDBService* aDBService,
                                        nsIFile* summaryFile) {
   nsCOMPtr<nsIDBFolderInfo> folderInfo;
@@ -1145,7 +1142,7 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
   }
 
   // if the old summary doesn't exist, we're creating a new one.
-  if ((!exists || !fileSize) && m_create) {
+  if ((!exists || !fileSize) && create) {
     newFile = true;
   }
 
@@ -1179,7 +1176,7 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
       }
     }
 
-    if (NS_FAILED(err) && !m_leaveInvalidDB) {
+    if (NS_FAILED(err) && !leaveInvalid) {
       deleteInvalidDB = true;
     }
   } else if (err != NS_MSG_ERROR_FOLDER_SUMMARY_MISSING) {
@@ -1189,7 +1186,7 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
     // file due to too many open files. In this case there is no
     // point to blow away the MSF file.
     err = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
-    if (!m_leaveInvalidDB) deleteInvalidDB = true;
+    if (!leaveInvalid) deleteInvalidDB = true;
   }
 
   if (deleteInvalidDB) {
@@ -1203,9 +1200,8 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
   if (NS_FAILED(err) || newFile) {
     // if we couldn't open file, or we have a blank one, and we're supposed
     // to upgrade, upgrade it.
-    if (newFile && !m_leaveInvalidDB)  // caller is upgrading, and we have empty
-                                       // summary file,
-    {  // leave db around and open so caller can upgrade it.
+    if (newFile && !leaveInvalid) {
+      // leave db around and open so caller can upgrade it.
       err = NS_MSG_ERROR_FOLDER_SUMMARY_MISSING;
     } else if (NS_FAILED(err) &&
                err != NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE) {
@@ -1213,7 +1209,7 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
       summaryFile->Remove(false);  // blow away the db if it's corrupt.
     }
   }
-  if (aDBService && sync &&
+  if (aDBService &&
       (NS_SUCCEEDED(err) || err == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING)) {
     aDBService->AddToCache(this);
   }

@@ -118,8 +118,8 @@ class nsMsgDatabase : public nsIMsgDatabase {
                                nsIDBChangeListener* instigator);
   virtual nsresult MarkHdrReadInDB(nsIMsgDBHdr* msgHdr, bool bRead,
                                    nsIDBChangeListener* instigator);
-  nsresult CheckForErrors(nsresult err, bool sync, nsMsgDBService* aDBService,
-                          nsIFile* summaryFile);
+  nsresult CheckForErrors(nsresult err, bool create, bool leaveInvalid,
+                          nsMsgDBService* aDBService, nsIFile* summaryFile);
   nsresult OpenMDB(nsIFile* dbfile, bool create);
   nsresult CloseMDB(bool commit);
   virtual nsresult CreateMsgHdr(nsIMdbRow* hdrRow, nsMsgKey key,
@@ -300,9 +300,6 @@ class nsMsgDatabase : public nsIMsgDatabase {
   // Used for asynchronous db opens. If non-null, we're still opening
   // the underlying mork database. If null, the db has been completely opened.
   nsCOMPtr<nsIMdbThumb> m_thumb;
-  // used to remember the args to Open for async open.
-  bool m_create;
-  bool m_leaveInvalidDB;
 
   nsCOMPtr<nsIFile> m_dbFile;
   nsTArray<nsMsgKey> m_newSet;  // new messages since last open.
