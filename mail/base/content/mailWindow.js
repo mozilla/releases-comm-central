@@ -254,8 +254,6 @@ function toggleCaretBrowsing() {
 
 function InitMsgWindow() {
   window.browsingContext.docShell.allowAuth = true;
-  // Ensure we don't load xul error pages into the main window
-  window.browsingContext.docShell.useErrorPages = false;
 
   document.addEventListener("dragstart", onCopyOrDragStart, true);
 
