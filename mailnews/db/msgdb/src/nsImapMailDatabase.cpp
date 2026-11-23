@@ -24,7 +24,7 @@ NS_IMETHODIMP nsImapMailDatabase::GetSummaryValid(bool* aResult) {
   if (m_dbFolderInfo) {
     uint32_t version;
     m_dbFolderInfo->GetVersion(&version);
-    *aResult = (GetCurVersion() == version);
+    *aResult = (version == kMsgDBVersion);
   } else
     *aResult = false;
 
@@ -33,7 +33,7 @@ NS_IMETHODIMP nsImapMailDatabase::GetSummaryValid(bool* aResult) {
 
 NS_IMETHODIMP nsImapMailDatabase::SetSummaryValid(bool valid) {
   if (m_dbFolderInfo) {
-    m_dbFolderInfo->SetVersion(valid ? GetCurVersion() : 0);
+    m_dbFolderInfo->SetVersion(valid ? kMsgDBVersion : 0);
     Commit(nsMsgDBCommitType::kLargeCommit);
   }
   return NS_OK;

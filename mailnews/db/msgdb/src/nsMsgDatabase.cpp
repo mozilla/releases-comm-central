@@ -1165,7 +1165,7 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
       // compare current version of db versus filed out version info.
       uint32_t version;
       m_dbFolderInfo->GetVersion(&version);
-      if (GetCurVersion() != version) {
+      if (version != kMsgDBVersion) {
         err = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
       }
 
@@ -1551,7 +1551,7 @@ nsresult nsMsgDatabase::InitNewDB() {
   if (NS_SUCCEEDED(err)) {
     nsDBFolderInfo* dbFolderInfo = new nsDBFolderInfo(this);
     err = dbFolderInfo->AddToNewMDB();
-    dbFolderInfo->SetVersion(GetCurVersion());
+    dbFolderInfo->SetVersion(kMsgDBVersion);
     dbFolderInfo->SetBooleanProperty("forceReparse", false);
     dbFolderInfo->SetBooleanProperty(kFixedBadRefThreadingProp, true);
 
@@ -3557,8 +3557,6 @@ nsresult nsMsgDatabase::SetNSStringPropertyWithToken(
   return err;
 }
 
-uint32_t nsMsgDatabase::GetCurVersion() { return kMsgDBVersion; }
-
 NS_IMETHODIMP nsMsgDatabase::SetSummaryValid(bool valid /* = true */) {
   // If the file was invalid when opened (for example in folder compact), then
   // it may
@@ -3570,7 +3568,7 @@ NS_IMETHODIMP nsMsgDatabase::SetSummaryValid(bool valid /* = true */) {
   }
   // setting the version to 0 ought to make it pretty invalid.
   if (m_dbFolderInfo) {
-    m_dbFolderInfo->SetVersion(valid ? GetCurVersion() : 0);
+    m_dbFolderInfo->SetVersion(valid ? kMsgDBVersion : 0);
   }
 
   // for default db (and news), there's no nothing to set to make it it valid

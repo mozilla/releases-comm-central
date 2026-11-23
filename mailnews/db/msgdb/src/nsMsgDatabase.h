@@ -31,8 +31,6 @@ class nsIMsgThread;
 class nsMsgDBEnumerator;
 class nsMsgDBThreadEnumerator;
 
-const int32_t kMsgDBVersion = 1;
-
 // Hopefully we're not opening up lots of databases at the same time, however
 // this will give us a buffer before we need to start reallocating the cache
 // array.
@@ -88,6 +86,16 @@ class nsMsgDatabase : public nsIMsgDatabase {
   NS_DECL_NSIMSGDATABASE
 
   /**
+   * This is the DB version currently supported by the code.
+   * It's the same for all database types (local, imap, news etc...).
+   * The database version is persisted in the nsIDBFolderInfo.version
+   * attribute.
+   * A database with a different version number to kMsgDBVersion cannot
+   * be opened, at least not without a migration step.
+   */
+  static constexpr uint32_t kMsgDBVersion = 1;
+
+  /**
    * Opens a database folder.
    *
    * @param aFolderName     The name of the folder to create.
@@ -129,7 +137,6 @@ class nsMsgDatabase : public nsIMsgDatabase {
   nsresult GetMDBFactory(nsIMdbFactory** aMdbFactory);
   nsIMdbEnv* GetEnv() { return m_mdbEnv; }
   nsIMdbStore* GetStore() { return m_mdbStore; }
-  virtual uint32_t GetCurVersion();
   nsresult GetCollationKeyGenerator();
   nsIMimeConverter* GetMimeConverter();
 

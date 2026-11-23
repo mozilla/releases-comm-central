@@ -22,7 +22,6 @@ class nsNewsDatabase : public nsMsgDatabase, public nsINewsDatabase {
   NS_IMETHOD Close(bool forceCommit) override;
   NS_IMETHOD ForceClosed() override;
   NS_IMETHOD Commit(nsMsgDBCommit commitType) override;
-  virtual uint32_t GetCurVersion() override;
 
   virtual nsresult MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
                                nsIDBChangeListener* instigator) override;

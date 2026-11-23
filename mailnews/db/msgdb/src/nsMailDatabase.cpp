@@ -68,7 +68,7 @@ NS_IMETHODIMP nsMailDatabase::DeleteMessages(
 NS_IMETHODIMP nsMailDatabase::GetSummaryValid(bool* aResult) {
   uint32_t version;
   m_dbFolderInfo->GetVersion(&version);
-  if (GetCurVersion() != version) {
+  if (version != kMsgDBVersion) {
     *aResult = false;
     return NS_OK;
   }

@@ -24,8 +24,6 @@ class nsMailDatabase : public nsMsgDatabase {
 
   virtual nsMailDatabase* GetMailDB() { return this; }
 
-  virtual uint32_t GetCurVersion() override { return kMsgDBVersion; }
-
   NS_IMETHOD GetOfflineOpForKey(nsMsgKey opKey, bool create,
                                 nsIMsgOfflineImapOperation** op) override;
   NS_IMETHOD RemoveOfflineOp(nsIMsgOfflineImapOperation* op) override;

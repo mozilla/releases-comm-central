@@ -59,8 +59,6 @@ nsresult nsNewsDatabase::Commit(nsMsgDBCommit commitType) {
   return nsMsgDatabase::Commit(commitType);
 }
 
-uint32_t nsNewsDatabase::GetCurVersion() { return kMsgDBVersion; }
-
 NS_IMETHODIMP nsNewsDatabase::GetReadSet(nsMsgKeySet** pSet) {
   if (!pSet) return NS_ERROR_NULL_POINTER;
   *pSet = m_readSet;

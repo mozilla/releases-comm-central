@@ -31,7 +31,6 @@ class nsAddrDatabase {
 
   nsresult GetMDBFactory(nsIMdbFactory** aMdbFactory);
   nsIMdbEnv* GetEnv() { return m_mdbEnv; }
-  uint32_t GetCurVersion();
   nsIMdbTableRowCursor* GetTableRowCursor();
   nsIMdbTable* GetPabTable() { return m_mdbPabTable; }
 
