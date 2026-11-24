@@ -480,8 +480,6 @@ interface nsIMsgIncomingServer : nsISupports {
   readonly attribute nsISpamSettings spamSettings;
   readonly attribute nsIMsgFilterPlugin spamFilterPlugin;
 
-  nsIMsgFolder getMsgFolderFromURI(in nsIMsgFolder aFolderResource, in AUTF8String aURI);
-
   /**
    * Return the folder matching this URI in the server's known folder tree,
    * or null if no match is known. Resolve protocol-specific URI differences,

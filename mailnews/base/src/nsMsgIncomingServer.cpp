@@ -1769,22 +1769,6 @@ nsMsgIncomingServer::GetFolderFromURI(const nsACString& uri,
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetMsgFolderFromURI(nsIMsgFolder* aFolderResource,
-                                         const nsACString& aURI,
-                                         nsIMsgFolder** aFolder) {
-  nsCOMPtr<nsIMsgFolder> rootMsgFolder;
-  nsresult rv = GetRootMsgFolder(getter_AddRefs(rootMsgFolder));
-  NS_ENSURE_TRUE(rootMsgFolder, NS_ERROR_UNEXPECTED);
-
-  nsCOMPtr<nsIMsgFolder> msgFolder;
-  rv = rootMsgFolder->GetChildWithURI(aURI, true, true /*caseInsensitive*/,
-                                      getter_AddRefs(msgFolder));
-  if (NS_FAILED(rv) || !msgFolder) msgFolder = aFolderResource;
-  NS_IF_ADDREF(*aFolder = msgFolder);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgIncomingServer::GetSpamSettings(nsISpamSettings** aSpamSettings) {
   NS_ENSURE_ARG_POINTER(aSpamSettings);
 

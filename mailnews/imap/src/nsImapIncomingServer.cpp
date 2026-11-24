@@ -461,16 +461,14 @@ nsImapIncomingServer::SetDeleteModel(int32_t ivalue) {
         CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(trashFolderName),
                          trashFolderNameUtf7or8);
       }
-      nsCOMPtr<nsIMsgFolder> trashFolder;
-      // 'trashFolderName' being a path here works well since this is appended
-      // to the server's root folder in GetFolder().
-      rv = GetFolder(trashFolderNameUtf7or8, getter_AddRefs(trashFolder));
+      nsCOMPtr<nsIMsgFolder> rootFolder;
+      rv = GetRootFolder(getter_AddRefs(rootFolder));
       NS_ENSURE_SUCCESS(rv, rv);
-      nsCString trashURI;
-      trashFolder->GetURI(trashURI);
+      nsAutoCString trashURI(rootFolder->URI());
+      trashURI.Append('/');
+      trashURI.Append(trashFolderNameUtf7or8);
       nsCOMPtr<nsIMsgFolder> trashMsgFolder;
-      rv = GetMsgFolderFromURI(trashFolder, trashURI,
-                               getter_AddRefs(trashMsgFolder));
+      rv = GetFolderFromURI(trashURI, getter_AddRefs(trashMsgFolder));
       if (NS_SUCCEEDED(rv) && trashMsgFolder) {
         // If the trash folder is used, set the flag, otherwise clear it.
         if (ivalue == nsMsgImapDeleteModels::MoveToTrash) {
@@ -2892,89 +2890,34 @@ nsImapIncomingServer::GetFolderFromURI(const nsACString& uri,
     return NS_OK;
   }
 
-  nsAutoCString mappedURI;
-  bool namespacePrefixAdded = false;
-  return GetExistingMsgFolder(uri, mappedURI, namespacePrefixAdded, false,
-                              folder);
-}
-
-NS_IMETHODIMP
-nsImapIncomingServer::GetMsgFolderFromURI(nsIMsgFolder* aFolderResource,
-                                          const nsACString& aURI,
-                                          nsIMsgFolder** aFolder) {
-  nsCOMPtr<nsIMsgFolder> msgFolder;
-  bool namespacePrefixAdded = false;
-  nsCString folderUriWithNamespace;
-
-  // clang-format off
-  // Check if the folder exists as is...
-  nsresult rv = GetExistingMsgFolder(aURI, folderUriWithNamespace,
-                                     namespacePrefixAdded, false,
-                                     getter_AddRefs(msgFolder));
-
-  // Or try again with a case-insensitive lookup
-  if (NS_FAILED(rv) || !msgFolder)
-    rv = GetExistingMsgFolder(aURI, folderUriWithNamespace,
-                              namespacePrefixAdded, true,
-                              getter_AddRefs(msgFolder));
-  // clang-format on
-
-  if (NS_FAILED(rv) || !msgFolder) {
-    // we didn't find the folder so we will have to create a new one.
-    if (namespacePrefixAdded) {
-      nsCOMPtr<nsIMsgFolder> folder;
-      rv = GetOrCreateFolder(folderUriWithNamespace, getter_AddRefs(folder));
-      NS_ENSURE_SUCCESS(rv, rv);
-      msgFolder = folder;
-    } else {
-      msgFolder = aFolderResource;
-    }
-  }
-
-  msgFolder.forget(aFolder);
-  return NS_OK;
-}
-
-nsresult nsImapIncomingServer::GetExistingMsgFolder(
-    const nsACString& aURI, nsACString& aFolderUriWithNamespace,
-    bool& aNamespacePrefixAdded, bool aCaseInsensitive,
-    nsIMsgFolder** aFolder) {
   nsCOMPtr<nsIMsgFolder> rootMsgFolder;
-  nsresult rv = GetRootMsgFolder(getter_AddRefs(rootMsgFolder));
+  rv = GetRootMsgFolder(getter_AddRefs(rootMsgFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  aNamespacePrefixAdded = false;
-  // Check if the folder exists as is...Even if we have a personal namespace,
-  // it might be in another namespace (e.g., shared) and this will catch that.
-  rv = rootMsgFolder->GetChildWithURI(aURI, true, aCaseInsensitive, aFolder);
-
-  // If we couldn't find the folder as is, check if we need to prepend the
-  // personal namespace
-  if (!*aFolder) {
-    nsCString lookupURI(aURI);
-    nsAutoCString inboxPrefix(rootMsgFolder->URI());
-    inboxPrefix.AppendLiteral("/INBOX");
-    if (StringBeginsWith(lookupURI, inboxPrefix,
-                         nsCaseInsensitiveCStringComparator) &&
-        (lookupURI.Length() == inboxPrefix.Length() ||
-         lookupURI[inboxPrefix.Length()] == '/')) {
-      lookupURI.Replace(0, inboxPrefix.Length(), inboxPrefix);
-      rv = rootMsgFolder->GetChildWithURI(lookupURI, true, aCaseInsensitive,
-                                          aFolder);
-      if (*aFolder) {
-        return rv;
-      }
-    }
-
-    GetUriWithNamespacePrefixIfNecessary(kPersonalNamespace, lookupURI,
-                                         aFolderUriWithNamespace);
-    if (!aFolderUriWithNamespace.IsEmpty()) {
-      aNamespacePrefixAdded = true;
-      rv = rootMsgFolder->GetChildWithURI(aFolderUriWithNamespace, true,
-                                          aCaseInsensitive, aFolder);
+  nsAutoCString lookupURI(uri);
+  nsAutoCString inboxPrefix(rootMsgFolder->URI());
+  inboxPrefix.AppendLiteral("/INBOX");
+  if (StringBeginsWith(lookupURI, inboxPrefix,
+                       nsCaseInsensitiveCStringComparator) &&
+      (lookupURI.Length() == inboxPrefix.Length() ||
+       lookupURI[inboxPrefix.Length()] == '/')) {
+    lookupURI.Replace(0, inboxPrefix.Length(), inboxPrefix);
+    rv = rootMsgFolder->GetChildWithURI(lookupURI, true, false, folder);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (*folder) {
+      return NS_OK;
     }
   }
-  return rv;
+
+  // An exact match can belong to another namespace, so only add the personal
+  // namespace after checking the URI as given.
+  nsAutoCString mappedURI;
+  GetUriWithNamespacePrefixIfNecessary(kPersonalNamespace, lookupURI,
+                                       mappedURI);
+  if (!mappedURI.IsEmpty()) {
+    return rootMsgFolder->GetChildWithURI(mappedURI, true, false, folder);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP

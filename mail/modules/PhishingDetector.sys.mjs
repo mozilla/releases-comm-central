@@ -52,7 +52,7 @@ export const PhishingDetector = new (class PhishingDetector {
     let folder;
     try {
       const server = MailServices.accounts.findServerByURI(url);
-      folder = server.getMsgFolderFromURI(null, url.spec);
+      folder = server.getFolderFromURI(url.spec);
     } catch (ex) {
       // findServerByURI can throw NS_ERROR_UNEXPECTED, especially if we are
       // opening an .eml file.

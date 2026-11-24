@@ -1060,14 +1060,6 @@ export class MsgIncomingServer {
       : rootFolder.getChildWithURI(uri, true, false);
   }
 
-  getMsgFolderFromURI(folder, uri) {
-    try {
-      return this.rootMsgFolder.getChildWithURI(uri, true, true) || folder;
-    } catch (e) {
-      return folder;
-    }
-  }
-
   isNewHdrDuplicate(newHdr) {
     // If the message has been partially downloaded, the message should not
     // be considered a duplicated message. See bug 714090.

@@ -57,9 +57,6 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   NS_IMETHOD GetServerRequiresPasswordForBiff(
       bool* aServerRequiresPasswordForBiff) override;
   NS_IMETHOD ForgetSessionPassword(bool modifyLogin) override;
-  NS_IMETHOD GetMsgFolderFromURI(nsIMsgFolder* aFolderResource,
-                                 const nsACString& aURI,
-                                 nsIMsgFolder** aFolder) override;
   NS_IMETHOD GetFolderFromURI(const nsACString& uri,
                               nsIMsgFolder** folder) override;
   NS_IMETHOD SetSocketType(int32_t aSocketType) override;
@@ -134,12 +131,6 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   nsCOMPtr<nsISubscribableServer> mInner;
   nsresult EnsureInner();
   nsresult ClearInner();
-
-  // Utility function for checking folder existence
-  nsresult GetExistingMsgFolder(const nsACString& aURI,
-                                nsACString& folderUriWithNamespace,
-                                bool& namespacePrefixAdded,
-                                bool caseInsensitive, nsIMsgFolder** aFolder);
 
   // Utility function to obtain the imap (short) path for a folder.
   static nsresult PathFromFolder(nsIMsgFolder* folder, nsACString& shortPath);
