@@ -18,4 +18,9 @@ ignore = [
   # libsqlite3-sys bundled SQLite <https://bugzilla.mozilla.org/show_bug.cgi?id=2090944>
   # we build with in_gecko and link third_party/sqlite3, not the bundled copy
   "RUSTSEC-2026-0459",
+  # ansi_term/atty via ksni build-dependency <https://bugzilla.mozilla.org/show_bug.cgi?id=2096715>
+  # build-time only, not shipped
+  "RUSTSEC-2021-0139",
+  "RUSTSEC-2024-0375",
+  "RUSTSEC-2021-0145",
 ]
