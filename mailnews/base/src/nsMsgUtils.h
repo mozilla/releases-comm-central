@@ -17,7 +17,6 @@ class nsIMsgFolder;
 class nsIMsgIncomingServer;
 class nsIMsgUserFeedbackListener;
 class nsIMsgMessageService;
-class nsIUrlListener;
 class nsIOutputStream;
 class nsIInputStream;
 class nsIMsgDatabase;
@@ -178,12 +177,9 @@ mozilla::Maybe<nsLiteralCString> StatusCodeToL10nId(nsresult aStatus);
 nsresult FormatStatusMessage(nsresult aStatus, const nsAString& aHost,
                              nsAString& aRetVal);
 
-/**
- * this needs a listener, because we might have to create the folder
- * on the server, and that is asynchronous
- */
-nsresult GetOrCreateJunkFolder(const nsACString& aURI,
-                               nsIUrlListener* aListener);
+// Set the Junk flag on the spam folder, creating it through its parent if
+// needed. Remote folder creation may finish asynchronously.
+nsresult GetOrCreateSpamFolder(const nsACString& uri);
 
 // Returns true if the nsIURI is a message under an RSS account
 nsresult IsRSSArticle(nsIURI* aMsgURI, bool* aIsRSSArticle);

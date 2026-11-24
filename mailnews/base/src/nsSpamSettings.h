@@ -10,18 +10,16 @@
 #include "nsString.h"
 #include "nsIOutputStream.h"
 #include "nsIMsgIncomingServer.h"
-#include "nsIUrlListener.h"
 #include "nsCOMArray.h"
 #include "nsIAbDirectory.h"
 #include "nsTArray.h"
 
-class nsSpamSettings : public nsISpamSettings, public nsIUrlListener {
+class nsSpamSettings : public nsISpamSettings {
  public:
   nsSpamSettings();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSISPAMSETTINGS
-  NS_DECL_NSIURLLISTENER
 
  private:
   virtual ~nsSpamSettings();
@@ -42,7 +40,7 @@ class nsSpamSettings : public nsISpamSettings, public nsIUrlListener {
   nsCString mActionTargetFolder;
   nsCString mWhiteListAbURI;
   // used to detect changes to the spam folder in ::initialize
-  nsCString mCurrentJunkFolderURI;
+  nsCString mCurrentSpamFolderURI;
 
   nsCString mServerFilterName;
   nsCOMPtr<nsIFile> mServerFilterFile;
@@ -60,8 +58,8 @@ class nsSpamSettings : public nsISpamSettings, public nsIUrlListener {
   nsTArray<nsCString> mEmails;
 
   // helper routine used by Initialize which unsets the junk flag on the
-  // previous junk folder for this account, and sets it on the new junk folder.
-  nsresult UpdateJunkFolderState();
+  // previous spam folder for this account, and sets it on the new spam folder.
+  nsresult UpdateSpamFolderState();
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSSPAMSETTINGS_H_

@@ -170,15 +170,15 @@ nsString nsMsgLocalMailFolder::GetLocalizedNameInternal() {
 ////////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP nsMsgLocalMailFolder::CreateLocalSubfolder(
-    const nsACString& aFolderName, nsIMsgFolder** aChild) {
+    const nsACString& folderName, uint32_t flags, nsIMsgFolder** child) {
   AUTO_PROFILER_LABEL("nsMsgLocalMailFolder::CreateLocalSubfolder", MAILNEWS);
-  NS_ENSURE_ARG_POINTER(aChild);
-  nsresult rv = CreateSubfolderInternal(aFolderName, aChild);
+  NS_ENSURE_ARG_POINTER(child);
+  nsresult rv = CreateSubfolderInternal(folderName, child, flags);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolderNotificationService> notifier =
       mozilla::components::FolderNotification::Service();
-  notifier->NotifyFolderAdded(*aChild);
+  notifier->NotifyFolderAdded(*child);
 
   return NS_OK;
 }
@@ -583,7 +583,7 @@ nsMsgLocalMailFolder::CreateSubfolderWithListener(const nsACString& folderName,
 }
 
 nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
-    const nsACString& folderName, nsIMsgFolder** aNewFolder) {
+    const nsACString& folderName, nsIMsgFolder** newFolder, uint32_t flags) {
   nsresult rv = CheckIfFolderExists(folderName, this);
   if (NS_FAILED(rv)) {
     return rv;
@@ -601,13 +601,20 @@ nsresult nsMsgLocalMailFolder::CreateSubfolderInternal(
   // NS_MSG_ERROR_INVALID_FOLDER_NAME and NS_MSG_FOLDER_EXISTS (which may
   // happen here due to localized folder name vs. name on disk) are reported
   // to the caller, which is responsible for telling the user.
-  rv = msgStore->CreateFolder(this, folderName, aNewFolder);
+  rv = msgStore->CreateFolder(this, folderName, newFolder);
 
   if (NS_SUCCEEDED(rv)) {
+    if (flags) {
+      uint32_t folderFlags;
+      rv = (*newFolder)->GetFlags(&folderFlags);
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = (*newFolder)->SetFlags(folderFlags | flags);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
     // We need to notify explicitly the flag change because it failed when we
     // did AddSubfolder()
-    (*aNewFolder)->OnFlagChange(mFlags);
-    NotifyFolderAdded(*aNewFolder);
+    (*newFolder)->OnFlagChange(mFlags);
+    NotifyFolderAdded(*newFolder);
   }
 
   return rv;
@@ -3022,16 +3029,10 @@ nsMsgLocalMailFolder::OnMessageClassified(const nsACString& aMsgURI,
               mSpamKeysToMove.AppendElement(msgKey);
               willMoveMessage = true;
             } else {
-              // XXX TODO
-              // JUNK MAIL RELATED
-              // the listener should do
-              // rv = folder->SetFlag(nsMsgFolderFlags::Junk);
-              // NS_ENSURE_SUCCESS(rv,rv);
-              // mSpamKeysToMove.AppendElement(msgKey);
-              // willMoveMessage = true;
-              rv =
-                  GetOrCreateJunkFolder(spamFolderURI, nullptr /* aListener */);
-              NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateJunkFolder failed");
+              // TODO: Queue this message for moving after the spam folder
+              // has been created.
+              rv = GetOrCreateSpamFolder(spamFolderURI);
+              NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateSpamFolder failed");
             }
           }
         }

@@ -50,7 +50,7 @@ nsSpamSettings::nsSpamSettings() {
 
 nsSpamSettings::~nsSpamSettings() {}
 
-NS_IMPL_ISUPPORTS(nsSpamSettings, nsISpamSettings, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsSpamSettings, nsISpamSettings)
 
 NS_IMETHODIMP
 nsSpamSettings::GetLevel(int32_t* aLevel) {
@@ -359,46 +359,35 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
     }
   }
 
-  return UpdateJunkFolderState();
+  return UpdateSpamFolderState();
 }
 
-nsresult nsSpamSettings::UpdateJunkFolderState() {
+nsresult nsSpamSettings::UpdateSpamFolderState() {
   nsresult rv;
 
-  // if the spam folder uri changed on us, we need to unset the junk flag
-  // on the old spam folder
-  nsCString newJunkFolderURI;
-  rv = GetSpamFolderURI(newJunkFolderURI);
+  nsCString newSpamFolderURI;
+  rv = GetSpamFolderURI(newSpamFolderURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!mCurrentJunkFolderURI.IsEmpty() &&
-      !mCurrentJunkFolderURI.Equals(newJunkFolderURI)) {
-    nsCOMPtr<nsIMsgFolder> oldJunkFolder;
-    rv = FindFolder(mCurrentJunkFolderURI, getter_AddRefs(oldJunkFolder));
+  if (!mCurrentSpamFolderURI.IsEmpty() &&
+      !mCurrentSpamFolderURI.Equals(newSpamFolderURI)) {
+    nsCOMPtr<nsIMsgFolder> oldSpamFolder;
+    rv = FindFolder(mCurrentSpamFolderURI, getter_AddRefs(oldSpamFolder));
     NS_ENSURE_SUCCESS(rv, rv);
-    if (oldJunkFolder) {
-      // remove the nsMsgFolderFlags::Junk on the old junk folder
-      // XXX TODO
-      // JUNK MAIL RELATED
-      // (in ClearFlag?) we need to make sure that this folder
-      // is not the junk folder for another account
-      // the same goes for set flag.  have fun with all that.
-      oldJunkFolder->ClearFlag(nsMsgFolderFlags::Junk);
+    if (oldSpamFolder) {
+      // TODO (bug 809428): Preserve the Junk flag if another account still uses
+      // this folder as its spam destination.
+      oldSpamFolder->ClearFlag(nsMsgFolderFlags::Junk);
     }
   }
 
-  mCurrentJunkFolderURI = newJunkFolderURI;
+  mCurrentSpamFolderURI = newSpamFolderURI;
 
-  // only try to create the junk folder if we are moving junk
-  // and we have a non-empty uri
-  if (mMoveOnSpam && !mCurrentJunkFolderURI.IsEmpty()) {
-    // as the url listener, the spam settings will set the
-    // nsMsgFolderFlags::Junk folder flag on the junk mail folder, after it is
-    // created
-    rv = GetOrCreateJunkFolder(mCurrentJunkFolderURI, this);
+  if (mMoveOnSpam && !mCurrentSpamFolderURI.IsEmpty()) {
+    return GetOrCreateSpamFolder(mCurrentSpamFolderURI);
   }
 
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::Clone(nsISpamSettings* aSpamSettings) {
@@ -456,13 +445,9 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(nsACString& aSpamFolderURI) {
   // if we didn't have one, bail out.
   if (folderURI.IsEmpty()) return NS_OK;
 
-  nsCOMPtr<nsIMsgFolder> folder;
-  rv = GetOrCreateFolder(folderURI, getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIMsgIncomingServer> server;
-  rv = folder->GetServer(getter_AddRefs(server));
-  if (NS_FAILED(rv)) {
+  rv = FindServerForFolderURI(folderURI, getter_AddRefs(server));
+  if (NS_FAILED(rv) || !server) {
     // Invalid server in the prefs. Reset the server and bail.
     SetActionTargetAccount(""_ns);
     return NS_OK;
@@ -470,19 +455,27 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(nsACString& aSpamFolderURI) {
 
   // see nsMsgFolder::GetLocalizedName() for where the localized name is set.
 
-  // Check for an existing junk folder - this will do a case-insensitive
-  // search by URI - if we find a junk folder, use its URI.
-  nsCOMPtr<nsIMsgFolder> junkFolder;
+  // Use the canonical URI if the spam folder already exists.
+  nsCOMPtr<nsIMsgFolder> spamFolder;
   folderURI.AppendLiteral("/Junk");
-  if (NS_SUCCEEDED(server->GetMsgFolderFromURI(nullptr, folderURI,
-                                               getter_AddRefs(junkFolder))) &&
-      junkFolder)
-    junkFolder->GetURI(folderURI);
+  if (NS_SUCCEEDED(
+          server->GetFolderFromURI(folderURI, getter_AddRefs(spamFolder))) &&
+      spamFolder) {
+    return spamFolder->GetURI(aSpamFolderURI);
+  }
 
-  // XXX todo
-  // better not to make base depend in imap
-  // but doing it here, like in nsMsgCopy.cpp
-  // one day, we'll fix this (and nsMsgCopy.cpp) to use GetMsgFolderFromURI()
+  // Account-default spam folders retain their legacy case-insensitive name
+  // matching. Explicit folder selections bypass this policy above.
+  nsCOMPtr<nsIMsgFolder> root;
+  rv = server->GetRootMsgFolder(getter_AddRefs(root));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = root->GetChildWithURI(folderURI, true, true, getter_AddRefs(spamFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (spamFolder) {
+    return spamFolder->GetURI(aSpamFolderURI);
+  }
+
+  // A missing folder still needs a destination URI for explicit creation.
   nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryInterface(server);
   if (imapServer) {
     // Make sure an specific IMAP folder has correct personal namespace
@@ -491,6 +484,12 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(nsACString& aSpamFolderURI) {
     (void)imapServer->GetUriWithNamespacePrefixIfNecessary(
         kPersonalNamespace, folderURI, folderUriWithNamespace);
     if (!folderUriWithNamespace.IsEmpty()) folderURI = folderUriWithNamespace;
+  }
+
+  rv = root->GetChildWithURI(folderURI, true, true, getter_AddRefs(spamFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (spamFolder) {
+    return spamFolder->GetURI(aSpamFolderURI);
   }
 
   aSpamFolderURI = folderURI;
@@ -679,30 +678,6 @@ NS_IMETHODIMP nsSpamSettings::LogJunkString(const char* string) {
   NS_ASSERTION(writeCount == LOG_ENTRY_END_TAG_LEN,
                "failed to write out end log tag");
   return NS_OK;
-}
-
-NS_IMETHODIMP nsSpamSettings::OnStartRunningUrl(nsIURI* aURL) {
-  // do nothing
-  // all the action happens in OnStopRunningUrl()
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsSpamSettings::OnStopRunningUrl(nsIURI* aURL,
-                                               nsresult exitCode) {
-  nsCString junkFolderURI;
-  nsresult rv = GetSpamFolderURI(junkFolderURI);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (junkFolderURI.IsEmpty()) return NS_ERROR_UNEXPECTED;
-
-  // when we get here, the folder should exist.
-  nsCOMPtr<nsIMsgFolder> junkFolder;
-  rv = GetExistingFolder(junkFolderURI, getter_AddRefs(junkFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = junkFolder->SetFlag(nsMsgFolderFlags::Junk);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return rv;
 }
 
 NS_IMETHODIMP nsSpamSettings::CheckWhiteList(nsIMsgDBHdr* aMsgHdr,

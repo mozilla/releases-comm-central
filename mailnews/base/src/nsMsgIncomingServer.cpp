@@ -408,7 +408,7 @@ nsresult nsMsgIncomingServer::CreateLocalFolder(const nsACString& folderName,
   nsCOMPtr<nsIMsgLocalMailFolder> localRootFolder =
       do_QueryInterface(rootFolder);
   NS_ENSURE_TRUE(localRootFolder, NS_ERROR_FAILURE);
-  return localRootFolder->CreateLocalSubfolder(folderName,
+  return localRootFolder->CreateLocalSubfolder(folderName, flag,
                                                getter_AddRefs(child));
 }
 

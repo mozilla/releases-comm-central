@@ -181,6 +181,9 @@ tags = ["virtualfolders"]
 
 ["test_saveAs.js"]
 
+["test_spamFolder.js"]
+tags = ["spam"]
+
 ["test_subscribableServer.js"]
 
 ["test_testsuite_base64.js"]

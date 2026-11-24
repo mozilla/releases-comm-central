@@ -1774,16 +1774,10 @@ NS_IMETHODIMP ExchangeFolder::OnMessageClassified(
               mSpamKeysToMove.AppendElement(msgKey);
               willMoveMessage = true;
             } else {
-              // XXX TODO
-              // JUNK MAIL RELATED
-              // the listener should do
-              // rv = folder->SetFlag(nsMsgFolderFlags::Junk);
-              // NS_ENSURE_SUCCESS(rv,rv);
-              // mSpamKeysToMove.AppendElement(msgKey);
-              // willMoveMessage = true;
-              rv =
-                  GetOrCreateJunkFolder(spamFolderURI, nullptr /* aListener */);
-              NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateJunkFolder failed");
+              // TODO: Queue this message for moving after the spam folder
+              // has been created.
+              rv = GetOrCreateSpamFolder(spamFolderURI);
+              NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateSpamFolder failed");
             }
           }
         }

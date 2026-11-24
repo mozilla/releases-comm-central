@@ -29,11 +29,12 @@
 #include "nsIRssIncomingServer.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgIncomingServer.h"
+#include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgAccountManager.h"
+#include "nsIUrlListener.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgUserFeedbackListener.h"
 #include "nsIStringBundle.h"
-#include "nsIMsgProtocolInfo.h"
 #include "nsIMsgMessageService.h"
 #include "nsIOutputStream.h"
 #include "nsIFileURL.h"
@@ -833,84 +834,63 @@ nsresult FormatStatusMessage(nsresult aStatus, const nsAString& aHost,
   return NS_OK;
 }
 
-// Warning, currently this routine only works for the Junk Folder
-nsresult GetOrCreateJunkFolder(const nsACString& aURI,
-                               nsIUrlListener* aListener) {
-  nsresult rv;
+class SpamFolderCreator final : public nsIUrlListener {
+ public:
+  NS_DECL_ISUPPORTS
 
-  nsCOMPtr<nsIMsgFolder> folder;
-  rv = GetOrCreateFolder(aURI, getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
+  SpamFolderCreator(nsIMsgIncomingServer* server, const nsACString& uri)
+      : mServer(server), mURI(uri) {}
 
-  // don't check validity of folder - caller will handle creating it
-  nsCOMPtr<nsIMsgIncomingServer> server;
-  // make sure that folder hierarchy is built so that legitimate parent-child
-  // relationship is established
-  rv = folder->GetServer(getter_AddRefs(server));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!server) return NS_ERROR_UNEXPECTED;
+  NS_IMETHOD OnStartRunningUrl(nsIURI* url) override { return NS_OK; }
 
-  nsCOMPtr<nsIMsgFolder> msgFolder;
-  rv = server->GetMsgFolderFromURI(folder, aURI, getter_AddRefs(msgFolder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMsgFolder> parent;
-  rv = msgFolder->GetParent(getter_AddRefs(parent));
-  if (NS_FAILED(rv) || !parent) {
-    nsCOMPtr<nsIFile> folderPath;
-    // for local folders, path is to the berkeley mailbox.
-    // for imap folders, path needs to have .msf appended to the name
-    msgFolder->GetFilePath(getter_AddRefs(folderPath));
-
-    nsCOMPtr<nsIMsgProtocolInfo> protocolInfo;
-    rv = server->GetProtocolInfo(getter_AddRefs(protocolInfo));
+  NS_IMETHOD OnStopRunningUrl(nsIURI* url, nsresult status) override {
+    NS_ENSURE_SUCCESS(status, status);
+    nsCOMPtr<nsIMsgFolder> folder;
+    nsresult rv = mServer->GetFolderFromURI(mURI, getter_AddRefs(folder));
     NS_ENSURE_SUCCESS(rv, rv);
-
-    bool isAsyncFolder;
-    rv = protocolInfo->GetFoldersCreatedAsync(&isAsyncFolder);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // if we can't get the path from the folder, then try to create the storage.
-    // for imap, it doesn't matter if the .msf file exists - it still might not
-    // exist on the server, so we should try to create it
-    bool exists = false;
-    if (!isAsyncFolder && folderPath) folderPath->Exists(&exists);
-    if (!exists) {
-      msgFolder->SetName("Junk"_ns);
-      msgFolder->SetFlag(nsMsgFolderFlags::Junk);
-      rv = msgFolder->CreateStorageIfMissing(aListener);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      // XXX TODO
-      // JUNK MAIL RELATED
-      // ugh, I hate this hack
-      // we have to do this (for now)
-      // because imap and local are different (one creates folder asynch, the
-      // other synch) one will notify the listener, one will not. I blame
-      // nsMsgCopy. we should look into making it so no matter what the folder
-      // type we always call the listener this code should move into local
-      // folder's version of CreateStorageIfMissing()
-      if (!isAsyncFolder && aListener) {
-        rv = aListener->OnStartRunningUrl(nullptr);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        rv = aListener->OnStopRunningUrl(nullptr, NS_OK);
-        NS_ENSURE_SUCCESS(rv, rv);
-      }
-    }
-  } else {
-    // if the folder exists, we should set the junk flag on it
-    // which is what the listener will do
-    if (aListener) {
-      rv = aListener->OnStartRunningUrl(nullptr);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      rv = aListener->OnStopRunningUrl(nullptr, NS_OK);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
+    NS_ENSURE_TRUE(folder, NS_MSG_ERROR_FOLDER_MISSING);
+    return folder->SetFlag(nsMsgFolderFlags::Junk);
   }
 
-  return NS_OK;
+ private:
+  ~SpamFolderCreator() = default;
+
+  nsCOMPtr<nsIMsgIncomingServer> mServer;
+  nsCString mURI;
+};
+NS_IMPL_ISUPPORTS(SpamFolderCreator, nsIUrlListener)
+
+nsresult GetOrCreateSpamFolder(const nsACString& uri) {
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = FindServerForFolderURI(uri, getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(server, NS_ERROR_UNEXPECTED);
+
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = server->GetFolderFromURI(uri, getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (folder) {
+    return folder->SetFlag(nsMsgFolderFlags::Junk);
+  }
+
+  int32_t leafPos = uri.RFindChar('/');
+  NS_ENSURE_TRUE(leafPos != kNotFound, NS_ERROR_INVALID_ARG);
+  nsCOMPtr<nsIMsgFolder> parent;
+  rv = server->GetFolderFromURI(Substring(uri, 0, leafPos),
+                                getter_AddRefs(parent));
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(parent, NS_MSG_ERROR_FOLDER_MISSING);
+
+  nsAutoCString name;
+  rv = MsgUnescapeString(Substring(uri, leafPos + 1), 0, name);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgLocalMailFolder> localParent = do_QueryInterface(parent);
+  if (localParent) {
+    return localParent->CreateLocalSubfolder(name, nsMsgFolderFlags::Junk,
+                                             getter_AddRefs(folder));
+  }
+  RefPtr<SpamFolderCreator> creator = new SpamFolderCreator(server, uri);
+  return parent->CreateSubfolderWithListener(name, creator);
 }
 
 nsresult IsRSSArticle(nsIURI* aMsgURI, bool* aIsRSSArticle) {

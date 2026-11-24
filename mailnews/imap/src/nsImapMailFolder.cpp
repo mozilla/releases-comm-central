@@ -8522,18 +8522,10 @@ nsImapMailFolder::OnMessageClassified(const nsACString& aMsgURI,
                 mSpamKeysToMove.AppendElement(msgKey);
                 willMoveMessage = true;
               } else {
-                // XXX TODO
-                // JUNK MAIL RELATED
-                // the listener should do
-                // rv = folder->SetFlag(nsMsgFolderFlags::Junk);
-                // NS_ENSURE_SUCCESS(rv,rv);
-                // if (NS_SUCCEEDED(GetMoveCoalescer())) {
-                //   m_moveCoalescer->AddMove(folder, msgKey);
-                //   willMoveMessage = true;
-                // }
-                rv = GetOrCreateJunkFolder(spamFolderURI,
-                                           nullptr /* aListener */);
-                NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateJunkFolder failed");
+                // TODO: Queue this message for moving after the spam folder
+                // has been created.
+                rv = GetOrCreateSpamFolder(spamFolderURI);
+                NS_ASSERTION(NS_SUCCEEDED(rv), "GetOrCreateSpamFolder failed");
               }
             }
           }

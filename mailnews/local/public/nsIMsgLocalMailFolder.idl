@@ -85,10 +85,12 @@ interface nsIMsgLocalMailFolder : nsISupports {
 
   /**
    * Creates a subfolder to the current folder with the passed in folder name.
-   * @param aFolderName name of the folder to create.
+   * @param folderName name of the folder to create.
+   * @param flags initial folder flags, set before folder-added notifications.
    * @return newly created folder.
    */
-  nsIMsgFolder createLocalSubfolder(in AUTF8String aFolderName);
+  nsIMsgFolder createLocalSubfolder(in AUTF8String folderName,
+                                   [optional] in unsigned long flags);
 
   /**
    * Adds a message to the end of the folder, parsing it as it goes, and

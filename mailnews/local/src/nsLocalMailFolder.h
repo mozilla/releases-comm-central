@@ -192,7 +192,8 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
   // CreateSubfolder, but without the nsIMsgFolderListener notification
   nsresult CreateSubfolderInternal(const nsACString& folderName,
-                                   nsIMsgFolder** aNewFolder);
+                                   nsIMsgFolder** newFolder,
+                                   uint32_t flags = 0);
 
   nsresult IsChildOfTrash(bool* result);
   nsresult RecursiveSetDeleteIsMoveTrash(bool bVal);
