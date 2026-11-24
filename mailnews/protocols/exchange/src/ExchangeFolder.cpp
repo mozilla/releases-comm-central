@@ -1118,25 +1118,16 @@ NS_IMETHODIMP ExchangeFolder::DeleteMessages(
       RefPtr<intl::Localization> l10n = intl::Localization::Create(
           {"messenger/activityFeedback.ftl"_ns}, true);
 
-      auto l10nArgs = dom::Optional<intl::L10nArgs>();
-      l10nArgs.Construct();
-
       nsCString folderName;
       rv = self->GetLocalizedName(folderName);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      auto numberArg = l10nArgs.Value().Entries().AppendElement();
-      numberArg->mKey = "number"_ns;
-      numberArg->mValue.SetValue().SetAsUTF8String().Assign(
-          nsPrintfCString("%zu", headers.Length()));
-
-      auto folderArg = l10nArgs.Value().Entries().AppendElement();
-      folderArg->mKey = "folderName"_ns;
-      folderArg->mValue.SetValue().SetAsUTF8String().Assign(folderName);
-
       ErrorResult error;
       nsCString message;
-      l10n->FormatValueSync("deleting-message"_ns, l10nArgs, message, error);
+      l10n->FormatValueSync(
+          "deleting-message"_ns,
+          {{"number"_ns, headers.Length()}, {"folderName"_ns, folderName}},
+          message, error);
 
       // Show the formatted message in the status bar.
       nsCOMPtr<nsIFeedbackService> feedback =
@@ -1458,20 +1449,13 @@ nsresult ExchangeFolder::SyncMessages(nsIUrlListener* urlListener) {
     RefPtr<intl::Localization> l10n =
         intl::Localization::Create({"messenger/activityFeedback.ftl"_ns}, true);
 
-    auto l10nArgs = dom::Optional<intl::L10nArgs>();
-    l10nArgs.Construct();
-
     nsCString folderName;
     nsresult rv = self->GetLocalizedName(folderName);
     if (NS_SUCCEEDED(rv)) {
-      auto idArg = l10nArgs.Value().Entries().AppendElement();
-      idArg->mKey = "folderName"_ns;
-      idArg->mValue.SetValue().SetAsUTF8String().Assign(folderName);
-
       ErrorResult error;
       nsCString message;
-      l10n->FormatValueSync("looking-for-messages-folder"_ns, l10nArgs, message,
-                            error);
+      l10n->FormatValueSync("looking-for-messages-folder"_ns,
+                            {{"folderName"_ns, folderName}}, message, error);
 
       nsCOMPtr<nsIFeedbackService> feedback =
           mozilla::components::Feedback::Service();

@@ -408,21 +408,14 @@ nsresult ExchangeIncomingServer::SyncFolderList(
   RefPtr<intl::Localization> l10n =
       intl::Localization::Create({"messenger/activityFeedback.ftl"_ns}, true);
 
-  auto l10nArgs = dom::Optional<intl::L10nArgs>();
-  l10nArgs.Construct();
-
   nsCString accountName;
   rv = GetPrettyName(accountName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  auto idArg = l10nArgs.Value().Entries().AppendElement();
-  idArg->mKey = "accountName"_ns;
-  idArg->mValue.SetValue().SetAsUTF8String().Assign(accountName);
-
   ErrorResult error;
   nsCString message;
-  l10n->FormatValueSync("looking-for-messages-account"_ns, l10nArgs, message,
-                        error);
+  l10n->FormatValueSync("looking-for-messages-account"_ns,
+                        {{"accountName"_ns, accountName}}, message, error);
 
   // Show the message in the status bar.
   nsCOMPtr<nsIFeedbackService> feedback =

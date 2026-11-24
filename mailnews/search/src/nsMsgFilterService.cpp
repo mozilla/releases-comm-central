@@ -1403,25 +1403,16 @@ void nsMsgFilterAfterTheFact::LogCopyFailure(nsIMsgRuleAction* action,
   RefPtr<mozilla::intl::Localization> l10n =
       mozilla::intl::Localization::Create({"messenger/filterEditor.ftl"_ns},
                                           true);
-  auto args = dom::Optional<intl::L10nArgs>();
-  args.Construct();
-  for (const auto& [key, value] : nsTArray<std::pair<nsCString, nsCString>>{
-           {"folder"_ns, folderUri},
-           {"errorCode"_ns, errorCode},
-           {"messageIds"_ns, nsCString(messageIds)}}) {
-    auto arg = args.Value().Entries().AppendElement();
-    arg->mKey = key;
-    arg->mValue.SetValue().SetAsUTF8String().Assign(value);
-  }
-  auto countArg = args.Value().Entries().AppendElement();
-  countArg->mKey = "count";
-  countArg->mValue.SetValue().SetAsDouble() = omittedMessageCount;
   nsCString message;
   ErrorResult error;
   l10n->FormatValueSync(type == nsMsgFilterAction::MoveToFolder
                             ? "filter-move-batch-failed"_ns
                             : "filter-copy-batch-failed"_ns,
-                        args, message, error);
+                        {{"folder"_ns, folderUri},
+                         {"errorCode"_ns, errorCode},
+                         {"messageIds"_ns, messageIds},
+                         {"count"_ns, omittedMessageCount}},
+                        message, error);
   if (error.Failed()) {
     error.SuppressException();
     return;

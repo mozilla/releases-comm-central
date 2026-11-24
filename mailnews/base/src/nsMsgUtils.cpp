@@ -783,14 +783,6 @@ nsresult FormatStatusMessage(nsresult aStatus, const nsAString& aHost,
 
   nsAutoCString RetVal;
   ErrorResult rv;
-  auto l10nArgs = dom::Optional<intl::L10nArgs>();
-  l10nArgs.Construct();
-
-  auto dirArg = l10nArgs.Value().Entries().AppendElement();
-  dirArg->mKey = "host";
-  dirArg->mValue.SetValue().SetAsUTF8String().Assign(
-      NS_ConvertUTF16toUTF8(aHost));
-
   nsTArray<nsCString> resIds = {
       "netwerk/necko.ftl"_ns,
   };
@@ -798,7 +790,7 @@ nsresult FormatStatusMessage(nsresult aStatus, const nsAString& aHost,
       mozilla::intl::Localization::Create(resIds, true);
   MOZ_RELEASE_ASSERT(l10n);
 
-  l10n->FormatValueSync(*l10nId, l10nArgs, RetVal, rv);
+  l10n->FormatValueSync(*l10nId, {{"host"_ns, aHost}}, RetVal, rv);
   aRetVal = NS_ConvertUTF8toUTF16(RetVal);
   if (rv.Failed()) {
     return rv.StealNSResult();
@@ -1767,13 +1759,9 @@ nsresult LocalizeMessage(mozilla::intl::Localization* l10n,
                          nsACString const& id,
                          nsTArray<std::pair<nsCString, nsCString>> const& args,
                          nsACString& message) {
-  auto l10nArgs = dom::Optional<intl::L10nArgs>();
-  l10nArgs.Construct();
-
+  nsTArray<intl::FluentArg> l10nArgs(args.Length());
   for (auto&& [key, value] : args) {
-    auto idArg = l10nArgs.Value().Entries().AppendElement();
-    idArg->mKey = key;
-    idArg->mValue.SetValue().SetAsUTF8String().Assign(value);
+    l10nArgs.AppendElement(intl::FluentArg(key, value));
   }
 
   ErrorResult error;
