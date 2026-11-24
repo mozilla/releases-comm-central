@@ -15,6 +15,8 @@
         <html:link rel="localization" href="messenger/smime/smime.ftl"/>
       </linkset>
 
+      <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+
       <vbox flex="1">
         <html:p class="intro-paragraph">&e2eEnc.description;</html:p>
         <html:p class="intro-paragraph"
@@ -203,7 +205,11 @@
 
       <html:div>
       <html:fieldset>
-        <radiogroup id="encryptionChoices" class="indent" hidden="hidden">
+        <description id="encryptionAutoControlled"
+                     data-l10n-id="account-settings-encryption-auto-controlled">
+          <a data-l10n-name="e2e-settings-link" onclick="openGlobalEncryptionPreferences();"></a>
+        </description>
+        <radiogroup id="encryptionChoices" class="indent">
           <radio id="disable_encryption" wsm_persist="true" value="0"
                  data-l10n-id="account-settings-encryption-default-off"/>
           <radio id="enable_encryption" wsm_persist="true" value="2"

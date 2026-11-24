@@ -1728,3 +1728,7 @@ qr-code-wizard {
 .hidden-via-pref {
   display: none !important;
 }
+
+#encryptionAutoControlled a {
+  display: inline;
+}

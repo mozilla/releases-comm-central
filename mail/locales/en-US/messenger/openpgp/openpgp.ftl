@@ -58,6 +58,7 @@ account-settings-encryption-default-on =
     .label = Encrypt new messages by default
     .accesskey = n
 account-settings-encryption-default-description = Encryption can be turned off for individual messages while writing emails.
+account-settings-encryption-auto-controlled = Automatic use of encryption is currently managed in <a data-l10n-name="e2e-settings-link">Email end-to-end encryption settings</a>.
 
 account-settings-sign-unencrypted-heading = Digitally sign unencrypted messages
 account-settings-sign-unencrypted =

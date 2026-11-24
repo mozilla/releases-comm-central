@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
+/* import-globals-from ../../../mailnews/base/prefs/content/amUtils.js */
 /* global gAccount * / // From mailnews/base/prefs/content/am-identity-edit.js
 /* global EnigRevokeKey */
 
@@ -85,18 +86,14 @@ var autoEncryptPrefObserver = {
         prefName == "mail.e2ee.auto_enable" ||
         prefName == "mail.e2ee.auto_disable"
       ) {
-        updateAutoEncryptRelated();
+        reloadOpenPgpUI();
       }
     }
   },
 };
 
-function updateAutoEncryptRelated() {
-  if (Services.prefs.getBoolPref("mail.e2ee.auto_enable")) {
-    document.getElementById("encryptionChoices").hidden = true;
-  } else {
-    document.getElementById("encryptionChoices").hidden = false;
-  }
+function openGlobalEncryptionPreferences() {
+  openPrefsFromAccountManager("panePrivacy", "emailE2eeGroupAutomatism");
 }
 
 async function initE2EEncryption(identity) {
@@ -168,8 +165,6 @@ async function initE2EEncryption(identity) {
     enableSig = enableSig || !!gKeyId;
     enableSigningControls(enableSig);
   }
-
-  updateAutoEncryptRelated();
 
   // Always start with enabling select buttons.
   // This will keep the visibility of buttons in a sane state as user
@@ -900,8 +895,15 @@ async function smimeTestCert(id) {
 }
 
 function enableEncryptionControls(do_enable) {
-  gDisableEncryption.disabled = !do_enable;
-  gEnableEncryption.disabled = !do_enable;
+  const globalAutoEnable = Services.prefs.getBoolPref(
+    "mail.e2ee.auto_enable",
+    false
+  );
+  document.getElementById("encryptionAutoControlled").hidden =
+    !globalAutoEnable;
+
+  gDisableEncryption.disabled = !do_enable || globalAutoEnable;
+  gEnableEncryption.disabled = !do_enable || globalAutoEnable;
   if (!do_enable) {
     gEncryptionChoices.value = 0;
   }
