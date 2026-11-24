@@ -1884,17 +1884,11 @@ export async function assert_selected_and_displayed(...aArgs) {
  * @param {nsIMsgDBHdr[]} aMsgHdrs - A list of message headers.
  */
 export async function archive_messages(aMsgHdrs) {
-  plan_to_wait_for_folder_events(
-    "DeleteOrMoveMsgCompleted",
-    "DeleteOrMoveMsgFailed"
-  );
-
   const { MessageArchiver } = ChromeUtils.importESModule(
     "resource:///modules/MessageArchiver.sys.mjs"
   );
   const batchMover = new MessageArchiver();
-  batchMover.archiveMessages(aMsgHdrs);
-  await wait_for_folder_events();
+  await batchMover.archiveMessages(aMsgHdrs);
 }
 
 /**

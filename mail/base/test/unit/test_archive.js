@@ -12,6 +12,9 @@ const { MailServices } = ChromeUtils.importESModule(
 const { MessageArchiver } = ChromeUtils.importESModule(
   "resource:///modules/MessageArchiver.sys.mjs"
 );
+const { MailUtils } = ChromeUtils.importESModule(
+  "resource:///modules/MailUtils.sys.mjs"
+);
 
 const { MessageGenerator } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/MessageGenerator.sys.mjs"
@@ -35,6 +38,131 @@ const synMessage3 = generator.makeMessage({
 });
 const synMessage4 = generator.makeMessage({
   date: new Date(2024, 1, 29, 9, 15),
+});
+
+add_task(async function testSetupFailureUnlocksArchiver() {
+  const originalGetIdentityForHeader = MailUtils.getIdentityForHeader;
+  MailUtils.getIdentityForHeader = () => [
+    {
+      archiveEnabled: true,
+      async getOrCreateArchivesFolderAsync() {
+        throw Components.Exception(
+          "The configured Archives folder is missing",
+          Cr.NS_MSG_ERROR_FOLDER_MISSING
+        );
+      },
+    },
+  ];
+
+  const message = {
+    date: Date.now() * 1000,
+    folder: { server: { type: "none" } },
+  };
+  try {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      await Assert.rejects(
+        new MessageArchiver().archiveMessages([message]),
+        error => error.result == Cr.NS_MSG_ERROR_FOLDER_MISSING,
+        `archive attempt ${attempt} should report the missing folder`
+      );
+    }
+  } finally {
+    MailUtils.getIdentityForHeader = originalGetIdentityForHeader;
+  }
+});
+
+add_task(async function test_archiveCompletionAndFailures() {
+  const originalGetIdentityForHeader = MailUtils.getIdentityForHeader;
+  const originalFilters = MailServices.filters;
+  const originalCopy = MailServices.copy;
+  const destination = { canCreateSubfolders: false };
+  const identity = {
+    archiveEnabled: true,
+    archiveGranularity: Ci.nsIMsgIdentity.singleArchiveFolder,
+    archiveKeepFolderStructure: false,
+    archiveRecreateInbox: false,
+    async getOrCreateArchivesFolderAsync() {
+      return destination;
+    },
+  };
+  const message = {
+    date: Date.now() * 1000,
+    messageKey: 1,
+    folder: {
+      URI: "mailbox://source",
+      server: { type: "none" },
+      msgDatabase: { containsKey: () => true },
+      getProcessingFlags: () => 0,
+      canDeleteMessages: true,
+    },
+  };
+  let copyStarted = Promise.withResolvers();
+  let copyListener;
+  let archivePromise;
+  MailUtils.getIdentityForHeader = () => [identity];
+  MailServices.filters = {
+    applyFilters(_type, _messages, _filters, _folder, _interactive, listener) {
+      listener.onStopOperation(Cr.NS_OK);
+    },
+  };
+  MailServices.copy = {
+    copyMessages(_source, _messages, _destination, _isMove, listener) {
+      copyListener = listener;
+      copyStarted.resolve();
+    },
+  };
+
+  try {
+    const archiver = new MessageArchiver();
+    let hasFinished = false;
+    archivePromise = archiver.archiveMessages([message]);
+    archivePromise.then(
+      () => (hasFinished = true),
+      () => (hasFinished = true)
+    );
+    await copyStarted.promise;
+    await TestUtils.waitForTick();
+    Assert.ok(!hasFinished, "archiving should wait for copying to finish");
+
+    await new MessageArchiver().archiveMessages([]);
+    await Assert.rejects(
+      new MessageArchiver().archiveMessages([message]),
+      /Can only have one MessageArchiver/,
+      "empty input should preserve the running operation's archive lock"
+    );
+    copyListener.onStopCopy(Cr.NS_ERROR_FAILURE);
+    await Assert.rejects(
+      archivePromise,
+      e => e.result == Cr.NS_ERROR_FAILURE,
+      "archiving should reject when copying fails"
+    );
+
+    copyStarted = Promise.withResolvers();
+    archivePromise = archiver.archiveMessages([message]);
+    await copyStarted.promise;
+    copyListener.onStopCopy(Cr.NS_OK);
+    await archivePromise;
+
+    identity.archiveGranularity = Ci.nsIMsgIdentity.perYearArchiveFolders;
+    destination.canCreateSubfolders = true;
+    destination.server = {};
+    destination.containsChildNamed = () => false;
+    destination.createSubfolderAsync = async () => {
+      throw Components.Exception("Folder creation failed", Cr.NS_ERROR_FAILURE);
+    };
+    await Assert.rejects(
+      archiver.archiveMessages([message]),
+      e => e.result == Cr.NS_ERROR_FAILURE,
+      "archiving should reject when creating a date folder fails"
+    );
+    await archiver.archiveMessages([]);
+  } finally {
+    copyListener?.onStopCopy(Cr.NS_ERROR_ABORT);
+    await archivePromise?.catch(() => {});
+    MailUtils.getIdentityForHeader = originalGetIdentityForHeader;
+    MailServices.filters = originalFilters;
+    MailServices.copy = originalCopy;
+  }
 });
 
 add_task(async function testLocal() {
@@ -99,11 +227,8 @@ async function subtest(account) {
   account.defaultIdentity.archiveGranularity =
     Ci.nsIMsgIdentity.perYearArchiveFolders;
 
-  let deferred = Promise.withResolvers();
-  let archiver = new MessageArchiver();
-  archiver.oncomplete = deferred.resolve;
-  archiver.archiveMessages([message1]);
-  await deferred.promise;
+  const archiver = new MessageArchiver();
+  await archiver.archiveMessages([message1]);
   Assert.equal(sourceFolder1.getTotalMessages(false), 2);
 
   const archivesFolder = rootFolder.getChildNamed("Archives");
@@ -118,11 +243,7 @@ async function subtest(account) {
   account.defaultIdentity.archiveGranularity =
     Ci.nsIMsgIdentity.perMonthArchiveFolders;
 
-  deferred = Promise.withResolvers();
-  archiver = new MessageArchiver();
-  archiver.oncomplete = deferred.resolve;
-  archiver.archiveMessages([message2, message3]);
-  await deferred.promise;
+  await archiver.archiveMessages([message2, message3]);
   Assert.equal(sourceFolder1.getTotalMessages(false), 0);
 
   Assert.deepEqual(archivesFolder.subFolders.map(f => f.name).toSorted(), [
@@ -167,11 +288,8 @@ async function subtestInboxStructure(account, imapServer) {
   account.defaultIdentity.archiveKeepFolderStructure = true;
   account.defaultIdentity.archiveRecreateInbox = true;
 
-  const deferred = Promise.withResolvers();
   const archiver = new MessageArchiver();
-  archiver.oncomplete = deferred.resolve;
-  archiver.archiveMessages([...inboxFolder.messages]);
-  await deferred.promise;
+  await archiver.archiveMessages([...inboxFolder.messages]);
 
   const archivesFolder = rootFolder.getChildNamed("Archives");
   const archivedInboxFolder = archivesFolder.getChildNamed(

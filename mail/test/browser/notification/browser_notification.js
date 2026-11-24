@@ -927,6 +927,77 @@ add_task(async function test_archive_action() {
 });
 
 /**
+ * A notification archive action should report a missing destination and leave
+ * the message available for a later attempt.
+ */
+add_task(async function test_archiveActionMissingDestination() {
+  setupTest();
+  const { MailUtils } = ChromeUtils.importESModule(
+    "resource:///modules/MailUtils.sys.mjs"
+  );
+  await SpecialPowers.pushPrefEnv({
+    set: [["mail.biff.alert.enabled_actions", "archive"]],
+  });
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  await MockAlertsService.promiseShown();
+  const message = [...gFolder.messages].at(-1);
+  const [identity] = MailUtils.getIdentityForHeader(message);
+  const missingURI = `${gFolder.rootFolder.URI}/MissingNotificationArchives`;
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      [`mail.identity.${identity.key}.archive_folder`, missingURI],
+      [`mail.identity.${identity.key}.archives_folder_picker_mode`, "1"],
+    ],
+  });
+  const count = gFolder.getTotalMessages(false);
+  const originalPrompt = Services.prompt;
+  const alerted = Promise.withResolvers();
+  Services.prompt = {
+    QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
+    alert(parent, title, text) {
+      alerted.resolve({ parent, title, text });
+    },
+  };
+  try {
+    await MockAlertsService.clickAlert("archive");
+    const alert = await alerted.promise;
+    const [title, text] = await document.l10n.formatValues([
+      "archive-message-error-title",
+      "archive-folder-missing",
+    ]);
+    Assert.equal(
+      alert.parent,
+      null,
+      "the notification error should not require a message window"
+    );
+    Assert.equal(
+      alert.title,
+      title,
+      "the alert should use the archive error title"
+    );
+    Assert.equal(
+      alert.text,
+      text,
+      "the alert should explain the missing archive folder"
+    );
+    Assert.equal(
+      gFolder.getTotalMessages(false),
+      count,
+      "the source folder should retain its message"
+    );
+    Assert.equal(
+      identity.archivesFolderURI,
+      missingURI,
+      "failure should preserve the configured archive destination"
+    );
+  } finally {
+    Services.prompt = originalPrompt;
+    await SpecialPowers.popPrefEnv();
+    await SpecialPowers.popPrefEnv();
+  }
+});
+
+/**
  * Test what happens when loading a message when there's a notification about
  * it. The notification should be removed.
  */

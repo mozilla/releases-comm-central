@@ -84,8 +84,21 @@ const availableActions = [
     isValidFor(message) {
       return lazy.MessageArchiver.canArchive([message], true);
     },
-    runAction(message) {
-      new lazy.MessageArchiver().archiveMessages([message]);
+    async runAction(message) {
+      try {
+        await new lazy.MessageArchiver().archiveMessages([message]);
+      } catch (error) {
+        console.error("Unable to archive message", error);
+        const messageId =
+          error.result == Cr.NS_MSG_ERROR_FOLDER_MISSING
+            ? "archive-folder-missing"
+            : "archive-message-error";
+        const [title, text] = await lazy.l10n.formatValues([
+          "archive-message-error-title",
+          messageId,
+        ]);
+        Services.prompt.alert(null, title, text);
+      }
     },
   },
 ];

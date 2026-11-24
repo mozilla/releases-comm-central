@@ -1994,11 +1994,7 @@ this.messages = class extends ExtensionAPIPersistent {
               }
               messages.push(...msgHeaderSet);
             }
-            await new Promise(resolve => {
-              const archiver = new MessageArchiver();
-              archiver.oncomplete = resolve;
-              archiver.archiveMessages(messages);
-            });
+            await new MessageArchiver().archiveMessages(messages);
           } catch (ex) {
             console.error(ex);
             throw new ExtensionError(`Error archiving message: ${ex.message}`);

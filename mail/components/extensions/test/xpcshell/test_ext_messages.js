@@ -228,6 +228,67 @@ add_task(
   }
 );
 
+add_task(
+  { skip_if: () => IS_IMAP || IS_NNTP },
+  async function test_archiveMissingDestination() {
+    const archiveAccount = await createAccount();
+    addIdentity(archiveAccount);
+    registerCleanupFunction(() =>
+      MailServices.accounts.removeAccount(archiveAccount, false)
+    );
+    const source =
+      await archiveAccount.incomingServer.rootFolder.createSubfolderAsync(
+        "ArchiveFailureSource"
+      );
+    await createMessages(source, 1);
+    const identity = archiveAccount.defaultIdentity;
+    identity.archiveEnabled = true;
+    identity.archivesFolderPickerMode = "1";
+    identity.archivesFolderURI = `${source.rootFolder.URI}/MissingArchives`;
+
+    const extension = ExtensionTestUtils.loadExtension({
+      manifest: {
+        manifest_version: 2,
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesMove", "messagesRead"],
+      },
+      files: {
+        "utils.js": await getUtilsJS(),
+        "background.js": async () => {
+          const [accountId] = await window.waitForMessage();
+          const apiAccount = await browser.accounts.get(accountId);
+          const apiSource = apiAccount.folders.find(
+            f => f.name == "ArchiveFailureSource"
+          );
+          for (let attempt = 1; attempt <= 2; attempt++) {
+            const { messages } = await browser.messages.list(apiSource);
+            await browser.test.assertRejects(
+              browser.messages.archive(messages.map(m => m.id)),
+              /Error archiving message:/,
+              "the extension should receive the archive setup failure"
+            );
+            browser.test.assertEq(
+              1,
+              (await browser.messages.list(apiSource)).messages.length,
+              "the message should remain in its source folder after failure"
+            );
+          }
+          browser.test.notifyPass("archiveMissingDestination");
+        },
+      },
+    });
+    registerCleanupFunction(async () => {
+      if (extension.state == "running") {
+        await extension.unload();
+      }
+    });
+    await extension.startup();
+    extension.sendMessage(archiveAccount.key);
+    await extension.awaitFinish("archiveMissingDestination");
+    await extension.unload();
+  }
+);
+
 // The IMAP fakeserver just can't handle this.
 add_task(
   {
@@ -251,6 +312,9 @@ add_task(
       "background.js": async () => {
         const [accountId] = await window.waitForMessage();
 
+        // Empty input should resolve. Previously, no completion callback ran and
+        // the promise remained pending.
+        await browser.messages.archive([]);
         const accountBefore = await browser.accounts.get(accountId);
         browser.test.assertEq(3, accountBefore.folders.length);
         browser.test.assertEq("/test", accountBefore.folders[2].path);

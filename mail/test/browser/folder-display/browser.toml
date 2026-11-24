@@ -101,6 +101,8 @@ tags = ["compact"]
 
 ["browser_middleClickMessages.js"]
 
+["browser_missingSpecialFolders.js"]
+
 ["browser_openingMessages.js"]
 
 ["browser_openingMessagesWithoutABackingView.js"]

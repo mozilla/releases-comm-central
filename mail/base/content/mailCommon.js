@@ -374,7 +374,7 @@ var commandController = {
       );
       Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", false);
     },
-    cmd_archive() {
+    async cmd_archive() {
       if (parent.location.href == "about:3pane") {
         // If we're in about:message inside about:3pane, it's the parent
         // window that needs to advance to the next message.
@@ -386,7 +386,20 @@ var commandController = {
       // Set this property so the operation can be undone if requested.
       archiver.interactive = true;
       // Archive the selected message(s).
-      archiver.archiveMessages(gDBView.getSelectedMsgHdrs());
+      try {
+        await archiver.archiveMessages(gDBView.getSelectedMsgHdrs());
+      } catch (e) {
+        console.error("Unable to archive messages", e);
+        const messageId =
+          e.result == Cr.NS_MSG_ERROR_FOLDER_MISSING
+            ? "archive-folder-missing"
+            : "archive-message-error";
+        const [title, message] = await document.l10n.formatValues([
+          "archive-message-error-title",
+          messageId,
+        ]);
+        Services.prompt.alert(window, title, message);
+      }
     },
     cmd_moveToFolderAgain() {
       if (parent.location.href == "about:3pane") {

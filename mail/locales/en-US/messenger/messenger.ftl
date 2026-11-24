@@ -565,6 +565,11 @@ apply-filters-failed = The filter run did not complete successfully. Check the f
 
 apply-filters-failed-open-log-button = Open Filter Log
 
+archive-message-error-title = Archive message error
+archive-message-error = The selected messages could not be archived.
+archive-folder-missing =
+    The archives folder for this identity could not be found. Select a different folder and try again.
+
 # Variables:
 # $failures (Number) - Number of messages that could not be decrypted.
 # $total (Number) - Total number of messages that were attempted to be decrypted.
