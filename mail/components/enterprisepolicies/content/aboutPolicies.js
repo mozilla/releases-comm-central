@@ -391,6 +391,7 @@ function generateDocumentation() {
   // map specific policies to a different string ID, to allow updates to
   // existing descriptions
   const string_mapping = {
+    Authentication: "Authentication2",
     BackgroundAppUpdate: "BackgroundAppUpdate2",
     Certificates: "CertificatesDescription",
     DisablePasswordReveal: "DisablePasswordReveal2",

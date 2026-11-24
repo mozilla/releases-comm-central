@@ -122,6 +122,13 @@
         },
         "PrivateBrowsing": {
           "type": "boolean"
+        },
+        "DisabledSchemes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["basic", "digest", "ntlm", "negotiate"]
+          }
         }
       }
     },

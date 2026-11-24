@@ -147,6 +147,7 @@ const POLICIES_TESTS = [
           NTLM: false,
         },
         PrivateBrowsing: true,
+        DisabledSchemes: ["basic", "ntlm"],
       },
     },
     lockedPrefs: {
@@ -158,6 +159,7 @@ const POLICIES_TESTS = [
       "network.automatic-ntlm-auth.allow-proxies": false,
       "network.negotiate-auth.allow-proxies": false,
       "network.auth.private-browsing-sso": true,
+      "network.http.auth.disabled-schemes": "basic,ntlm",
     },
   },
 
@@ -177,6 +179,7 @@ const POLICIES_TESTS = [
           NTLM: false,
         },
         PrivateBrowsing: true,
+        DisabledSchemes: ["basic", "ntlm"],
         Locked: false,
       },
     },
@@ -189,6 +192,7 @@ const POLICIES_TESTS = [
       "network.automatic-ntlm-auth.allow-proxies": false,
       "network.negotiate-auth.allow-proxies": false,
       "network.auth.private-browsing-sso": true,
+      "network.http.auth.disabled-schemes": "basic,ntlm",
     },
   },
 
