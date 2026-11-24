@@ -1533,9 +1533,7 @@
 
         for (const identity of identities) {
           let enumerator = null;
-          const msgFolder = MailUtils.getExistingFolder(
-            identity.templatesFolderURI
-          );
+          const msgFolder = identity.getTemplatesFolder();
           // If we already processed this folder, do not set enumerator
           // so that we skip this identity.
           if (msgFolder && !foldersScanned.includes(msgFolder)) {
