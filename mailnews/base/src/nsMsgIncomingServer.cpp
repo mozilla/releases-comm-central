@@ -1751,6 +1751,24 @@ nsMsgIncomingServer::ClearTemporaryReturnReceiptsFilter() {
 }
 
 NS_IMETHODIMP
+nsMsgIncomingServer::GetFolderFromURI(const nsACString& uri,
+                                      nsIMsgFolder** folder) {
+  NS_ENSURE_ARG_POINTER(folder);
+  *folder = nullptr;
+
+  nsCOMPtr<nsIMsgFolder> rootFolder;
+  nsresult rv = GetRootMsgFolder(getter_AddRefs(rootFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(rootFolder, NS_ERROR_UNEXPECTED);
+
+  if (rootFolder->URI().Equals(uri)) {
+    rootFolder.forget(folder);
+    return NS_OK;
+  }
+  return rootFolder->GetChildWithURI(uri, true, false, folder);
+}
+
+NS_IMETHODIMP
 nsMsgIncomingServer::GetMsgFolderFromURI(nsIMsgFolder* aFolderResource,
                                          const nsACString& aURI,
                                          nsIMsgFolder** aFolder) {

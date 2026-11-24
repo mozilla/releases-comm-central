@@ -1046,6 +1046,20 @@ export class MsgIncomingServer {
     this.localPath.remove(true);
   }
 
+  /**
+   * Return a folder in the effective message folder tree without creating a
+   * folder or placeholder, or changing preferences or special-folder flags.
+   *
+   * @param {string} uri - The folder URI to look up.
+   * @returns {?nsIMsgFolder} The known folder, or null if no match is known.
+   */
+  getFolderFromURI(uri) {
+    const rootFolder = this.rootMsgFolder;
+    return rootFolder.URI == uri
+      ? rootFolder
+      : rootFolder.getChildWithURI(uri, true, false);
+  }
+
   getMsgFolderFromURI(folder, uri) {
     try {
       return this.rootMsgFolder.getChildWithURI(uri, true, true) || folder;

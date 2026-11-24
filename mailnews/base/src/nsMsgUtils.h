@@ -14,6 +14,7 @@
 
 class nsIPrefBranch;
 class nsIMsgFolder;
+class nsIMsgIncomingServer;
 class nsIMsgUserFeedbackListener;
 class nsIMsgMessageService;
 class nsIUrlListener;
@@ -78,6 +79,11 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char* aFolderURI,
                                              bool aIsNewsFolder = false);
 
 bool WeAreOffline();
+
+// Find the server owning a folder URI without creating a folder object.
+// Return null when the URI does not identify a configured server.
+nsresult FindServerForFolderURI(const nsACString& folderURI,
+                                nsIMsgIncomingServer** server);
 
 // Get a folder by Uri, returning null if it doesn't exist (or if some
 // error occurs). A missing folder is not considered an error.

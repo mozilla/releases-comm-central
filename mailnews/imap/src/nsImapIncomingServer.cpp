@@ -1404,68 +1404,19 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
   nsCOMPtr<nsIMsgFolder> rootMsgFolder;
   nsresult rv = GetRootFolder(getter_AddRefs(rootMsgFolder));
   if (NS_SUCCEEDED(rv) && rootMsgFolder) {
-    // GetResource() may return a node which is not in the folder
-    // tree hierarchy but in the rdf cache in case of the non-existing default
-    // Sent, Drafts, and Templates folders. The resource will be eventually
-    // released when the rdf service shuts down. When we create the default
-    // folders later on in the imap server, the subsequent GetResource() of the
-    // same uri will get us the cached rdf resource which should have the folder
-    // flag set appropriately.
-
     nsCOMPtr<nsIMsgAccountManager> accountMgr =
         mozilla::components::AccountManager::Service();
-    nsCOMPtr<nsIMsgIdentity> identity;
-    rv = accountMgr->GetFirstIdentityForServer(this, getter_AddRefs(identity));
-    if (NS_SUCCEEDED(rv) && identity) {
-      nsCString folderUri;
-      identity->GetFccFolderURI(folderUri);
-      nsCString existingUri;
-
-      if (CheckSpecialFolder(folderUri, nsMsgFolderFlags::SentMail,
-                             existingUri)) {
-        identity->SetFccFolderURI(existingUri);
-        identity->SetFccFolderPickerMode("1"_ns);
-      }
-      identity->GetDraftsFolderURI(folderUri);
-      if (CheckSpecialFolder(folderUri, nsMsgFolderFlags::Drafts,
-                             existingUri)) {
-        identity->SetDraftsFolderURI(existingUri);
-        identity->SetDraftsFolderPickerMode("1"_ns);
-      }
-      bool archiveEnabled;
-      identity->GetArchiveEnabled(&archiveEnabled);
-      if (archiveEnabled) {
-        identity->GetArchivesFolderURI(folderUri);
-        if (CheckSpecialFolder(folderUri, nsMsgFolderFlags::Archive,
-                               existingUri)) {
-          identity->SetArchivesFolderURI(existingUri);
-          identity->SetArchivesFolderPickerMode("1"_ns);
-        }
-      }
-      identity->GetTemplatesFolderURI(folderUri);
-      if (!folderUri.IsEmpty()) {
-        nsCOMPtr<nsIMsgFolder> folder;
-        rv = GetOrCreateFolder(folderUri, getter_AddRefs(folder));
-        if (NS_SUCCEEDED(rv)) rv = folder->SetFlag(nsMsgFolderFlags::Templates);
+    nsTArray<RefPtr<nsIMsgIdentity>> identities;
+    rv = accountMgr->GetIdentitiesForServer(this, identities);
+    if (NS_SUCCEEDED(rv)) {
+      for (nsIMsgIdentity* identity : identities) {
+        // Namespace and special-use information is now available, so reconcile
+        // special folders without changing the user's picker mode.
+        identity->ReconcileSpecialFolders();
       }
     }
 
-    nsCOMPtr<nsISpamSettings> spamSettings;
-    rv = GetSpamSettings(getter_AddRefs(spamSettings));
-    if (NS_SUCCEEDED(rv) && spamSettings) {
-      nsCString spamFolderUri, existingUri;
-      spamSettings->GetSpamFolderURI(spamFolderUri);
-      if (CheckSpecialFolder(spamFolderUri, nsMsgFolderFlags::Junk,
-                             existingUri)) {
-        // This only sets the cached values in the spam settings object.
-        spamSettings->SetActionTargetFolder(existingUri);
-        spamSettings->SetMoveTargetMode(
-            nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
-        // Set the preferences too so that the values persist.
-        SetStringValue("spamActionTargetFolder", existingUri);
-        SetIntValue("moveTargetMode", nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
-      }
-    }
+    ReconcileSpamFolder(rootMsgFolder);
   }
 
   // Need to do this BEFORE trash folder checks and adjustments so if trash
@@ -1644,41 +1595,40 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
   return rv;
 }
 
-// Check if the special folder corresponding to the uri exists. If not, check
-// if there already exists a folder with the special folder flag (the server may
-// have told us about a folder to use through XLIST). If so, return the uri of
-// the existing special folder. If not, set the special flag on the folder so
-// it will be there if and when the folder is created.
-// Return true if we found an existing special folder different than
-// the one specified in prefs, and the one specified by prefs doesn't exist.
-bool nsImapIncomingServer::CheckSpecialFolder(nsCString& folderUri,
-                                              uint32_t folderFlag,
-                                              nsCString& existingUri) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsCOMPtr<nsIMsgFolder> rootMsgFolder;
-  nsresult rv = GetRootFolder(getter_AddRefs(rootMsgFolder));
-  NS_ENSURE_SUCCESS(rv, false);
-  nsCOMPtr<nsIMsgFolder> existingFolder;
-  rootMsgFolder->GetFolderWithFlags(folderFlag, getter_AddRefs(existingFolder));
+void nsImapIncomingServer::ReconcileSpamFolder(nsIMsgFolder* rootFolder) {
+  nsCOMPtr<nsISpamSettings> spamSettings;
+  nsresult rv = GetSpamSettings(getter_AddRefs(spamSettings));
+  if (NS_FAILED(rv) || !spamSettings) {
+    return;
+  }
 
-  if (!folderUri.IsEmpty() &&
-      NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder)))) {
+  nsAutoCString configuredURI;
+  spamSettings->GetSpamFolderURI(configuredURI);
+  nsCOMPtr<nsIMsgFolder> configuredFolder;
+  if (!configuredURI.IsEmpty()) {
+    FindFolder(configuredURI, getter_AddRefs(configuredFolder));
+  }
+  if (configuredFolder) {
     nsCOMPtr<nsIMsgFolder> parent;
-    folder->GetParent(getter_AddRefs(parent));
+    configuredFolder->GetParent(getter_AddRefs(parent));
     if (parent) {
-      existingFolder = nullptr;
-    }
-    if (!existingFolder) {
-      folder->SetFlag(folderFlag);
+      configuredFolder->SetFlag(nsMsgFolderFlags::Junk);
+      return;
     }
   }
 
-  if (existingFolder) {
-    existingFolder->GetURI(existingUri);
-    return true;
+  nsCOMPtr<nsIMsgFolder> junkFolder;
+  rootFolder->GetFolderWithFlags(nsMsgFolderFlags::Junk,
+                                 getter_AddRefs(junkFolder));
+  if (!junkFolder) {
+    return;
   }
 
-  return false;
+  const nsCString uri = junkFolder->URI();
+  spamSettings->SetActionTargetFolder(uri);
+  spamSettings->SetMoveTargetMode(nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
+  SetStringValue("spamActionTargetFolder", uri);
+  SetIntValue("moveTargetMode", nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
 }
 
 bool nsImapIncomingServer::NoDescendantsAreVerified(
@@ -2934,6 +2884,21 @@ NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(
 }
 
 NS_IMETHODIMP
+nsImapIncomingServer::GetFolderFromURI(const nsACString& uri,
+                                       nsIMsgFolder** folder) {
+  nsresult rv = nsMsgIncomingServer::GetFolderFromURI(uri, folder);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (*folder) {
+    return NS_OK;
+  }
+
+  nsAutoCString mappedURI;
+  bool namespacePrefixAdded = false;
+  return GetExistingMsgFolder(uri, mappedURI, namespacePrefixAdded, false,
+                              folder);
+}
+
+NS_IMETHODIMP
 nsImapIncomingServer::GetMsgFolderFromURI(nsIMsgFolder* aFolderResource,
                                           const nsACString& aURI,
                                           nsIMsgFolder** aFolder) {
@@ -2986,7 +2951,22 @@ nsresult nsImapIncomingServer::GetExistingMsgFolder(
   // If we couldn't find the folder as is, check if we need to prepend the
   // personal namespace
   if (!*aFolder) {
-    GetUriWithNamespacePrefixIfNecessary(kPersonalNamespace, aURI,
+    nsCString lookupURI(aURI);
+    nsAutoCString inboxPrefix(rootMsgFolder->URI());
+    inboxPrefix.AppendLiteral("/INBOX");
+    if (StringBeginsWith(lookupURI, inboxPrefix,
+                         nsCaseInsensitiveCStringComparator) &&
+        (lookupURI.Length() == inboxPrefix.Length() ||
+         lookupURI[inboxPrefix.Length()] == '/')) {
+      lookupURI.Replace(0, inboxPrefix.Length(), inboxPrefix);
+      rv = rootMsgFolder->GetChildWithURI(lookupURI, true, aCaseInsensitive,
+                                          aFolder);
+      if (*aFolder) {
+        return rv;
+      }
+    }
+
+    GetUriWithNamespacePrefixIfNecessary(kPersonalNamespace, lookupURI,
                                          aFolderUriWithNamespace);
     if (!aFolderUriWithNamespace.IsEmpty()) {
       aNamespacePrefixAdded = true;

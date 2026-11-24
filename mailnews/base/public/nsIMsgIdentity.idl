@@ -196,13 +196,13 @@ interface nsIMsgIdentity : nsISupports {
    * Get or create folder functions:
    * If the corresponding URI is set in the preferences, and the folder for
    * that URI exists, these functions will return that folder.
-   * If not, they will attempt to get a folder in a sensible place:
-   * - If the URI is set but the folder doesn't exist, a folder on the same
-   *   server with the appropriate flag or the appropriate name.
-   * - Or a folder on the servers associated with the identity.
-   * - Or a folder on the Local Folders server.
-   * If no such folder can be found, create one using the first local server
-   * (synchronous folder creation is required) in the same order as above.
+   *
+   * In account-default picker mode, a URI also selects the authoritative
+   * server. Namespace mappings and folders with the appropriate flag are
+   * resolved only on that server, and a missing folder is created there when
+   * possible. Local Folders is used only if creation on that server fails.
+   * When no server is selected by a URI, the servers associated with the
+   * identity are tried before Local Folders.
    */
   [implicit_jscontext]
   Promise getOrCreateFccFolderAsync();
@@ -212,6 +212,23 @@ interface nsIMsgIdentity : nsISupports {
   Promise getOrCreateArchivesFolderAsync();
   [implicit_jscontext]
   Promise getOrCreateTemplatesFolderAsync();
+
+  /**
+   * Resolve existing special folders, establish their special-folder flags,
+   * and repair their URIs to canonical values. This is intended for server
+   * discovery, after namespace and special-use information is available.
+   * It never creates folders, changes picker modes, or falls back to another
+   * server.
+   */
+  void reconcileSpecialFolders();
+
+  /**
+   * Return the Templates folder on the configured server, or null if no match
+   * is found. Resolve namespace differences and consider folders with the
+   * Templates flag in account-default mode. This lookup never creates folders
+   * or changes preferences or flags.
+   */
+  nsIMsgFolder getTemplatesFolder();
 
   /**
    * These attributes control whether the special folder pickers for

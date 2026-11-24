@@ -15,7 +15,6 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIPrefService.h"
-#include "nsIURIMutator.h"
 #include "nsIUUIDGenerator.h"
 #include "nsMsgFolderFlags.h"
 #include "nsMsgUtils.h"
@@ -229,20 +228,21 @@ nsMsgIdentity::ClearAllValues() {
     return mPrefBranch->SetIntPref(_prefname, value); \
   }
 
-#define NS_IMPL_FOLDERPREF_STR(_postfix, _prefName, _folderFlag, _folderName) \
-  NS_IMETHODIMP                                                               \
-  nsMsgIdentity::Get##_postfix##URI(nsACString& retval) {                     \
-    return GetCharAttribute(_prefName, retval);                               \
-  }                                                                           \
-  NS_IMETHODIMP                                                               \
-  nsMsgIdentity::Set##_postfix##URI(const nsACString& value) {                \
-    return setFolderPref(_prefName, value, _folderFlag);                      \
-  }                                                                           \
-  NS_IMETHODIMP                                                               \
-  nsMsgIdentity::GetOrCreate##_postfix##Async(JSContext* cx,                  \
-                                              Promise** aPromise) {           \
-    return getOrCreateFolderAsync(_prefName, _folderFlag, _folderName, cx,    \
-                                  aPromise);                                  \
+#define NS_IMPL_FOLDERPREF_STR(_postfix, _prefName, _pickerModePrefName,       \
+                               _folderFlag, _folderName)                       \
+  NS_IMETHODIMP                                                                \
+  nsMsgIdentity::Get##_postfix##URI(nsACString& retval) {                      \
+    return GetCharAttribute(_prefName, retval);                                \
+  }                                                                            \
+  NS_IMETHODIMP                                                                \
+  nsMsgIdentity::Set##_postfix##URI(const nsACString& value) {                 \
+    return SetFolderPref(_prefName, value, _folderFlag);                       \
+  }                                                                            \
+  NS_IMETHODIMP                                                                \
+  nsMsgIdentity::GetOrCreate##_postfix##Async(JSContext* cx,                   \
+                                              Promise** aPromise) {            \
+    return GetOrCreateFolderAsync(_prefName, _folderFlag, _pickerModePrefName, \
+                                  _folderName, cx, aPromise);                  \
   }
 
 NS_IMPL_IDPREF_STR(EscapedVCard, "escapedVCard")
@@ -270,8 +270,8 @@ NS_IMPL_IDPREF_INT(SignatureDate, "sig_date")
 
 NS_IMPL_IDPREF_BOOL(DoFcc, "fcc")
 
-NS_IMPL_FOLDERPREF_STR(FccFolder, "fcc_folder", nsMsgFolderFlags::SentMail,
-                       "Sent"_ns)
+NS_IMPL_FOLDERPREF_STR(FccFolder, "fcc_folder", "fcc_folder_picker_mode",
+                       nsMsgFolderFlags::SentMail, "Sent"_ns)
 NS_IMPL_IDPREF_STR(FccFolderPickerMode, "fcc_folder_picker_mode")
 NS_IMPL_IDPREF_BOOL(FccReplyFollowsParent, "fcc_reply_follows_parent")
 NS_IMPL_IDPREF_STR(DraftsFolderPickerMode, "drafts_folder_picker_mode")
@@ -356,12 +356,15 @@ nsMsgIdentity::SetDoBccList(const nsACString& aValue) {
   return SetCharAttribute("doBccList", aValue);
 }
 
-NS_IMPL_FOLDERPREF_STR(DraftsFolder, "draft_folder", nsMsgFolderFlags::Drafts,
+NS_IMPL_FOLDERPREF_STR(DraftsFolder, "draft_folder",
+                       "drafts_folder_picker_mode", nsMsgFolderFlags::Drafts,
                        "Drafts"_ns)
 NS_IMPL_FOLDERPREF_STR(ArchivesFolder, "archive_folder",
-                       nsMsgFolderFlags::Archive, "Archives"_ns)
+                       "archives_folder_picker_mode", nsMsgFolderFlags::Archive,
+                       "Archives"_ns)
 NS_IMPL_FOLDERPREF_STR(TemplatesFolder, "stationery_folder",
-                       nsMsgFolderFlags::Templates, "Templates"_ns)
+                       "tmpl_folder_picker_mode", nsMsgFolderFlags::Templates,
+                       "Templates"_ns)
 
 NS_IMPL_IDPREF_BOOL(ArchiveEnabled, "archive_enabled")
 NS_IMPL_IDPREF_INT(ArchiveGranularity, "archive_granularity")
@@ -375,15 +378,122 @@ NS_IMPL_IDPREF_BOOL(AutocompleteToMyDomain, "autocompleteToMyDomain")
 
 NS_IMPL_IDPREF_BOOL(Valid, "valid")
 
+bool nsMsgIdentity::UseAccountDefaultFolder(const char* pickerModePrefName) {
+  nsAutoCString pickerMode;
+  mPrefBranch->GetStringPref(pickerModePrefName, EmptyCString(), 1, pickerMode);
+  // Missing legacy values have always been displayed as account-default.
+  return !pickerMode.EqualsLiteral("1");
+}
+
+nsresult nsMsgIdentity::GetExistingSpecialFolder(
+    const char* prefName, const char* pickerModePrefName, uint32_t folderFlag,
+    nsIMsgFolder** existingFolder, nsIMsgIncomingServer** configuredServer) {
+  NS_ENSURE_ARG_POINTER(existingFolder);
+  *existingFolder = nullptr;
+  if (configuredServer) {
+    *configuredServer = nullptr;
+  }
+
+  nsAutoCString prefValue;
+  mPrefBranch->GetStringPref(prefName, EmptyCString(), 1, prefValue);
+  if (prefValue.IsEmpty()) {
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  FindServerForFolderURI(prefValue, getter_AddRefs(server));
+  if (configuredServer && server) {
+    NS_ADDREF(*configuredServer = server);
+  }
+
+  if (!server) {
+    return NS_OK;
+  }
+
+  nsresult rv = server->GetFolderFromURI(prefValue, existingFolder);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (*existingFolder || !UseAccountDefaultFolder(pickerModePrefName)) {
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIMsgFolder> rootFolder;
+  rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  NS_ENSURE_TRUE(rootFolder, NS_ERROR_UNEXPECTED);
+
+  // In account-default mode a server-designated folder is also a valid
+  // resolution, but only on the server selected by the preference.
+  nsCOMPtr<nsIMsgFolder> flaggedFolder;
+  rootFolder->GetFolderWithFlags(folderFlag, getter_AddRefs(flaggedFolder));
+  if (flaggedFolder) {
+    flaggedFolder.forget(existingFolder);
+  }
+  return NS_OK;
+}
+
+nsresult nsMsgIdentity::ReconcileSpecialFolder(const char* prefName,
+                                               const char* pickerModePrefName,
+                                               uint32_t folderFlag) {
+  nsCOMPtr<nsIMsgFolder> folder;
+  nsresult rv =
+      GetExistingSpecialFolder(prefName, pickerModePrefName, folderFlag,
+                               getter_AddRefs(folder), nullptr);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!folder) {
+    return NS_OK;
+  }
+
+  return ApplySpecialFolder(prefName, folderFlag, folder);
+}
+
+nsresult nsMsgIdentity::ApplySpecialFolder(const char* prefName,
+                                           uint32_t folderFlag,
+                                           nsIMsgFolder* folder) {
+  nsAutoCString prefValue;
+  mPrefBranch->GetStringPref(prefName, EmptyCString(), 1, prefValue);
+  if (!folder->URI().Equals(prefValue)) {
+    return SetFolderPref(prefName, folder->URI(), folderFlag, folder);
+  }
+  return folder->SetFlag(folderFlag);
+}
+
+NS_IMETHODIMP nsMsgIdentity::ReconcileSpecialFolders() {
+  nsresult rv = ReconcileSpecialFolder("fcc_folder", "fcc_folder_picker_mode",
+                                       nsMsgFolderFlags::SentMail);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = ReconcileSpecialFolder("draft_folder", "drafts_folder_picker_mode",
+                              nsMsgFolderFlags::Drafts);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  bool archiveEnabled = false;
+  GetArchiveEnabled(&archiveEnabled);
+  if (archiveEnabled) {
+    rv = ReconcileSpecialFolder("archive_folder", "archives_folder_picker_mode",
+                                nsMsgFolderFlags::Archive);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  return ReconcileSpecialFolder("stationery_folder", "tmpl_folder_picker_mode",
+                                nsMsgFolderFlags::Templates);
+}
+
+NS_IMETHODIMP nsMsgIdentity::GetTemplatesFolder(nsIMsgFolder** folder) {
+  return GetExistingSpecialFolder("stationery_folder",
+                                  "tmpl_folder_picker_mode",
+                                  nsMsgFolderFlags::Templates, folder, nullptr);
+}
+
 class FolderGetterOrCreator final : public nsIUrlListener {
  public:
   NS_DECL_ISUPPORTS
 
   nsCOMPtr<nsMsgIdentity> identity;
-  char* prefName;
+  const char* prefName;
   uint32_t folderFlag;
   nsCString folderName;
   nsTArray<RefPtr<nsIMsgIncomingServer>> candidateServers;
+  nsCOMPtr<nsIMsgIncomingServer> currentServer;
   nsCOMPtr<nsIMsgFolder> rootFolder;
   nsMainThreadPtrHandle<Promise> promiseHolder;
 
@@ -418,6 +528,7 @@ class FolderGetterOrCreator final : public nsIUrlListener {
     // to another, check that.)
     rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
     NS_ENSURE_SUCCESS(rv, rv);
+    currentServer = server;
     nsCOMPtr<nsIMsgFolder> existingFolder;
 
     // Look for a folder with the flag we want.
@@ -451,7 +562,24 @@ class FolderGetterOrCreator final : public nsIUrlListener {
 
     nsCOMPtr<nsIMsgFolder> newFolder;
     nsresult rv =
-        rootFolder->GetChildNamed(folderName, getter_AddRefs(newFolder));
+        rootFolder->GetFolderWithFlags(folderFlag, getter_AddRefs(newFolder));
+    if (NS_SUCCEEDED(rv) && !newFolder) {
+      nsAutoCString folderURI(rootFolder->URI());
+      if (!folderURI.IsEmpty() && folderURI.Last() != '/') {
+        folderURI.Append('/');
+      }
+      nsAutoCString escapedFolderName;
+      rv = MsgEscapeString(folderName, nsINetUtil::ESCAPE_URL_PATH,
+                           escapedFolderName);
+      if (NS_SUCCEEDED(rv)) {
+        folderURI.Append(escapedFolderName);
+        rv = currentServer->GetFolderFromURI(folderURI,
+                                             getter_AddRefs(newFolder));
+      }
+    }
+    if (NS_SUCCEEDED(rv) && !newFolder) {
+      rv = rootFolder->GetChildNamed(folderName, getter_AddRefs(newFolder));
+    }
     if (NS_FAILED(rv) || !newFolder) {
       tryNextCandidate();
     } else {
@@ -462,9 +590,12 @@ class FolderGetterOrCreator final : public nsIUrlListener {
 
   void finishPromise(nsCOMPtr<nsIMsgFolder> folder) {
     if (folder) {
-      identity->SetCharAttribute(prefName, folder->URI());
-      folder->SetFlag(folderFlag);
-      promiseHolder.get()->MaybeResolve(folder);
+      nsresult rv = identity->ApplySpecialFolder(prefName, folderFlag, folder);
+      if (NS_FAILED(rv)) {
+        promiseHolder.get()->MaybeReject(rv);
+      } else {
+        promiseHolder.get()->MaybeResolve(folder);
+      }
     } else {
       promiseHolder.get()->MaybeReject(NS_ERROR_FAILURE);
     }
@@ -475,11 +606,9 @@ class FolderGetterOrCreator final : public nsIUrlListener {
 };
 NS_IMPL_ISUPPORTS(FolderGetterOrCreator, nsIUrlListener)
 
-nsresult nsMsgIdentity::getOrCreateFolderAsync(const char* prefName,
-                                               uint32_t folderFlag,
-                                               const nsACString& folderName,
-                                               JSContext* cx,
-                                               Promise** aPromise) {
+nsresult nsMsgIdentity::GetOrCreateFolderAsync(
+    const char* prefName, uint32_t folderFlag, const char* pickerModePrefName,
+    const nsACString& folderName, JSContext* cx, Promise** aPromise) {
   if (!mPrefBranch) {
     return NS_ERROR_NOT_INITIALIZED;
   }
@@ -489,18 +618,17 @@ nsresult nsMsgIdentity::getOrCreateFolderAsync(const char* prefName,
   RefPtr<Promise> promise =
       Promise::Create(xpc::CurrentNativeGlobal(cx), result);
   nsCOMPtr<nsIMsgFolder> folder;
-
-  // Look for a folder matching the preference value.
-  nsAutoCString prefValue;
-  mPrefBranch->GetStringPref(prefName, EmptyCString(), 1, prefValue);
-  if (!prefValue.IsEmpty()) {
-    rv = GetExistingFolder(prefValue, getter_AddRefs(folder));
-    if (NS_SUCCEEDED(rv) && folder) {
-      // Success! Return the folder.
-      promise->MaybeResolve(folder);
-      promise.forget(aPromise);
-      return NS_OK;
-    }
+  nsCOMPtr<nsIMsgIncomingServer> configuredServer;
+  rv = GetExistingSpecialFolder(prefName, pickerModePrefName, folderFlag,
+                                getter_AddRefs(folder),
+                                getter_AddRefs(configuredServer));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (folder) {
+    rv = ApplySpecialFolder(prefName, folderFlag, folder);
+    NS_ENSURE_SUCCESS(rv, rv);
+    promise->MaybeResolve(folder);
+    promise.forget(aPromise);
+    return NS_OK;
   }
 
   nsCOMPtr<nsIMsgAccountManager> accountManager =
@@ -508,51 +636,24 @@ nsresult nsMsgIdentity::getOrCreateFolderAsync(const char* prefName,
 
   RefPtr<FolderGetterOrCreator> getterOrCreator = new FolderGetterOrCreator();
   getterOrCreator->identity = this;
-  getterOrCreator->prefName = (char*)(prefName);
+  getterOrCreator->prefName = prefName;
   getterOrCreator->folderFlag = folderFlag;
   getterOrCreator->folderName = folderName;
 
-  // Can we get a server that matches the preference?
-  if (!prefValue.IsEmpty()) {
-    nsCOMPtr<nsIURL> url;
-    rv = MsgNewStandardURL(prefValue, getter_AddRefs(url));
-    if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIMsgIncomingServer> server;
-
-      if (url->SchemeIs("mailbox")) {
-        // Of course that means looking for the same thing several times,
-        // because nothing is simple around here.
-        if (NS_SUCCEEDED(
-                NS_MutateURI(url).SetScheme("none"_ns).Finalize(url))) {
-          accountManager->FindServerByURI(url, getter_AddRefs(server));
-        }
-        if (!server &&
-            NS_SUCCEEDED(
-                NS_MutateURI(url).SetScheme("pop3"_ns).Finalize(url))) {
-          accountManager->FindServerByURI(url, getter_AddRefs(server));
-        }
-        if (!server &&
-            NS_SUCCEEDED(NS_MutateURI(url).SetScheme("rss"_ns).Finalize(url))) {
-          accountManager->FindServerByURI(url, getter_AddRefs(server));
-        }
-      } else {
-        accountManager->FindServerByURI(url, getter_AddRefs(server));
-      }
-
-      if (server) {
-        getterOrCreator->candidateServers.AppendElement(server);
-      }
-    }
+  // The server selected in the preference is authoritative. Only use the
+  // identity's servers when there is no usable server in the preference.
+  if (configuredServer) {
+    getterOrCreator->candidateServers.AppendElement(configuredServer);
   }
 
-  // Look for a server we could create a folder on, starting with the
-  // identity's servers.
-  nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
-  rv = accountManager->GetServersForIdentity(this, servers);
-  NS_ENSURE_SUCCESS(rv, rv);
-  for (RefPtr<nsIMsgIncomingServer> server : servers) {
-    if (!getterOrCreator->candidateServers.Contains(server)) {
-      getterOrCreator->candidateServers.AppendElement(server);
+  if (!configuredServer) {
+    nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
+    rv = accountManager->GetServersForIdentity(this, servers);
+    NS_ENSURE_SUCCESS(rv, rv);
+    for (RefPtr<nsIMsgIncomingServer> server : servers) {
+      if (!getterOrCreator->candidateServers.Contains(server)) {
+        getterOrCreator->candidateServers.AppendElement(server);
+      }
     }
   }
 
@@ -575,9 +676,10 @@ nsresult nsMsgIdentity::getOrCreateFolderAsync(const char* prefName,
   return NS_OK;
 }
 
-nsresult nsMsgIdentity::setFolderPref(const char* prefName,
+nsresult nsMsgIdentity::SetFolderPref(const char* prefName,
                                       const nsACString& value,
-                                      uint32_t folderFlag) {
+                                      uint32_t folderFlag,
+                                      nsIMsgFolder* resolvedFolder) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsresult rv;
@@ -630,8 +732,10 @@ nsresult nsMsgIdentity::setFolderPref(const char* prefName,
   // Set the new folder, and set the special folder flags on it.
   rv = SetCharAttribute(prefName, value);
   if (NS_SUCCEEDED(rv) && !value.IsEmpty()) {
-    nsCOMPtr<nsIMsgFolder> folder;
-    rv = FindFolder(value, getter_AddRefs(folder));
+    nsCOMPtr<nsIMsgFolder> folder = resolvedFolder;
+    if (!folder) {
+      rv = FindFolder(value, getter_AddRefs(folder));
+    }
     if (NS_SUCCEEDED(rv) && folder) {
       rv = folder->SetFlag(folderFlag);
     }

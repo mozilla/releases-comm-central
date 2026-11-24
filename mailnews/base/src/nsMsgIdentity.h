@@ -18,17 +18,31 @@ class nsMsgIdentity final : public nsIMsgIdentity {
   NS_DECL_NSIMSGIDENTITY
 
  private:
+  friend class FolderGetterOrCreator;
+
   ~nsMsgIdentity() {}
   nsCString mKey;
   nsCOMPtr<nsIPrefBranch> mPrefBranch;
   nsCOMPtr<nsIPrefBranch> mDefPrefBranch;
 
- protected:
-  nsresult getOrCreateFolderAsync(const char* prefName, uint32_t folderFlag,
+  nsresult GetOrCreateFolderAsync(const char* prefName, uint32_t folderFlag,
+                                  const char* pickerModePrefName,
                                   const nsACString& folderName, JSContext* cx,
                                   Promise** aPromise);
-  nsresult setFolderPref(const char* pref, const nsACString& retval,
-                         uint32_t folderFlag);
+  nsresult GetExistingSpecialFolder(const char* prefName,
+                                    const char* pickerModePrefName,
+                                    uint32_t folderFlag,
+                                    nsIMsgFolder** existingFolder,
+                                    nsIMsgIncomingServer** configuredServer);
+  nsresult ReconcileSpecialFolder(const char* prefName,
+                                  const char* pickerModePrefName,
+                                  uint32_t folderFlag);
+  nsresult ApplySpecialFolder(const char* prefName, uint32_t folderFlag,
+                              nsIMsgFolder* folder);
+  bool UseAccountDefaultFolder(const char* pickerModePrefName);
+  nsresult SetFolderPref(const char* pref, const nsACString& retval,
+                         uint32_t folderFlag,
+                         nsIMsgFolder* resolvedFolder = nullptr);
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGIDENTITY_H_

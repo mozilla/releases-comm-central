@@ -29,6 +29,7 @@
 #include "nsIRssIncomingServer.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgIncomingServer.h"
+#include "nsIMsgAccountManager.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgUserFeedbackListener.h"
 #include "nsIStringBundle.h"
@@ -491,6 +492,40 @@ bool WeAreOffline() {
   if (ioService) ioService->GetOffline(&offline);
 
   return offline;
+}
+
+nsresult FindServerForFolderURI(const nsACString& folderURI,
+                                nsIMsgIncomingServer** server) {
+  NS_ENSURE_ARG_POINTER(server);
+  *server = nullptr;
+
+  nsCOMPtr<nsIMsgAccountManager> accountManager =
+      mozilla::components::AccountManager::Service();
+  nsCOMPtr<nsIURL> url;
+  nsresult rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+                    .SetSpec(folderURI)
+                    .Finalize(url);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (url->SchemeIs("mailbox")) {
+    // Local folders can be backed by several server types, all of which use
+    // mailbox URIs for their folders.
+    if (NS_SUCCEEDED(NS_MutateURI(url).SetScheme("none"_ns).Finalize(url))) {
+      accountManager->FindServerByURI(url, server);
+    }
+    if (!*server &&
+        NS_SUCCEEDED(NS_MutateURI(url).SetScheme("pop3"_ns).Finalize(url))) {
+      accountManager->FindServerByURI(url, server);
+    }
+    if (!*server &&
+        NS_SUCCEEDED(NS_MutateURI(url).SetScheme("rss"_ns).Finalize(url))) {
+      accountManager->FindServerByURI(url, server);
+    }
+  } else {
+    accountManager->FindServerByURI(url, server);
+  }
+
+  return NS_OK;
 }
 
 // Find a folder by URL. If it doesn't exist, null will be returned

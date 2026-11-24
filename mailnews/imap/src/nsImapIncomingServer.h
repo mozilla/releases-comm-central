@@ -60,6 +60,8 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   NS_IMETHOD GetMsgFolderFromURI(nsIMsgFolder* aFolderResource,
                                  const nsACString& aURI,
                                  nsIMsgFolder** aFolder) override;
+  NS_IMETHOD GetFolderFromURI(const nsACString& uri,
+                              nsIMsgFolder** folder) override;
   NS_IMETHOD SetSocketType(int32_t aSocketType) override;
   NS_IMETHOD VerifyLogon(nsIUrlListener* aUrlListener, bool interactive,
                          nsIURI** aURL) override;
@@ -88,8 +90,7 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   nsresult GetFormattedStringFromName(const nsAString& aValue,
                                       const char* aName, nsAString& aResult);
   nsresult GetPrefForServerAttribute(const char* prefSuffix, bool* prefValue);
-  bool CheckSpecialFolder(nsCString& folderUri, uint32_t folderFlag,
-                          nsCString& existingUri);
+  void ReconcileSpamFolder(nsIMsgFolder* rootFolder);
 
   nsCOMArray<nsIImapProtocol> m_connectionCache;
 

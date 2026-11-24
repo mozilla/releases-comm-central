@@ -482,6 +482,14 @@ interface nsIMsgIncomingServer : nsISupports {
 
   nsIMsgFolder getMsgFolderFromURI(in nsIMsgFolder aFolderResource, in AUTF8String aURI);
 
+  /**
+   * Return the folder matching this URI in the server's known folder tree,
+   * or null if no match is known. Resolve protocol-specific URI differences,
+   * such as IMAP namespaces and INBOX casing, without creating a folder or
+   * placeholder, changing preferences or flags, or contacting the server.
+   */
+  nsIMsgFolder getFolderFromURI(in AUTF8String uri);
+
   /// Indicates if any other server has deferred storage to this account.
   readonly attribute boolean isDeferredTo;
 
