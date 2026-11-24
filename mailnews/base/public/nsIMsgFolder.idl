@@ -331,13 +331,6 @@ interface nsIMsgFolder : nsISupports {
    */
   nsIMsgFolder addSubfolder(in AUTF8String aFolderName);
 
-  /* this method ensures the storage for the folder exists.
-    For local folders, it creates the berkeley mailbox if missing.
-    For imap folders, it subscribes to the folder if it exists,
-    or creates it if it doesn't exist
-  */
-  void createStorageIfMissing(in nsIUrlListener urlListener);
-
   /**
    * Compact this folder (Expunge _and_ compact, for IMAP folders).
    *

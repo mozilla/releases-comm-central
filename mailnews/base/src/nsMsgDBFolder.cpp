@@ -3278,12 +3278,6 @@ NS_IMETHODIMP nsMsgDBFolder::DeleteSelf(bool interactive) {
   return parent->PropagateDelete(this, true);
 }
 
-NS_IMETHODIMP nsMsgDBFolder::CreateStorageIfMissing(
-    nsIUrlListener* /* urlListener */) {
-  NS_ASSERTION(false, "needs to be overridden");
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMsgDBFolder::PropagateDelete(nsIMsgFolder* folder,
                                              bool deleteStorage) {
   // first, find the folder we're looking to delete

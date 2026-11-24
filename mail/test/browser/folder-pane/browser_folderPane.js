@@ -24,9 +24,6 @@ var {
   "resource://testing-common/mail/FolderDisplayHelpers.sys.mjs"
 );
 
-var { MailUtils } = ChromeUtils.importESModule(
-  "resource:///modules/MailUtils.sys.mjs"
-);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -58,17 +55,9 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   const outbox = 1;
   const archives = 1;
   const folderPaneA = 1;
-  // Create archives folder - this is ugly, but essentially the same as
-  // what mailWindowOverlay.js does. We can't use the built-in helper
-  // method to create the folder because we need the archive flag to get
-  // set before the folder added notification is sent out, which means
-  // creating the folder object via RDF, setting the flag, and then
-  // creating the storage, which sends the notification.
-  const folder = MailUtils.getOrCreateFolder(
-    pop3Server.rootFolder.URI + "/Archives"
-  );
-  folder.setFlag(Ci.nsMsgFolderFlags.Archive);
-  folder.createStorageIfMissing(null);
+  const archiveFolder =
+    await pop3Server.rootFolder.createSubfolderAsync("Archives");
+  archiveFolder.setFlag(Ci.nsMsgFolderFlags.Archive);
   // After creating Archives, account should have expanded
   // so that we should have 5 rows visible
   assert_folder_tree_view_row_count(accounts + inbox + trash + archives);
@@ -84,8 +73,7 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   const oneFolderCount = about3Pane.folderTree.rowCount;
 
   // This makes sure the folder can be toggled
-  folderA.createSubfolder("FolderPaneB");
-  const folderB = folderA.getChildNamed("FolderPaneB");
+  const folderB = await folderA.createSubfolderAsync("FolderPaneB");
   // Enter folderB, then enter folderA. This makes sure that folderA is not
   // collapsed.
   await enter_folder(folderB);
@@ -119,8 +107,8 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
 
   // Clean up
   expand_folder(pop3Server.rootFolder);
-  folder.clearFlag(Ci.nsMsgFolderFlags.Archive);
-  pop3Server.rootFolder.propagateDelete(folder, true, null);
+  archiveFolder.clearFlag(Ci.nsMsgFolderFlags.Archive);
+  pop3Server.rootFolder.propagateDelete(archiveFolder, true, null);
   MailServices.accounts.localFoldersServer.rootFolder.propagateDelete(
     folderA,
     true

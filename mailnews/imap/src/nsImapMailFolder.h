@@ -225,7 +225,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
                                          nsIUrlListener*) override;
   NS_IMETHOD AddSubfolder(const nsACString& aName,
                           nsIMsgFolder** aChild) override;
-  NS_IMETHODIMP CreateStorageIfMissing(nsIUrlListener* urlListener) override;
 
   NS_IMETHOD Compact(nsIUrlListener* aListener, bool interactive) override;
   NS_IMETHOD CompactAll(nsIUrlListener* aListener, bool interactive,

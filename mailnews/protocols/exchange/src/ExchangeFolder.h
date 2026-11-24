@@ -48,7 +48,6 @@ class ExchangeFolder : public nsMsgDBFolder, public IExchangeFolder {
   // The XPCOM interface(s).
   NS_IMETHOD SetStringProperty(const char* propertyName,
                                const nsACString& propertyValue) override;
-  NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
   NS_IMETHOD CreateSubfolder(const nsACString& folderName) override;
   NS_IMETHOD CreateSubfolderWithListener(const nsACString&,
                                          nsIUrlListener*) override;

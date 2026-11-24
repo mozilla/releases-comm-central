@@ -280,12 +280,6 @@ nsresult ExchangeFolder::GetDatabase() {
   return NS_OK;
 }
 
-NS_IMETHODIMP ExchangeFolder::CreateStorageIfMissing(
-    nsIUrlListener* urlListener) {
-  NS_WARNING("CreateStorageIfMissing");
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP ExchangeFolder::CreateSubfolder(const nsACString& aFolderName) {
   return CreateSubfolderWithListener(aFolderName, nullptr);
 }

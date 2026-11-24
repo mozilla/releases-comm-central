@@ -527,39 +527,6 @@ nsMsgLocalMailFolder::UpdateFolder(bool interactive) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::CreateStorageIfMissing(
-    nsIUrlListener* aUrlListener) {
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIMsgFolder> msgParent;
-  GetParent(getter_AddRefs(msgParent));
-
-  // parent is probably not set because *this* was probably created by rdf
-  // and not by folder discovery. So, we have to compute the parent.
-  if (!msgParent) {
-    nsAutoCString folderName(mURI);
-    nsAutoCString uri;
-    int32_t leafPos = folderName.RFindChar('/');
-    nsAutoCString parentName(folderName);
-    if (leafPos > 0) {
-      // If there is a hierarchy, there is a parent.
-      // Don't strip off slash if it's the first character
-      parentName.SetLength(leafPos);
-      rv = GetOrCreateFolder(parentName, getter_AddRefs(msgParent));
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-  }
-
-  if (msgParent) {
-    nsAutoCString folderName;
-    GetName(folderName);
-    rv = msgParent->CreateSubfolder(folderName);
-    // by definition, this is OK.
-    if (rv == NS_MSG_FOLDER_EXISTS) return NS_OK;
-  }
-
-  return rv;
-}
-
 NS_IMETHODIMP
 nsMsgLocalMailFolder::CreateSubfolder(const nsACString& folderName) {
   AUTO_PROFILER_LABEL("nsMsgLocalMailFolder::CreateSubfolder", MAILNEWS);

@@ -1083,37 +1083,6 @@ NS_IMETHODIMP nsImapMailFolder::RemoveLocalSelf() {
   return nsMsgDBFolder::DeleteSelf(false);
 }
 
-NS_IMETHODIMP nsImapMailFolder::CreateStorageIfMissing(
-    nsIUrlListener* urlListener) {
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIMsgFolder> msgParent;
-  GetParent(getter_AddRefs(msgParent));
-
-  // parent is probably not set because *this* was probably created by rdf
-  // and not by folder discovery. So, we have to compute the parent.
-  if (!msgParent) {
-    nsAutoCString folderName(mURI);
-
-    int32_t leafPos = folderName.RFindChar('/');
-    nsAutoCString parentName(folderName);
-
-    if (leafPos > 0) {
-      // If there is a hierarchy, there is a parent.
-      // Don't strip off slash if it's the first character
-      parentName.SetLength(leafPos);
-      rv = GetOrCreateFolder(parentName, getter_AddRefs(msgParent));
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-  }
-  if (msgParent) {
-    nsCString folderName;
-    GetName(folderName);
-    nsCOMPtr<nsIImapService> imapService = mozilla::components::Imap::Service();
-    imapService->EnsureFolderExists(msgParent, folderName, false, urlListener);
-  }
-  return rv;
-}
-
 NS_IMETHODIMP nsImapMailFolder::GetVerifiedAsOnlineFolder(
     bool* aVerifiedAsOnlineFolder) {
   NS_ENSURE_ARG_POINTER(aVerifiedAsOnlineFolder);
