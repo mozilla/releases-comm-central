@@ -5,8 +5,111 @@
 const { sinon } = ChromeUtils.importESModule(
   "resource://testing-common/Sinon.sys.mjs"
 );
+const { deriveSecretStorageKey } = ChromeUtils.importESModule(
+  "resource:///modules/matrixAccount.sys.mjs"
+);
 
 const USER_ID = "@user:example.com";
+
+/**
+ * Bytes that encodeRecoveryKey turns into a deterministic security key.
+ *
+ * @returns {Uint8Array}
+ */
+function makePrivateKey() {
+  // 32-byte array from 0 to 31. (Arbitrary for the tests.)
+  return Uint8Array.from([...Array(32).keys()]);
+}
+
+add_task(async function test_deriveSecretStorageKeyFromSecurityKey() {
+  const privateKey = makePrivateKey();
+  // encodeRecoveryKey returns the base58 representation in groups of four
+  // characters separated by spaces.
+  const securityKey = MatrixSDK.Crypto.encodeRecoveryKey(privateKey);
+  Assert.stringMatches(securityKey, /^Es/, "Security keys start with 'Es'");
+  Assert.stringContains(securityKey, " ", "Security keys contain spaces");
+
+  // Without a default key, the first available key is used.
+  let [keyId, decoded] = await deriveSecretStorageKey(
+    { KEY1: {}, KEY2: {} },
+    null,
+    securityKey
+  );
+  equal(keyId, "KEY1");
+  Assert.deepEqual(
+    Array.from(decoded),
+    Array.from(privateKey),
+    "First key is used if no default"
+  );
+
+  // Whitespace is optional.
+  [keyId, decoded] = await deriveSecretStorageKey(
+    { KEY1: {} },
+    null,
+    securityKey.replaceAll(" ", "")
+  );
+  equal(keyId, "KEY1");
+  Assert.deepEqual(
+    Array.from(decoded),
+    Array.from(privateKey),
+    "Whitespace in keys is ignored"
+  );
+
+  // The default key is preferred over the first entry.
+  [keyId] = await deriveSecretStorageKey(
+    { KEY1: {}, KEY2: {} },
+    "KEY2",
+    securityKey
+  );
+  equal(keyId, "KEY2", "Default key is used if provided");
+
+  // A missing default falls back to the first entry.
+  [keyId] = await deriveSecretStorageKey(
+    { KEY1: {} },
+    "KEY_MISSING",
+    securityKey
+  );
+  equal(keyId, "KEY1", "Unknown default key is ignored");
+});
+
+add_task(async function test_deriveSecretStorageKeyFromPhrase() {
+  const keys = {
+    KEY1: { passphrase: { salt: "some salt", iterations: 10000 } },
+  };
+  const [keyId, derived] = await deriveSecretStorageKey(
+    keys,
+    null,
+    "correct horse battery staple"
+  );
+  equal(keyId, "KEY1");
+  equal(derived.length, 32);
+
+  // Derivation is deterministic.
+  const [, again] = await deriveSecretStorageKey(
+    keys,
+    null,
+    "correct horse battery staple"
+  );
+  Assert.deepEqual(Array.from(derived), Array.from(again));
+
+  // A different phrase derives a different key.
+  const [, other] = await deriveSecretStorageKey(keys, null, "other phrase");
+  Assert.notDeepEqual(Array.from(derived), Array.from(other));
+});
+
+add_task(async function test_deriveSecretStorageKeyErrors() {
+  // A phrase can not be used when the key wasn't set up from one.
+  await Assert.rejects(
+    deriveSecretStorageKey({ KEY1: {} }, null, "correct horse battery staple"),
+    /passphrase/
+  );
+
+  // Without any key info there is nothing to unlock the storage with.
+  await Assert.rejects(
+    deriveSecretStorageKey({}, null, "correct horse battery staple"),
+    /No usable secret storage key/
+  );
+});
 
 /**
  * Build a mock account providing everything bootstrapSSSS touches.

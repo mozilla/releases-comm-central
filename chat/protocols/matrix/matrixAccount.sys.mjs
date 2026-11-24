@@ -299,6 +299,65 @@ export async function checkRoomHasUnverifiedDevices(
   return false;
 }
 
+/**
+ * Determines the secret storage key to use and provides its raw bytes, either
+ * by decoding a security key or deriving a key from a security phrase.
+ *
+ * A security key is base58 encoded with an "Es" prefix (spaces are allowed by
+ * the encoding), anything else is treated as a security phrase. Both forms
+ * provide the same storage key, so either may be used regardless of how the
+ * storage was originally set up.
+ *
+ * See https://spec.matrix.org/v1.11/appendices/#cryptographic-key-representation
+ *
+ * @param {object} keys - Available secret storage key infos keyed by key ID,
+ *   as passed to cryptoCallbacks.getSecretStorageKey.
+ * @param {string?} defaultKeyId - ID of the default secret storage key, if
+ *   one is set.
+ * @param {string} passphraseOrSecurityKey - Passphrase or security key as
+ *   provided by the user.
+ * @returns {Promise<[string, Uint8Array]>} The chosen key ID and its raw key.
+ * @throws If no usable key info exists, or a phrase is given for a key that
+ *   wasn't set up from a phrase.
+ */
+export async function deriveSecretStorageKey(
+  keys,
+  defaultKeyId,
+  passphraseOrSecurityKey
+) {
+  let keyId = defaultKeyId;
+  let keyInfo = keyId ? keys[keyId] : undefined;
+  if (!keyInfo) {
+    [keyId, keyInfo] = Object.entries(keys).shift() ?? [];
+  }
+  if (!keyInfo) {
+    throw new Error("No usable secret storage key found.");
+  }
+  // Secret key format: Es<base 58 encoded data or spaces>
+  if (/^Es[1-9A-HJ-NP-Za-km-z ]+$/.test(passphraseOrSecurityKey)) {
+    return [
+      keyId,
+      lazy.MatrixSDK.Crypto.decodeRecoveryKey(passphraseOrSecurityKey),
+    ];
+  }
+  // At this point it is expected the secret storage key was originally protected
+  // with a passphrase. If the key info does not have passphrase metadata then
+  // it ONLY had a security key and the user provided the wrong info.
+  if (!keyInfo.passphrase) {
+    throw new Error(
+      "The secret storage key does not support recovery from passphrase, it only supports recovery from a security key."
+    );
+  }
+  return [
+    keyId,
+    await lazy.MatrixSDK.Crypto.deriveRecoveryKeyFromPassphrase(
+      passphraseOrSecurityKey,
+      keyInfo.passphrase.salt,
+      keyInfo.passphrase.iterations
+    ),
+  ];
+}
+
 function MatrixParticipant(roomMember, account) {
   this._id = roomMember.userId;
   this._roomMember = roomMember;
@@ -1956,25 +2015,11 @@ MatrixAccount.prototype = {
             await this.updateEncryptionStatus();
             return null;
           }
-          let keyId = await this._client.secretStorage.getDefaultKeyId();
-          let keyInfo;
-          if (keyId) {
-            keyInfo = keys[keyId];
-            if (!keyInfo) {
-              keyId = undefined;
-            }
-          }
-          if (!keyId) {
-            [keyId, keyInfo] = keys[0];
-          }
-          const key = await this._client
-            .getCrypto()
-            .deriveRecoveryKeyFromPassphrase(
-              backupPassphrase,
-              keyInfo.passphrase.salt,
-              keyInfo.passphrase.iterations
-            );
-          return [keyId, key];
+          return deriveSecretStorageKey(
+            keys,
+            await this._client.secretStorage.getDefaultKeyId(),
+            backupPassphrase
+          );
         },
       },
       verificationMethods: [lazy.VerificationMethod.Sas],
