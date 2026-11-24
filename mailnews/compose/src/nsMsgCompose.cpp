@@ -92,7 +92,7 @@ static nsresult FormatComposeString(const nsACString& aL10nId,
 
   nsAutoCString value;
   mozilla::ErrorResult error;
-  l10n->FormatValueSync(aL10nId, {}, value, error);
+  l10n->FormatValueSync(aL10nId, value, error);
   NS_ENSURE_TRUE(!error.Failed(), error.StealNSResult());
 
   CopyUTF8toUTF16(value, aValue);

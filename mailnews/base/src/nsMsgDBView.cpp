@@ -202,7 +202,7 @@ void nsMsgDBView::GetString(mozilla::intl::Localization* l10n,
                             nsACString const& id, nsAString& value) {
   nsAutoCString localizedValue;
   mozilla::ErrorResult error;
-  l10n->FormatValueSync(id, {}, localizedValue, error);
+  l10n->FormatValueSync(id, localizedValue, error);
   if (error.Failed()) {
     localizedValue = id;
   };

@@ -19,7 +19,7 @@ nsresult ShowSendAlert(const nsACString& aL10nId) {
 
   nsAutoCString message;
   mozilla::ErrorResult error;
-  l10n->FormatValueSync(aL10nId, {}, message, error);
+  l10n->FormatValueSync(aL10nId, message, error);
   NS_ENSURE_TRUE(!error.Failed(), error.StealNSResult());
 
   nsresult rv;
