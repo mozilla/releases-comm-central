@@ -82,6 +82,8 @@ tags = ["compact"]
 ["test_folderNamesExisting.js"]
 tags = ["foldernames"]
 
+["test_folderProcessingFlags.js"]
+
 ["test_folderStringProperties.js"]
 
 ["test_formatFileSize.js"]

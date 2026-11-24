@@ -22,9 +22,9 @@
 #include "nsIOutputStream.h"
 #include "nsITransport.h"
 #include "nsIStringBundle.h"
+#include "nsTHashSet.h"
 #include "nsTObserverArray.h"
 #include "nsCOMArray.h"
-#include "nsMsgKeySet.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFilterPlugin.h"
 #include "mozilla/intl/Collator.h"
@@ -68,7 +68,6 @@ extern const nsLiteralCString kRenameCompleted;
 using mozilla::intl::Collator;
 
 class nsIMsgFolderCacheElement;
-class nsMsgKeySetU;
 
 class nsMsgFolderService final : public nsIMsgFolderService {
  public:
@@ -333,7 +332,7 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   // store of keys that have a processing flag set
   struct {
     uint32_t bit;
-    nsMsgKeySetU* keys;
+    nsTHashSet<nsMsgKey> keys;
   } mProcessingFlag[nsMsgProcessingFlags::NumberOfFlags];
 
   // list of nsIMsgDBHdrs for messages to process post-bayes
@@ -359,28 +358,6 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult DetermineActionsForJunkChange(bool msgsAreJunk, bool& moveMessages,
                                          bool& changeReadState,
                                          nsIMsgFolder** targetFolder);
-};
-
-// This class is a kludge to allow nsMsgKeySet to be used with uint32_t keys
-class nsMsgKeySetU {
- public:
-  // Creates an empty set.
-  static nsMsgKeySetU* Create();
-  ~nsMsgKeySetU();
-  // IsMember() returns whether the given key is a member of this set.
-  bool IsMember(nsMsgKey key);
-  // Add() adds the given key to the set.  (Returns 1 if a change was
-  // made, 0 if it was already there, and negative on error.)
-  int Add(nsMsgKey key);
-  // Remove() removes the given article from the set.
-  int Remove(nsMsgKey key);
-  // Add the keys in the set to aArray.
-  nsresult ToMsgKeyArray(nsTArray<nsMsgKey>& aArray);
-
- protected:
-  nsMsgKeySetU();
-  RefPtr<nsMsgKeySet> loKeySet;
-  RefPtr<nsMsgKeySet> hiKeySet;
 };
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGDBFOLDER_H_

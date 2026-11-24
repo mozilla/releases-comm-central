@@ -277,14 +277,9 @@ nsMsgDBFolder::nsMsgDBFolder(void)
   mProcessingFlag[3].bit = nsMsgProcessingFlags::FiltersDone;
   mProcessingFlag[4].bit = nsMsgProcessingFlags::FilterToMove;
   mProcessingFlag[5].bit = nsMsgProcessingFlags::NotReportedClassified;
-  for (uint32_t i = 0; i < nsMsgProcessingFlags::NumberOfFlags; i++)
-    mProcessingFlag[i].keys = nsMsgKeySetU::Create();
 }
 
 nsMsgDBFolder::~nsMsgDBFolder(void) {
-  for (uint32_t i = 0; i < nsMsgProcessingFlags::NumberOfFlags; i++)
-    delete mProcessingFlag[i].keys;
-
   // shutdown but don't shutdown children.
   Shutdown(false);
 }
@@ -2401,27 +2396,24 @@ nsMsgDBFolder::CallFilterPlugins(bool* aFiltersRun) {
  * nsIMsgFolderNotificationService notification.
  */
 nsresult nsMsgDBFolder::NotifyHdrsNotBeingClassified() {
-  if (mProcessingFlag[5].keys) {
-    nsTArray<nsMsgKey> keys;
-    mProcessingFlag[5].keys->ToMsgKeyArray(keys);
-    if (keys.Length()) {
-      nsresult rv = GetDatabase();
-      NS_ENSURE_SUCCESS(rv, rv);
-      nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrsNotBeingClassified;
-      rv = MsgGetHeadersFromKeys(mDatabase, keys, msgHdrsNotBeingClassified);
-      NS_ENSURE_SUCCESS(rv, rv);
+  if (mProcessingFlag[5].keys.IsEmpty()) return NS_OK;
 
-      // Since we know we've handled all the NotReportedClassified messages,
-      // we clear the set by deleting and recreating it.
-      delete mProcessingFlag[5].keys;
-      mProcessingFlag[5].keys = nsMsgKeySetU::Create();
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
-          mozilla::components::FolderNotification::Service();
-      notifier->NotifyMsgsClassified(msgHdrsNotBeingClassified,
-                                     // no classification is being performed
-                                     false, false);
-    }
-  }
+  nsresult rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsTArray<nsMsgKey> keys = ToArray(mProcessingFlag[5].keys);
+  keys.Sort();
+  nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrsNotBeingClassified;
+  rv = MsgGetHeadersFromKeys(mDatabase, keys, msgHdrsNotBeingClassified);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Since we know we've handled all the NotReportedClassified messages,
+  // we clear the set.
+  mProcessingFlag[5].keys.Clear();
+  nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+      mozilla::components::FolderNotification::Service();
+  notifier->NotifyMsgsClassified(msgHdrsNotBeingClassified,
+                                 // no classification is being performed
+                                 false, false);
   return NS_OK;
 }
 
@@ -5606,22 +5598,20 @@ NS_IMETHODIMP nsMsgDBFolder::GetProcessingFlags(nsMsgKey aKey,
   NS_ENSURE_ARG_POINTER(aFlags);
   *aFlags = 0;
   for (uint32_t i = 0; i < nsMsgProcessingFlags::NumberOfFlags; i++)
-    if (mProcessingFlag[i].keys && mProcessingFlag[i].keys->IsMember(aKey))
+    if (mProcessingFlag[i].keys.Contains(aKey))
       *aFlags |= mProcessingFlag[i].bit;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::OrProcessingFlags(nsMsgKey aKey, uint32_t mask) {
   for (uint32_t i = 0; i < nsMsgProcessingFlags::NumberOfFlags; i++)
-    if (mProcessingFlag[i].bit & mask && mProcessingFlag[i].keys)
-      mProcessingFlag[i].keys->Add(aKey);
+    if (mProcessingFlag[i].bit & mask) mProcessingFlag[i].keys.Insert(aKey);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::AndProcessingFlags(nsMsgKey aKey, uint32_t mask) {
   for (uint32_t i = 0; i < nsMsgProcessingFlags::NumberOfFlags; i++)
-    if (!(mProcessingFlag[i].bit & mask) && mProcessingFlag[i].keys)
-      mProcessingFlag[i].keys->Remove(aKey);
+    if (!(mProcessingFlag[i].bit & mask)) mProcessingFlag[i].keys.Remove(aKey);
   return NS_OK;
 }
 
@@ -5640,11 +5630,8 @@ NS_IMETHODIMP nsMsgDBFolder::HandleViewCommand(
 }
 
 void nsMsgDBFolder::ClearProcessingFlags() {
-  for (uint32_t i = 0; i < nsMsgProcessingFlags::NumberOfFlags; i++) {
-    // There is no clear method so we need to delete and re-create.
-    delete mProcessingFlag[i].keys;
-    mProcessingFlag[i].keys = nsMsgKeySetU::Create();
-  }
+  for (uint32_t i = 0; i < nsMsgProcessingFlags::NumberOfFlags; i++)
+    mProcessingFlag[i].keys.Clear();
 }
 
 nsresult nsMsgDBFolder::MessagesInKeyOrder(
@@ -5675,47 +5662,4 @@ NS_IMETHODIMP nsMsgDBFolder::GetAutoSyncStateObj(
   NS_ENSURE_ARG_POINTER(autoSyncStateObj);
   autoSyncStateObj = nullptr;
   return NS_OK;
-}
-
-/* static */ nsMsgKeySetU* nsMsgKeySetU::Create() {
-  nsMsgKeySetU* set = new nsMsgKeySetU;
-  if (set) {
-    set->loKeySet = nsMsgKeySet::Create();
-    set->hiKeySet = nsMsgKeySet::Create();
-    if (!(set->loKeySet && set->hiKeySet)) {
-      delete set;
-      set = nullptr;
-    }
-  }
-  return set;
-}
-
-nsMsgKeySetU::nsMsgKeySetU() : hiKeySet(nullptr) {}
-
-nsMsgKeySetU::~nsMsgKeySetU() {}
-
-const uint32_t kLowerBits = 0x7fffffff;
-
-int nsMsgKeySetU::Add(nsMsgKey aKey) {
-  int32_t intKey = static_cast<int32_t>(aKey);
-  if (intKey >= 0) return loKeySet->Add(intKey);
-  return hiKeySet->Add(intKey & kLowerBits);
-}
-
-int nsMsgKeySetU::Remove(nsMsgKey aKey) {
-  int32_t intKey = static_cast<int32_t>(aKey);
-  if (intKey >= 0) return loKeySet->Remove(intKey);
-  return hiKeySet->Remove(intKey & kLowerBits);
-}
-
-bool nsMsgKeySetU::IsMember(nsMsgKey aKey) {
-  int32_t intKey = static_cast<int32_t>(aKey);
-  if (intKey >= 0) return loKeySet->IsMember(intKey);
-  return hiKeySet->IsMember(intKey & kLowerBits);
-}
-
-nsresult nsMsgKeySetU::ToMsgKeyArray(nsTArray<nsMsgKey>& aArray) {
-  nsresult rv = loKeySet->ToMsgKeyArray(aArray);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return hiKeySet->ToMsgKeyArray(aArray);
 }
