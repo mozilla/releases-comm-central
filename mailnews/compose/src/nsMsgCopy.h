@@ -46,18 +46,14 @@ class CopyListener : public nsIMsgCopyServiceListener {
   nsCOMPtr<nsIMsgSend> mComposeAndSend;
 };
 
-//
-// This is a class that deals with processing remote attachments. It implements
-// an nsIStreamListener interface to deal with incoming data
-//
-class nsMsgCopy : public nsIMsgCopy, public nsIUrlListener {
+// Copies an outgoing message to an existing destination folder.
+class nsMsgCopy : public nsIMsgCopy {
  public:
   nsMsgCopy();
 
   // nsISupports interface
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOPY
-  NS_DECL_NSIURLLISTENER
 
   //////////////////////////////////////////////////////////////////////
   // Object methods...
@@ -68,25 +64,18 @@ class nsMsgCopy : public nsIMsgCopy, public nsIUrlListener {
                   bool interactive, nsIMsgSend* aMsgSendObj);
 
   nsresult GetUnsentMessagesFolder(nsIMsgIdentity* userIdentity,
-                                   nsIMsgFolder** msgFolder, bool* waitForUrl);
+                                   nsIMsgFolder** msgFolder);
   nsresult GetDraftsFolder(nsIMsgIdentity* userIdentity,
-                           nsIMsgFolder** msgFolder, bool* waitForUrl);
+                           nsIMsgFolder** msgFolder);
   nsresult GetTemplatesFolder(nsIMsgIdentity* userIdentity,
-                              nsIMsgFolder** msgFolder, bool* waitForUrl);
-  nsresult GetSentFolder(nsIMsgIdentity* userIdentity, nsIMsgFolder** msgFolder,
-                         bool* waitForUrl);
-  nsresult CreateIfMissing(nsIMsgFolder** folder, bool* waitForUrl);
+                              nsIMsgFolder** msgFolder);
+  nsresult GetSentFolder(nsIMsgIdentity* userIdentity,
+                         nsIMsgFolder** msgFolder);
 
   //
   // Vars for implementation...
   //
-  nsIFile* mFile;  // the file we are sending...
-  nsMsgDeliverMode mMode;
   nsCOMPtr<nsIMsgFolder> mDstFolder;
-  nsCOMPtr<nsIMsgDBHdr> mMsgToReplace;
-  bool mIsDraft;
-  uint32_t mMsgFlags;
-  nsCOMPtr<nsIMsgSend> mMsgSendObj;
   char* mSavePref;
 
  private:

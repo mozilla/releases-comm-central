@@ -19,6 +19,8 @@ run-if = [
 
 ["test_bug474774.js"]
 
+["test_copyFolderLookup.js"]
+
 ["test_createAndSendMessage.js"]
 
 ["test_createRFC822Message.js"]

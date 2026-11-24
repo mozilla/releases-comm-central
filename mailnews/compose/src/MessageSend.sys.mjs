@@ -1066,8 +1066,8 @@ export class MessageSend {
    * @param {string} [fccHeader=this._fcc] - The target folder uri to copy the
    * message to.
    * @param {nsMsgDeliverMode} [deliverMode=this._deliverMode] - The deliver mode.
-   * @param {boolean} [createTarget=false] - Whether to create a folder object
-   * for an explicit target that does not exist yet.
+   * @param {boolean} [createTarget=false] - Whether to create a missing explicit
+   *   destination through its parent folder.
    * @returns {Promise<nsresult>} The successful completion status.
    */
   async _copyToFcc(
@@ -1081,9 +1081,10 @@ export class MessageSend {
     let folder;
     let folderUri;
     if (fccHeader) {
-      folder = createTarget
-        ? lazy.MailUtils.getOrCreateFolder(fccHeader)
-        : lazy.MailUtils.getExistingFolder(fccHeader);
+      folder = lazy.MailUtils.getExistingFolder(fccHeader);
+      if (!folder && createTarget) {
+        folder = await this._createCopyFolder(fccHeader);
+      }
     }
     if (
       [Ci.nsIMsgSend.nsMsgDeliverNow, Ci.nsIMsgSend.nsMsgSendUnsent].includes(
@@ -1091,7 +1092,7 @@ export class MessageSend {
       ) &&
       folder
     ) {
-      this._folderUri = fccHeader;
+      this._folderUri = folder.URI;
     } else {
       this._folderUri = await lazy.MsgUtils.getMsgFolderURIFromPrefs(
         this._userIdentity,
@@ -1122,6 +1123,18 @@ export class MessageSend {
         }
       }
     }
+    folder = lazy.MailUtils.getExistingFolder(this._folderUri);
+    if (
+      !folder &&
+      this._folderUri != "anyfolder://" &&
+      [
+        Ci.nsIMsgSend.nsMsgQueueForLater,
+        Ci.nsIMsgSend.nsMsgDeliverBackground,
+      ].includes(deliverMode)
+    ) {
+      folder = await this._createCopyFolder(this._folderUri);
+      this._folderUri = folder.URI;
+    }
     lazy.MsgUtils.sendLogger.debug(
       `Processing fcc; folderUri=${this._folderUri}`
     );
@@ -1142,7 +1155,6 @@ export class MessageSend {
         this._compFields.messageId,
         this._folderUri
       );
-      folder = lazy.MailUtils.getOrCreateFolder(this._folderUri);
       this._setStatusMessage("send-progress-copy-start", {
         folder: folder?.localizedName || "?",
       });
@@ -1179,6 +1191,30 @@ export class MessageSend {
         this._copyFile = null;
       }
     }
+  }
+
+  /**
+   * Create a copy destination below an existing parent folder.
+   *
+   * @param {string} folderURI - The URI of the missing destination.
+   * @returns {Promise<nsIMsgFolder>} The newly created folder.
+   * @throws {Components.Exception} If the parent is missing or creation fails.
+   * @throws {URIError} If the folder name has invalid percent escapes.
+   */
+  async _createCopyFolder(folderURI) {
+    const leafPos = folderURI.lastIndexOf("/");
+    const parent = lazy.MailUtils.getExistingFolder(
+      folderURI.slice(0, leafPos)
+    );
+    if (!parent) {
+      throw new Components.Exception(
+        `Copy destination parent is missing for ${folderURI}`,
+        Cr.NS_MSG_ERROR_FOLDER_MISSING
+      );
+    }
+    return parent.createSubfolderAsync(
+      decodeURIComponent(folderURI.slice(leafPos + 1))
+    );
   }
 
   /**
