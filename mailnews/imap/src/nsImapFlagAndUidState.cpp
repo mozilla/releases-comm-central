@@ -37,7 +37,9 @@ NS_IMETHODIMP nsImapFlagAndUidState::GetUidOfMessage(int32_t zeroBasedIndex,
 NS_IMETHODIMP
 nsImapFlagAndUidState::HasMessage(ImapUid uid, bool* result) {
   NS_ENSURE_ARG_POINTER(result);
-  *result = fUids.Contains(uid);
+  PR_CEnterMonitor(this);
+  *result = IndexOfUid(uid) >= 0;
+  PR_CExitMonitor(this);
   return NS_OK;
 }
 
@@ -98,6 +100,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::Reset() {
   PR_CEnterMonitor(this);
   fNumberDeleted = 0;
   m_customFlagsHash.Clear();
+  mIndexByUid.reset();
   fUids.Clear();
   fFlags.Clear();
   fPartialUIDFetch = true;
@@ -121,6 +124,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::ExpungeByIndex(uint32_t msgIndex) {
     // see if we already had counted this one as deleted
     fNumberDeleted--;
   }
+  mIndexByUid.reset();
   fUids.RemoveElementAt(msgIndex);
   fFlags.RemoveElementAt(msgIndex);
   PR_CExitMonitor(this);
@@ -162,11 +166,34 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidFlagPair(ImapUid uid,
     fNumAdded++;
   }
 
+  ImapUid oldUid = fUids[zeroBasedIndex];
+  if (mIndexByUid && oldUid != uid) {
+    if (oldUid == 0) {
+      uint32_t& index = mIndexByUid->LookupOrInsert(uid, zeroBasedIndex);
+      index = std::min(index, zeroBasedIndex);
+    } else {
+      mIndexByUid.reset();
+    }
+  }
   fUids[zeroBasedIndex] = uid;
   fFlags[zeroBasedIndex] = flags;
   if (flags & kImapMsgDeletedFlag) fNumberDeleted++;
   PR_CExitMonitor(this);
   return NS_OK;
+}
+
+int32_t nsImapFlagAndUidState::IndexOfUid(ImapUid uid) {
+  if (!mIndexByUid) {
+    // A partial fetch leaves gaps, which don't need space in the table.
+    uint32_t numUids =
+        fUids.Length() - std::count(fUids.begin(), fUids.end(), 0u);
+    mIndexByUid.emplace(numUids);
+    for (uint32_t i = 0; i < fUids.Length(); i++) {
+      if (fUids[i] != 0) mIndexByUid->LookupOrInsert(fUids[i], i);
+    }
+  }
+  Maybe<uint32_t> index = mIndexByUid->MaybeGet(uid);
+  return index ? (int32_t)*index : -1;
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::GetNumberOfDeletedMessages(
@@ -198,7 +225,7 @@ NS_IMETHODIMP
 nsImapFlagAndUidState::GetMessageFlagsByUid(ImapUid uid,
                                             imapMessageFlagsType* retFlags) {
   PR_CEnterMonitor(this);
-  int32_t ndx = (int32_t)fUids.IndexOf(uid);
+  int32_t ndx = IndexOfUid(uid);
   bool foundIt = ndx >= 0;
   *retFlags = foundIt ? fFlags[ndx] : kNoImapMsgFlag;
   PR_CExitMonitor(this);

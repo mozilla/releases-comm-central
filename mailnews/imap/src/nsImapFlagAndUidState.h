@@ -10,6 +10,7 @@
 #include "nsImapCore.h"
 #include "nsTArray.h"
 #include "nsTHashMap.h"
+#include "mozilla/Maybe.h"
 #include "mozilla/Mutex.h"
 
 const int32_t kImapFlagAndUidStateSize = 100;
@@ -35,8 +36,16 @@ class nsImapFlagAndUidState : public nsIImapFlagAndUidState {
  private:
   virtual ~nsImapFlagAndUidState();
 
+  // Returns the index of the first occurrence of `uid` in fUids, or -1.
+  // fUids can't be searched by bisection: in a partial fetch, 0 marks the
+  // messages the server did not mention. The caller must hold the monitor.
+  int32_t IndexOfUid(ImapUid uid);
+
   nsTArray<ImapUid> fUids;
   nsTArray<imapMessageFlagsType> fFlags;
+  // The index in fUids by UID. Built by the first lookup, dropped when a
+  // message moves to another index.
+  mozilla::Maybe<nsTHashMap<nsUint32HashKey, uint32_t>> mIndexByUid;
   // Hash table, mapping uids to extra flags
   nsTHashMap<nsUint32HashKey, nsCString> m_customFlagsHash;
   // Hash table, mapping UID+customAttributeName to customAttributeValue.
