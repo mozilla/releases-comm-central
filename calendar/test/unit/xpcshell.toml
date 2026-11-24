@@ -91,6 +91,8 @@ tags = ["caldav"]
 
 ["test_detection.js"]
 
+["test_detection_proxy.js"]
+
 ["test_duration.js"]
 
 ["test_email_utils.js"]

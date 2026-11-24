@@ -12,6 +12,7 @@ const CALENDAR_NAME = "Work";
 const OLD_USERNAME = "barney";
 const OTHER_USERNAME = "wilma";
 const AUTH_HOST = Ci.nsIAuthInformation.AUTH_HOST;
+const AUTH_PROXY = Ci.nsIAuthInformation.AUTH_PROXY;
 const PREVIOUS_FAILED = Ci.nsIAuthInformation.PREVIOUS_FAILED;
 
 function run_test() {
@@ -681,4 +682,21 @@ add_task(async function test_prompt_leaves_a_matching_username_alone() {
   );
   prompt.saveUsername(channel);
   Assert.equal(written, 0, "the calendar should not be written to for an unchanged name");
+});
+
+/** On a proxy challenge the channel URI is the server, whose login must stay out of it. */
+add_task(async function test_prompt_refuses_a_proxy() {
+  await resetLogins();
+  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, ORIGIN, REALM);
+
+  const prompt = makePrompt(true);
+  const authInfo = { realm: REALM, flags: AUTH_PROXY, username: "", password: "" };
+  Assert.ok(!(await promptAuth(prompt, authInfo)), "the proxy challenge should be cancelled");
+  Assert.ok(
+    !prompt.promptAuth(makeChannel(), 0, authInfo),
+    "the proxy challenge should be refused on the sync path too"
+  );
+  Assert.equal(prompt.asked, 0, "the user should not be asked");
+  Assert.equal(authInfo.username, "", "the proxy should not get the server username");
+  Assert.equal(authInfo.password, "", "the proxy should not get the server password");
 });
