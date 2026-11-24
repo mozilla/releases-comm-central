@@ -11,7 +11,6 @@
 #include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
-#include "mozilla/mailnews/SMimeCertEmail.h"
 #include "msgCore.h"
 #include "nsCMSSecureMessage.h"
 #include "nsComponentManagerUtils.h"
@@ -1233,8 +1232,7 @@ nsresult FindSMimeCertTask::CalculateResult() {
   // search for a valid certificate
   for (node = CERT_LIST_HEAD(certlist); !CERT_LIST_END(node, certlist);
        node = CERT_LIST_NEXT(node)) {
-    if (!NSS_CMSRecipient_IsSupported(node->cert) ||
-        !mozilla::mailnews::SMimeCertHasEmailAddress(node->cert, mEmail)) {
+    if (!NSS_CMSRecipient_IsSupported(node->cert)) {
       continue;
     }
     nsTArray<uint8_t> certBytes(node->cert->derCert.data,

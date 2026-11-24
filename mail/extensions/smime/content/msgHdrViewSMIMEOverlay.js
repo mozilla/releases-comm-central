@@ -355,19 +355,13 @@ var smimeSink = {
       return;
     }
 
-    const certAddresses = Cc["@mozilla.org/nsCMSSecureMessage;1"]
-      .getService(Ci.nsICMSSecureMessage)
-      .getIdentityEmailAddresses(gSignerCert)
-      .map(address => address.toLowerCase());
     const fromMailboxes = MailServices.headerParser
       .extractHeaderAddressMailboxes(currentHeaderData.from.headerValue)
       .split(",");
-    if (
-      fromMailboxes.some(mailbox =>
-        certAddresses.includes(mailbox.trim().toLowerCase())
-      )
-    ) {
-      return; // It's signed by a From. Nothing more to do
+    for (let i = 0; i < fromMailboxes.length; i++) {
+      if (gSignerCert.containsEmailAddress(fromMailboxes[i])) {
+        return; // It's signed by a From. Nothing more to do
+      }
     }
 
     const entry = gExpandedHeaderList.find(h => h.name == "sender");

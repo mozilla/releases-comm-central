@@ -120,22 +120,6 @@ function smimeSignatureStatusInfo(status) {
 }
 
 /**
- * @param {?nsIX509Cert} cert
- * @returns {string} The first e-mail address identifying the certificate's
- *   owner, or an empty string.
- */
-function getCertEmailAddress(cert) {
-  if (!cert) {
-    return "";
-  }
-  return (
-    Cc["@mozilla.org/nsCMSSecureMessage;1"]
-      .getService(Ci.nsICMSSecureMessage)
-      .getIdentityEmailAddresses(cert)[0] || ""
-  );
-}
-
-/**
  * Populate the message security popup panel with S/MIME data.
  */
 function loadSmimeMessageSecurityInfo() {
@@ -230,7 +214,7 @@ function loadSmimeMessageSecurityInfo() {
   document.getElementById("signedBy").textContent =
     gSignerCert?.commonName || gSignerCert?.subjectName || "";
   document.getElementById("signerEmail").textContent =
-    getCertEmailAddress(gSignerCert);
+    gSignerCert?.emailAddress || "";
   document.getElementById("sigCertIssuedBy").textContent =
     gSignerCert?.issuerCommonName || gSignerCert?.issuerName || "";
 
@@ -239,7 +223,7 @@ function loadSmimeMessageSecurityInfo() {
   document.getElementById("encryptedFor").textContent =
     gEncryptionCert?.commonName || gEncryptionCert?.subjectName || "";
   document.getElementById("recipientEmail").textContent =
-    getCertEmailAddress(gEncryptionCert);
+    gEncryptionCert?.emailAddress || "";
   document.getElementById("encCertIssuedBy").textContent =
     gEncryptionCert?.issuerCommonName || gEncryptionCert?.issuerName || "";
 
