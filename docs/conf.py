@@ -36,6 +36,7 @@ extensions = [
     "sphinx_markdown_tables",
     "sphinx_design",
     "bzlink",
+    "staging_paths",
 ]
 
 root_for_relative_js_paths = topcommdir
