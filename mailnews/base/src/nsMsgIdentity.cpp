@@ -631,6 +631,16 @@ nsresult nsMsgIdentity::GetOrCreateFolderAsync(
     return NS_OK;
   }
 
+  nsAutoCString prefValue;
+  mPrefBranch->GetStringPref(prefName, ""_ns, 1, prefValue);
+  if (!prefValue.IsEmpty() && !UseAccountDefaultFolder(pickerModePrefName)) {
+    // An explicit folder that no longer exists must not be replaced by an
+    // arbitrary special folder or by Local Folders.
+    promise->MaybeReject(NS_MSG_ERROR_FOLDER_MISSING);
+    promise.forget(aPromise);
+    return NS_OK;
+  }
+
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       mozilla::components::AccountManager::Service();
 

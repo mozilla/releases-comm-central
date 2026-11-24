@@ -203,6 +203,10 @@ interface nsIMsgIdentity : nsISupports {
    * possible. Local Folders is used only if creation on that server fails.
    * When no server is selected by a URI, the servers associated with the
    * identity are tried before Local Folders.
+   *
+   * In explicit-folder picker mode, a missing configured folder causes the
+   * promise to reject rather than silently selecting or creating another
+   * folder.
    */
   [implicit_jscontext]
   Promise getOrCreateFccFolderAsync();

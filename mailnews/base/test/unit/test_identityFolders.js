@@ -443,6 +443,11 @@ add_task(async function testIMAPNamespaceCanonicalization() {
       null,
       "an explicit IMAP URI must not match a differently cased mailbox"
     );
+    await Assert.rejects(
+      explicitIdentity.getOrCreateTemplatesFolderAsync(),
+      error => (error.result ?? error) == Cr.NS_MSG_ERROR_FOLDER_MISSING,
+      "a differently cased explicit folder should be reported as missing"
+    );
     Assert.equal(
       explicitIdentity.templatesFolderURI,
       caseSensitiveURI,
@@ -620,6 +625,60 @@ add_task(async function testConfiguredServerTakesPriority() {
       }
     } finally {
       MailServices.accounts.removeAccount(targetAccount, false);
+    }
+  });
+});
+
+/**
+ * A missing explicit "Other" folder must not be replaced by a flagged folder
+ * on the identity's server, the URI's server, or Local Folders.
+ */
+add_task(async function testMissingExplicitFolderDoesNotFallback() {
+  await runFoldersSubtest("pop3", async (_type, sourceServer, identity) => {
+    const sourceParent =
+      await sourceServer.rootFolder.createSubfolderAsync("SourceSpecial");
+    const localAccount = MailServices.accounts.createLocalMailAccount();
+    const localParent =
+      await localAccount.incomingServer.rootFolder.createSubfolderAsync(
+        "LocalSpecial"
+      );
+
+    try {
+      for (const [attribute, func, pickerMode, name, flag] of folderTypes) {
+        const sourceFolder = await sourceParent.createSubfolderAsync(name);
+        sourceFolder.setFlag(flag);
+        const localFolder = await localParent.createSubfolderAsync(name);
+        localFolder.setFlag(flag);
+
+        const missingURI = `${sourceServer.serverURI}/Missing${name}`;
+        identity[pickerMode] = "1";
+        identity[attribute] = missingURI;
+
+        if (attribute == "templatesFolderURI") {
+          Assert.equal(
+            identity.getTemplatesFolder(),
+            null,
+            "non-creating lookup should not replace an explicit folder"
+          );
+        }
+        try {
+          await identity[func]();
+          Assert.ok(false, `${func} should reject for a missing explicit URI`);
+        } catch (error) {
+          Assert.equal(
+            error.result ?? error,
+            Cr.NS_MSG_ERROR_FOLDER_MISSING,
+            `${func} should report the missing explicit folder`
+          );
+        }
+        Assert.equal(
+          identity[attribute],
+          missingURI,
+          `${attribute} should preserve the explicit URI`
+        );
+      }
+    } finally {
+      MailServices.accounts.removeAccount(localAccount, false);
     }
   });
 });
