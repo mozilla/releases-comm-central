@@ -277,6 +277,9 @@ pref("extensions.blocklist.itemURL", "https://blocked.cdn.mozilla.net/%blockID%.
 pref("services.settings.server", "https://thunderbird-settings.thunderbird.net/v1");
 pref("services.settings.default_bucket", "thunderbird");
 pref("security.content.signature.root_hash", "[CONTENT SIGNING DISABLED - see bug 1612380]");
+// TODO(bug 2097286): Remove this override once Thunderbird's Remote Settings
+// server serves search-config-v3 and Thunderbird ships the v3 dump.
+pref("browser.search.configV3.featureGate", false);
 
 // Show new install UI with permission lists
 pref("extensions.webextOptionalPermissionPrompts", true);
