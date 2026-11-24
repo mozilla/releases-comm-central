@@ -22,4 +22,9 @@ interface nsICMSSecureMessage : nsISupports
    * Return true if the certificate can be used for signing emails.
    */
   boolean canBeUsedForEmailSigning(in nsIX509Cert cert);
+
+  /**
+   * Return the e-mail addresses that identify the owner of the certificate.
+   */
+  Array<AUTF8String> getIdentityEmailAddresses(in nsIX509Cert cert);
 };
