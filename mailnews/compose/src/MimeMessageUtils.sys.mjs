@@ -88,15 +88,24 @@ export var MsgUtils = {
   },
 
   /**
-   * Get the fcc value.
+   * Resolve the FCC URI for saving or sending a message.
    *
    * @param {nsIMsgIdentity} userIdentity - The user identity.
    * @param {nsIMsgCompFields} compFields - The compose fields.
-   * @param {string} originalMsgURI - The original message uri, can be null.
+   * @param {?string} originalMsgURI - The original message URI.
    * @param {MSG_ComposeType} compType - The compose type.
-   * @returns {Promise<string>}
+   * @param {nsMsgDeliverMode} deliverMode - The delivery mode. Saving a draft
+   *   or template only records the FCC URI for a later send.
+   * @returns {Promise<string>} The FCC URI, or an empty string if no copy is needed.
+   * @throws {Components.Exception} If sending requires an unavailable FCC folder.
    */
-  async getFcc(userIdentity, compFields, originalMsgURI, compType) {
+  async getFcc(
+    userIdentity,
+    compFields,
+    originalMsgURI,
+    compType,
+    deliverMode
+  ) {
     // Check if the default fcc has been overridden.
     let fcc = "";
     let useDefaultFcc = true;
@@ -164,11 +173,17 @@ export var MsgUtils = {
       }
 
       if (useDefaultFcc) {
-        const uri = await this.getMsgFolderURIFromPrefs(
-          userIdentity,
-          Ci.nsIMsgSend.nsMsgDeliverNow
-        );
-        fcc = uri == "nocopy://" ? "" : uri;
+        const isSaving = [
+          Ci.nsIMsgSend.nsMsgSaveAsDraft,
+          Ci.nsIMsgSend.nsMsgSaveAsTemplate,
+        ].includes(deliverMode);
+        const uri = isSaving
+          ? userIdentity.fccFolderURI
+          : await this.getMsgFolderURIFromPrefs(
+              userIdentity,
+              Ci.nsIMsgSend.nsMsgDeliverNow
+            );
+        fcc = !uri || uri == "nocopy://" ? "" : uri;
       }
     }
 

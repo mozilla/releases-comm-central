@@ -532,6 +532,10 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
       nsIMsgSend::nsMsgSendUnsent,  // nsMsgDeliverMode mode,
       nullptr,                      // nsIMsgDBHdr *msgToReplace,
       sendListener, nullptr, getter_AddRefs(promise));
+  if (promise) {
+    // SendOperationListener handles failures and advances the queue.
+    (void)promise->SetAnyPromiseIsHandled();
+  }
   return rv;
 }
 

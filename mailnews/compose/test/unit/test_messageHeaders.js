@@ -192,14 +192,41 @@ async function testDraftInfo() {
     "from@tinderbox.invalid",
     getBasicSmtpServer()
   );
+  Assert.equal(
+    identity.fccFolderURI,
+    null,
+    "the identity should start without a configured Sent folder"
+  );
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
-    FCC: identity.fccFolderURI,
+    FCC: undefined,
     "X-Identity-Key": identity.key,
     "X-Mozilla-Draft-Info":
       "internal/draft; " +
       "vcard=0; receipt=0; DSN=0; uuencode=0; attachmentreminder=0; deliveryformat=4",
   });
+  Assert.equal(
+    identity.fccFolderURI,
+    null,
+    "saving a draft should leave an unset Sent folder preference unchanged"
+  );
+
+  const rootFolder = localAccountUtils.rootFolder;
+  const sentURI = `${rootFolder.URI}/FutureSent`;
+  identity.fccFolderPickerMode = "1";
+  identity.fccFolderURI = sentURI;
+  await richCreateMessage(fields, [], identity);
+  checkDraftHeaders({ FCC: sentURI });
+  Assert.equal(
+    identity.fccFolderURI,
+    sentURI,
+    "saving a draft should preserve the configured Sent folder URI"
+  );
+  Assert.equal(
+    rootFolder.server.getFolderFromURI(sentURI),
+    null,
+    "saving a draft should leave the future Sent folder uncreated"
+  );
 
   fields.attachVCard = true;
   await richCreateMessage(fields, [], identity);

@@ -10,7 +10,7 @@ support-files = ["data/*"]
 
 ["test_autoReply.js"]
 run-if = [
-   "os != 'mac'",
+  "os != 'mac'",
 ]
 
 ["test_bcc.js"]
@@ -68,6 +68,8 @@ run-if = [
 ["test_saveDraft.js"]
 
 ["test_sendBackground.js"]
+
+["test_sendLaterMissingSentFolder.js"]
 
 ["test_sendMailAddressIDN.js"]
 

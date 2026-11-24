@@ -57,7 +57,9 @@ export class MessageSend {
    * @param {?string} smtpPassword - Optional smtp server password
    * @param {?string} originalMsgURI - URI of original message.
    * @param {nsIMsgCompType} compType - Compose type.
-   * @returns {Promise} promise when the create and send process is done.
+   * @returns {Promise<void>} Resolves after creating the message file if
+   *   `dontDeliver` is true. Otherwise uses the completion timing of
+   *   `sendMessageFile`.
    */
   async createAndSendMessage(
     editor,
@@ -103,12 +105,7 @@ export class MessageSend {
 
     this._setStatusMessage("send-progress-assembling-message");
 
-    this._fcc = await lazy.MsgUtils.getFcc(
-      userIdentity,
-      compFields,
-      originalMsgURI,
-      compType
-    );
+    this._fcc = await this._getFcc(originalMsgURI, compType);
     const { embeddedAttachments, embeddedObjects } =
       this._gatherEmbeddedAttachments(editor);
 
@@ -184,6 +181,11 @@ export class MessageSend {
    *   finishing e.g. after saving a message to the sent mail folder.
    * @param {string} smtpPassword - Pass this in to prevent a dialog if the
    *   password is needed for secure transmission.
+   * @returns {Promise<void>} Resolves after saving or queueing the message.
+   *   For SMTP, resolves after delivery and FCC processing, except that
+   *   `nsMsgSendUnsent` leaves the promise pending and reports completion
+   *   through `listener`. For NNTP, resolves after the news post and FCC
+   *   processing, or after starting any subsequent SMTP delivery.
    */
   async sendMessageFile(
     userIdentity,
@@ -218,12 +220,7 @@ export class MessageSend {
 
     this._setStatusMessage("send-progress-assembling-message");
 
-    this._fcc = await lazy.MsgUtils.getFcc(
-      userIdentity,
-      compFields,
-      null,
-      Ci.nsIMsgCompType.New
-    );
+    this._fcc = await this._getFcc(null, Ci.nsIMsgCompType.New);
 
     // nsMsgKey_None from MailNewsTypes.h.
     this._messageKey = 0xffffffff;
@@ -356,6 +353,47 @@ export class MessageSend {
       this._sendReport.displayReport(this._parentWindow);
     }
     this.abort();
+  }
+
+  /**
+   * Resolve the FCC URI and notify the send listener if setup fails. Saving a
+   * draft or template only records the URI for a later send.
+   *
+   * @param {?string} originalMsgURI - The message being replied to or forwarded.
+   * @param {nsIMsgCompType} compType - The composition type.
+   * @returns {Promise<string>} The FCC URI, or an empty string if no copy is needed.
+   * @throws {Components.Exception} If the destination cannot be prepared.
+   */
+  async _getFcc(originalMsgURI, compType) {
+    try {
+      return await lazy.MsgUtils.getFcc(
+        this._userIdentity,
+        this._compFields,
+        originalMsgURI,
+        compType,
+        this._deliverMode
+      );
+    } catch (e) {
+      this._failBeforeDelivery(e);
+      throw e;
+    }
+  }
+
+  /**
+   * Report a setup failure and notify the send listener before delivery starts.
+   *
+   * @param {Components.Exception} error - The failure to report.
+   */
+  _failBeforeDelivery(error) {
+    const status = error.result || Cr.NS_ERROR_FAILURE;
+    let errorMsg = "";
+    if (error.result == Cr.NS_MSG_ERROR_FOLDER_MISSING) {
+      errorMsg = lazy.l10n.formatValueSync(
+        "send-error-configured-folder-missing"
+      );
+    }
+    this.fail(status, errorMsg);
+    this.notifyListenerOnStopSending(null, status, null, null);
   }
 
   getProgress() {
@@ -815,7 +853,12 @@ export class MessageSend {
         Ci.nsIMsgSend.nsMsgSaveAsTemplate,
       ].includes(this._deliverMode)
     ) {
-      await this._mimeDoFcc();
+      try {
+        await this._mimeDoFcc();
+      } catch (e) {
+        this._failBeforeDelivery(e);
+        throw e;
+      }
       return;
     }
 

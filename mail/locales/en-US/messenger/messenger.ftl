@@ -569,6 +569,10 @@ archive-message-error-title = Archive message error
 archive-message-error = The selected messages could not be archived.
 archive-folder-missing =
     The archives folder for this identity could not be found. Select a different folder and try again.
+save-template-error-title = Save template error
+save-template-error = The message could not be saved as a template.
+template-folder-missing =
+    The selected templates folder could not be found. Choose a different folder and try again.
 
 # Variables:
 # $failures (Number) - Number of messages that could not be decrypted.

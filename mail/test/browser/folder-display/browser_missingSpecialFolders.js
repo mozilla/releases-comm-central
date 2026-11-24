@@ -39,6 +39,13 @@ add_task(async function test_missingSpecialFolderAlerts() {
       "archive-message-error-title",
       "archive-folder-missing",
     ],
+    [
+      "cmd_saveAsTemplate",
+      "stationery_folder",
+      "tmpl_folder_picker_mode",
+      "save-template-error-title",
+      "template-folder-missing",
+    ],
   ];
   for (const [command, prefName, pickerMode, titleId, messageId] of testCases) {
     const commandWindow =

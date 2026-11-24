@@ -39,6 +39,11 @@ add_setup(async function () {
     "test.test",
     "imap"
   );
+  // An idle fake-server connection times out and stops the whole server.
+  imapAccount.incomingServer.QueryInterface(
+    Ci.nsIImapIncomingServer
+  ).maximumConnectionsNumber = 1;
+  imapAccount.incomingServer.setBoolValue("autosync_offline_stores", false);
 
   imapIdentity = MailServices.accounts.createIdentity();
   imapIdentity.fullName = "test";
@@ -269,12 +274,201 @@ add_task(async function testLocalPrefFolderExists() {
 });
 
 /**
+ * Explicit special folders which have disappeared should stop the operation
+ * and report the configuration problem to the user. In particular, a missing
+ * Sent folder should stop sending before SMTP delivery.
+ */
+add_task(async function testExplicitMissingFolders() {
+  const cases = [
+    {
+      action: "send",
+      folderProperty: "fccFolderURI",
+      pickerProperty: "fccFolderPickerMode",
+      folderName: "Sent",
+      expectedTitle: "Send Message Error",
+    },
+    {
+      action: "saveAsDraft",
+      folderProperty: "draftsFolderURI",
+      pickerProperty: "draftsFolderPickerMode",
+      folderName: "Drafts",
+      expectedTitle: "Save Draft Error",
+    },
+    {
+      action: "saveAsTemplate",
+      folderProperty: "templatesFolderURI",
+      pickerProperty: "templatesFolderPickerMode",
+      folderName: "Templates",
+      expectedTitle: "Save Template Error",
+    },
+  ];
+
+  for (const testCase of cases) {
+    info(`testing a missing explicit ${testCase.folderName} folder`);
+    imapIdentity[testCase.pickerProperty] = "1";
+    imapIdentity[testCase.folderProperty] =
+      `${imapRootFolder.server.serverURI}/Missing${testCase.folderName}`;
+
+    const messageBeforeOperation = smtpServer.lastSentMessage;
+    const { composeWindow } = await newComposeWindow(imapIdentity);
+    registerCleanupFunction(async () => {
+      if (!composeWindow.closed) {
+        await BrowserTestUtils.closeWindow(composeWindow);
+      }
+    });
+    const originalPrompt = Services.prompt;
+    const promptCalled = Promise.withResolvers();
+    let promptParent;
+    let promptTitle;
+    let promptMessage;
+    Services.prompt = {
+      QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
+      alert(parentWindow, title, message) {
+        promptParent = parentWindow;
+        promptTitle = title;
+        promptMessage = message;
+        promptCalled.resolve();
+      },
+    };
+
+    try {
+      if (testCase.action == "send") {
+        EventUtils.synthesizeMouseAtCenter(
+          composeWindow.document.getElementById("button-send"),
+          {},
+          composeWindow
+        );
+      } else {
+        EventUtils.synthesizeMouseAtCenter(
+          composeWindow.document.querySelector("#button-save > dropmarker"),
+          {},
+          composeWindow
+        );
+        const savePopup =
+          composeWindow.document.getElementById("button-savePopup");
+        await BrowserTestUtils.waitForPopupEvent(savePopup, "shown");
+        savePopup.activateItem(
+          composeWindow.document.getElementById(`savePopup_${testCase.action}`)
+        );
+        await BrowserTestUtils.waitForPopupEvent(savePopup, "hidden");
+      }
+      await promptCalled.promise;
+      await TestUtils.waitForCondition(
+        () =>
+          !composeWindow.gWindowLocked &&
+          !composeWindow.gSendOperationInProgress &&
+          !composeWindow.gSaveOperationInProgress,
+        "waiting for the compose operation to stop and the window to unlock"
+      );
+    } finally {
+      Services.prompt = originalPrompt;
+      imapIdentity[testCase.pickerProperty] = "0";
+      imapIdentity[testCase.folderProperty] = "";
+    }
+
+    Assert.equal(
+      promptParent,
+      composeWindow,
+      "the error prompt should be attached to the compose window"
+    );
+    Assert.equal(promptTitle, testCase.expectedTitle);
+    Assert.stringContains(
+      promptMessage,
+      "The folder selected for sent messages could not be found.",
+      "the error should identify the missing configured folder"
+    );
+    Assert.equal(
+      smtpServer.lastSentMessage,
+      messageBeforeOperation,
+      "the operation should not deliver a message over SMTP"
+    );
+    Assert.ok(!composeWindow.closed, "the compose window should remain open");
+
+    await BrowserTestUtils.closeWindow(composeWindow);
+  }
+});
+
+/**
+ * Saving drafts and templates should not require their future Sent folder.
+ */
+add_task(async function test_saveWithMissingSentFolder() {
+  const oldURI = imapIdentity.fccFolderURI;
+  const oldMode = imapIdentity.fccFolderPickerMode;
+  const missingURI = `${imapRootFolder.URI}/MissingSent`;
+  imapIdentity.fccFolderPickerMode = "1";
+  imapIdentity.fccFolderURI = missingURI;
+  registerCleanupFunction(() => {
+    imapIdentity.fccFolderPickerMode = oldMode;
+    imapIdentity.fccFolderURI = oldURI;
+  });
+  const messageBeforeOperation = smtpServer.lastSentMessage;
+  const testCases = [
+    [
+      "saveAsDraft",
+      "draftsFolderURI",
+      "draftsFolderPickerMode",
+      "DraftWithoutSent",
+    ],
+    [
+      "saveAsTemplate",
+      "templatesFolderURI",
+      "templatesFolderPickerMode",
+      "TemplateWithoutSent",
+    ],
+  ];
+  for (const [action, property, pickerMode, name] of testCases) {
+    const destination = await imapRootFolder.createSubfolderAsync(name);
+    const oldDestinationURI = imapIdentity[property];
+    const oldDestinationMode = imapIdentity[pickerMode];
+    imapIdentity[pickerMode] = "1";
+    imapIdentity[property] = destination.URI;
+    registerCleanupFunction(() => {
+      imapIdentity[pickerMode] = oldDestinationMode;
+      imapIdentity[property] = oldDestinationURI;
+    });
+    const folder = await subtest(action, imapRootFolder, name);
+    Assert.equal(
+      imapIdentity.fccFolderURI,
+      missingURI,
+      "saving should preserve the future Sent folder URI"
+    );
+    Assert.equal(
+      imapIdentity.fccFolderPickerMode,
+      "1",
+      "saving should preserve the explicit Sent folder selection"
+    );
+    Assert.equal(
+      imapRootFolder.server.getFolderFromURI(missingURI),
+      null,
+      "saving should leave the future Sent folder uncreated"
+    );
+    Assert.equal(
+      smtpServer.lastSentMessage,
+      messageBeforeOperation,
+      "saving should not deliver a message over SMTP"
+    );
+    await removeFolder(folder);
+    imapIdentity[pickerMode] = oldDestinationMode;
+    imapIdentity[property] = oldDestinationURI;
+  }
+  imapIdentity.fccFolderPickerMode = oldMode;
+  imapIdentity.fccFolderURI = oldURI;
+});
+
+/**
  * @param {nsIMsgFolder} folder
  */
 async function removeFolder(folder) {
   info(`removing ${folder.URI}`);
   const rootFolder = folder.rootFolder;
   if (folder.incomingServerType == "imap") {
+    // A close promise can resolve before native deactivate handling finishes.
+    await TestUtils.waitForTick();
+    // Explicitly raising a window can trigger a Mutter/X11 sizing bug.
+    await TestUtils.waitForCondition(
+      () => window.document.hasFocus(),
+      "the mail window should regain focus before the folder deletion prompt"
+    );
     const deletedPromise = PromiseTestUtils.promiseFolderDeleted(folder);
     folder.deleteSelf(false);
     await deletedPromise;
@@ -288,9 +482,19 @@ async function removeFolder(folder) {
     () => trashFolder.hasSubFolders,
     "waiting for deleted folder to appear in the trash"
   );
-  const listener = new PromiseTestUtils.PromiseUrlListener();
-  rootFolder.emptyTrash(listener);
-  await listener;
+  if (rootFolder.incomingServerType == "imap") {
+    const listener = new PromiseTestUtils.PromiseUrlListener();
+    rootFolder.emptyTrash(listener);
+    await listener.promise;
+    await TestUtils.waitForCondition(
+      () =>
+        rootFolder.server.QueryInterface(Ci.nsIImapIncomingServer)
+          .allConnectionsIdle,
+      "folder deletion should finish before the next operation"
+    );
+  } else {
+    rootFolder.emptyTrash(null);
+  }
 }
 
 /**
@@ -379,7 +583,13 @@ async function subtest(action, expectedParent, expectedName) {
   // Check that the message was saved to the folder.
 
   const expectedMessageCount = folderCountBeforeTest + 1;
-  folder.updateFolder(true);
+  if (folder instanceof Ci.nsIMsgImapMailFolder) {
+    const listener = new PromiseTestUtils.PromiseUrlListener();
+    folder.updateFolderWithListener(false, listener);
+    await listener.promise;
+  } else {
+    folder.updateFolder(true);
+  }
   await TestUtils.waitForCondition(
     () =>
       folder.getTotalMessages(false) - folder.numPendingTotalMessages ==

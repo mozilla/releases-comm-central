@@ -477,8 +477,21 @@ var commandController = {
         : gDBView.getURIsForSelection();
       top.SaveAsFile(uris);
     },
-    cmd_saveAsTemplate() {
-      top.SaveAsTemplate(gDBView.getURIsForSelection()[0]);
+    async cmd_saveAsTemplate() {
+      try {
+        await top.SaveAsTemplate(gDBView.getURIsForSelection()[0]);
+      } catch (e) {
+        console.error("Unable to save message as a template", e);
+        const messageId =
+          e.result == Cr.NS_MSG_ERROR_FOLDER_MISSING
+            ? "template-folder-missing"
+            : "save-template-error";
+        const [title, message] = await document.l10n.formatValues([
+          "save-template-error-title",
+          messageId,
+        ]);
+        Services.prompt.alert(window, title, message);
+      }
     },
     cmd_applyFilters() {
       const curFilterList = gFolder.getFilterList();
