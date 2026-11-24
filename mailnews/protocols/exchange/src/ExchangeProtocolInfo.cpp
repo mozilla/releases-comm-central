@@ -150,11 +150,3 @@ NS_IMETHODIMP ExchangeProtocolInfo::GetShowComposeMsgLink(
 
   return NS_OK;
 }
-
-NS_IMETHODIMP ExchangeProtocolInfo::GetFoldersCreatedAsync(
-    bool* aFoldersCreatedAsync) {
-  NS_ENSURE_ARG_POINTER(aFoldersCreatedAsync);
-  *aFoldersCreatedAsync = true;
-
-  return NS_OK;
-}

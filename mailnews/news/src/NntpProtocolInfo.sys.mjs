@@ -21,7 +21,6 @@ export class NntpProtocolInfo extends MsgProtocolInfo {
   canGetIncomingMessages = false;
   defaultDoBiff = false;
   showComposeMsgLink = false;
-  foldersCreatedAsync = false;
 
   getDefaultServerPort(isSecure) {
     return isSecure

@@ -41,9 +41,6 @@ IMProtocolInfo.prototype = {
   get showComposeMsgLink() {
     return false;
   },
-  get foldersCreatedAsync() {
-    return false;
-  },
 
   QueryInterface: ChromeUtils.generateQI(["nsIMsgProtocolInfo"]),
 };

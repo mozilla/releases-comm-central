@@ -21,7 +21,6 @@ export class Pop3ProtocolInfo extends MsgProtocolInfo {
   canGetIncomingMessages = true;
   defaultDoBiff = true;
   showComposeMsgLink = true;
-  foldersCreatedAsync = false;
 
   getDefaultServerPort(isSecure) {
     return isSecure ? 995 : 110;

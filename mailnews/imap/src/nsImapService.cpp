@@ -2395,12 +2395,6 @@ NS_IMETHODIMP nsImapService::GetShowComposeMsgLink(bool* showComposeMsgLink) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapService::GetFoldersCreatedAsync(bool* aAsyncCreation) {
-  NS_ENSURE_ARG_POINTER(aAsyncCreation);
-  *aAsyncCreation = true;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsImapService::GetListOfFoldersOnServer(
     nsIImapIncomingServer* aServer, bool interactive) {
   nsresult rv;
