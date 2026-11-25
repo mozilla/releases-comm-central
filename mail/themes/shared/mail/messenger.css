@@ -1092,6 +1092,17 @@ findbar {
   color: var(--toolbar-text-color);
   border-block-start-color: var(--chrome-content-separator-color, ThreeDShadow);
 
+  .findbar-textbox,
+  .findbar-find-previous,
+  .findbar-find-next,
+  .close-icon.findbar-closebutton {
+    border-radius: var(--button-border-radius);
+  }
+
+  .close-icon.findbar-closebutton {
+    inline-size: 24px;
+  }
+
   :root[lwtheme] & {
     background-color: var(--lwt-accent-color);
     background-image: linear-gradient(var(--toolbar-background-color), var(--toolbar-background-color)), var(--lwt-additional-images);
