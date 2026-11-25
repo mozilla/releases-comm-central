@@ -5,6 +5,7 @@
 #include "nsMsgContentPolicy.h"
 
 #include "nsIPermissionManager.h"
+#include "nsIEffectiveTLDService.h"
 #include "nsIPrefBranch.h"
 #include "nsIMsgHdr.h"
 #include "nsIEncryptedMsgURIsService.h"
@@ -68,40 +69,71 @@ nsresult nsMsgContentPolicy::Init() {
 }
 
 /**
- * Extracts the sender's email from aMsgHdr and checks the "image" permission
- * for the corresponding chrome://messenger/content/email=… URI.
- *
- * @returns true if the stored permission matches aPermission.
+ * Returns the sender's effective "image" permission. Exact address permissions
+ * take precedence over domain permissions, from the nearest domain to the base
+ * domain. Domain permissions use chrome://messenger/content/email=@domain.
  */
-bool nsMsgContentPolicy::CheckRemoteContentPermissionForSender(
-    nsIMsgDBHdr* aMsgHdr, uint32_t aPermission) {
-  if (!aMsgHdr) return false;
+uint32_t nsMsgContentPolicy::GetRemoteContentPermissionForSender(
+    nsIMsgDBHdr* msgHdr) {
+  if (!msgHdr) return nsIPermissionManager::UNKNOWN_ACTION;
 
-  // extract the e-mail address from the msg hdr
   nsCString author;
-  nsresult rv = aMsgHdr->GetAuthor(author);
-  NS_ENSURE_SUCCESS(rv, false);
+  nsresult rv = msgHdr->GetAuthor(author);
+  NS_ENSURE_SUCCESS(rv, nsIPermissionManager::UNKNOWN_ACTION);
 
   nsCString emailAddress;
   ExtractEmail(EncodedHeader(author), emailAddress);
-  if (emailAddress.IsEmpty()) return false;
+  if (emailAddress.IsEmpty()) return nsIPermissionManager::UNKNOWN_ACTION;
 
-  nsCOMPtr<nsIIOService> ios = mozilla::components::IO::Service();
-  nsCOMPtr<nsIURI> mailURI;
-  emailAddress.InsertLiteral("chrome://messenger/content/email=", 0);
-  rv = ios->NewURI(emailAddress, nullptr, nullptr, getter_AddRefs(mailURI));
-  NS_ENSURE_SUCCESS(rv, false);
+  auto getPermission = [&](const nsACString& address) -> uint32_t {
+    nsAutoCString mailSpec("chrome://messenger/content/email=");
+    mailSpec.Append(address);
+    nsCOMPtr<nsIURI> mailURI;
+    nsresult lookupRv = NS_NewURI(getter_AddRefs(mailURI), mailSpec);
+    if (NS_FAILED(lookupRv)) return nsIPermissionManager::UNKNOWN_ACTION;
 
-  // check with permission manager
-  uint32_t permission = 0;
-  mozilla::OriginAttributes attrs;
-  RefPtr<mozilla::BasePrincipal> principal =
-      mozilla::BasePrincipal::CreateContentPrincipal(mailURI, attrs);
-  rv = mPermissionManager->TestPermissionFromPrincipal(principal, "image"_ns,
-                                                       &permission);
-  NS_ENSURE_SUCCESS(rv, false);
+    RefPtr<mozilla::BasePrincipal> principal =
+        mozilla::BasePrincipal::CreateContentPrincipal(
+            mailURI, mozilla::OriginAttributes());
+    if (!principal) return nsIPermissionManager::UNKNOWN_ACTION;
 
-  return (permission == aPermission);
+    uint32_t permission = nsIPermissionManager::UNKNOWN_ACTION;
+    lookupRv = mPermissionManager->TestExactPermissionFromPrincipal(
+        principal, "image"_ns, &permission);
+    return NS_SUCCEEDED(lookupRv)
+               ? permission
+               : static_cast<uint32_t>(nsIPermissionManager::UNKNOWN_ACTION);
+  };
+
+  int32_t atIndex = emailAddress.RFindChar('@');
+  if (atIndex < 1 ||
+      atIndex == static_cast<int32_t>(emailAddress.Length() - 1)) {
+    return getPermission(emailAddress);
+  }
+
+  nsAutoCString domain;
+  rv = NS_DomainToASCII(Substring(emailAddress, atIndex + 1), domain);
+  if (NS_FAILED(rv)) return getPermission(emailAddress);
+  ToLowerCase(domain);
+
+  emailAddress.Truncate(atIndex + 1);
+  emailAddress.Append(domain);
+  uint32_t permission = getPermission(emailAddress);
+  if (permission != nsIPermissionManager::UNKNOWN_ACTION) return permission;
+
+  nsCOMPtr<nsIEffectiveTLDService> etld =
+      mozilla::components::EffectiveTLD::Service();
+  while (!domain.IsEmpty()) {
+    nsAutoCString domainAddress("@");
+    domainAddress.Append(domain);
+    permission = getPermission(domainAddress);
+    if (permission != nsIPermissionManager::UNKNOWN_ACTION) return permission;
+
+    nsAutoCString parent;
+    if (NS_FAILED(etld->GetNextSubDomain(domain, parent))) break;
+    domain = parent;
+  }
+  return nsIPermissionManager::UNKNOWN_ACTION;
 }
 
 /**
@@ -375,10 +407,10 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
       return rejectContentAndNotify();
     }
 
-    // Check if the sender is explicitly blocked.
+    // Check if the sender or sender domain is explicitly blocked.
     nsCOMPtr<nsIMsgDBHdr> msgHdr = GetPotentialMsgHdr(aRequestingLocation);
-    if (msgHdr && CheckRemoteContentPermissionForSender(
-                      msgHdr, nsIPermissionManager::DENY_ACTION)) {
+    if (GetRemoteContentPermissionForSender(msgHdr) ==
+        nsIPermissionManager::DENY_ACTION) {
       return rejectContentAndNotify();
     }
 
@@ -609,8 +641,8 @@ int16_t nsMsgContentPolicy::ShouldAcceptRemoteContentForMsgHdr(
     return nsIContentPolicy::ACCEPT;
 
   // Case #4, author is in our white list..
-  bool allowForSender = CheckRemoteContentPermissionForSender(
-      aMsgHdr, nsIPermissionManager::ALLOW_ACTION);
+  bool allowForSender = GetRemoteContentPermissionForSender(aMsgHdr) ==
+                        nsIPermissionManager::ALLOW_ACTION;
 
   int16_t result = allowForSender
                        ? static_cast<int16_t>(nsIContentPolicy::ACCEPT)

@@ -16,6 +16,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EventEmitter: "resource://gre/modules/EventEmitter.sys.mjs",
   clearXULToolbarState: "resource:///modules/ToolbarMigration.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
+  RemoteContentUtils: "moz-src:///comm/mail/modules/RemoteContentUtils.sys.mjs",
   migrateToolbarForSpace: "resource:///modules/ToolbarMigration.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
   SearchIntegration: "resource:///modules/SearchIntegration.sys.mjs",
@@ -29,7 +30,7 @@ export var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 67;
+    const UI_VERSION = 68;
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -531,6 +532,10 @@ export var MailMigrator = {
         this._migrateOTREnabled();
       }
 
+      if (currentUIVersion < 68) {
+        this._migrateRemoteContentPermissions();
+      }
+
       // Migration tasks that may take a long time are not run immediately, but
       // added to the MigrationTasks object then run at the end.
       //
@@ -551,6 +556,73 @@ export var MailMigrator = {
           " -- " +
           "Will reattempt on next start."
       );
+    }
+  },
+
+  /**
+   * Normalizes stored sender domains and merges equivalent permission entries.
+   * Retains Block when aliases conflict, or the latest entry when actions agree.
+   * Preserves the winning entry's expiration and the principal's origin attributes.
+   */
+  _migrateRemoteContentPermissions() {
+    const mailURIBase = "chrome://messenger/content/email=";
+    const entries = new Map();
+    for (const permission of Services.perms.getAllByTypes(["image"])) {
+      const spec = permission.principal.URI?.spec;
+      if (!spec?.startsWith(mailURIBase)) {
+        continue;
+      }
+      const address = spec.slice(mailURIBase.length);
+      const atIndex = address.lastIndexOf("@");
+      if (atIndex < 0) {
+        continue;
+      }
+      let normalized;
+      try {
+        // Decode only the domain; literal percent signs in the local part are valid.
+        normalized = lazy.RemoteContentUtils.normalizeSenderAddress(
+          address.slice(0, atIndex + 1) +
+            decodeURIComponent(address.slice(atIndex + 1))
+        );
+      } catch {
+        continue;
+      }
+      const principal = Services.scriptSecurityManager.createContentPrincipal(
+        Services.io.newURI(mailURIBase + normalized),
+        permission.principal.originAttributes
+      );
+      let entry = entries.get(principal.origin);
+      if (!entry) {
+        entry = { principal, permission, aliases: [] };
+        entries.set(principal.origin, entry);
+      } else if (
+        (permission.capability == Services.perms.DENY_ACTION &&
+          entry.permission.capability != Services.perms.DENY_ACTION) ||
+        (permission.capability == entry.permission.capability &&
+          permission.modificationTime > entry.permission.modificationTime)
+      ) {
+        entry.permission = permission;
+      }
+      entry.aliases.push(permission.principal);
+    }
+
+    for (const { principal, permission, aliases } of entries.values()) {
+      const oldPrincipals = aliases.filter(
+        alias => alias.origin != principal.origin
+      );
+      if (!oldPrincipals.length) {
+        continue;
+      }
+      Services.perms.addFromPrincipal(
+        principal,
+        "image",
+        permission.capability,
+        permission.expireType,
+        permission.expireTime
+      );
+      for (const oldPrincipal of oldPrincipals) {
+        Services.perms.removeFromPrincipal(oldPrincipal, "image");
+      }
     }
   },
 

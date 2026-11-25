@@ -47,6 +47,8 @@ skip-if = [
 
 ["test_migrateOTREnabled.js"]
 
+["test_migrateRemoteContentPermissions.js"]
+
 ["test_migrateSearchDialog.js"]
 
 ["test_migrateSmtpUsername.js"]

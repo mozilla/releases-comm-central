@@ -9,6 +9,10 @@ var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  RemoteContentUtils: "moz-src:///comm/mail/modules/RemoteContentUtils.sys.mjs",
+});
+
 var NOTIFICATION_FLUSH_PERMISSIONS = "flush-pending-permissions";
 
 window.addEventListener("load", () => {
@@ -150,6 +154,12 @@ var gPermissionManager = {
     var input_url = textbox.value.trim();
     const principals = [];
     try {
+      if (this._type == "image" && input_url.startsWith("@")) {
+        input_url =
+          MAILURI_BASE +
+          "@" +
+          RemoteContentUtils.normalizeSenderDomain(input_url.slice(1));
+      }
       // The origin accessor on the principal object will throw if the
       // principal doesn't have a canonical origin representation. This will
       // help catch cases where the URI parser parsed something like
@@ -170,7 +180,10 @@ var gPermissionManager = {
         if (this._type == "image" && input_url.includes("@")) {
           this._addPrincipalToList(
             principals,
-            Services.io.newURI(MAILURI_BASE + input_url)
+            Services.io.newURI(
+              MAILURI_BASE +
+                RemoteContentUtils.normalizeSenderAddress(input_url)
+            )
           );
         } else {
           this._addPrincipalToList(

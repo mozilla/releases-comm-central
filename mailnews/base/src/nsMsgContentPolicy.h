@@ -54,8 +54,7 @@ class nsMsgContentPolicy : public nsIContentPolicy,
   bool IsExposedChromeProtocol(nsIURI* aContentLocation);
   bool ShouldBlockUnexposedProtocol(nsIURI* aContentLocation);
 
-  bool CheckRemoteContentPermissionForSender(nsIMsgDBHdr* aMsgHdr,
-                                             uint32_t aPermission);
+  uint32_t GetRemoteContentPermissionForSender(nsIMsgDBHdr* msgHdr);
   int16_t ShouldAcceptRemoteContentForMsgHdr(nsIMsgDBHdr* aMsgHdr,
                                              nsIURI* aRequestingLocation,
                                              nsIURI* aContentLocation);

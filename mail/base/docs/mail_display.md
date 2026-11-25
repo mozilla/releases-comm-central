@@ -74,3 +74,22 @@ The process for populating the UI is:
   mail channel.
 - As the message loads in the document, progress events are emitted. about:message listens for
   these events and uses the header and attachment data from the mail channel to populate the UI.
+
+### Remote content permissions
+
+The remote content exceptions dialog accepts image origins, full sender email
+addresses, and sender domains written as `@example.com`. A sender-domain entry
+applies to that domain and its subdomains. The dialog rejects public suffixes
+such as `@co.uk`.
+
+Sender permissions use the `image` permission type and synthetic principals
+whose URIs start with `chrome://messenger/content/email=`. Domain entries append
+`@` and the lowercase ASCII/ACE domain to this prefix. Full-address entries use
+the same domain normalization and preserve the local part, including literal
+asterisks. Profile migration normalizes existing entries. Block wins when
+equivalent entries conflict, and the winning entry retains its expiration.
+
+`nsMsgContentPolicy::GetRemoteContentPermissionForSender` first checks the full
+sender address, then the sender's domain and its parents, stopping at the base
+domain as determined by the effective TLD service. The first explicit Allow or
+Block permission wins.

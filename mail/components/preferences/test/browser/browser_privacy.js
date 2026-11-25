@@ -149,7 +149,7 @@ add_task(async function testRemoteContentDialog() {
   const [remoteContentTitle, remoteContentDescription] =
     await prefsDocument.l10n.formatValues([
       "remote-content-permissions-title",
-      "remote-content-permissions-description",
+      "remote-content-permissions-description-2",
     ]);
   await promiseSubDialog(
     remoteContentExceptions,
@@ -323,6 +323,190 @@ add_task(async function testRemoteContentDialog() {
     assertPermission(origin, "image", Ci.nsIPermissionManager.UNKNOWN_ACTION);
   }
 
+  await closePrefsTab();
+});
+
+add_task(async function test_senderDomainPermissions() {
+  const { prefsDocument } = await openNewPrefsTab("panePrivacy");
+  const button = prefsDocument.getElementById("remoteContentExceptions");
+  const origin = "chrome://messenger/content/email=@xn--bcher-kva.co.uk";
+  const principal = Services.scriptSecurityManager.createContentPrincipal(
+    Services.io.newURI(origin),
+    {}
+  );
+  registerCleanupFunction(() =>
+    Services.perms.removeFromPrincipal(principal, "image")
+  );
+
+  await promiseSubDialog(
+    button,
+    "chrome://messenger/content/preferences/permissions.xhtml",
+    async dialogWindow => {
+      const doc = dialogWindow.document;
+      const url = doc.getElementById("url");
+      const tree = doc.getElementById("permissionsTree");
+      for (const input of [
+        "@",
+        "@@example.com",
+        "@*.example.com",
+        "@example.com/path",
+        "@example.com/",
+        "@example.com:443",
+        "@example.com?query",
+        "@example.com#fragment",
+        "@user@example.com",
+        "@example.com\\path",
+        "@example .com",
+        "@example%2ecom",
+        "@.example.com",
+        "@example..com",
+        "@CO.UK",
+        "@github.io",
+      ]) {
+        url.value = input;
+        url.dispatchEvent(new Event("input", { bubbles: true }));
+        const alert = BrowserTestUtils.promiseAlertDialog(
+          "accept",
+          "chrome://global/content/commonDialog.xhtml"
+        );
+        const adding = dialogWindow.gPermissionManager.addPermission(
+          Services.perms.ALLOW_ACTION
+        );
+        await alert;
+        await adding;
+        Assert.equal(tree.view.rowCount, 0, `${input} should be rejected`);
+      }
+      await SimpleTest.promiseFocus(dialogWindow);
+      url.value = "@BÜCHER.co.uk";
+      url.dispatchEvent(new Event("input", { bubbles: true }));
+      EventUtils.synthesizeMouseAtCenter(
+        doc.getElementById("btnAllow"),
+        {},
+        dialogWindow
+      );
+      await TestUtils.waitForCondition(
+        () => tree.view.rowCount == 1,
+        "The domain should appear in the list"
+      );
+      Assert.equal(
+        tree.view.getCellText(0, tree.columns.getNamedColumn("siteCol")),
+        "@xn--bcher-kva.co.uk",
+        "The domain should display its normalized form"
+      );
+
+      url.value = "@xn--bcher-kva.co.uk";
+      url.dispatchEvent(new Event("input", { bubbles: true }));
+      EventUtils.synthesizeMouseAtCenter(
+        doc.getElementById("btnBlock"),
+        {},
+        dialogWindow
+      );
+      const blockLabel = await doc.l10n.formatValue("permission-cannot-label");
+      await TestUtils.waitForCondition(
+        () =>
+          tree.view.getCellText(0, tree.columns.getNamedColumn("statusCol")) ==
+          blockLabel,
+        "The existing domain permission should change to Block"
+      );
+      Assert.equal(
+        tree.view.rowCount,
+        1,
+        "The equivalent ACE domain should update the existing entry"
+      );
+    },
+    "btnApplyChanges"
+  );
+  assertPermission(origin, "image", Services.perms.DENY_ACTION);
+
+  await promiseSubDialog(
+    button,
+    "chrome://messenger/content/preferences/permissions.xhtml",
+    async dialogWindow => {
+      const doc = dialogWindow.document;
+      const tree = doc.getElementById("permissionsTree");
+      Assert.equal(
+        tree.view.rowCount,
+        1,
+        "The saved domain should appear when reopening the dialog"
+      );
+      tree.view.selection.select(0);
+      EventUtils.synthesizeMouseAtCenter(
+        doc.getElementById("removePermission"),
+        {},
+        dialogWindow
+      );
+      Assert.equal(
+        tree.view.rowCount,
+        0,
+        "The domain should be removed from the list"
+      );
+    },
+    "btnApplyChanges"
+  );
+  assertPermission(origin, "image", Services.perms.UNKNOWN_ACTION);
+  await closePrefsTab();
+});
+
+add_task(async function test_normalizedSenderAddresses() {
+  const { prefsDocument } = await openNewPrefsTab("panePrivacy");
+  const button = prefsDocument.getElementById("remoteContentExceptions");
+  const addresses = [
+    ["alice@EXAMPLE.INVALID", "alice@example.invalid"],
+    ["alice@example.invalid", "alice@example.invalid"],
+    ["Alice@EXAMPLE.INVALID", "Alice@example.invalid"],
+    ["alice@BÜCHER.invalid", "alice@xn--bcher-kva.invalid"],
+    ["alice@xn--bcher-kva.invalid", "alice@xn--bcher-kva.invalid"],
+    ["alice*test@EXAMPLE.INVALID", "alice*test@example.invalid"],
+    ["*@EXAMPLE.INVALID", "*@example.invalid"],
+    ["@EXAMPLE.INVALID", "@example.invalid"],
+  ];
+  const cleanup = () => {
+    for (const [, address] of addresses) {
+      const principal = Services.scriptSecurityManager.createContentPrincipal(
+        Services.io.newURI(`chrome://messenger/content/email=${address}`),
+        {}
+      );
+      Services.perms.removeFromPrincipal(principal, "image");
+    }
+  };
+  registerCleanupFunction(cleanup);
+  await promiseSubDialog(
+    button,
+    "chrome://messenger/content/preferences/permissions.xhtml",
+    async dialogWindow => {
+      const doc = dialogWindow.document;
+      const url = doc.getElementById("url");
+      const tree = doc.getElementById("permissionsTree");
+      const expected = new Set();
+      for (const [input, address] of addresses) {
+        url.value = input;
+        url.dispatchEvent(new Event("input", { bubbles: true }));
+        await dialogWindow.gPermissionManager.addPermission(
+          Services.perms.ALLOW_ACTION
+        );
+        expected.add(address);
+        const displayed = Array.from({ length: tree.view.rowCount }, (_, row) =>
+          tree.view.getCellText(row, tree.columns.getNamedColumn("siteCol"))
+        );
+        Assert.deepEqual(
+          displayed.sort(),
+          [...expected].sort(),
+          "Sender domains should be normalized without changing local parts or literal asterisks"
+        );
+      }
+    },
+    "btnApplyChanges"
+  );
+  for (const address of new Set(
+    addresses.map(([, normalized]) => normalized)
+  )) {
+    assertPermission(
+      `chrome://messenger/content/email=${address}`,
+      "image",
+      Services.perms.ALLOW_ACTION
+    );
+  }
+  cleanup();
   await closePrefsTab();
 });
 

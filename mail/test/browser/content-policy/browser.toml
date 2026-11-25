@@ -43,3 +43,5 @@ support-files = ["../../../components/compose/test/browser/data/attachment.pdf"]
 ["browser_newsContentPolicy.js"]
 
 ["browser_pluginsPolicy.js"]
+
+["browser_senderDomain.js"]

@@ -285,7 +285,7 @@ var gPrivacyPane = {
   async showRemoteContentExceptions() {
     const [windowTitle, introText] = await document.l10n.formatValues([
       "remote-content-permissions-title",
-      "remote-content-permissions-description",
+      "remote-content-permissions-description-2",
     ]);
     const params = {
       blockVisible: true,
