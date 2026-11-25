@@ -160,7 +160,7 @@ var DefaultController = {
           .currentAbout3Pane.displayFolder(event.target._folder);
         break;
       case "cmd_chat":
-        showChatTab();
+        toChat();
         break;
       case "cmd_newCard":
         openNewCardDialog();

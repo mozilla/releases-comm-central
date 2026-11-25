@@ -63,7 +63,7 @@ async function openChatTab() {
   if (chatMode.tabs.length == 1) {
     tabmail.selectedTab = chatMode.tabs[0];
   } else {
-    window.showChatTab();
+    await window.toChat();
   }
 
   is(chatMode.tabs.length, 1, "chat tab is open");

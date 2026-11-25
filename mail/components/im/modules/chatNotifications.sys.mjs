@@ -150,9 +150,11 @@ export var Notifications = {
           );
           const mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
           if (mainWindow) {
-            mainWindow.focus();
-            mainWindow.showChatTab();
-            mainWindow.chatHandler.focusConversation(uiConv);
+            mainWindow.toChat().then(chatTab => {
+              if (chatTab) {
+                mainWindow.chatHandler.focusConversation(uiConv);
+              }
+            });
           } else {
             const args = Cc["@mozilla.org/array;1"].createInstance(
               Ci.nsIMutableArray

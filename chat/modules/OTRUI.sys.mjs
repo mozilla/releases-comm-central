@@ -964,9 +964,13 @@ export var OTRUI = {
           if (!win) {
             return;
           }
-          win.focus();
-          win.showChatTab();
-          this.globalDoc = win.document;
+          win.toChat().then(chatTab => {
+            if (chatTab) {
+              this.globalDoc ??= win.document;
+              OTRUI.notifyUnverified(aObject, aMsg);
+            }
+          });
+          break;
         }
         OTRUI.notifyUnverified(aObject, aMsg);
         break;

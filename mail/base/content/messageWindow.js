@@ -526,22 +526,9 @@ var MessageWindowController = {
       case "cmd_stop":
         messageBrowser.stop();
         break;
-      case "cmd_chat": {
-        const win = Services.wm.getMostRecentWindow("mail:3pane");
-        if (win) {
-          win.focus();
-          win.showChatTab();
-        } else {
-          window.openDialog(
-            "chrome://messenger/content/messenger.xhtml",
-            "_blank",
-            "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
-            null,
-            { tabType: "chat", tabParams: {} }
-          );
-        }
+      case "cmd_chat":
+        toChat();
         break;
-      }
       case "cmd_newCard":
         openNewCardDialog();
         break;

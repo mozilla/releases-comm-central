@@ -39,6 +39,27 @@ class TestCommandLine(MarionetteTestCase):
         """Opens the calendar in a tab."""
         self.subtest_open_tab(["--calendar"], [mail_3pane_tab, {"mode": "calendar"}])
 
+    def test_tasks(self):
+        """Opens the tasks in a tab."""
+        self.subtest_open_tab(["--tasks"], [mail_3pane_tab, {"mode": "tasks"}])
+
+    def test_chat(self):
+        """Opens chat in a tab."""
+        self.subtest_open_tab(["--chat"], [mail_3pane_tab, {"mode": "chat"}])
+
+    def test_chat_disabled(self):
+        """Does not open chat if chat is disabled."""
+        self.marionette.set_context(self.marionette.CONTEXT_CHROME)
+        self.marionette.execute_script(
+            'Services.prefs.setBoolPref("mail.chat.enabled", false);'
+        )
+        try:
+            self.subtest_open_tab(["--chat"], [mail_3pane_tab])
+        finally:
+            self.marionette.execute_script(
+                'Services.prefs.clearUserPref("mail.chat.enabled");'
+            )
+
     def test_import_ics_file(self):
         """
         Opens the import tab with the imported file's data.

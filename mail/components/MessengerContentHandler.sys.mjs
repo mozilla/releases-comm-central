@@ -401,6 +401,16 @@ export class MessengerContentHandler {
       cmdLine.preventDefault = true;
     }
 
+    if (cmdLine.handleFlag("tasks", false)) {
+      getOrOpen3PaneWindow().then(win => win.toTasks());
+      cmdLine.preventDefault = true;
+    }
+
+    if (cmdLine.handleFlag("chat", false)) {
+      getOrOpen3PaneWindow().then(win => win.toChat());
+      cmdLine.preventDefault = true;
+    }
+
     if (cmdLine.findFlag("compose", false) != -1) {
       // E.g. -compose "to=john@example.com,subject='Dinner tonight?'"
       let param = "";
@@ -863,6 +873,8 @@ export class MessengerContentHandler {
     "  -mail              Go to the mail tab.\n" +
     "  -addressbook       Go to the address book tab.\n" +
     "  -calendar          Go to the calendar tab.\n" +
+    "  -tasks             Go to the tasks tab.\n" +
+    "  -chat              Go to the chat tab.\n" +
     "  -options           Go to the settings tab.\n" +
     "  -compose [ <options> ] Compose a mail or news message. Options are specified\n" +
     "    as string \"option='value,...',option=value,...\" and\n" +

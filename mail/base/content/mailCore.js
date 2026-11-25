@@ -15,8 +15,6 @@
 /* import-globals-from customizeToolbar.js */
 /* import-globals-from utilityOverlay.js */
 
-/* globals gChatTab */ // From globals chat-messenger.js
-
 var { openLinkExternally } = ChromeUtils.importESModule(
   "resource:///modules/LinkHelper.sys.mjs"
 );
@@ -482,6 +480,8 @@ async function toAddressBook(openArgs) {
 
 /**
  * Open the calendar.
+ *
+ * @returns {?object} The calendar tab info, if the calendar tab was opened.
  */
 async function toCalendar() {
   const messengerWindow = await toMessengerWindow();
@@ -489,23 +489,50 @@ async function toCalendar() {
     return null;
   }
 
-  return new Promise(resolve => {
-    messengerWindow.tabmail.openTab("calendar", {
-      onLoad(event, browser) {
-        resolve(browser.contentWindow);
-      },
-    });
-    messengerWindow.focus();
-  });
+  messengerWindow.tabmail.openTab("calendar", {});
+  messengerWindow.focus();
+  return messengerWindow.tabmail.tabModes.calendar.tabs[0];
 }
 
-function showChatTab() {
-  const tabmail = document.getElementById("tabmail");
-  if (gChatTab) {
-    tabmail.switchToTab(gChatTab);
-  } else {
-    tabmail.openTab("chat", {});
+/**
+ * Open the tasks.
+ *
+ * @returns {?object} The tasks tab info, if the tasks tab was opened.
+ */
+async function toTasks() {
+  const messengerWindow = await toMessengerWindow();
+  if (!messengerWindow) {
+    return null;
   }
+
+  messengerWindow.tabmail.openTab("tasks", {});
+  messengerWindow.focus();
+  return messengerWindow.tabmail.tabModes.tasks.tabs[0];
+}
+
+/**
+ * Open the chat tab, if chat is enabled.
+ *
+ * @returns {?object} The chat tab info, if the chat tab was opened.
+ */
+async function toChat() {
+  if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
+    console.warn("Chat is disabled, not opening the chat tab.");
+    return null;
+  }
+
+  const messengerWindow = await toMessengerWindow();
+  if (!messengerWindow) {
+    return null;
+  }
+
+  if (messengerWindow.gChatTab) {
+    messengerWindow.tabmail.switchToTab(messengerWindow.gChatTab);
+  } else {
+    messengerWindow.tabmail.openTab("chat", {});
+  }
+  messengerWindow.focus();
+  return messengerWindow.gChatTab;
 }
 
 /**
