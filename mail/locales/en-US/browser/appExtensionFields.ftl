@@ -13,3 +13,8 @@ extension-thunderbird-compact-light-description=A theme with a light color schem
 
 extension-thunderbird-compact-dark-name=Dark
 extension-thunderbird-compact-dark-description=A theme with a dark color scheme.
+
+## Do not translate following strings.
+extension-default-theme-description2 = { extension-default-theme-description }
+extension-default-theme-name2 = { extension-default-theme-name-auto }
+
