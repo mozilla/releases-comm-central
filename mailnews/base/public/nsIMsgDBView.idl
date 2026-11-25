@@ -119,7 +119,6 @@ interface nsMsgViewCommandType : nsISupports
 
   const nsMsgViewCommandTypeValue deleteMsg = 7;
   const nsMsgViewCommandTypeValue deleteNoTrash = 8;
-  const nsMsgViewCommandTypeValue markThreadRead = 9;
   const nsMsgViewCommandTypeValue markAllRead = 10;
   const nsMsgViewCommandTypeValue expandAll = 11;
   const nsMsgViewCommandTypeValue collapseAll = 12;

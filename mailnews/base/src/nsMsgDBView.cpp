@@ -2378,52 +2378,44 @@ nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
 
   nsTArray<nsMsgKey> messageKeys;
 
-  // No sense going through the code that handles messages in collapsed threads
-  // for mark thread read.
-  if (command == nsMsgViewCommandType::markThreadRead) {
-    for (nsMsgViewIndex viewIndex : selection) {
-      SetThreadOfMsgReadByIndex(viewIndex, messageKeys, true);
-    }
-  } else {
-    // Turn the selection into an array of msg hdrs. This may include messages
-    // in collapsed threads
-    AutoTArray<RefPtr<nsIMsgDBHdr>, 1> messages;
-    rv = GetHeadersFromSelection(selection, messages);
-    NS_ENSURE_SUCCESS(rv, rv);
-    const auto length = messages.Length();
-    messageKeys.SetLength(length);
-    for (uint32_t i = 0; i < length; i++) {
-      nsCOMPtr<nsIMsgDBHdr> msgHdr(messages[i]);
-      nsMsgKey messageKey;
-      rv = msgHdr->GetMessageKey(&messageKey);
-      messageKeys[i] = messageKey;
+  // Turn the selection into an array of msg hdrs. This may include messages
+  // in collapsed threads
+  AutoTArray<RefPtr<nsIMsgDBHdr>, 1> messages;
+  rv = GetHeadersFromSelection(selection, messages);
+  NS_ENSURE_SUCCESS(rv, rv);
+  const auto length = messages.Length();
+  messageKeys.SetLength(length);
+  for (uint32_t i = 0; i < length; i++) {
+    nsCOMPtr<nsIMsgDBHdr> msgHdr(messages[i]);
+    nsMsgKey messageKey;
+    rv = msgHdr->GetMessageKey(&messageKey);
+    messageKeys[i] = messageKey;
 
-      switch (command) {
-        case nsMsgViewCommandType::junk:
-          mNumMessagesRemainingInBatch++;
-          mJunkHdrs.AppendElement(msgHdr);
-          rv = SetMsgHdrJunkStatus(junkPlugin.get(), msgHdr,
-                                   nsIJunkMailPlugin::JUNK);
-          break;
-        case nsMsgViewCommandType::unjunk:
-          mNumMessagesRemainingInBatch++;
-          mJunkHdrs.AppendElement(msgHdr);
-          rv = SetMsgHdrJunkStatus(junkPlugin.get(), msgHdr,
-                                   nsIJunkMailPlugin::GOOD);
-          break;
-        default:
-          NS_ERROR("unhandled command");
-          break;
-      }
+    switch (command) {
+      case nsMsgViewCommandType::junk:
+        mNumMessagesRemainingInBatch++;
+        mJunkHdrs.AppendElement(msgHdr);
+        rv = SetMsgHdrJunkStatus(junkPlugin.get(), msgHdr,
+                                 nsIJunkMailPlugin::JUNK);
+        break;
+      case nsMsgViewCommandType::unjunk:
+        mNumMessagesRemainingInBatch++;
+        mJunkHdrs.AppendElement(msgHdr);
+        rv = SetMsgHdrJunkStatus(junkPlugin.get(), msgHdr,
+                                 nsIJunkMailPlugin::GOOD);
+        break;
+      default:
+        NS_ERROR("unhandled command");
+        break;
     }
+  }
 
-    // Provide junk-related batch notifications.
-    if (command == nsMsgViewCommandType::junk ||
-        command == nsMsgViewCommandType::unjunk) {
-      nsCOMPtr<nsIMsgFolderNotificationService> notifier =
-          mozilla::components::FolderNotification::Service();
-      notifier->NotifyMsgsJunkStatusChanged(messages);
-    }
+  // Provide junk-related batch notifications.
+  if (command == nsMsgViewCommandType::junk ||
+      command == nsMsgViewCommandType::unjunk) {
+    nsCOMPtr<nsIMsgFolderNotificationService> notifier =
+        mozilla::components::FolderNotification::Service();
+    notifier->NotifyMsgsJunkStatusChanged(messages);
   }
 
   folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
@@ -2532,16 +2524,6 @@ nsresult nsMsgDBView::DownloadFlaggedForOffline(bool interactive) {
   }
 
   m_folder->DownloadMessagesForOffline(messages, interactive);
-  return rv;
-}
-
-nsresult nsMsgDBView::SetThreadOfMsgReadByIndex(
-    nsMsgViewIndex index, nsTArray<nsMsgKey>& keysMarkedRead, bool /*read*/) {
-  nsresult rv;
-
-  if (!IsValidIndex(index)) return NS_MSG_INVALID_DBVIEW_INDEX;
-
-  rv = MarkThreadOfMsgRead(m_keys[index], index, keysMarkedRead, true);
   return rv;
 }
 
@@ -4977,60 +4959,42 @@ nsMsgDBView::SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) {
     return NS_OK;
 }
 
-nsresult nsMsgDBView::MarkThreadOfMsgRead(nsMsgKey msgId,
-                                          nsMsgViewIndex msgIndex,
-                                          nsTArray<nsMsgKey>& idsMarkedRead,
-                                          bool bRead) {
-  nsCOMPtr<nsIMsgThread> threadHdr;
-  nsresult rv = GetThreadContainingIndex(msgIndex, getter_AddRefs(threadHdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsMsgViewIndex threadIndex;
-
+nsresult nsMsgDBView::MarkThreadRead(nsIMsgThread* threadHdr) {
   NS_ASSERTION(threadHdr, "threadHdr is null");
   if (!threadHdr) return NS_MSG_MESSAGE_NOT_FOUND;
 
-  nsCOMPtr<nsIMsgDBHdr> firstHdr;
-  rv = threadHdr->GetChildHdrAt(0, getter_AddRefs(firstHdr));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsMsgKey firstHdrId;
-  firstHdr->GetMessageKey(&firstHdrId);
-  if (msgId != firstHdrId)
-    threadIndex = GetIndexOfFirstDisplayedKeyInThread(threadHdr);
-  else
-    threadIndex = msgIndex;
+  // We're assuming that all messages in a thread are in the same folder. Which
+  // they will be, unless somebody comes along and makes a new global message
+  // database or something.
+  nsCOMPtr<nsIMsgFolder> folder;
+  nsTArray<RefPtr<nsIMsgDBHdr>> messages;
 
-  return MarkThreadRead(threadHdr, threadIndex, idsMarkedRead, bRead);
-}
-
-nsresult nsMsgDBView::MarkThreadRead(nsIMsgThread* threadHdr,
-                                     nsMsgViewIndex threadIndex,
-                                     nsTArray<nsMsgKey>& idsMarkedRead,
-                                     bool bRead) {
   uint32_t numChildren;
   threadHdr->GetNumChildren(&numChildren);
-  idsMarkedRead.SetCapacity(numChildren);
-  for (int32_t childIndex = 0; childIndex < (int32_t)numChildren;
-       childIndex++) {
+  for (uint32_t childIndex = 0; childIndex < numChildren; childIndex++) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     threadHdr->GetChildHdrAt(childIndex, getter_AddRefs(msgHdr));
     NS_ASSERTION(msgHdr, "msgHdr is null");
-    if (!msgHdr) continue;
+    if (!msgHdr) {
+      continue;
+    }
 
     bool isRead;
-    nsMsgKey msgKey;
-    msgHdr->GetMessageKey(&msgKey);
-    nsCOMPtr<nsIMsgDatabase> db;
-    nsresult rv = GetDBForHeader(msgHdr, getter_AddRefs(db));
-    NS_ENSURE_SUCCESS(rv, rv);
-    db->IsRead(msgKey, &isRead);
-
-    if (isRead != bRead) {
-      // MarkRead will change the unread count on the thread.
-      db->MarkRead(msgKey, bRead, nullptr);
-      // Insert at the front. Should we insert at the end?
-      idsMarkedRead.InsertElementAt(0, msgKey);
+    msgHdr->GetIsRead(&isRead);
+    if (isRead) {
+      continue;
     }
+
+    if (!folder) {
+      msgHdr->GetFolder(getter_AddRefs(folder));
+      NS_ASSERTION(folder, "folder is null");
+    }
+
+    messages.AppendElement(msgHdr);
+  }
+
+  if (folder && !messages.IsEmpty()) {
+    folder->MarkMessagesRead(messages, true);
   }
 
   return NS_OK;
@@ -5232,8 +5196,11 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
       break;
     case nsMsgNavigationType::nextUnreadThread:
       if (startIndex != nsMsgViewIndex_None) {
-        ApplyCommandToIndices(nsMsgViewCommandType::markThreadRead,
-                              {startIndex});
+        nsCOMPtr<nsIMsgThread> threadHdr;
+        rv = GetThreadContainingIndex(startIndex, getter_AddRefs(threadHdr));
+        NS_ENSURE_SUCCESS(rv, rv);
+        rv = MarkThreadRead(threadHdr);
+        NS_ENSURE_SUCCESS(rv, rv);
       }
 
       return NavigateFromPos(nsMsgNavigationType::nextUnreadMessage, startIndex,
@@ -5510,8 +5477,7 @@ nsresult nsMsgDBView::SetThreadIgnored(nsIMsgThread* thread,
 
   NoteChange(threadIndex, 1, nsMsgViewNotificationCode::changed);
   if (ignored) {
-    nsTArray<nsMsgKey> idsMarkedRead;
-    MarkThreadRead(thread, threadIndex, idsMarkedRead, true);
+    MarkThreadRead(thread);
     CollapseByIndex(threadIndex, nullptr);
   }
 

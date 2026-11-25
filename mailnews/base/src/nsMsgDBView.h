@@ -315,9 +315,6 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
                                nsIMsgDBHdr* aMsgHdr,
                                nsMsgJunkStatus aNewClassification);
-  nsresult SetThreadOfMsgReadByIndex(nsMsgViewIndex index,
-                                     nsTArray<nsMsgKey>& keysMarkedRead,
-                                     bool read);
   nsresult OrExtraFlag(nsMsgViewIndex index, uint32_t orflag);
   nsresult AndExtraFlag(nsMsgViewIndex index, uint32_t andflag);
   nsresult SetExtraFlag(nsMsgViewIndex index, uint32_t extraflag);
@@ -374,10 +371,7 @@ class nsMsgDBView : public nsIMsgDBView,
   nsresult FindFirstFlagged(nsMsgViewIndex* pResultIndex);
   nsresult FindPrevFlagged(nsMsgViewIndex startIndex,
                            nsMsgViewIndex* pResultIndex);
-  nsresult MarkThreadOfMsgRead(nsMsgKey msgId, nsMsgViewIndex msgIndex,
-                               nsTArray<nsMsgKey>& idsMarkedRead, bool bRead);
-  nsresult MarkThreadRead(nsIMsgThread* threadHdr, nsMsgViewIndex threadIndex,
-                          nsTArray<nsMsgKey>& idsMarkedRead, bool bRead);
+  nsresult MarkThreadRead(nsIMsgThread* threadHdr);
   bool IsValidIndex(nsMsgViewIndex index);
   nsresult ToggleIgnored(nsTArray<nsMsgViewIndex> const& selection,
                          nsMsgViewIndex* resultIndex, bool* resultToggleState);

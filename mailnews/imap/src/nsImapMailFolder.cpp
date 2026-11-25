@@ -9019,13 +9019,7 @@ NS_IMETHODIMP nsImapMailFolder::GetIncomingServerType(nsACString& serverType) {
 NS_IMETHODIMP nsImapMailFolder::HandleViewCommand(
     nsMsgViewCommandTypeValue command, const nsTArray<nsMsgKey>& messageKeys,
     bool interactive, nsIMsgCopyServiceListener* listener) {
-  imapMessageFlagsType flags = kNoImapMsgFlag;
-  bool addFlags = false;
   switch (command) {
-    case nsMsgViewCommandType::markThreadRead:
-      flags |= kImapMsgSeenFlag;
-      addFlags = true;
-      break;
     case nsMsgViewCommandType::junk:
       return StoreCustomKeywords(interactive, "Junk"_ns, "NonJunk"_ns,
                                  messageKeys, nullptr);
@@ -9048,11 +9042,6 @@ NS_IMETHODIMP nsImapMailFolder::HandleViewCommand(
     }
     default:
       break;
-  }
-
-  // Can't get here without thisIsImapThreadPane == TRUE.
-  if (flags != kNoImapMsgFlag) {
-    StoreImapFlags(flags, addFlags, messageKeys, nullptr);
   }
 
   return NS_OK;
