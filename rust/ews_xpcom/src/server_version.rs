@@ -5,7 +5,6 @@
 use std::cell::Cell;
 use std::{collections::HashMap, ffi::CStr};
 
-use firefox_on_glean::metrics::mailnews_ews::VersionLabel;
 use nserror::nsresult;
 use nsstring::nsCString;
 use url::Url;
@@ -125,17 +124,17 @@ pub(crate) fn read_server_version(
     Ok(version)
 }
 
-/// Turn a given [`ExchangeServerVersion`] into a [`VersionLabel`] that can be
-/// used to record telemetry data with Glean.
-pub(crate) fn to_glean_label(version: &ExchangeServerVersion) -> VersionLabel {
+/// Turn a given [`ExchangeServerVersion`] into a string that can be used to
+/// record telemetry data with Glean.
+pub(crate) fn to_glean_label(version: &ExchangeServerVersion) -> &str {
     match version {
-        ExchangeServerVersion::Exchange2007 => VersionLabel::EExchange2007,
-        ExchangeServerVersion::Exchange2007_SP1 => VersionLabel::EExchange2007Sp1,
-        ExchangeServerVersion::Exchange2010 => VersionLabel::EExchange2010,
-        ExchangeServerVersion::Exchange2010_SP1 => VersionLabel::EExchange2010Sp1,
-        ExchangeServerVersion::Exchange2010_SP2 => VersionLabel::EExchange2010Sp2,
-        ExchangeServerVersion::Exchange2013 => VersionLabel::EExchange2013,
-        ExchangeServerVersion::Exchange2013_SP1 => VersionLabel::EExchange2013Sp1,
+        ExchangeServerVersion::Exchange2007 => "Exchange2007",
+        ExchangeServerVersion::Exchange2007_SP1 => "Exchange2007_SP1",
+        ExchangeServerVersion::Exchange2010 => "Exchange2010",
+        ExchangeServerVersion::Exchange2010_SP1 => "Exchange2010_SP1",
+        ExchangeServerVersion::Exchange2010_SP2 => "Exchange2010_SP2",
+        ExchangeServerVersion::Exchange2013 => "Exchange2013",
+        ExchangeServerVersion::Exchange2013_SP1 => "Exchange2013_SP1",
     }
 }
 

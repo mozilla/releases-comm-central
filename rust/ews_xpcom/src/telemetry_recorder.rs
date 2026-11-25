@@ -67,7 +67,7 @@ impl EwsTelemetryRecorder {
             // Record the version, but only if we have one stored in the prefs, as
             // using the default value here would just skew the data.
             glean_ews::version
-                .get(server_version::to_glean_label(&version).into())
+                .get(server_version::to_glean_label(&version))
                 .add(1);
         }
 
@@ -76,13 +76,9 @@ impl EwsTelemetryRecorder {
             .into_iter()
             .any(|o365_base_domain| domain.ends_with(o365_base_domain));
 
-        let server_type_label = if is_o365 {
-            glean_ews::ServerTypeLabel::EOffice365
-        } else {
-            glean_ews::ServerTypeLabel::EOnpremise
-        };
+        let server_type_label = if is_o365 { "Office365" } else { "OnPremise" };
 
-        glean_ews::server_type.get(server_type_label.into()).add(1);
+        glean_ews::server_type.get(server_type_label).add(1);
 
         Ok(())
     }
