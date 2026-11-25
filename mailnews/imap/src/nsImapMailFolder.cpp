@@ -1710,6 +1710,8 @@ NS_IMETHODIMP nsImapMailFolder::GetDeletable(bool* deletable) {
     GetIsNamespace(&isNamespace);
     *deletable = !isNamespace;
   }
+  // Deleting a folder and moving it to the trash both need this right.
+  if (*deletable) *deletable = GetFolderACL()->GetCanIDeleteFolder();
   return NS_OK;
 }
 
@@ -2230,8 +2232,9 @@ nsImapMailFolder::DeleteSelf(bool interactive) {
   }
 
   if (deleteNoTrash) {
+    // Removed locally once the server has deleted it, see
+    // nsImapIncomingServer::OnlineFolderDelete().
     rv = imapService->DeleteFolder(this, this, interactive);
-    nsMsgDBFolder::DeleteSelf(interactive);
   } else {
     rv = imapService->MoveFolder(this, trashFolder, this, interactive);
   }
@@ -5884,8 +5887,13 @@ void nsMsgIMAPFolderACL::BuildInitialACLFromCache() {
   if (startingFlags & IMAP_ACL_DELETE_FLAG) myrights += "dt";
   if (startingFlags & IMAP_ACL_ADMINISTER_FLAG) myrights += "a";
   if (startingFlags & IMAP_ACL_EXPUNGE_FLAG) myrights += "e";
+  if (startingFlags & IMAP_ACL_DELETE_FOLDER) myrights += "x";
+  m_deleteFolderDeniedByCache =
+      (startingFlags & IMAP_ACL_DELETE_FOLDER_KNOWN) &&
+      !(startingFlags & IMAP_ACL_DELETE_FOLDER);
 
-  if (!myrights.IsEmpty()) SetFolderRightsForUser(EmptyCString(), myrights);
+  if (!myrights.IsEmpty())
+    SetFolderRightsForUser(EmptyCString(), myrights, true);
 }
 
 void nsMsgIMAPFolderACL::UpdateACLCache() {
@@ -5937,17 +5945,26 @@ void nsMsgIMAPFolderACL::UpdateACLCache() {
   else
     startingFlags &= ~IMAP_ACL_EXPUNGE_FLAG;
 
+  if (GetCanIDeleteFolder())
+    startingFlags |= IMAP_ACL_DELETE_FOLDER;
+  else
+    startingFlags &= ~IMAP_ACL_DELETE_FOLDER;
+  startingFlags |= IMAP_ACL_DELETE_FOLDER_KNOWN;
+
   m_folder->SetAclFlags(startingFlags);
 }
 
 bool nsMsgIMAPFolderACL::SetFolderRightsForUser(const nsACString& userName,
-                                                const nsACString& rights) {
+                                                const nsACString& rights,
+                                                bool fromCache) {
   nsCString myUserName;
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = m_folder->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, false);
 
   server->GetUsername(myUserName);
+  // The hash keys are lower case.
+  ToLowerCase(myUserName);
 
   nsAutoCString ourUserName;
   if (userName.IsEmpty())
@@ -5967,6 +5984,8 @@ bool nsMsgIMAPFolderACL::SetFolderRightsForUser(const nsACString& userName,
   m_aclCount++;
   m_rightsHash.InsertOrUpdate(ourUserName, PromiseFlatCString(rights));
 
+  if (fromCache) return true;
+  if (myUserName.Equals(ourUserName)) m_deleteFolderDeniedByCache = false;
   if (myUserName.Equals(ourUserName) ||
       ourUserName.EqualsLiteral(IMAP_ACL_ANYONE_STRING))
     // if this is setting an ACL for me, cache it in the folder pref flags
@@ -6113,6 +6132,19 @@ bool nsMsgIMAPFolderACL::GetCanICreateSubfolder() {
 bool nsMsgIMAPFolderACL::GetCanIDeleteInFolder() {
   return GetFlagSetInRightsForUser(EmptyCString(), 'd', true) ||
          GetFlagSetInRightsForUser(EmptyCString(), 't', true);
+}
+
+bool nsMsgIMAPFolderACL::GetCanIDeleteFolder() {
+  // RFC 4314 grants this with "x". RFC 2086 servers know neither "x" nor "k"
+  // and include it in "c" or "d" (RFC 4314, section 2.1.1). When in doubt,
+  // allow it: the server has the last word, and a folder it doesn't delete
+  // stays in place.
+  if (GetFlagSetInRightsForUser(EmptyCString(), 'x', false)) return true;
+  if (GetFlagSetInRightsForUser(EmptyCString(), 'k', false) ||
+      m_deleteFolderDeniedByCache)
+    return false;
+  return GetFlagSetInRightsForUser(EmptyCString(), 'c', true) ||
+         GetFlagSetInRightsForUser(EmptyCString(), 'd', true);
 }
 
 bool nsMsgIMAPFolderACL::GetCanIAdministerFolder() {

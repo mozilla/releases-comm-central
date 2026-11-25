@@ -615,6 +615,7 @@ class nsImapProtocol : public nsIImapProtocol,
   void RemoveHierarchyDelimiter(nsCString& mailboxName);
   bool CreateMailboxRespectingSubscriptions(const char* mailboxName);
   bool DeleteMailboxRespectingSubscriptions(const char* mailboxName);
+  bool MailboxExists(const char* mailboxName);
   bool RenameMailboxRespectingSubscriptions(const char* existingName,
                                             const char* newName,
                                             bool reallyRename);

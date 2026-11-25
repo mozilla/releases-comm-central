@@ -73,6 +73,8 @@ tags = ["foldernames"]
 
 ["test_imapCreateRenameEscaping.js"]
 
+["test_imapDeleteFolderDotDelimiter.js"]
+
 ["test_imapDeleteSharedFolder.js"]
 
 ["test_imapFilterActions.js"]

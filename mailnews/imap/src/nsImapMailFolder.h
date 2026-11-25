@@ -103,6 +103,7 @@ class nsImapMailFolder;
 #define IMAP_ACL_RETRIEVED_FLAG        0x0000100 // ACL info for this folder has been initialized
 #define IMAP_ACL_EXPUNGE_FLAG          0x0000200 // can EXPUNGE or do implicit EXPUNGE on CLOSE
 #define IMAP_ACL_DELETE_FOLDER         0x0000400 // can DELETE/RENAME folder
+#define IMAP_ACL_DELETE_FOLDER_KNOWN   0x0000800 // IMAP_ACL_DELETE_FOLDER is set from the server's rights
 // clang-format on
 
 class nsMsgIMAPFolderACL {
@@ -111,7 +112,7 @@ class nsMsgIMAPFolderACL {
   ~nsMsgIMAPFolderACL();
 
   bool SetFolderRightsForUser(const nsACString& userName,
-                              const nsACString& rights);
+                              const nsACString& rights, bool fromCache = false);
 
  public:
   // generic for any user, although we might not use them in
@@ -139,6 +140,7 @@ class nsMsgIMAPFolderACL {
   bool GetCanIPostToFolder();      // Can I send mail to the submission address for folder?
   bool GetCanICreateSubfolder();   // Can I CREATE a subfolder of this folder?
   bool GetCanIDeleteInFolder();    // STORE DELETED flag?
+  bool GetCanIDeleteFolder();      // DELETE the folder itself?
   bool GetCanIAdministerFolder();  // perform SETACL?
   bool GetCanIExpungeFolder();     // perform EXPUNGE?
   // clang-format on
@@ -172,6 +174,9 @@ class nsMsgIMAPFolderACL {
       m_rightsHash;  // Hash table, mapping username strings to rights strings.
   nsImapMailFolder* m_folder;
   int32_t m_aclCount;
+  // The cache says the server didn't grant deleting the folder. The rights
+  // rebuilt from the cache can't tell, see GetCanIDeleteFolder().
+  bool m_deleteFolderDeniedByCache = false;
 };
 
 /**

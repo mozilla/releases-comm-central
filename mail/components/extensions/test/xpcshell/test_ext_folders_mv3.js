@@ -179,22 +179,22 @@ add_task(
               "Folder has been deleted from trash."
             );
           } else {
-            // The IMAP test server signals success for the delete request, but
-            // keeps the folder. Testing for this broken behavior to get notified
-            // via test fails, if this behaviour changes.
             const [folder3InTrash] = await browser.folders.query({
               folderId: trashFolder.id,
               name: "folder3",
             });
+            const onDeletedPromise = window.waitForEvent("folders.onDeleted");
             await browser.folders.delete(folder3InTrash.id);
+            const [deletedFolder] = await onDeletedPromise;
+            browser.test.assertEq("/Trash/folder3", deletedFolder.path);
             const trashSubfolders = await browser.folders.getSubFolders(
               trashFolder.id,
               false
             );
             browser.test.assertEq(
-              "/Trash/folder3",
-              trashSubfolders[0].path,
-              "IMAP test server cannot delete from trash, the folder is still there."
+              0,
+              trashSubfolders.length,
+              "Folder has been deleted from trash."
             );
           }
 

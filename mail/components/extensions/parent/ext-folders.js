@@ -1136,8 +1136,6 @@ this.folders = class extends ExtensionAPIPersistent {
               parent = parent.parent;
             }
             if (inTrash) {
-              // FixMe: The UI is not updated, the folder is still shown, only after
-              // a restart it is removed from trash.
               const deletedPromise = new Promise(resolve => {
                 MailServices.imap.deleteFolder(
                   folder,

@@ -1278,7 +1278,22 @@ nsresult nsImapIncomingServer::GetFolder(const nsACString& name,
 
 NS_IMETHODIMP nsImapIncomingServer::OnlineFolderDelete(
     const nsACString& aFolderName) {
-  return NS_OK;
+  // Some servers list a mailbox with a trailing delimiter, which
+  // PossibleImapMailbox() drops from the folder name.
+  nsAutoCString name(aFolderName);
+  if (name.Length() > 1 && name.Last() == '/') {
+    name.SetLength(name.Length() - 1);
+  }
+  // The canonical name uses '/', whatever the server's delimiter is, so look
+  // it up as OnlineFolderRename() does. A folder already gone locally, e.g.
+  // after EmptyTrash(), has no parent.
+  nsCOMPtr<nsIMsgFolder> folder;
+  nsresult rv = GetFolder(name, getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgFolder> parent;
+  folder->GetParent(getter_AddRefs(parent));
+  if (!parent) return NS_OK;
+  return parent->PropagateDelete(folder, true);
 }
 
 NS_IMETHODIMP nsImapIncomingServer::OnlineFolderCreateFailed(

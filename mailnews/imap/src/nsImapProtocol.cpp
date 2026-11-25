@@ -7206,9 +7206,25 @@ void nsImapProtocol::OnDeleteFolder(const char* sourceMailbox) {
   bool folderDeleted = true;
   bool deleted = DeleteSubFolders(sourceMailbox, folderDeleted);
   if (!folderDeleted) {
-    if (deleted) deleted = DeleteMailboxRespectingSubscriptions(sourceMailbox);
+    if (deleted && MailboxExists(sourceMailbox)) {
+      deleted = DeleteMailboxRespectingSubscriptions(sourceMailbox);
+    } else if (deleted && m_autoUnsubscribe) {
+      // Already gone on the server, e.g. deleted by another client: only the
+      // subscription and the local folder are left.
+      AutoNoErrorReporting noErrors(GetServerStateParser());
+      Unsubscribe(sourceMailbox);
+      GetServerStateParser().SetCommandFailed(false);
+    }
     if (deleted) FolderDeleted(nsDependentCString(sourceMailbox));
   }
+}
+
+bool nsImapProtocol::MailboxExists(const char* mailboxName) {
+  // As in OnEnsureExistsFolder(), any untagged response counts as listed. If
+  // in doubt, the mailbox exists.
+  List(mailboxName, false);
+  return !GetServerStateParser().LastCommandSuccessful() ||
+         GetServerStateParser().UntaggedResponse();
 }
 
 void nsImapProtocol::RemoveMsgsAndExpunge() {
