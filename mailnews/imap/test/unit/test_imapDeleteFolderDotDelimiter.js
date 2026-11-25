@@ -28,7 +28,10 @@ add_setup(async function () {
 
 add_task(async function testDeleteSubfolder() {
   const parent = IMAPPump.incomingServer.rootFolder.getChildNamed("parent");
-  Assert.ok(parent.containsChildNamed("my child"), "the subfolder should exist");
+  Assert.ok(
+    parent.containsChildNamed("my child"),
+    "the subfolder should exist"
+  );
 
   const listener = new PromiseTestUtils.PromiseUrlListener();
   MailServices.imap.deleteFolder(
