@@ -277,19 +277,20 @@ function observeViewDaySelect(event) {
 }
 
 /**
- * Shows the given date in the current view, if in calendar mode.
+ * Shows the given date in the current view.
  *
  * @param {Date} aNewDate - The new date.
  */
 function minimonthPick(aNewDate) {
-  if (gCurrentMode == "calendar" || gCurrentMode == "task") {
-    const cdt = cal.dtz.jsDateToDateTime(aNewDate, currentView().timezone);
+  const view = currentView();
+  if (view.isInitialized) {
+    const cdt = cal.dtz.jsDateToDateTime(aNewDate, view.timezone);
     cdt.isDate = true;
-    currentView().goToDay(cdt);
-
-    // update date filter for task tree
-    const tree = document.getElementById("calendar-task-tree");
-    tree.updateFilter();
+    view.goToDay(cdt);
+  }
+  const taskTree = document.getElementById("calendar-task-tree");
+  if (taskTree.isInitialized) {
+    taskTree.updateFilter();
   }
 }
 

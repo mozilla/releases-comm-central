@@ -23,6 +23,7 @@ const views = {
   multiweek: document.getElementById("multiweek-view"),
   month: document.getElementById("month-view"),
 };
+const tabmail = document.getElementById("tabmail");
 
 // Dates that we need.
 const now = cal.dtz.jsDateToDateTime(new Date()).getInTimezone(cal.dtz.UTC);
@@ -85,10 +86,6 @@ add_task(function testReportIfCloseToMidnight() {
   );
 }).skip(!closeToRealMidnight);
 
-/**
- * Tests that the calendar tab views are updated at midnight. The current day
- * mark and selection should move.
- */
 add_task(async function testViewsWithTodaySelected() {
   // Check the state of the views, before the calendar tab opens.
   // This test must run first.
@@ -105,6 +102,21 @@ add_task(async function testViewsWithTodaySelected() {
     );
   }
 
+  await subtestViewsWithTodaySelected(false);
+}).skip(closeToRealMidnight);
+
+add_task(async function testViewsWithTodaySelectedInAnotherTab() {
+  await subtestViewsWithTodaySelected(true);
+}).skip(closeToRealMidnight);
+
+/**
+ * Tests that the calendar tab views are updated at midnight. The current day
+ * mark and selection should move.
+ *
+ * @param {boolean} inAnotherTab - If true, switches to the mail tab before
+ *   emitting the midnight event.
+ */
+async function subtestViewsWithTodaySelected(inAnotherTab) {
   // Open the views and check their state.
 
   await checkDayViewToday("day", today);
@@ -138,6 +150,10 @@ add_task(async function testViewsWithTodaySelected() {
   // Now emit the "day" event, as the metronome would do when it detects that
   // the current day is not the same as it was last time events were emitted.
 
+  if (inAnotherTab) {
+    info("switching to the mail tab");
+    tabmail.switchToTab(0);
+  }
   info("emitting midnight update");
   CalMetronome.emit("day");
   checkMinimonthToday("sidebar", today);
@@ -183,6 +199,11 @@ add_task(async function testViewsWithTodaySelected() {
   minimonths.sidebar.value = yesterday.jsDate;
   minimonths.sidebar.mShowsToday = true;
   clearTodayMarkers();
+  if (inAnotherTab) {
+    info("switching to the mail tab");
+    tabmail.switchToTab(0);
+  }
+  info("emitting midnight update");
   CalMetronome.emit("day");
   await checkMonthViewToday("multiweek", today);
   await checkMonthViewSelected("multiweek", today);
@@ -194,6 +215,11 @@ add_task(async function testViewsWithTodaySelected() {
   minimonths.sidebar.value = yesterday.jsDate;
   minimonths.sidebar.mShowsToday = true;
   clearTodayMarkers();
+  if (inAnotherTab) {
+    info("switching to the mail tab");
+    tabmail.switchToTab(0);
+  }
+  info("emitting midnight update");
   CalMetronome.emit("day");
   await checkDayViewToday("week", today);
   await checkDayViewSelected("week", today);
@@ -205,19 +231,35 @@ add_task(async function testViewsWithTodaySelected() {
   minimonths.sidebar.value = yesterday.jsDate;
   minimonths.sidebar.mShowsToday = true;
   clearTodayMarkers();
+  if (inAnotherTab) {
+    info("switching to the mail tab");
+    tabmail.switchToTab(0);
+  }
+  info("emitting midnight update");
   CalMetronome.emit("day");
   await checkDayViewToday("day", today);
   await checkDayViewSelected("day", today);
 
   await CalendarTestUtils.closeCalendarTab(window);
+}
+
+add_task(async function testViewsWithTodayNotSelected() {
+  await subtestViewsWithTodayNotSelected(false);
+}).skip(closeToRealMidnight);
+
+add_task(async function testViewsWithTodayNotSelectedInAnotherTab() {
+  await subtestViewsWithTodayNotSelected(true);
 }).skip(closeToRealMidnight);
 
 /**
  * Tests that the calendar tab views are updated at midnight, when the
  * current day is not selected. The current day mark should move, but not the
  * selection.
+ *
+ * @param {boolean} inAnotherTab - If true, switches to the mail tab before
+ *   emitting the midnight event.
  */
-add_task(async function testViewsWithTodayNotSelected() {
+async function subtestViewsWithTodayNotSelected(inAnotherTab) {
   // Now repeat the test, but this time don't set `mShowsToday`. The selected
   // day should not change.
   await CalendarTestUtils.openCalendarTab(window);
@@ -239,6 +281,10 @@ add_task(async function testViewsWithTodayNotSelected() {
   // Now emit the "day" event, as the metronome would do when it detects that
   // the current day is not the same as it was last time events were emitted.
 
+  if (inAnotherTab) {
+    info("switching to the mail tab");
+    tabmail.switchToTab(0);
+  }
   info("emitting midnight update");
   CalMetronome.emit("day");
   checkMinimonthToday("sidebar", today);
@@ -290,6 +336,11 @@ add_task(async function testViewsWithTodayNotSelected() {
   await CalendarTestUtils.setCalendarView(window, "multiweek");
   minimonths.sidebar.value = dayBeforeYesterday.jsDate;
   clearTodayMarkers();
+  if (inAnotherTab) {
+    info("switching to the mail tab");
+    tabmail.switchToTab(0);
+  }
+  info("emitting midnight update");
   CalMetronome.emit("day");
   await checkMonthViewToday("multiweek", today);
   await checkMonthViewSelected("multiweek", dayBeforeYesterday);
@@ -300,6 +351,11 @@ add_task(async function testViewsWithTodayNotSelected() {
   await CalendarTestUtils.setCalendarView(window, "week");
   minimonths.sidebar.value = dayBeforeYesterday.jsDate;
   clearTodayMarkers();
+  if (inAnotherTab) {
+    info("switching to the mail tab");
+    tabmail.switchToTab(0);
+  }
+  info("emitting midnight update");
   CalMetronome.emit("day");
   // Today won't be shown if it's in the week after the selected date,
   // e.g. the selection is Saturday but today is Monday.
@@ -312,6 +368,11 @@ add_task(async function testViewsWithTodayNotSelected() {
   await CalendarTestUtils.setCalendarView(window, "day");
   minimonths.sidebar.value = dayBeforeYesterday.jsDate;
   clearTodayMarkers();
+  if (inAnotherTab) {
+    info("switching to the mail tab");
+    tabmail.switchToTab(0);
+  }
+  info("emitting midnight update");
   CalMetronome.emit("day");
   // Today won't be shown as it's not selected.
   await checkDayViewToday("day", null);
@@ -319,7 +380,7 @@ add_task(async function testViewsWithTodayNotSelected() {
 
   EventUtils.synthesizeMouseAtCenter(minimonths.sidebar.querySelector(".today-button"), {}, window);
   await CalendarTestUtils.closeCalendarTab(window);
-}).skip(closeToRealMidnight);
+}
 
 /**
  * Tests that the today pane mini-month is updated at midnight. The current
