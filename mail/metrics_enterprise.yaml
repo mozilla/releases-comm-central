@@ -33,6 +33,8 @@ mail.enterprise:
           Included only for completed exports. complete means no file
           additions failed; partial means at least one file addition failed.
         type: string
+    no_lint:
+      - UNKNOWN_PING_REFERENCED  # Bug 2097441
   certificate_exception_added:
     type: event
     description: >
@@ -65,3 +67,5 @@ mail.enterprise:
       ui:
         description: Identifies the code handling the certificate exception.
         type: string
+    no_lint:
+      - UNKNOWN_PING_REFERENCED  # Bug 2097441
