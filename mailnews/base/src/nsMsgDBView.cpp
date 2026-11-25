@@ -5054,10 +5054,6 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
   *pResultKey = nsMsgKey_None;
 
   switch (motion) {
-    case nsMsgNavigationType::firstMessage:
-      *pResultIndex = 0;
-      *pResultKey = m_keys[0];
-      break;
     case nsMsgNavigationType::nextMessage:
       // Return same index and id on next on last message.
       *pResultIndex = std::min(startIndex + 1, lastIndex);
@@ -5069,14 +5065,6 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
       }
       if (IsValidIndex(*pResultIndex)) *pResultKey = m_keys[*pResultIndex];
       break;
-    case nsMsgNavigationType::lastMessage:
-      *pResultIndex = lastIndex;
-      *pResultKey = m_keys[*pResultIndex];
-      break;
-    case nsMsgNavigationType::firstFlagged:
-      rv = FindFirstFlagged(pResultIndex);
-      if (IsValidIndex(*pResultIndex)) *pResultKey = m_keys[*pResultIndex];
-      break;
     case nsMsgNavigationType::nextFlagged:
       rv = FindNextFlagged(startIndex + 1, pResultIndex);
       if (IsValidIndex(*pResultIndex)) *pResultKey = m_keys[*pResultIndex];
@@ -5085,14 +5073,6 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
       rv = FindPrevFlagged(startIndex, pResultIndex);
       if (IsValidIndex(*pResultIndex)) *pResultKey = m_keys[*pResultIndex];
       break;
-    case nsMsgNavigationType::firstNew:
-      rv = FindFirstNew(pResultIndex);
-      if (IsValidIndex(*pResultIndex)) *pResultKey = m_keys[*pResultIndex];
-      break;
-    case nsMsgNavigationType::firstUnreadMessage:
-      startIndex = nsMsgViewIndex_None;
-      // Note fall through - is this motion ever used?
-      [[fallthrough]];
     case nsMsgNavigationType::nextUnreadMessage:
       for (curIndex = (startIndex == nsMsgViewIndex_None) ? 0 : startIndex;
            curIndex <= lastIndex && lastIndex != nsMsgViewIndex_None;
@@ -5182,8 +5162,6 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
         }
       }
       break;
-    case nsMsgNavigationType::lastUnreadMessage:
-      break;
     case nsMsgNavigationType::nextUnreadThread:
       if (startIndex != nsMsgViewIndex_None) {
         nsCOMPtr<nsIMsgThread> threadHdr;
@@ -5265,21 +5243,6 @@ nsresult nsMsgDBView::FindNextFlagged(nsMsgViewIndex startIndex,
   }
 
   return NS_OK;
-}
-
-nsresult nsMsgDBView::FindFirstNew(nsMsgViewIndex* pResultIndex) {
-  if (m_db) {
-    nsMsgKey firstNewKey = nsMsgKey_None;
-    m_db->GetFirstNew(&firstNewKey);
-    *pResultIndex = (firstNewKey != nsMsgKey_None) ? FindKey(firstNewKey, true)
-                                                   : nsMsgViewIndex_None;
-  }
-
-  return NS_OK;
-}
-
-nsresult nsMsgDBView::FindFirstFlagged(nsMsgViewIndex* pResultIndex) {
-  return FindNextFlagged(0, pResultIndex);
 }
 
 nsresult nsMsgDBView::FindPrevFlagged(nsMsgViewIndex startIndex,

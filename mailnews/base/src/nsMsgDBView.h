@@ -367,8 +367,6 @@ class nsMsgDBView : public nsIMsgDBView,
                            nsMsgViewIndex* pThreadIndex, bool wrap);
   nsresult FindNextFlagged(nsMsgViewIndex startIndex,
                            nsMsgViewIndex* pResultIndex);
-  nsresult FindFirstNew(nsMsgViewIndex* pResultIndex);
-  nsresult FindFirstFlagged(nsMsgViewIndex* pResultIndex);
   nsresult FindPrevFlagged(nsMsgViewIndex startIndex,
                            nsMsgViewIndex* pResultIndex);
   nsresult MarkThreadRead(nsIMsgThread* threadHdr);
