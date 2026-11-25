@@ -17,7 +17,12 @@ build:
     # golang: "1.17"
   jobs:
     post_install:
-      - npm install -g jsdoc@~4.0.0
+      # RTD installs Node.js using asdf, which wraps binaries in a bash script.
+      # sphinx-js >= 5 loads jsdoc from the PATH if it cannot find it in the
+      # local `node_modules/`, and fails on RTD because the executable isn't a
+      # JS script. This installs jsdoc in a `node_modules/` directory under
+      # `docs/`, which is the working directory for RTD builds.
+      - npm install --no-save --prefix docs jsdoc@~4.0.0
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:

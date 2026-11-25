@@ -104,6 +104,8 @@ module.exports = {
       "../suite",
 
       "../node_modules",
+      // Ignore our local modules, which should just be jsdoc. See bug 2097716.
+      "./node_modules",
 
       ...ignorePatterns,
     ],
