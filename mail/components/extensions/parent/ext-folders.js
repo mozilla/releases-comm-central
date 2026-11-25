@@ -1135,7 +1135,12 @@ this.folders = class extends ExtensionAPIPersistent {
               inTrash = parent.flags & Ci.nsMsgFolderFlags.Trash;
               parent = parent.parent;
             }
-            if (inTrash) {
+            // A folder in a shared namespace can't be moved into the
+            // personal trash. See nsImapMailFolder::DeleteSelf().
+            const isShared = folder.getFlag(
+              Ci.nsMsgFolderFlags.ImapPublic | Ci.nsMsgFolderFlags.ImapOtherUser
+            );
+            if (inTrash || isShared) {
               const deletedPromise = new Promise(resolve => {
                 MailServices.imap.deleteFolder(
                   folder,

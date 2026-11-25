@@ -8,3 +8,5 @@ tags = [
 ]
 
 ["include:xpcshell.toml"]
+
+["test_ext_folders_delete_shared.js"]

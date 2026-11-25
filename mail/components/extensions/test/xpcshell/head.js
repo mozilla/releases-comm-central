@@ -237,6 +237,8 @@ var gIMAPServers = new Map();
 class IMAPServer {
   constructor(options = {}) {
     this.extensions = options?.extensions ?? [];
+    // Handler methods to replace, e.g. to fake server-specific responses.
+    this.overrides = options?.overrides ?? {};
   }
 
   open() {
@@ -253,6 +255,7 @@ class IMAPServer {
       for (const ext of this.extensions) {
         mixinExtension(handler, ImapD[`IMAP_${ext}_extension`]);
       }
+      Object.assign(handler, this.overrides);
       return handler;
     }, this.daemon);
 
