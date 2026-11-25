@@ -32,7 +32,6 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
                          nsIMsgDBView** _retval) override;
   NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView, bool interactive,
                         nsIMsgDBViewCommandUpdater* aCmdUpdater) override;
-  NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue aCommand) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
   NS_IMETHOD SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) override;
   NS_IMETHOD SetSearchSession(nsIMsgSearchSession* aSearchSession) override;

@@ -704,44 +704,6 @@ nsMsgSearchDBView::GetCommandStatus(nsMsgViewCommandTypeValue command,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgSearchDBView::DoCommand(nsMsgViewCommandTypeValue command) {
-  mCommand = command;
-  if (command == nsMsgViewCommandType::deleteMsg ||
-      command == nsMsgViewCommandType::deleteNoTrash ||
-      command == nsMsgViewCommandType::expandAll ||
-      command == nsMsgViewCommandType::collapseAll)
-    return nsMsgDBView::DoCommand(command);
-
-  nsresult rv = NS_OK;
-  nsMsgViewIndexArray selection;
-  if (command == nsMsgViewCommandType::markAllRead) {
-    command = nsMsgViewCommandType::markMessagesRead;
-    // Create a selection from all indices.
-    int32_t viewSize = GetSize();
-    selection.SetCapacity(viewSize);
-    for (int32_t index = 0; index < viewSize; index++) {
-      selection.AppendElement(index);
-    }
-  } else {
-    GetIndicesForSelection(selection);
-  }
-
-  // We need to break apart the selection by folders, and then call
-  // ApplyCommandToIndices with the command and the indices in the
-  // selection that are from that folder.
-
-  mozilla::UniquePtr<nsTArray<nsMsgViewIndex>[]> indexArrays;
-  int32_t numArrays;
-  rv = PartitionSelectionByFolder(selection, indexArrays, &numArrays);
-  NS_ENSURE_SUCCESS(rv, rv);
-  for (int32_t folderIndex = 0; folderIndex < numArrays; folderIndex++) {
-    rv = ApplyCommandToIndices(command, (indexArrays.get())[folderIndex]);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  return rv;
-}
-
 // This method removes the specified line from the view, and adjusts the
 // various flags and levels of affected messages.
 nsresult nsMsgSearchDBView::RemoveByIndex(nsMsgViewIndex index) {
@@ -814,42 +776,6 @@ nsresult nsMsgSearchDBView::DeleteMessages(
     }
   }
   return ProcessNextFolder(interactive);
-}
-
-nsresult nsMsgSearchDBView::PartitionSelectionByFolder(
-    nsTArray<nsMsgViewIndex> const& selection,
-    mozilla::UniquePtr<nsTArray<nsMsgViewIndex>[]>& indexArrays,
-    int32_t* numArrays) {
-  nsCOMArray<nsIMsgFolder> uniqueFoldersSelected;
-  nsTArray<uint32_t> numIndicesSelected;
-  mCurIndex = 0;
-
-  // Build unique folder list based on headers selected by the user.
-  for (nsMsgViewIndex viewIndex : selection) {
-    nsIMsgFolder* curFolder = m_folders[viewIndex];
-    int32_t folderIndex = uniqueFoldersSelected.IndexOf(curFolder);
-    if (folderIndex < 0) {
-      uniqueFoldersSelected.AppendObject(curFolder);
-      numIndicesSelected.AppendElement(1);
-    } else {
-      numIndicesSelected[folderIndex]++;
-    }
-  }
-
-  int32_t numFolders = uniqueFoldersSelected.Count();
-  indexArrays = std::make_unique<nsTArray<nsMsgViewIndex>[]>(numFolders);
-  *numArrays = numFolders;
-  NS_ENSURE_TRUE(indexArrays, NS_ERROR_OUT_OF_MEMORY);
-  for (int32_t folderIndex = 0; folderIndex < numFolders; folderIndex++) {
-    (indexArrays.get())[folderIndex].SetCapacity(
-        numIndicesSelected[folderIndex]);
-  }
-  for (nsMsgViewIndex viewIndex : selection) {
-    nsIMsgFolder* curFolder = m_folders[viewIndex];
-    int32_t folderIndex = uniqueFoldersSelected.IndexOf(curFolder);
-    (indexArrays.get())[folderIndex].AppendElement(viewIndex);
-  }
-  return NS_OK;
 }
 
 nsresult nsMsgSearchDBView::GetFoldersAndHdrsForSelection(

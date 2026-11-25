@@ -2092,15 +2092,6 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
       rv = ApplyCommandToIndices(command, selection);
       NoteChange(0, 0, nsMsgViewNotificationCode::none);
       break;
-    case nsMsgViewCommandType::markAllRead:
-      if (m_folder) {
-        SetSuppressChangeNotifications(true);
-        rv = m_folder->MarkAllMessagesRead();
-        SetSuppressChangeNotifications(false);
-        if (mTree) mTree->Invalidate();
-        if (mJSTree) mJSTree->Invalidate();
-      }
-      break;
     case nsMsgViewCommandType::toggleThreadWatched:
       rv = ToggleWatched(selection);
       break;
@@ -2199,7 +2190,6 @@ nsMsgDBView::GetCommandStatus(nsMsgViewCommandTypeValue command, bool* status) {
                 JunkControlsEnabled(selection[0]);
       break;
     case nsMsgViewCommandType::downloadFlaggedForOffline:
-    case nsMsgViewCommandType::markAllRead:
       *status = true;
       break;
     default:
@@ -5611,6 +5601,43 @@ nsMsgDBView::GetNumMsgsInView(int32_t* aNumMsgs) {
   NS_ENSURE_ARG_POINTER(aNumMsgs);
   return (m_folder) ? m_folder->GetTotalMessages(false, aNumMsgs)
                     : NS_ERROR_FAILURE;
+}
+
+NS_IMETHODIMP
+nsMsgDBView::GetAllMsgHdrs(nsTArray<RefPtr<nsIMsgDBHdr>>& messages) {
+  messages.Clear();
+
+  int32_t numMsgs;
+  nsresult rv = GetNumMsgsInView(&numMsgs);
+  NS_ENSURE_SUCCESS(rv, rv);
+  messages.SetCapacity(numMsgs);
+
+  int32_t count = GetSize();
+  for (int viewIndex = 0; viewIndex < count; viewIndex++) {
+    int32_t level;
+    rv = GetLevel(viewIndex, &level);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    if (level != 0) {
+      continue;
+    }
+
+    if (!(m_flags[viewIndex] & MSG_VIEW_FLAG_DUMMY)) {
+      nsCOMPtr<nsIMsgDBHdr> msgHdr;
+      rv = GetMsgHdrForViewIndex(viewIndex, getter_AddRefs(msgHdr));
+      NS_ENSURE_SUCCESS(rv, rv);
+      messages.AppendElement(msgHdr);
+    }
+
+    nsTArray<RefPtr<nsIMsgDBHdr>> children;
+    rv = ListCollapsedChildren(viewIndex, children);
+    NS_ENSURE_SUCCESS(rv, rv);
+    for (auto c : children) {
+      messages.AppendElement(c);
+    }
+  }
+
+  return NS_OK;
 }
 
 /**

@@ -114,12 +114,10 @@ interface nsMsgViewCommandCheckState : nsISupports
 [scriptable, uuid(ad36e6cc-0109-11d5-a5be-0060b0fc04b7)]
 interface nsMsgViewCommandType : nsISupports
 {
-  const nsMsgViewCommandTypeValue markMessagesRead = 0;
   const nsMsgViewCommandTypeValue toggleThreadWatched = 6;
 
   const nsMsgViewCommandTypeValue deleteMsg = 7;
   const nsMsgViewCommandTypeValue deleteNoTrash = 8;
-  const nsMsgViewCommandTypeValue markAllRead = 10;
   const nsMsgViewCommandTypeValue expandAll = 11;
   const nsMsgViewCommandTypeValue collapseAll = 12;
 
@@ -314,6 +312,11 @@ interface nsIMsgDBView : nsISupports
    * with unread.
    */
   readonly attribute long numMsgsInView;
+
+  /**
+   * Get all of the messages in view, including messages in collapsed threads.
+   */
+  Array<nsIMsgDBHdr> getAllMsgHdrs();
 
   /**
    * Suppress change notifications. This is faster than Begin/EndUpdateBatch

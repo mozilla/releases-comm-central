@@ -42,7 +42,6 @@ class nsMsgSearchDBView : public nsMsgGroupView,
                   nsMsgViewSortOrderValue sortOrder) override;
   NS_IMETHOD GetCommandStatus(nsMsgViewCommandTypeValue command,
                               bool* status) override;
-  NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue command) override;
   NS_IMETHOD OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
@@ -107,10 +106,6 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   nsresult ProcessNextFolder(bool interactive);
 
   nsresult GroupSearchResultsByFolder();
-  nsresult PartitionSelectionByFolder(
-      nsTArray<nsMsgViewIndex> const& selection,
-      mozilla::UniquePtr<nsTArray<uint32_t>[]>& indexArrays,
-      int32_t* numArrays);
 
   void MoveThreadAt(nsMsgViewIndex threadIndex);
 

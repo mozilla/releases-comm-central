@@ -16,8 +16,11 @@ const { IMAPServer } = ChromeUtils.importESModule(
 const { getState, storeState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
 );
+const { VirtualFolderHelper } = ChromeUtils.importESModule(
+  "resource:///modules/VirtualFolderWrapper.sys.mjs"
+);
 
-let about3Pane, imapServer, imapIncomingServer, inbox, messages;
+let about3Pane, imapServer, imapIncomingServer, inbox, messages, virtualFolder;
 
 add_setup(async function () {
   const toolbarState = getState();
@@ -42,7 +45,7 @@ add_setup(async function () {
     })
   );
 
-  const account = MailServices.accounts.createLocalMailAccount();
+  const localAccount = MailServices.accounts.createLocalMailAccount();
 
   // We'll do this with an IMAP server so that we can check the server is
   // actually informed of changes.
@@ -71,25 +74,37 @@ add_setup(async function () {
     () => messages.every(m => m.storeToken),
     "waiting for all messages to be downloaded"
   );
-  await TestUtils.waitForCondition(
-    () => imapIncomingServer.allConnectionsIdle,
-    "waiting for IMAP connection to become idle"
-  );
+  await promiseServerIdle(imapIncomingServer);
+
+  virtualFolder = VirtualFolderHelper.createNewVirtualFolder(
+    "virtualInbox",
+    imapIncomingServer.rootFolder,
+    [
+      inbox,
+      imapIncomingServer.rootFolder.getFolderWithFlags(
+        Ci.nsMsgFolderFlags.Trash
+      ),
+    ],
+    "ALL",
+    false
+  ).virtualFolder;
 
   about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.restoreState({ messagePaneVisible: false, folderURI: inbox });
 
   registerCleanupFunction(async () => {
-    MailServices.accounts.removeAccount(account, false);
+    about3Pane.sortController.sortThreaded();
+    about3Pane.restoreState({
+      messagePaneVisible: true,
+      folderURI: localAccount.incomingServer.rootFolder,
+    });
 
-    await TestUtils.waitForCondition(
-      () => imapIncomingServer.allConnectionsIdle,
-      "waiting for IMAP connection to become idle"
-    );
+    await promiseServerIdle(imapIncomingServer);
     // Wait for all meteors updates to reach the UI.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 1000));
     MailServices.accounts.removeAccount(imapAccount, false);
+    MailServices.accounts.removeAccount(localAccount, false);
 
     storeState(toolbarState);
     about3Pane.restoreState({ messagePaneVisible: true });
@@ -191,6 +206,27 @@ add_task(async function testMailContext() {
   );
 });
 
+function assertRead(indices, shouldBeRead) {
+  const verb = shouldBeRead ? "should" : "should not";
+  for (const index of indices) {
+    const message = messages[index];
+    Assert.equal(
+      message.isRead,
+      shouldBeRead,
+      `message ${index} ${verb} be marked as read in the database`
+    );
+
+    const serverMessage = imapServer.daemon
+      .getMailbox("INBOX")
+      ._messages.find(m => m.uid == message.messageKey);
+    Assert.equal(
+      serverMessage.flags.includes("\\Seen"),
+      shouldBeRead,
+      `message ${index} ${verb} be marked as read on the server`
+    );
+  }
+}
+
 async function subtest(openMenuCallback, popup, helper) {
   const [
     readItem,
@@ -225,31 +261,7 @@ async function subtest(openMenuCallback, popup, helper) {
     }
 
     await new Promise(resolve => setTimeout(resolve));
-    await TestUtils.waitForCondition(
-      () => imapIncomingServer.allConnectionsIdle,
-      "waiting for IMAP connection to become idle"
-    );
-  }
-
-  function assertRead(indices, shouldBeRead) {
-    const verb = shouldBeRead ? "should" : "should not";
-    for (const index of indices) {
-      const message = messages[index];
-      Assert.equal(
-        message.isRead,
-        shouldBeRead,
-        `message ${index} ${verb} be marked as read in the database`
-      );
-
-      const serverMessage = imapServer.daemon
-        .getMailbox("INBOX")
-        ._messages.find(m => m.uid == message.messageKey);
-      Assert.equal(
-        serverMessage.flags.includes("\\Seen"),
-        shouldBeRead,
-        `message ${index} ${verb} be marked as read on the server`
-      );
-    }
+    await promiseServerIdle(imapIncomingServer);
   }
 
   function assertFlagged(indices, shouldBeFlagged) {
@@ -409,6 +421,64 @@ async function subtest(openMenuCallback, popup, helper) {
   await activateItem(0, allReadItem);
   assertRead([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], true);
 
+  about3Pane.threadTree.selectedIndex = -1;
   inbox.markMessagesRead(messages, false);
   inbox.markMessagesFlagged(messages, false);
+  await promiseServerIdle(imapIncomingServer);
+}
+
+/**
+ * Test that cmd_markAllRead marks ALL messages read, in an unthreaded view.
+ */
+add_task(async function testUnthreaded() {
+  about3Pane.sortController.sortUnthreaded();
+  Assert.equal(
+    about3Pane.gDBView.rowCount,
+    11,
+    "all messages should be visible"
+  );
+
+  await subtestMarkAllRead();
+});
+
+/**
+ * Test that cmd_markAllRead marks ALL messages read, in a grouped-by-sort view.
+ */
+add_task(async function testGrouped() {
+  about3Pane.sortController.groupBySort();
+  Assert.equal(
+    about3Pane.gDBView.rowCount,
+    1,
+    "the group containing all the messages should be collapsed"
+  );
+
+  await subtestMarkAllRead();
+});
+
+/**
+ * Test that cmd_markAllRead marks ALL messages read, in a virtual folder view.
+ */
+add_task(async function testVirtualFolder() {
+  about3Pane.restoreState({ folderURI: virtualFolder });
+  about3Pane.sortController.sortThreaded();
+  Assert.equal(
+    about3Pane.gDBView.rowCount,
+    7,
+    "all threads should be visible and collapsed"
+  );
+
+  about3Pane.gDBView.toggleOpenState(6);
+  await new Promise(resolve => about3Pane.requestAnimationFrame(resolve));
+
+  await subtestMarkAllRead();
+});
+
+async function subtestMarkAllRead() {
+  assertRead([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], false);
+  goDoCommand("cmd_markAllRead");
+  await promiseServerIdle(imapIncomingServer);
+  assertRead([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], true);
+
+  inbox.markMessagesRead(messages, false);
+  await promiseServerIdle(imapIncomingServer);
 }

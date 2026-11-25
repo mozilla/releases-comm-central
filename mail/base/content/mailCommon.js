@@ -142,7 +142,6 @@ var commandController = {
     cmd_previousFlaggedMsg: Ci.nsMsgNavigationType.previousFlagged,
   },
   _viewCommands: {
-    cmd_markAllRead: Ci.nsMsgViewCommandType.markAllRead,
     cmd_markAsNotJunk: Ci.nsMsgViewCommandType.unjunk,
     cmd_watchThread: Ci.nsMsgViewCommandType.toggleThreadWatched,
   },
@@ -256,6 +255,14 @@ var commandController = {
         "",
         "chrome,modal,titlebar,centerscreen",
         gFolder
+      );
+    },
+    cmd_markAllRead() {
+      // Note we're only marking the messages in the view read, not every
+      // message in every folder of the view.
+      commandController._clearReadTimer();
+      MailUtils.batchByFolder(gDBView.getAllMsgHdrs(), (folder, messages) =>
+        folder.markMessagesRead(messages, true)
       );
     },
     cmd_markAsFlagged() {

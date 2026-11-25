@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FolderUtils } from "resource:///modules/FolderUtils.sys.mjs";
 import { MailServices } from "resource:///modules/MailServices.sys.mjs";
-
+import { MailUtils } from "resource:///modules/MailUtils.sys.mjs";
 import {
   MailViewConstants,
   MailViewManager,
 } from "resource:///modules/MailViewManager.sys.mjs";
 import { SearchSpec } from "resource:///modules/SearchSpec.sys.mjs";
 import { ThreadPaneColumns } from "chrome://messenger/content/ThreadPaneColumns.mjs";
-import { FolderUtils } from "resource:///modules/FolderUtils.sys.mjs";
-
 import { VirtualFolderHelper } from "resource:///modules/VirtualFolderWrapper.sys.mjs";
 
 var MSG_VIEW_FLAG_DUMMY = 0x20000000;
@@ -2181,7 +2180,10 @@ DBViewWrapper.prototype = {
           this.displayedFolder
         )
       ) {
-        this.dbView.doCommand(Ci.nsMsgViewCommandType.markAllRead);
+        MailUtils.batchByFolder(
+          this.dbView.getAllMsgHdrs(),
+          (folder, messages) => folder.markMessagesRead(messages, true)
+        );
       }
     } catch (e) {}
   },

@@ -90,30 +90,6 @@ nsresult nsMsgQuickSearchDBView::DeleteMessages(
   return nsMsgDBView::DeleteMessages(interactive, selection, deleteStorage);
 }
 
-NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(
-    nsMsgViewCommandTypeValue aCommand) {
-  if (aCommand == nsMsgViewCommandType::markAllRead) {
-    nsresult rv = NS_OK;
-    m_folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications,
-                                  false);
-
-    for (uint32_t i = 0; NS_SUCCEEDED(rv) && i < GetSize(); i++) {
-      rv = m_db->MarkRead(m_keys[i], true, nullptr);
-    }
-
-    m_folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications,
-                                  true);
-
-    nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(m_folder);
-    if (NS_SUCCEEDED(rv) && imapFolder)
-      rv = imapFolder->StoreImapFlags(kImapMsgSeenFlag, true, m_keys, nullptr);
-
-    m_db->SetSummaryValid(true);
-    return rv;
-  } else
-    return nsMsgDBView::DoCommand(aCommand);
-}
-
 NS_IMETHODIMP nsMsgQuickSearchDBView::GetViewType(
     nsMsgViewTypeValue* aViewType) {
   NS_ENSURE_ARG_POINTER(aViewType);
