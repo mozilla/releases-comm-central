@@ -38,6 +38,7 @@ ChromeUtils.defineESModuleGetters(this, {
   MessageArchiver: "resource:///modules/MessageArchiver.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
   PhishingDetector: "resource:///modules/PhishingDetector.sys.mjs",
+  RemoteContentUtils: "moz-src:///comm/mail/modules/RemoteContentUtils.sys.mjs",
   calendarDeactivator:
     "resource:///modules/calendar/calCalendarDeactivator.sys.mjs",
 });
@@ -4197,54 +4198,85 @@ function LoadMsgWithRemoteContent() {
 }
 
 /**
- * Populate the remote content options for the current message.
+ * Populates the remote content menu with image origins and sender permissions.
+ *
+ * @param {Event} event - The popupshowing event for the remote content menu.
  */
-function onRemoteContentOptionsShowing(aEvent) {
-  const origins = aEvent.target.value ? aEvent.target.value.split(" ") : [];
-
-  let addresses = MailServices.headerParser.parseEncodedHeader(gMessage.author);
-  addresses = addresses.slice(0, 1);
-  // If there is an author's email, put it also in the menu.
-  const adrCount = addresses.length;
-  if (adrCount > 0) {
-    const authorEmailAddress = addresses[0].email;
-    const authorEmailAddressURI = Services.io.newURI(
-      "chrome://messenger/content/email=" + authorEmailAddress
-    );
+function onRemoteContentOptionsShowing(event) {
+  const popup = event.target;
+  const origins = popup.value ? popup.value.split(" ") : [];
+  const count = origins.length;
+  const mailURIBase = "chrome://messenger/content/email=";
+  const address = MailServices.headerParser.parseEncodedHeader(
+    gMessage.author
+  )[0]?.email;
+  let senderDomain;
+  let domainOrigin;
+  if (address) {
     const mailPrincipal = Services.scriptSecurityManager.createContentPrincipal(
-      authorEmailAddressURI,
+      Services.io.newURI(
+        mailURIBase + RemoteContentUtils.normalizeSenderAddress(address)
+      ),
       {}
     );
     origins.push(mailPrincipal.origin);
+
+    try {
+      const atIndex = address.lastIndexOf("@");
+      senderDomain = RemoteContentUtils.normalizeSenderDomain(
+        atIndex > 0 ? address.slice(atIndex + 1) : ""
+      );
+      domainOrigin = Services.scriptSecurityManager.createContentPrincipal(
+        Services.io.newURI(`${mailURIBase}@${senderDomain}`),
+        {}
+      ).origin;
+      origins.push(domainOrigin);
+    } catch {
+      // Omit the domain action if the author has no valid sender domain.
+    }
   }
 
-  // Out with the old...
-  const children = aEvent.target.children;
-  for (let i = children.length - 1; i >= 0; i--) {
-    if (children[i].getAttribute("class") == "allow-remote-uri") {
-      children[i].remove();
-    }
+  for (const item of popup.querySelectorAll(".allow-remote-uri")) {
+    item.remove();
   }
 
   const urlSepar = document.getElementById("remoteContentAllMenuSeparator");
-
-  // ... and in with the new.
   for (const origin of origins) {
     const menuitem = document.createXULElement("menuitem");
-    document.l10n.setAttributes(menuitem, "allow-remote-content-resource", {
-      origin: origin.replace("chrome://messenger/content/email=", ""),
-    });
-    menuitem.setAttribute("value", origin);
-    menuitem.setAttribute("class", "allow-remote-uri");
-    menuitem.setAttribute("oncommand", "allowRemoteContentForURI(this.value);");
-    if (origin.startsWith("chrome://messenger/content/email=")) {
-      aEvent.target.appendChild(menuitem);
+    if (origin == domainOrigin) {
+      document.l10n.setAttributes(
+        menuitem,
+        "allow-remote-content-sender-domain",
+        {
+          domain: senderDomain,
+        }
+      );
+    } else if (origin.startsWith(mailURIBase)) {
+      document.l10n.setAttributes(menuitem, "allow-remote-content-sender", {
+        email: origin.slice(mailURIBase.length),
+      });
     } else {
-      aEvent.target.insertBefore(menuitem, urlSepar);
+      let labelId = "allow-remote-content-resource";
+      try {
+        Services.eTLD.getBaseDomain(Services.io.newURI(origin));
+        labelId = "allow-remote-content-website";
+      } catch {
+        // Omit subdomain wording for hosts without a registrable domain.
+      }
+      document.l10n.setAttributes(menuitem, labelId, { origin });
+    }
+    menuitem.value = origin;
+    menuitem.classList.add("allow-remote-uri");
+    menuitem.addEventListener("command", () =>
+      allowRemoteContentForURI(menuitem.value)
+    );
+    if (origin.startsWith(mailURIBase)) {
+      popup.appendChild(menuitem);
+    } else {
+      popup.insertBefore(menuitem, urlSepar);
     }
   }
 
-  const count = origins.length - adrCount;
   document.l10n.setAttributes(
     document.getElementById("remoteContentOptionAllowAll"),
     "remote-content-option-allow-all",

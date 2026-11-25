@@ -881,9 +881,24 @@ attachment-view-attachment-count = {
 ## Remote content blocking
 
 # Variables:
-#    $origin - origin of the remote content to allow
+#    $origin - an IP address or other origin without subdomain inheritance
 allow-remote-content-resource =
     .label = Allow remote content from { $origin }
+
+# Variables:
+#    $origin - website origin, including scheme and port
+allow-remote-content-website =
+    .label = Allow remote content from { $origin } and its subdomains
+
+# Variables:
+#    $email - sender email address
+allow-remote-content-sender =
+    .label = Allow remote content from { $email }
+
+# Variables:
+#    $domain - the sender's email domain
+allow-remote-content-sender-domain =
+    .label = Allow remote content from all senders at { $domain } and its subdomains
 
 # Variables:
 #    $count - the number of origins to allow

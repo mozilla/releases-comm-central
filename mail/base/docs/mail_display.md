@@ -80,7 +80,8 @@ The process for populating the UI is:
 The remote content exceptions dialog accepts image origins, full sender email
 addresses, and sender domains written as `@example.com`. A sender-domain entry
 applies to that domain and its subdomains. The dialog rejects public suffixes
-such as `@co.uk`.
+such as `@co.uk`. The remote content notification menu also offers an action to
+allow content for the sender's domain.
 
 Sender permissions use the `image` permission type and synthetic principals
 whose URIs start with `chrome://messenger/content/email=`. Domain entries append
@@ -92,4 +93,5 @@ equivalent entries conflict, and the winning entry retains its expiration.
 `nsMsgContentPolicy::GetRemoteContentPermissionForSender` first checks the full
 sender address, then the sender's domain and its parents, stopping at the base
 domain as determined by the effective TLD service. The first explicit Allow or
-Block permission wins.
+Block permission wins. Sender entries are excluded from the notification menu's
+image-origin count and its action to allow all listed image origins.
