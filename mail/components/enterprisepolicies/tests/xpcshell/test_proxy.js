@@ -2,6 +2,10 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 "use strict";
 
+const { PolicyFailures } = ChromeUtils.importESModule(
+  "resource://gre/modules/PoliciesHelpers.sys.mjs"
+);
+
 add_task(async function test_proxy_modes_and_autoconfig() {
   // Directly test the proxy Mode and AutoconfigURL parameters through
   // the API instead of the policy engine, because the test harness
@@ -120,5 +124,30 @@ add_task(async function test_proxy_addresses() {
     Services.prefs.getPrefType("network.proxy.ftp_port"),
     Ci.nsIPrefBranch.PREF_INVALID,
     "network.proxy.ftp_port should not be set"
+  );
+});
+
+add_task(async function test_proxy_host_and_port_parsing() {
+  await setupPolicyEngineWithJson({
+    policies: {
+      Proxy: {
+        HTTPProxy: "[::1]:443",
+        SSLProxy: "ssl.proxy.example.com:80",
+        SOCKSProxy: "socks.proxy.example.com",
+      },
+    },
+  });
+
+  const prefs = Services.prefs.getDefaultBranch("network.proxy.");
+  Assert.equal(prefs.getStringPref("http"), "::1");
+  Assert.equal(prefs.getIntPref("http_port"), 443);
+  Assert.equal(prefs.getStringPref("ssl"), "ssl.proxy.example.com");
+  Assert.equal(prefs.getIntPref("ssl_port"), 80);
+  Assert.equal(prefs.getIntPref("socks_port"), 0);
+  Assert.ok(
+    PolicyFailures.getAll().Proxy?.includes(
+      "No port specified for socks proxy: socks.proxy.example.com"
+    ),
+    "A proxy address without a port reports a policy failure"
   );
 });

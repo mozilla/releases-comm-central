@@ -110,9 +110,18 @@ export var ProxyPolicies = {
           return;
         }
 
-        setPref(`network.proxy.${type}`, url.hostname);
-        if (url.port) {
-          setPref(`network.proxy.${type}_port`, Number(url.port));
+        // The network.proxy.* prefs expect IPv6 hosts without brackets.
+        setPref(
+          `network.proxy.${type}`,
+          url.hostname.replace(/^\[(.*)\]$/, "$1")
+        );
+
+        // The HTTPS parser drops an explicit port 443. Parse as HTTP
+        // to recover it.
+        const port = Number(url.port || URL.parse(`http://${address}`).port);
+        setPref(`network.proxy.${type}_port`, port);
+        if (!port) {
+          reportFailure(`No port specified for ${type} proxy: ${address}`);
         }
       } else {
         setPref(`network.proxy.${type}`, "");
