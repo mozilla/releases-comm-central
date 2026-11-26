@@ -15,7 +15,7 @@ AboutRedirector.prototype = {
       url: "chrome://global/content/aboutNetError.html",
       flags:
         Ci.nsIAboutModule.URI_SAFE_FOR_UNTRUSTED_CONTENT |
-        Ci.nsIAboutModule.URI_CAN_LOAD_IN_CHILD |
+        Ci.nsIAboutModule.URI_IS_ERROR_PAGE |
         Ci.nsIAboutModule.ALLOW_SCRIPT |
         Ci.nsIAboutModule.HIDE_FROM_ABOUTABOUT,
     },
