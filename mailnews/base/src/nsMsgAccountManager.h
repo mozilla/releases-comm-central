@@ -94,6 +94,19 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
   nsTObserverArray<RefPtr<VirtualFolderChangeListener>>
       m_virtualFolderListeners;
   nsTArray<nsCOMPtr<nsIMsgFolder>> m_virtualFolders;
+
+  /**
+   * A virtualFolders.dat entry that couldn't be loaded because the storage of
+   * its server was unavailable. It is written back unchanged.
+   */
+  struct UnloadedVirtualFolder {
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    nsCString serverKey;
+    nsCString uri;
+    // The raw lines of the entry, including the uri= line.
+    nsCString entry;
+  };
+  nsTArray<UnloadedVirtualFolder> m_unloadedVirtualFolders;
   nsCOMPtr<nsIMsgFolder> m_folderDoingEmptyTrash;
   nsCOMPtr<nsIMsgFolder> m_folderDoingCleanupInbox;
   bool m_emptyTrashInProgress;
@@ -179,7 +192,8 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
   static nsresult GetVirtualFoldersFile(nsCOMPtr<nsIFile>& file);
   static nsresult WriteLineToOutputStream(const char* prefix, const char* line,
                                           nsIOutputStream* outputStream);
-  void ParseAndVerifyVirtualFolderScope(nsCString& buffer);
+  void ParseAndVerifyVirtualFolderScope(nsCString& buffer,
+                                        nsCString& unavailableUris);
   nsresult AddVFListenersForVF(nsIMsgFolder* virtualFolder,
                                const nsCString& srchFolderUris);
 

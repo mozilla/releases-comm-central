@@ -67,6 +67,7 @@
 #include "mozilla/StaticPrefs_mail.h"
 #include "nsIFileStreams.h"
 #include "nsIOutputStream.h"
+#include "nsTHashSet.h"
 #include "nsISafeOutputStream.h"
 #include "nsXULAppAPI.h"
 #include "nsICacheStorageService.h"
@@ -100,6 +101,9 @@ using mozilla::Preferences;
 #define SEARCH_FOLDER_FLAG_LEN (sizeof(SEARCH_FOLDER_FLAG) - 1)
 
 const char* kSearchFolderUriProp = "searchFolderUri";
+// Scope folder URIs left out of kSearchFolderUriProp because the storage of
+// their server was unavailable when loading. They are added back when saving.
+const char* kUnavailableSearchFolderUriProp = "unavailableSearchFolderUri";
 
 bool nsMsgAccountManager::m_haveShutdown = false;
 bool nsMsgAccountManager::m_shutdownInProgress = false;
@@ -223,6 +227,7 @@ nsresult nsMsgAccountManager::Shutdown() {
     m_dbService = nullptr;
   }
   m_virtualFolders.Clear();
+  m_unloadedVirtualFolders.Clear();
   if (m_msgFolderCache) WriteToFolderCache(m_msgFolderCache);
   (void)ShutdownServers();
   (void)UnloadAccounts();
@@ -2781,6 +2786,15 @@ nsresult nsMsgAccountManager::GetVirtualFoldersFile(nsCOMPtr<nsIFile>& aFile) {
   return rv;
 }
 
+// Whether the local directory of the server exists, which it doesn't if it's
+// e.g. on a drive that isn't connected.
+static bool IsServerStorageAvailable(nsIMsgIncomingServer* server) {
+  nsCOMPtr<nsIFile> path;
+  bool isDirectory = false;
+  return NS_SUCCEEDED(server->GetLocalPath(getter_AddRefs(path))) && path &&
+         NS_SUCCEEDED(path->IsDirectory(&isDirectory)) && isDirectory;
+}
+
 NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
   AUTO_PROFILER_LABEL("nsMsgAccountManager::LoadVirtualFolders", MAILNEWS);
   if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
@@ -2802,6 +2816,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
   if (m_virtualFoldersLoaded) return NS_OK;
 
   m_loadingVirtualFolders = true;
+  m_unloadedVirtualFolders.Clear();
 
   // Before loading virtual folders, ensure that all real folders exist.
   // Some may not have been created yet, which would break virtual folders
@@ -2837,6 +2852,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
   int32_t version = -1;
   nsCOMPtr<nsIMsgFolder> virtualFolder;
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+  UnloadedVirtualFolder* unloaded = nullptr;
 
   while (isMore && NS_SUCCEEDED(lineInputStream->ReadLine(buffer, &isMore))) {
     if (!buffer.IsEmpty()) {
@@ -2849,6 +2865,8 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
       if (StringBeginsWith(buffer, "uri="_ns)) {
         buffer.Cut(0, 4);
         dbFolderInfo = nullptr;
+        unloaded = nullptr;
+        nsAutoCString virtualFolderUri(buffer);
 
         rv = GetOrCreateFolder(buffer, getter_AddRefs(virtualFolder));
         NS_ENSURE_SUCCESS(rv, rv);
@@ -2901,12 +2919,35 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
           parentFolder->GetIsServer(&isServer);
           buffer.SetLength(lastSlash);
         } while (!grandParent && !isServer);
+
+        if (dbFolderInfo) {
+          dbFolderInfo->SetCharProperty(kUnavailableSearchFolderUriProp, ""_ns);
+        } else {
+          // Without a database, the rest of this entry can't be loaded. If
+          // that's because the storage of the server is unavailable, e.g. on
+          // a drive that isn't connected, keep the entry so it isn't lost.
+          nsCOMPtr<nsIMsgIncomingServer> server;
+          virtualFolder->GetServer(getter_AddRefs(server));
+          if (server && !IsServerStorageAvailable(server)) {
+            unloaded = m_unloadedVirtualFolders.AppendElement();
+            unloaded->server = server;
+            server->GetKey(unloaded->serverKey);
+            unloaded->uri = virtualFolderUri;
+            unloaded->entry = "uri="_ns + virtualFolderUri + "\n"_ns;
+          }
+        }
+      } else if (unloaded) {
+        unloaded->entry.Append(buffer);
+        unloaded->entry.Append('\n');
       } else if (dbFolderInfo && StringBeginsWith(buffer, "scope="_ns)) {
         buffer.Cut(0, 6);
         // if this is a cross folder virtual folder, we have a list of folders
         // uris, and we have to add a pending listener for each of them.
         if (!buffer.IsEmpty()) {
-          ParseAndVerifyVirtualFolderScope(buffer);
+          nsAutoCString unavailableUris;
+          ParseAndVerifyVirtualFolderScope(buffer, unavailableUris);
+          dbFolderInfo->SetCharProperty(kUnavailableSearchFolderUriProp,
+                                        unavailableUris);
           dbFolderInfo->SetCharProperty(kSearchFolderUriProp, buffer);
           AddVFListenersForVF(virtualFolder, buffer);
         }
@@ -2931,6 +2972,27 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
   return rv;
 }
 
+// Appends to `scope` the URIs from the '|' separated `unavailableUris` that
+// it doesn't already contain, as long as their server still exists.
+static void AppendUnavailableScopeUris(const nsACString& unavailableUris,
+                                       nsACString& scope) {
+  nsTArray<nsCString> scopeUris;
+  ParseString(unavailableUris, '|', scopeUris);
+  nsAutoCString normalizedScope("|"_ns + scope + "|"_ns);
+  for (const auto& scopeUri : scopeUris) {
+    nsAutoCString normalizedUri("|"_ns + scopeUri + "|"_ns);
+    if (normalizedScope.Find(normalizedUri) != kNotFound) continue;
+    nsCOMPtr<nsIMsgFolder> folder;
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    if (NS_FAILED(GetOrCreateFolder(scopeUri, getter_AddRefs(folder))) ||
+        NS_FAILED(folder->GetServer(getter_AddRefs(server))) || !server) {
+      continue;
+    }
+    if (!scope.IsEmpty()) scope.Append('|');
+    scope.Append(scopeUri);
+  }
+}
+
 NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders() {
   AUTO_PROFILER_LABEL("nsMsgAccountManager::SaveVirtualFolders", MAILNEWS);
 
@@ -2948,6 +3010,7 @@ NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   WriteLineToOutputStream("version=", "1", outStream);
+  nsTHashSet<nsCString> savedUris;
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
     nsCOMPtr<nsIMsgIncomingServer>& server = iter.Data();
     if (server) {
@@ -2981,7 +3044,14 @@ NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders() {
             dbFolderInfo->GetCharProperty(SEARCH_FOLDER_FLAG, vfFolderFlag);
             nsCString uri;
             msgFolder->GetURI(uri);
+            if (!srchFolderUri.Equals("*")) {
+              nsCString unavailableUris;
+              dbFolderInfo->GetCharProperty(kUnavailableSearchFolderUriProp,
+                                            unavailableUris);
+              AppendUnavailableScopeUris(unavailableUris, srchFolderUri);
+            }
             if (!srchFolderUri.IsEmpty() && !searchTerms.IsEmpty()) {
+              savedUris.Insert(uri);
               WriteLineToOutputStream("uri=", uri.get(), outStream);
               if (!vfFolderFlag.IsEmpty())
                 WriteLineToOutputStream(SEARCH_FOLDER_FLAG "=",
@@ -2995,6 +3065,16 @@ NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders() {
         }
       }
     }
+  }
+
+  for (const auto& unloaded : m_unloadedVirtualFolders) {
+    if (savedUris.Contains(unloaded.uri) ||
+        m_incomingServers.GetWeak(unloaded.serverKey) != unloaded.server) {
+      continue;
+    }
+    uint32_t writeCount;
+    outStream->Write(unloaded.entry.get(), unloaded.entry.Length(),
+                     &writeCount);
   }
 
   nsCOMPtr<nsISafeOutputStream> safeStream = do_QueryInterface(outStream, &rv);
@@ -3023,8 +3103,11 @@ nsresult nsMsgAccountManager::WriteLineToOutputStream(
  * could implement the expansion into real folders here.
  *
  * @param buffer On input, list of folder uri's, on output, verified list.
+ * @param unavailableUris On output, list of folder uri's that couldn't be
+ *   verified because the storage of their server is unavailable.
  */
-void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString& buffer) {
+void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(
+    nsCString& buffer, nsCString& unavailableUris) {
   if (buffer.Equals("*")) {
     // This is a special virtual folder that searches all folders in all
     // accounts. Folders are chosen by the front end at search time.
@@ -3042,10 +3125,16 @@ void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString& buffer) {
     if (!NS_SUCCEEDED(rv)) {
       continue;
     }
-    realFolder->GetParent(getter_AddRefs(parent));
-    if (!parent) continue;
     realFolder->GetServer(getter_AddRefs(server));
     if (!server) continue;
+    realFolder->GetParent(getter_AddRefs(parent));
+    if (!parent) {
+      if (!IsServerStorageAvailable(server)) {
+        if (!unavailableUris.IsEmpty()) unavailableUris.Append('|');
+        unavailableUris.Append(folderUris[i]);
+      }
+      continue;
+    }
     if (!verifiedFolders.IsEmpty()) verifiedFolders.Append('|');
     verifiedFolders.Append(folderUris[i]);
   }
@@ -3366,10 +3455,13 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderRemoved(nsIMsgFolder* parentFolder,
 
         uint32_t vfFolderFlag;
         dbFolderInfo->GetUint32Property("searchFolderFlag", 0, &vfFolderFlag);
+        nsCString unavailableUris;
+        dbFolderInfo->GetCharProperty(kUnavailableSearchFolderUriProp,
+                                      unavailableUris);
 
         // If saved search is empty now, delete it. But not if it's a smart
-        // folder.
-        if (searchURI.IsEmpty() && !vfFolderFlag) {
+        // folder, or if it still has folders whose storage is unavailable.
+        if (searchURI.IsEmpty() && !vfFolderFlag && unavailableUris.IsEmpty()) {
           db = nullptr;
           dbFolderInfo = nullptr;
 

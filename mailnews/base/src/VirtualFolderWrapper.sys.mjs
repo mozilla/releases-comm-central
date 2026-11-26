@@ -158,12 +158,20 @@ export class VirtualFolderWrapper {
   }
 
   set searchFolders(folders) {
-    if (typeof folders == "string") {
-      this.#dbFolderInfo.setCharProperty("searchFolderUri", folders);
-    } else {
-      const uris = folders.map(folder => folder.URI);
-      this.#dbFolderInfo.setCharProperty("searchFolderUri", uris.join("|"));
+    const uris =
+      typeof folders == "string"
+        ? folders
+        : folders.map(folder => folder.URI).join("|");
+    const toSet = value => new Set(value.split("|").filter(Boolean));
+    const oldUris = toSet(
+      this.#dbFolderInfo.getCharProperty("searchFolderUri")
+    );
+    // Folders whose storage was unavailable at startup can't be picked, so
+    // removing folders from the scope drops them. Only adding folders keeps them.
+    if (!oldUris.isSubsetOf(toSet(uris))) {
+      this.#dbFolderInfo.setCharProperty("unavailableSearchFolderUri", "");
     }
+    this.#dbFolderInfo.setCharProperty("searchFolderUri", uris);
     Services.obs.notifyObservers(this.virtualFolder, "search-folders-changed");
   }
 
