@@ -113,20 +113,12 @@ async function runRebuiltDatabaseTest(protocol, storeContractID) {
   const initialSyncState = folder.getStringProperty("ewsSyncStateToken");
   Assert.ok(initialSyncState, "the sync state should have been saved");
 
-  // Download the messages into the offline store. For maildir, this creates
-  // the folder's "cur/" directory, after which the database is only valid if
-  // its "maildirValid" flag is set.
+  // Download the messages into the offline store.
   for (const header of [...folder.messages]) {
     await getMessageText(header);
   }
   for (const header of [...folder.messages]) {
     Assert.ok(header.storeToken, "the message should have been stored");
-  }
-  if (isMaildir) {
-    Assert.ok(
-      await IOUtils.exists(PathUtils.join(folder.filePath.path, "cur")),
-      "the maildir folder should have a cur/ directory"
-    );
   }
 
   // Force the database to be rebuilt: close it and remove its summary file.
@@ -148,12 +140,6 @@ async function runRebuiltDatabaseTest(protocol, storeContractID) {
     folder.msgDatabase.summaryValid,
     "the rebuilt database should be valid"
   );
-  if (isMaildir) {
-    Assert.ok(
-      folder.msgDatabase.dBFolderInfo.getBooleanProperty("maildirValid", false),
-      "the rebuilt maildir database should be marked valid"
-    );
-  }
 
   // Sync again: since the sync state was reset, everything should come back.
 
@@ -181,12 +167,6 @@ async function runRebuiltDatabaseTest(protocol, storeContractID) {
     folder.getStringProperty("ewsSyncStateToken"),
     "the sync state should have survived reopening the database"
   );
-  if (isMaildir) {
-    Assert.ok(
-      folder.msgDatabase.dBFolderInfo.getBooleanProperty("maildirValid", false),
-      "the reopened maildir database should still be marked valid"
-    );
-  }
 }
 
 for (const protocol of ["ews", "graph"]) {

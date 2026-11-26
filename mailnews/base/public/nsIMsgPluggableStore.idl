@@ -340,6 +340,9 @@ interface nsIMsgPluggableStore : nsISupports {
    * mailboxes from outside mailnews code, and this is certainly possible
    * with other stores.
    *
+   * NOTE: Should probably be removed entirely.
+   * See https://bugzilla.mozilla.org/show_bug.cgi?id=2096766
+   *
    * @param aFolder Folder to check if summary is valid for.
    * @param aDB DB to check validity of.
    *
@@ -348,17 +351,18 @@ interface nsIMsgPluggableStore : nsISupports {
   boolean isSummaryFileValid(in nsIMsgFolder aFolder, in nsIMsgDatabase aDB);
 
   /**
-   * Marks the summary file for aFolder as valid or invalid. This method
+   * Marks the summary file for aFolder as valid. This method
    * may not be required, since it's really used by Berkeley Mailbox code
    * to fix the timestamp and size for a folder.
    *
-   * @param aFolder folder whose summary file should be marked (in)valid.
+   * NOTE: Should probably be removed entirely.
+   * See https://bugzilla.mozilla.org/show_bug.cgi?id=2096766
+   *
+   * @param aFolder folder whose summary file should be marked valid.
    * @param aDB db to mark valid (may not be the folder's db in odd cases
    *            like folder compaction.
-   * @param aValid whether to mark it valid or invalid.
    */
-  void setSummaryFileValid(in nsIMsgFolder aFolder, in nsIMsgDatabase aDB,
-                           in boolean aValid);
+  void setSummaryFileValid(in nsIMsgFolder folder, in nsIMsgDatabase db);
 
   /**
    * Asynchronously read every message in the folder in turn.

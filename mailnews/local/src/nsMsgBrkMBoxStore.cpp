@@ -360,8 +360,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::IsSummaryFileValid(nsIMsgFolder* aFolder,
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::SetSummaryFileValid(nsIMsgFolder* aFolder,
-                                                     nsIMsgDatabase* aDB,
-                                                     bool aValid) {
+                                                     nsIMsgDatabase* aDB) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aDB);
   // We only need to do this for local folders.
@@ -378,15 +377,11 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::SetSummaryFileValid(nsIMsgFolder* aFolder,
   pathFile->Exists(&exists);
   if (!exists) return NS_MSG_ERROR_FOLDER_MISSING;
 
-  if (aValid) {
-    uint32_t actualFolderTimeStamp;
-    int64_t fileSize;
-    GetMailboxModProperties(aFolder, &fileSize, &actualFolderTimeStamp);
-    folderInfo->SetFolderSize(fileSize);
-    folderInfo->SetFolderDate(actualFolderTimeStamp);
-  } else {
-    folderInfo->SetVersion(0);  // that ought to do the trick.
-  }
+  uint32_t actualFolderTimeStamp;
+  int64_t fileSize;
+  GetMailboxModProperties(aFolder, &fileSize, &actualFolderTimeStamp);
+  folderInfo->SetFolderSize(fileSize);
+  folderInfo->SetFolderDate(actualFolderTimeStamp);
   aDB->Commit(nsMsgDBCommitType::kLargeCommit);
   return rv;
 }
@@ -953,7 +948,7 @@ void nsMsgBrkMBoxStore::SetDBValid(nsIMsgFolder* folder) {
   nsCOMPtr<nsIMsgDatabase> db;
   folder->GetMsgDatabase(getter_AddRefs(db));
   if (db) {
-    SetSummaryFileValid(folder, db, true);
+    SetSummaryFileValid(folder, db);
   }
 }
 

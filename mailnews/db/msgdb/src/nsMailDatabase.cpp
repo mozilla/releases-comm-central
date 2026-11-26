@@ -103,15 +103,21 @@ NS_IMETHODIMP nsMailDatabase::SetSummaryValid(bool aValid) {
 
   if (!m_folder) return NS_ERROR_NULL_POINTER;
 
-  // If this is a virtual folder, there is no storage.
-  bool flag;
-  m_folder->GetFlag(nsMsgFolderFlags::Virtual, &flag);
-  if (flag) return NS_OK;
+  if (aValid) {
+    // If this is a virtual folder, there is no storage.
+    bool flag;
+    m_folder->GetFlag(nsMsgFolderFlags::Virtual, &flag);
+    if (flag) {
+      return NS_OK;
+    }
 
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  nsresult rv = m_folder->GetMsgStore(getter_AddRefs(msgStore));
-  NS_ENSURE_SUCCESS(rv, rv);
-  return msgStore->SetSummaryFileValid(m_folder, this, aValid);
+    nsCOMPtr<nsIMsgPluggableStore> msgStore;
+    nsresult rv = m_folder->GetMsgStore(getter_AddRefs(msgStore));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = msgStore->SetSummaryFileValid(m_folder, this);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMailDatabase::RemoveOfflineOp(nsIMsgOfflineImapOperation* op) {

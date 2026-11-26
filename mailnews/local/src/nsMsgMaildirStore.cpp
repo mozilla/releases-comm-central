@@ -480,38 +480,14 @@ NS_IMETHODIMP nsMsgMaildirStore::IsSummaryFileValid(nsIMsgFolder* aFolder,
   NS_ENSURE_ARG_POINTER(aDB);
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = true;
-  nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-  aDB->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
-  nsresult rv =
-      dbFolderInfo->GetBooleanProperty("maildirValid", false, aResult);
-  if (!*aResult) {
-    nsCOMPtr<nsIFile> newFile;
-    rv = aFolder->GetFilePath(getter_AddRefs(newFile));
-    NS_ENSURE_SUCCESS(rv, rv);
-    newFile->Append(u"cur"_ns);
-
-    // If the "cur" sub-dir doesn't exist, and there are no messages
-    // in the db, then the folder is probably new and the db is valid.
-    bool exists;
-    newFile->Exists(&exists);
-    if (!exists) {
-      int32_t numMessages;
-      dbFolderInfo->GetNumMessages(&numMessages);
-      if (!numMessages) *aResult = true;
-    }
-  }
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMaildirStore::SetSummaryFileValid(nsIMsgFolder* aFolder,
-                                                     nsIMsgDatabase* aDB,
-                                                     bool aValid) {
+                                                     nsIMsgDatabase* aDB) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aDB);
-  nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-  aDB->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
-  NS_ENSURE_STATE(dbFolderInfo);
-  return dbFolderInfo->SetBooleanProperty("maildirValid", aValid);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMaildirStore::DeleteFolder(nsIMsgFolder* aFolder) {
