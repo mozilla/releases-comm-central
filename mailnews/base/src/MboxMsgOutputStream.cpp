@@ -231,9 +231,7 @@ NS_IMETHODIMP MboxMsgOutputStream::Write(const char* buf, uint32_t count,
     // Flush out the leftover fragment.
     rv = Emit(mStartFragment);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (mStartFragment[mStartFragment.Length() - 1] != '\n') {
-      mState = eMidLine;  // No EOL was output.
-    }
+    mState = mStartFragment.Last() == '\n' ? eStartOfLine : eMidLine;
     mStartFragment.Truncate();
   }
 
@@ -414,10 +412,11 @@ NS_IMETHODIMP MboxMsgOutputStream::Finish() {
   if (mState == eMidLine) {
     rv = Emit("\r\n"_ns);
   }
-  if (NS_SUCCEEDED(rv) && mState == eStartAwaitingData) {
+  if (NS_SUCCEEDED(rv) && mState == eStartAwaitingData &&
+      !mStartFragment.IsEmpty()) {
     rv = Emit(mStartFragment);
     if (NS_SUCCEEDED(rv)) {
-      if (mStartFragment[mStartFragment.Length() - 1] != '\n') {
+      if (mStartFragment.Last() != '\n') {
         rv = Emit("\r\n"_ns);
       }
     }
