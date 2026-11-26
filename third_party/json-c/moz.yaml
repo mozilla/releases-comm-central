@@ -12,11 +12,18 @@ origin:
   url: "https://github.com/json-c/json-c"
   license: MIT
 
-  release: json-c-0.16-20220414
+  release: json-c-0.17-20230812
 
-  revision: json-c-0.16-20220414
+  revision: json-c-0.17-20230812
 
   license-file: COPYING
+
+updatebot:
+  maintainer-bz: ebaginski@thunderbird.net
+  maintainer-phab: "#thunderbird-reviewers"
+  tasks:
+    - type: vendoring
+      enabled: true
 
 vendoring:
   url: https://github.com/json-c/json-c
