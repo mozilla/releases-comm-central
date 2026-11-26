@@ -1,0 +1,20 @@
+[DEFAULT]
+dupe-manifest = true
+environment = [
+  "MOZ_LOG=mozStorage:4,panorama:4",
+]
+prefs = [
+  "mail.panorama.enabled=true",
+  "test.storeType=mbox",
+]
+support-files = [
+  "db/pop3.sql",
+  "head_pop3.js",
+]
+tags = ["panorama", "mbox"]
+
+["test_pop3Existing.js"]
+head = "head.js head_pop3.js"
+
+["test_pop3New.js"]
+head = "head.js head_pop3.js"

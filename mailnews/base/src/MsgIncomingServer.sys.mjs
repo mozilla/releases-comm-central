@@ -566,7 +566,10 @@ export class MsgIncomingServer {
     if (!this._msgStore) {
       let contractId = this.getStringValue("storeContractID");
       if (!contractId) {
-        contractId = "@mozilla.org/msgstore/berkeleystore;1";
+        contractId = Services.prefs.getStringPref(
+          "mail.serverDefaultStoreContractID",
+          "@mozilla.org/msgstore/berkeleystore;1"
+        );
         this.setStringValue("storeContractID", contractId);
       }
 

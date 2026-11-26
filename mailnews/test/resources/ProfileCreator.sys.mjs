@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
+
+const LINE_ENDING = AppConstants.platform == "win" ? "\r\n" : "\n";
+
 /** @type {nsIFile} */
 let profileDirectory;
 
@@ -66,6 +70,8 @@ export class ProfileCreator {
 class ProfileServer {
   /** @type {integer} */
   static #nextKey = 1;
+  /** @type {integer} */
+  key;
   /** @type {ProfileMailFolder} */
   rootFolder;
   /** @type {nsIPrefBranch} */
@@ -81,10 +87,10 @@ class ProfileServer {
    * @returns {ProfileServer}
    */
   constructor(username, hostname, type) {
-    const key = ProfileServer.#nextKey++;
+    this.key = ProfileServer.#nextKey++;
     Services.prefs.setStringPref(
-      `mail.account.account${key}.server`,
-      `server${key}`
+      `mail.account.account${this.key}.server`,
+      `server${this.key}`
     );
     let accounts = Services.prefs.getStringPref(
       "mail.accountmanager.accounts",
@@ -95,9 +101,11 @@ class ProfileServer {
     }
     Services.prefs.setStringPref(
       "mail.accountmanager.accounts",
-      `${accounts}account${key}`
+      `${accounts}account${this.key}`
     );
-    this.prefBranch = Services.prefs.getBranch(`mail.server.server${key}.`);
+    this.prefBranch = Services.prefs.getBranch(
+      `mail.server.server${this.key}.`
+    );
     this.prefBranch.setStringPref("userName", username);
     this.prefBranch.setStringPref("hostname", hostname);
     this.prefBranch.setStringPref("type", type);
@@ -113,9 +121,27 @@ class ProfileServer {
     this.rootFolder = new ProfileMailFolder(
       this,
       Services.prefs.getComplexValue(
-        `mail.server.server${key}.directory-rel`,
+        `mail.server.server${this.key}.directory-rel`,
         Ci.nsIRelativeFilePref
       ).file.path
+    );
+  }
+
+  /**
+   * Adds a very basic identity to this server.
+   */
+  addIdentity() {
+    Services.prefs.setStringPref(
+      `mail.account.account${this.key}.identities`,
+      `id${this.key}`
+    );
+    Services.prefs.setStringPref(
+      `mail.identity.id${this.key}.fullName`,
+      "test"
+    );
+    Services.prefs.setStringPref(
+      `mail.identity.id${this.key}.useremail`,
+      `test@${this.prefBranch.getStringPref("hostname")}`
     );
   }
 
@@ -205,11 +231,52 @@ class ProfileMailFolder {
 
     if (this.server.isMaildirStore) {
       await IOUtils.makeDirectory(folder.mailFilePath);
+      await IOUtils.makeDirectory(PathUtils.join(folder.mailFilePath, "cur"));
+      await IOUtils.makeDirectory(PathUtils.join(folder.mailFilePath, "tmp"));
     } else if (mbox instanceof Ci.nsIFile) {
       await IOUtils.copy(mbox.path, folder.mailFilePath);
     } else {
       await IOUtils.writeUTF8(folder.mailFilePath, "");
     }
     return folder;
+  }
+
+  /**
+   * Add a message to this folder. If this is an mbox folder, the message is
+   * appended to the mbox file. If this is a maildir folder, the message is
+   * stored in a new .eml file.
+   *
+   * @param {string} message - RFC822 message content.
+   * @returns {object} result
+   * @returns {integer} result.size - The size of the message, to be recorded
+   *   in the message database.
+   * @returns {string} result.storeToken - The storeToken value pointing to
+   *   the message.
+   */
+  async addMessage(message) {
+    message = `X-Mozilla-Status: 0000${LINE_ENDING}X-Mozilla-Status2: 00000000${LINE_ENDING}${message}`;
+
+    let storeToken;
+    if (this.server.isMaildirStore) {
+      // Create a unique filename. This resembles what the maildir store does,
+      // but it's not exactly the same.
+      const now = "" + Date.now();
+      const rand = Math.floor(Math.random() * 100000);
+      storeToken = `${now.slice(0, 10)}.M${now.slice(10)}P1234Q${rand}.test.eml`;
+
+      await IOUtils.writeUTF8(
+        PathUtils.join(this.mailFilePath, "cur", storeToken),
+        message
+      );
+    } else {
+      storeToken = "" + (await IOUtils.stat(this.mailFilePath)).size;
+      await IOUtils.writeUTF8(
+        this.mailFilePath,
+        `From - Wed Nov 11 01:40:41 2026\r\n${message}\r\n`,
+        { mode: "appendOrCreate" }
+      );
+    }
+
+    return { size: message.length, storeToken };
   }
 }

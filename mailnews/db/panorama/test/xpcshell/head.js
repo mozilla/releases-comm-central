@@ -258,6 +258,50 @@ function listMessages(adapter) {
   return ids;
 }
 
+/**
+ * Check the files in the profile.
+ *
+ * @param {string} filePath - Absolute path to the folder on disk.
+ * @param {string[]} expectedStoreTokens - Tokens of the messages expected to
+ *   be found at `filePath`.
+ */
+async function checkStore(filePath, expectedStoreTokens) {
+  const STORE_TYPE = Services.prefs.getStringPref("test.storeType", "mbox");
+  Assert.ok(filePath.exists(), `${filePath.path} exists`);
+  if (STORE_TYPE == "maildir") {
+    Assert.ok(filePath.isDirectory(), `${filePath.leafName} is a directory`);
+    Assert.deepEqual(
+      Array.from(filePath.directoryEntries, f => f.leafName).toSorted(),
+      ["cur", "tmp"],
+      `${filePath.leafName} contains cur and tmp directories`
+    );
+    const cur = filePath.clone();
+    cur.append("cur");
+    Assert.deepEqual(
+      Array.from(cur.directoryEntries, f => f.leafName).toSorted(),
+      expectedStoreTokens.toSorted(),
+      "cur directory contains expected files"
+    );
+  } else {
+    Assert.ok(filePath.isFile(), `${filePath.leafName} is a file`);
+    if (expectedStoreTokens.length == 0) {
+      Assert.equal(filePath.fileSize, 0, `${filePath.leafName} has no content`);
+    } else {
+      Assert.greater(filePath.fileSize, 0, `${filePath.leafName} has content`);
+    }
+
+    const mboxContent = await IOUtils.readUTF8(filePath.path);
+    for (let storeToken of expectedStoreTokens) {
+      storeToken = parseInt(storeToken, 10);
+      Assert.equal(
+        mboxContent.slice(storeToken, storeToken + 7),
+        "From - ",
+        `${filePath.leafName} has a message starting at ${storeToken}`
+      );
+    }
+  }
+}
+
 class ListenerTree {
   rowCountChanged(index, delta) {
     info(`rowCountChanged(${index}, ${delta})`);
