@@ -17,6 +17,10 @@ vcard-entry-type-home = Home
 
 vcard-entry-type-work = Work
 
+vcard-entry-type-school = School
+
+vcard-entry-type-secondary = Secondary
+
 vcard-entry-type-none = None
 
 vcard-entry-type-custom = Custom
