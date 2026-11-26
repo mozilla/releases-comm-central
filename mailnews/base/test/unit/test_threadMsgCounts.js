@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests the values of totalCol, unreadCol, and newCol for threads in various views.
+ * Tests the values of totalCol, and unreadCol for threads in various views.
  */
 
 const { MessageGenerator, SyntheticMessageSet } = ChromeUtils.importESModule(
@@ -56,25 +56,21 @@ add_task(async function testSingleFolderThreadedView() {
     {
       totalCol: "3",
       unreadCol: "3",
-      newCol: "3",
       subjectCol: expectedThreads[0][0].subject,
     },
     {
       totalCol: "3",
       unreadCol: "3",
-      newCol: "3",
       subjectCol: expectedThreads[1][0].subject,
     },
     {
       totalCol: "3",
       unreadCol: "3",
-      newCol: "3",
       subjectCol: expectedThreads[2][0].subject,
     },
     {
       totalCol: "1",
       unreadCol: "1",
-      newCol: "1",
       subjectCol: expectedThreads[3][0].subject,
     },
   ];
@@ -93,7 +89,6 @@ add_task(async function testSingleFolderThreadedView() {
   expectedRows.push(expectedRows.shift());
   expectedRows[3].totalCol = "4";
   expectedRows[3].unreadCol = "4";
-  expectedRows[3].newCol = "4";
 
   assertThreadContents(dbView, expectedThreads);
   assertCellTexts(dbView, expectedRows);
@@ -102,15 +97,11 @@ add_task(async function testSingleFolderThreadedView() {
 
   expectedThreads[3][3].markRead(true);
   expectedRows[3].unreadCol = "3";
-  expectedRows[3].newCol = "3";
   assertCellTexts(dbView, expectedRows);
 
   info("Remove the new flag from all of the messages.");
 
   folder.clearNewMessages();
-  for (const row of expectedRows) {
-    row.newCol = "";
-  }
   assertCellTexts(dbView, expectedRows);
 
   info("Mark all the messages as read.");
@@ -174,12 +165,12 @@ add_task(
     info("Check the cell values for display.");
 
     const expectedRows = [
-      { totalCol: "6", unreadCol: "5", newCol: "5", subjectCol: "Older" },
-      { totalCol: "1", unreadCol: "", newCol: "", subjectCol: "Last 14 Days" },
-      { totalCol: "2", unreadCol: "2", newCol: "2", subjectCol: "Last 7 Days" },
-      { totalCol: "2", unreadCol: "1", newCol: "1", subjectCol: "Yesterday" },
-      { totalCol: "3", unreadCol: "3", newCol: "3", subjectCol: "Today" },
-      { totalCol: "1", unreadCol: "1", newCol: "1", subjectCol: "Future" },
+      { totalCol: "6", unreadCol: "5", subjectCol: "Older" },
+      { totalCol: "1", unreadCol: "", subjectCol: "Last 14 Days" },
+      { totalCol: "2", unreadCol: "2", subjectCol: "Last 7 Days" },
+      { totalCol: "2", unreadCol: "1", subjectCol: "Yesterday" },
+      { totalCol: "3", unreadCol: "3", subjectCol: "Today" },
+      { totalCol: "1", unreadCol: "1", subjectCol: "Future" },
     ];
     assertCellTexts(dbView, expectedRows);
 
@@ -191,20 +182,15 @@ add_task(
     // Will leave one read and one unread.
     expectedThreads[2][0].markRead(true);
     expectedRows[2].unreadCol = "1";
-    expectedRows[2].newCol = "1";
 
     // Last unread message, value should be the empty string, not 0.
     expectedThreads[5][0].markRead(true);
     expectedRows[5].unreadCol = "";
-    expectedRows[5].newCol = "";
     assertCellTexts(dbView, expectedRows);
 
     info("Remove the new flag from all of the messages.");
 
     folder.clearNewMessages();
-    for (const row of expectedRows) {
-      row.newCol = "";
-    }
     assertCellTexts(dbView, expectedRows);
 
     info("Add some new messages.");
@@ -216,13 +202,10 @@ add_task(
     ]);
     expectedRows[0].totalCol = "7";
     expectedRows[0].unreadCol = "6";
-    expectedRows[0].newCol = "1";
     expectedRows[3].totalCol = "4";
     expectedRows[3].unreadCol = "3";
-    expectedRows[3].newCol = "2";
     expectedRows[5].totalCol = "2";
     expectedRows[5].unreadCol = "1";
-    expectedRows[5].newCol = "1";
     assertCellTexts(dbView, expectedRows);
 
     info("Expand a group.");
@@ -301,31 +284,26 @@ add_task(async function testGroupedBySortByAuthor() {
     {
       totalCol: "3",
       unreadCol: "3",
-      newCol: "3",
       subjectCol: `${authors[0][0]} <${authors[0][1]}>`,
     },
     {
       totalCol: "3",
       unreadCol: "1",
-      newCol: "1",
       subjectCol: `${authors[1][0]} <${authors[1][1]}>`,
     },
     {
       totalCol: "1",
       unreadCol: "1",
-      newCol: "1",
       subjectCol: `${authors[2][0]} <${authors[2][1]}>`,
     },
     {
       totalCol: "2",
       unreadCol: "2",
-      newCol: "2",
       subjectCol: `${authors[3][0]} <${authors[3][1]}>`,
     },
     {
       totalCol: "3",
       unreadCol: "3",
-      newCol: "3",
       subjectCol: `${authors[4][0]} <${authors[4][1]}>`,
     },
   ];
@@ -406,19 +384,16 @@ add_task(async function testXFThreadedView() {
     {
       totalCol: "3",
       unreadCol: "3",
-      newCol: "3",
       subjectCol: expectedThreads[0][0].subject,
     },
     {
       totalCol: "3",
       unreadCol: "3",
-      newCol: "3",
       subjectCol: expectedThreads[1][0].subject,
     },
     {
       totalCol: "3",
       unreadCol: "3",
-      newCol: "3",
       subjectCol: expectedThreads[2][0].subject,
     },
     {
@@ -440,7 +415,6 @@ add_task(async function testXFThreadedView() {
   expectedRows.push(expectedRows.shift());
   expectedRows[3].totalCol = "4";
   expectedRows[3].unreadCol = "4";
-  expectedRows[3].newCol = "4";
 
   assertThreadContents(dbView, expectedThreads);
   assertCellTexts(dbView, expectedRows);
@@ -449,15 +423,11 @@ add_task(async function testXFThreadedView() {
 
   expectedThreads[0][2].markRead(true);
   expectedRows[0].unreadCol = "2";
-  expectedRows[0].newCol = "2";
   assertCellTexts(dbView, expectedRows);
 
   info("Remove the new flag from all of the messages.");
 
   folder.clearNewMessages();
-  for (const row of expectedRows) {
-    row.newCol = "";
-  }
   assertCellTexts(dbView, expectedRows);
 
   info("Mark all the messages as read.");

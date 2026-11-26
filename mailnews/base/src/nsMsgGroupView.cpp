@@ -737,8 +737,7 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
 
   if (!((m_viewFlags & nsMsgViewFlagsType::kGroupBySort) && isTotalCol) &&
       (!(m_flags[aRow] & MSG_VIEW_FLAG_DUMMY) ||
-       aColumnName.EqualsLiteral("unreadCol") ||
-       aColumnName.EqualsLiteral("newCol"))) {
+       aColumnName.EqualsLiteral("unreadCol"))) {
     return nsMsgDBView::CellTextForColumn(aRow, aColumnName, aValue);
   }
 

@@ -1689,24 +1689,6 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
         rv = FetchTagKeys(msgHdr, aValue);
       }
       break;
-    case 'n':
-      // New messages in thread.
-      if (aColumnName.EqualsLiteral("newCol") &&
-          m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) {
-        if (m_flags[aRow] & MSG_VIEW_FLAG_ISTHREAD) {
-          rv = GetThreadContainingIndex(aRow, getter_AddRefs(thread));
-          if (NS_SUCCEEDED(rv) && thread) {
-            nsAutoString formattedCountString;
-            uint32_t numNewChildren;
-            thread->GetNumNewChildren(&numNewChildren);
-            if (numNewChildren > 0) {
-              formattedCountString.AppendInt(numNewChildren);
-              aValue.Assign(formattedCountString);
-            }
-          }
-        }
-      }
-      break;
     case 'u':
       // Unread messages in thread.
       if (aColumnName.EqualsLiteral("unreadCol") &&
