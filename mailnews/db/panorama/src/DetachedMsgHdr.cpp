@@ -15,48 +15,70 @@ namespace mozilla::mailnews {
 
 NS_IMPL_ISUPPORTS(DetachedMsgHdr, nsIMsgDBHdr)
 
-NS_IMETHODIMP DetachedMsgHdr::SetStringProperty(
-    const char* propertyName, const nsACString& propertyValue) {
-  if (nsDependentCString(propertyName).EqualsLiteral("keywords")) {
-    mRaw.keywords = propertyValue;
-    return NS_OK;
-  }
-
-  NS_WARNING(
-      nsPrintfCString(
-          "NS_ERROR_NOT_IMPLEMENTED DetachedMsgHdr::SetStringProperty(%s=%s)\n",
-          propertyName, PromiseFlatCString(propertyValue).get())
-          .get());
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP DetachedMsgHdr::GetStringProperty(const char* propertyName,
                                                 nsACString& propertyValue) {
-  if (nsDependentCString(propertyName).EqualsLiteral("keywords")) {
+  nsDependentCString name(propertyName);
+  if (name.EqualsLiteral("keywords")) {
     propertyValue.Assign(mRaw.keywords);
     return NS_OK;
   }
 
-  NS_WARNING(
-      nsPrintfCString(
-          "NS_ERROR_NOT_IMPLEMENTED DetachedMsgHdr::GetStringProperty(%s)\n",
-          propertyName)
-          .get());
-  return NS_ERROR_NOT_IMPLEMENTED;
+  auto p = mStringProperties.lookup(name);
+  if (p.found()) {
+    propertyValue = p->value();
+  } else {
+    propertyValue.Truncate();
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP DetachedMsgHdr::SetStringProperty(
+    const char* propertyName, const nsACString& propertyValue) {
+  nsDependentCString name(propertyName);
+  if (name.EqualsLiteral("keywords")) {
+    mRaw.keywords = propertyValue;
+    return NS_OK;
+  }
+
+  mUintProperties.remove(name);  // Just in case.
+  if (!mStringProperties.put(name, propertyValue)) {
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP DetachedMsgHdr::GetUint32Property(const char* propertyName,
                                                 uint32_t* propertyValue) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsDependentCString name(propertyName);
+  auto p = mUintProperties.lookup(name);
+  if (p.found()) {
+    *propertyValue = p->value();
+  } else {
+    *propertyValue = 0;
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP DetachedMsgHdr::SetUint32Property(const char* propertyName,
                                                 uint32_t propertyValue) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  nsDependentCString name(propertyName);
+
+  mStringProperties.remove(name);  // Just in case.
+  if (!mUintProperties.put(name, propertyValue)) {
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP DetachedMsgHdr::GetProperties(nsTArray<nsCString>& properties) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  properties.Clear();
+  for (auto iter = mStringProperties.iter(); !iter.done(); iter.next()) {
+    properties.AppendElement(iter.get().key());
+  }
+  for (auto iter = mUintProperties.iter(); !iter.done(); iter.next()) {
+    properties.AppendElement(iter.get().key());
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP DetachedMsgHdr::GetIsRead(bool* isRead) {
@@ -357,8 +379,13 @@ NS_IMETHODIMP DetachedMsgHdr::GetFolder(nsIMsgFolder** folder) {
 }
 
 NS_IMETHODIMP DetachedMsgHdr::GetUidOnServer(uint32_t* uidOnServer) {
-  NS_ERROR(__PRETTY_FUNCTION__);
-  return NS_ERROR_NOT_IMPLEMENTED;
+  *uidOnServer = mUidOnServer;
+  return NS_OK;
+}
+
+NS_IMETHODIMP DetachedMsgHdr::SetUidOnServer(uint32_t uidOnServer) {
+  mUidOnServer = uidOnServer;
+  return NS_OK;
 }
 
 NS_IMETHODIMP DetachedMsgHdr::GetIsLive(bool* isLive) {

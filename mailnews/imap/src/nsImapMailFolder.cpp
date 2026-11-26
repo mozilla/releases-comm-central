@@ -2901,9 +2901,11 @@ nsresult nsImapMailFolder::AddNewImapHeaderToDB(nsIMsgDBHdr* aHeader) {
     m_pseudoHdrs.Remove(messageId);
   }
 
-  rv = mDatabase->AddNewHdrToDB(aHeader, true);
+  nsCOMPtr<nsIMsgDBHdr> liveHeader;
+  rv = mDatabase->AttachHdr(aHeader, true, getter_AddRefs(liveHeader));
   NS_ENSURE_SUCCESS(rv, rv);
-  notifier->NotifyMsgAdded(aHeader);
+  notifier->NotifyMsgAdded(liveHeader);
+
   // Mark the header as not yet reported classified.
   OrProcessingFlags(key, nsMsgProcessingFlags::NotReportedClassified);
   return NS_OK;

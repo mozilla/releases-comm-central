@@ -863,6 +863,10 @@ NS_IMETHODIMP nsMsgHdr::GetUidOnServer(ImapUid* result) {
   return rv;
 }
 
+NS_IMETHODIMP nsMsgHdr::SetUidOnServer(ImapUid uid) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 NS_IMETHODIMP nsMsgHdr::GetIsLive(bool* isLive) {
   // If it's attached to the messages table, it's live.
   bool found = false;

@@ -109,7 +109,7 @@ interface nsIMsgDBHdr : nsISupports
      * separation lands, this is read-only and just returns the .messageKey,
      * or 0 if .messageKey is nsMsgKey_None.
      */
-    readonly attribute ImapUid uidOnServer;
+    attribute ImapUid uidOnServer;
 
     /**
      * Returns true if this message has been added to the messages table in

@@ -5,8 +5,10 @@
 #ifndef COMM_MAILNEWS_DB_PANORAMA_SRC_DETACHEDMSGHDR_H_
 #define COMM_MAILNEWS_DB_PANORAMA_SRC_DETACHEDMSGHDR_H_
 
+#include "mozilla/HashTable.h"
 #include "nsIMsgDatabase.h"  // For struct RawHdr
 #include "nsIMsgHdr.h"
+#include "nsTStringHasher.h"  // mozilla::DefaultHasher<nsCString>
 
 namespace mozilla::mailnews {
 
@@ -50,6 +52,10 @@ class DetachedMsgHdr : public nsIMsgDBHdr {
 
   // Stuff I _really_ _really_ don't want here.
   uint64_t mFolderId{0};
+
+  HashMap<nsCString, uint32_t> mUintProperties;
+  HashMap<nsCString, nsCString> mStringProperties;
+  ImapUid mUidOnServer{0};
 };
 
 }  // namespace mozilla::mailnews

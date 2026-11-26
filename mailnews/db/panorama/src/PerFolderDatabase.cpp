@@ -573,6 +573,16 @@ NS_IMETHODIMP PerFolderDatabase::AttachHdr(nsIMsgDBHdr* detachedHdr,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
+  if (d->mUidOnServer > 0) {
+    live->SetUidOnServer(d->mUidOnServer);
+  }
+  for (auto iter = d->mStringProperties.iter(); !iter.done(); iter.next()) {
+    live->SetStringProperty(iter.get().key().get(), iter.get().value());
+  }
+  for (auto iter = d->mUintProperties.iter(); !iter.done(); iter.next()) {
+    live->SetUint32Property(iter.get().key().get(), iter.get().value());
+  }
+
   // Hackery for legacy code. Really want to ditch this.
   // It shouldn't be set on detached headers.
   if (!d->mStoreToken.IsEmpty()) {

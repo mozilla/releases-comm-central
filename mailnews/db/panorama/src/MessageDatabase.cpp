@@ -441,7 +441,8 @@ Result<MessageDatabase::CachedMsg*, nsresult> MessageDatabase::EnsureCached(
     nsMsgKey key) {
   auto p = mMsgCache.lookupForAdd(key);
   if (!p) {
-    TrimCache();
+    // FIXME: This line seems to be invalidating `p`, which is bad. Bug 2093880.
+    // TrimCache();
     CachedMsg msg;
     nsresult rv = FetchMsg(key, msg);
     if (NS_FAILED(rv)) {
@@ -563,7 +564,7 @@ nsresult MessageDatabase::GetMsgKeyForUid(uint64_t folderId, const ImapUid uid,
   }
 
   nsAutoCString value;
-  value.AppendInt(aKey);
+  value.AppendInt(uid);
   auto key =
       MOZ_TRY(GetFirstMessageKeyForProperty(folderId, "uidOnServer"_ns, value));
 
