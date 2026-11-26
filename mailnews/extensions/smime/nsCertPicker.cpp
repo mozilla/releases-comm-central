@@ -8,6 +8,7 @@
 #include "ScopedNSSTypes.h"
 #include "cert.h"
 #include "mozilla/RefPtr.h"
+#include "mozilla/mailnews/SMimeCertEmail.h"
 #include "nsCOMPtr.h"
 #include "nsICertPickDialogs.h"
 #include "nsIDialogParamBlock.h"
@@ -23,6 +24,8 @@
 #include "nsComponentManagerUtils.h"  // for do_CreateInstance
 #include "nsServiceManagerUtils.h"    // for do_GetService
 #include "nsString.h"
+#include "nsTArray.h"
+#include "nsTHashSet.h"
 #include "mozpkix/pkixtypes.h"
 #include "mozilla/Maybe.h"
 #include "mozilla/intl/AppDateTimeFormat.h"
@@ -144,36 +147,27 @@ nsresult FormatUIStrings(nsIX509Cert* cert, const nsAutoString& nickname,
     return NS_ERROR_FAILURE;
   }
 
-  nsAutoString firstEmail;
-  const char* aWalkAddr;
-  for (aWalkAddr = CERT_GetFirstEmailAddress(nssCert.get()); aWalkAddr;
-       aWalkAddr = CERT_GetNextEmailAddress(nssCert.get(), aWalkAddr)) {
-    NS_ConvertUTF8toUTF16 email(aWalkAddr);
-    if (email.IsEmpty()) continue;
-
-    if (firstEmail.IsEmpty()) {
-      // If the first email address from the subject DN is also present
-      // in the subjectAltName extension, GetEmailAddresses() will return
-      // it twice (as received from NSS). Remember the first address so that
-      // we can filter out duplicates later on.
-      firstEmail = email;
-
+  nsTArray<nsCString> emails;
+  mozilla::mailnews::GetSMimeCertEmailAddresses(nssCert.get(), emails);
+  nsTHashSet<nsCString> shownEmails;
+  for (const nsCString& email : emails) {
+    if (shownEmails.Contains(email)) {
+      continue;
+    }
+    if (shownEmails.IsEmpty()) {
       details.AppendLiteral("  ");
       if (NS_SUCCEEDED(mcs->GetSMIMEBundleString(u"CertInfoEmail", info))) {
         details.Append(info);
         details.AppendLiteral(": ");
       }
-      details.Append(email);
     } else {
-      // Append current address if it's different from the first one.
-      if (!firstEmail.Equals(email)) {
-        details.AppendLiteral(", ");
-        details.Append(email);
-      }
+      details.AppendLiteral(", ");
     }
+    AppendUTF8toUTF16(email, details);
+    shownEmails.Insert(email);
   }
 
-  if (!firstEmail.IsEmpty()) {
+  if (!shownEmails.IsEmpty()) {
     // We got at least one email address, so we want a newline
     details.Append(char16_t('\n'));
   }
@@ -299,23 +293,15 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsCertPicker::PickByUsage(
   /* remove non-matching certificates from the candidate list */
 
   if (!emailAddress.IsEmpty()) {
+    NS_ConvertUTF16toUTF8 email(emailAddress);
     node = CERT_LIST_HEAD(certList);
     while (!CERT_LIST_END(node, certList)) {
-      /* if the cert has at least one e-mail address, check if suitable */
-      if (CERT_GetFirstEmailAddress(node->cert)) {
-        RefPtr<nsNSSCertificate> tempCert(new nsNSSCertificate(node->cert));
-        bool match = false;
-        rv = tempCert->ContainsEmailAddress(emailAddress, &match);
-        if (NS_FAILED(rv)) {
-          return rv;
-        }
-        if (!match) {
-          /* doesn't contain the specified address, so remove from the list */
-          CERTCertListNode* freenode = node;
-          node = CERT_LIST_NEXT(node);
-          CERT_RemoveCertListNode(freenode);
-          continue;
-        }
+      if (!mozilla::mailnews::SMimeCertHasEmailAddress(node->cert, email)) {
+        /* doesn't contain the specified address, so remove from the list */
+        CERTCertListNode* freenode = node;
+        node = CERT_LIST_NEXT(node);
+        CERT_RemoveCertListNode(freenode);
+        continue;
       }
       node = CERT_LIST_NEXT(node);
     }
