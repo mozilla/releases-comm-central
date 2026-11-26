@@ -226,28 +226,11 @@ export class ConfigVerifier {
         // information instead of having to handle this here. See also bug
         // 2046212.
         if (this.server.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
-          const asyncPrompter = Cc[
-            "@mozilla.org/messenger/msgAsyncPrompter;1"
-          ].getService(Ci.nsIMsgAsyncPrompter);
           // Initialize an OAuth module that will match what the server would've
-          // initialized.
+          // initialized, and cancel the sign-in started by verifyLogon.
           const module = new lazy.OAuth2Module();
           module.initFromMail(this.server);
-          if (
-            Object.hasOwn(
-              asyncPrompter.wrappedJSObject.pendingPrompts,
-              `${module._loginOrigin}/${module._username}`
-            )
-          ) {
-            // This new prompt should match the existing pending prompt from
-            // verifyLogon, so the MsgAsyncPrompter should reuse it for this
-            // request (through MsgAsyncPrompter). As a result, no new prompt is
-            // shown. This then allows us to cancel the prompt started by
-            // verifyLogon.
-            module.getAccessToken({
-              onSuccess() {},
-              onFailure() {},
-            });
+          if (module.hasPendingRequest) {
             module.cancelPrompt();
           }
         }

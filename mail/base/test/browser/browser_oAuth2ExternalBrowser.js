@@ -290,3 +290,131 @@ add_task(async function test_handlesFocusRetained() {
   OAuth2TestUtils.forgetObjects();
   await Services.logins.removeAllLoginsAsync();
 });
+
+add_task(async function test_pendingSignInDoesNotBlockOtherProviders() {
+  const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  loginInfo.init(
+    "oauth://test.test",
+    null,
+    "test_scope",
+    "user@test.test",
+    "refresh_token",
+    "",
+    ""
+  );
+  await Services.logins.addLoginAsync(loginInfo);
+
+  const pendingModule = new OAuth2Module();
+  Assert.ok(
+    pendingModule.initFromHostname("external.test", "julia@foo.invalid", "imap")
+  );
+  const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
+  const pending = Promise.withResolvers();
+  pendingModule.getAccessToken({
+    onSuccess: pending.resolve,
+    onFailure: pending.reject,
+  });
+  const url = await externalOAuthURL;
+
+  const otherModule = new OAuth2Module();
+  Assert.ok(
+    otherModule.initFromHostname("mochi.test", "user@test.test", "imap")
+  );
+  const other = Promise.withResolvers();
+  otherModule.getAccessToken({
+    onSuccess: other.resolve,
+    onFailure: other.reject,
+  });
+  Assert.equal(
+    await other.promise,
+    "access_token",
+    "another provider should get a token while a sign-in is pending"
+  );
+
+  await OAuth2TestUtils.submitOAuthURL(url, {
+    expectedScope: "test_mail",
+    username: "user",
+    password: "password",
+  });
+  Assert.ok(await pending.promise, "the pending sign-in should still complete");
+
+  OAuth2TestUtils.forgetObjects();
+  await Services.logins.removeAllLoginsAsync();
+});
+
+add_task(
+  async function test_pendingSignInDoesNotBlockValidTokenOfSameProvider() {
+    const previousExpiry = oAuth2Server.expiry;
+    oAuth2Server.expiry = 3600;
+    try {
+      const loginInfo = Cc[
+        "@mozilla.org/login-manager/loginInfo;1"
+      ].createInstance(Ci.nsILoginInfo);
+      loginInfo.init(
+        "oauth://external.test",
+        null,
+        "test_mail",
+        "bob@foo.invalid",
+        "refresh_token",
+        "",
+        ""
+      );
+      await Services.logins.addLoginAsync(loginInfo);
+
+      const signedInModule = new OAuth2Module();
+      Assert.ok(
+        signedInModule.initFromHostname(
+          "external.test",
+          "bob@foo.invalid",
+          "imap"
+        )
+      );
+      const getToken = () =>
+        new Promise((resolve, reject) =>
+          signedInModule.getAccessToken({
+            onSuccess: resolve,
+            onFailure: reject,
+          })
+        );
+      Assert.equal(await getToken(), "access_token", "should get a token");
+
+      const pendingModule = new OAuth2Module();
+      Assert.ok(
+        pendingModule.initFromHostname(
+          "external.test",
+          "julia@foo.invalid",
+          "imap"
+        )
+      );
+      const externalOAuthURL = OAuth2TestUtils.promiseExternalOAuthURL();
+      const pending = Promise.withResolvers();
+      pendingModule.getAccessToken({
+        onSuccess: pending.resolve,
+        onFailure: pending.reject,
+      });
+      const url = await externalOAuthURL;
+
+      Assert.equal(
+        await getToken(),
+        "access_token",
+        "an account with a valid token should get it while another account of the same provider is signing in"
+      );
+
+      await OAuth2TestUtils.submitOAuthURL(url, {
+        expectedScope: "test_mail",
+        username: "user",
+        password: "password",
+      });
+      Assert.ok(
+        await pending.promise,
+        "the pending sign-in should still complete"
+      );
+    } finally {
+      oAuth2Server.expiry = previousExpiry;
+      OAuth2TestUtils.forgetObjects();
+      await Services.logins.removeAllLoginsAsync();
+    }
+  }
+);

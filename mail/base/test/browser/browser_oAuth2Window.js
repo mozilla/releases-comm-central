@@ -88,7 +88,11 @@ add_task(async function testCancel() {
   await SimpleTest.promiseFocus(oAuthWindow.getBrowser());
   EventUtils.synthesizeKey("KEY_Escape", {}, oAuthWindow);
 
-  await Assert.rejects(deferred.promise, /2147500036/); // NS_ERROR_ABORT
+  await Assert.rejects(
+    deferred.promise,
+    e => e == Cr.NS_ERROR_ABORT,
+    "request should fail with NS_ERROR_ABORT"
+  );
 
   OAuth2TestUtils.checkTelemetry([
     {
@@ -102,6 +106,41 @@ add_task(async function testCancel() {
 
   const logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 0, "there should be no token saved");
+  await Services.logins.removeAllLoginsAsync();
+});
+
+/**
+ * Tests that requests for the same account waiting on a sign-in fail with it
+ * when it is cancelled, instead of each opening another window.
+ */
+add_task(async function testCancelFailsWaitingRequests() {
+  const mod = new OAuth2Module();
+  mod.initFromHostname("mochi.test", "juliet@foo.invalid", "imap");
+
+  const oAuthPromise = OAuth2TestUtils.promiseOAuthWindow();
+  const requests = [];
+  for (let i = 0; i < 3; i++) {
+    const deferred = Promise.withResolvers();
+    mod.getAccessToken({
+      onSuccess: deferred.resolve,
+      onFailure: deferred.reject,
+    });
+    requests.push(deferred.promise);
+  }
+
+  const oAuthWindow = await oAuthPromise;
+  await SimpleTest.promiseFocus(oAuthWindow.getBrowser());
+  EventUtils.synthesizeKey("KEY_Escape", {}, oAuthWindow);
+
+  for (const request of requests) {
+    await Assert.rejects(
+      request,
+      e => e == Cr.NS_ERROR_ABORT,
+      "request should fail with NS_ERROR_ABORT"
+    );
+  }
+
+  OAuth2TestUtils.forgetObjects();
   await Services.logins.removeAllLoginsAsync();
 });
 

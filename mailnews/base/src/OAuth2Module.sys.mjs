@@ -22,6 +22,24 @@ const log = console.createInstance({
 const oAuth2Objects = new Set();
 
 /**
+ * The last queued access token request for each login origin. Requests for
+ * the same origin run one at a time, but never wait on other origins, so a
+ * sign-in that is never completed only blocks accounts of the same provider.
+ *
+ * @type {Map<string, Promise>}
+ */
+const tokenRequestQueues = new Map();
+
+/**
+ * The in-progress access token request for each login origin and username.
+ * Requests for the same account wait for it and fail with it, instead of
+ * starting another sign-in.
+ *
+ * @type {Map<string, Promise<?string>>}
+ */
+const pendingRequests = new Map();
+
+/**
  * OAuth2Module is the glue layer that gives XPCOM access to an OAuth2
  * bearer token it can use to authenticate in SASL steps.
  * It also takes care of persising the refreshToken for later usage.
@@ -414,8 +432,20 @@ OAuth2Module.prototype = {
    * Cancel any pending OAuth prompt.
    */
   cancelPrompt() {
-    this._oauth?.onAuthorizationFailed(null, {}, "cancelled");
-    this._oauth?.finishAuthorizationRequest();
+    if (!this._oauth?.request) {
+      return;
+    }
+    this._oauth.onAuthorizationFailed(null, {}, "cancelled");
+    this._oauth.finishAuthorizationRequest();
+  },
+
+  /**
+   * Whether an access token request for this account is queued or in progress.
+   *
+   * @type {boolean}
+   */
+  get hasPendingRequest() {
+    return pendingRequests.has(`${this._loginOrigin}/${this._username}`);
   },
 
   /**
@@ -423,101 +453,131 @@ OAuth2Module.prototype = {
    *
    * @param {msgIOAuth2ModuleListener} listener - The listener for the results
    *   of authentication.
-   * @param {bool} shouldPrompt - If true and user input is needed to complete
+   * @param {boolean} shouldPrompt - If true and user input is needed to complete
    *   authentication (such as logging in to the provider), prompt the user.
    *   Otherwise, return an error.
-   * @param {bool} shouldMakeSaslToken - If true, return an access token
+   * @param {boolean} shouldMakeSaslToken - If true, return an access token
    *   formatted for use with SASL XOAUTH2. Otherwise, return the access token
    *   unmodified.
    */
   _fetchAccessToken(listener, shouldPrompt, shouldMakeSaslToken) {
-    // NOTE: `onPromptStartAsync` and `onPromptAuthAvailable` have _different_
-    // values for `this` due to differences in how arrow functions bind `this`
-    // (i.e., to the surrounding lexical scope rather than the object of which)
-    // they are a member).
-    const promptListener = {
-      onPromptStartAsync(callback) {
-        this.onPromptAuthAvailable(callback);
-      },
-
-      onPromptAuthAvailable: callback => {
-        const oldRefreshToken = this._oauth.refreshToken;
-
-        this._oauth.connect(shouldPrompt, false).then(
-          async () => {
-            if (
-              this._oauth.refreshToken != oldRefreshToken ||
-              this._oauth.scope != this._scope
-            ) {
-              // We don't have a username, but we might be able to get it now.
-              if (this._username === null) {
-                if (
-                  this._oauth.accessToken &&
-                  [
-                    "oauth://auth.tb.pro",
-                    "oauth://auth-stage.tb.pro",
-                    "oauth://external.test",
-                  ].includes(this._loginOrigin)
-                ) {
-                  const jwt = JSON.parse(
-                    new TextDecoder().decode(
-                      ChromeUtils.base64URLDecode(
-                        this._oauth.accessToken.split(".")[1],
-                        { padding: "ignore" }
-                      )
-                    )
-                  );
-                  this._oauth.username = this._username =
-                    jwt.preferred_username;
-                  log.debug(
-                    `Found a username for ${this._loginOrigin}: ${this._username}`
-                  );
-                } else {
-                  log.error(
-                    `Couldn't find a username for ${this._loginOrigin}`
-                  );
-                  listener.onFailure(Cr.NS_ERROR_ABORT);
-                  callback?.onAuthResult(false);
-                  return;
-                }
-              }
-              // Refresh token and/or scope changed; save them.
-              await this.setRefreshToken(this._oauth.refreshToken);
-              this._scope = this._oauth.scope;
-            }
-
-            let retval = this._oauth.accessToken;
-            if (shouldMakeSaslToken) {
-              // Pre-format the return value for an SASL XOAUTH2 client response
-              // if that's what the consumer is expecting.
-              retval = btoa(
-                MailStringUtils.stringToByteString(
-                  `user=${this._username}\x01auth=Bearer ${retval}\x01\x01`
-                )
-              );
-            }
-
-            listener.onSuccess(retval);
-            callback?.onAuthResult(true);
-          },
-          () => {
-            listener.onFailure(Cr.NS_ERROR_ABORT);
-            callback?.onAuthResult(false);
-          }
-        );
-      },
-      onPromptCanceled() {
+    const origin = this._loginOrigin;
+    const getToken = () =>
+      this._getAccessToken(shouldPrompt, shouldMakeSaslToken).catch(ex => {
+        log.error(`Getting an access token for ${origin} failed`, ex);
+        return null;
+      });
+    const notify = token => {
+      if (token === null) {
         listener.onFailure(Cr.NS_ERROR_ABORT);
-      },
-      onPromptStart() {},
+      } else {
+        listener.onSuccess(token);
+      }
     };
 
-    const asyncPrompter = Cc[
-      "@mozilla.org/messenger/msgAsyncPrompter;1"
-    ].getService(Ci.nsIMsgAsyncPrompter);
+    // A valid token with nothing to save needs no sign-in, so it doesn't have
+    // to wait for others.
+    if (
+      this._oauth?.accessToken &&
+      !this._oauth.tokenExpired &&
+      this._oauth.scope == this._scope
+    ) {
+      getToken().then(notify);
+      return;
+    }
 
-    const promptKey = `${this._loginOrigin}/${this._username}`;
-    asyncPrompter.queueAsyncAuthPrompt(promptKey, false, promptListener);
+    const key = `${origin}/${this._username}`;
+    const pending = pendingRequests.get(key);
+    if (pending) {
+      pending.then(token => {
+        if (token === null) {
+          notify(null);
+        } else {
+          this._fetchAccessToken(listener, shouldPrompt, shouldMakeSaslToken);
+        }
+      });
+      return;
+    }
+
+    const previous =
+      tokenRequestQueues.get(origin) ??
+      Services.logins.initializationPromise.catch(log.error);
+    const request = previous
+      .then(getToken)
+      .finally(() => pendingRequests.delete(key));
+    pendingRequests.set(key, request);
+    tokenRequestQueues.set(origin, request);
+    request.then(token => {
+      if (tokenRequestQueues.get(origin) === request) {
+        tokenRequestQueues.delete(origin);
+      }
+      notify(token);
+    });
+  },
+
+  /**
+   * See `_fetchAccessToken` for the arguments.
+   *
+   * @param {boolean} shouldPrompt
+   * @param {boolean} shouldMakeSaslToken
+   * @returns {Promise<?string>} - The access token, or null if the provider
+   *   couldn't give one.
+   */
+  async _getAccessToken(shouldPrompt, shouldMakeSaslToken) {
+    const oldRefreshToken = this._oauth.refreshToken;
+    try {
+      await this._oauth.connect(shouldPrompt, false);
+    } catch {
+      return null;
+    }
+    if (
+      this._oauth.refreshToken != oldRefreshToken ||
+      this._oauth.scope != this._scope
+    ) {
+      // We don't have a username, but we might be able to get it now.
+      if (this._username === null) {
+        if (
+          this._oauth.accessToken &&
+          [
+            "oauth://auth.tb.pro",
+            "oauth://auth-stage.tb.pro",
+            "oauth://external.test",
+          ].includes(this._loginOrigin)
+        ) {
+          const jwt = JSON.parse(
+            new TextDecoder().decode(
+              ChromeUtils.base64URLDecode(
+                this._oauth.accessToken.split(".")[1],
+                { padding: "ignore" }
+              )
+            )
+          );
+          this._oauth.username = this._username = jwt.preferred_username;
+          log.debug(
+            `Found a username for ${this._loginOrigin}: ${this._username}`
+          );
+        } else {
+          log.error(`Couldn't find a username for ${this._loginOrigin}`);
+          return null;
+        }
+      }
+      // Refresh token and/or scope changed; save them.
+      await this.setRefreshToken(this._oauth.refreshToken);
+      this._scope = this._oauth.scope;
+    }
+
+    let retval = this._oauth.accessToken;
+    if (shouldMakeSaslToken) {
+      // Pre-format the return value for an SASL XOAUTH2 client response
+      // if that's what the consumer is expecting.
+      retval = btoa(
+        MailStringUtils.stringToByteString(
+          `user=${this._username}\x01auth=Bearer ${retval}\x01\x01`
+        )
+      );
+    }
+
+    return retval;
   },
 };
 

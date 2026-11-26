@@ -20,6 +20,9 @@ const { OAuth2TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/mailnews/OAuth2TestUtils.sys.mjs"
 );
 
+const { OAuth2Module } = ChromeUtils.importESModule(
+  "resource:///modules/OAuth2Module.sys.mjs"
+);
 const { ConfigVerifier } = ChromeUtils.importESModule(
   "resource:///modules/accountcreation/ConfigVerifier.sys.mjs"
 );
@@ -230,17 +233,15 @@ add_task(async function testIMAPCancelOAuth() {
       emailAddress: "test@test.test",
     },
   };
-  const oauthPromptKey = "oauth://test.test/user";
   const testAbort = new Error("Aborting for test");
-  const asyncPrompter = Cc[
-    "@mozilla.org/messenger/msgAsyncPrompter;1"
-  ].getService(Ci.nsIMsgAsyncPrompter);
+  const oAuthModule = new OAuth2Module();
+  oAuthModule.initFromHostname("test.test", "user", "imap");
 
   const promptPromise = OAuth2TestUtils.promiseOAuthWindow();
   const verificationPromise = abortedVerifier.verifyConfig(config);
   await promptPromise;
   Assert.ok(
-    asyncPrompter.wrappedJSObject.pendingPrompts[oauthPromptKey],
+    oAuthModule.hasPendingRequest,
     "Should have a pending prompt from this verification"
   );
   abortable.abort(testAbort);
@@ -251,9 +252,8 @@ add_task(async function testIMAPCancelOAuth() {
     "Should reject with abort reason"
   );
 
-  Assert.equal(
-    asyncPrompter.wrappedJSObject.pendingPrompts[oauthPromptKey],
-    undefined,
+  Assert.ok(
+    !oAuthModule.hasPendingRequest,
     "Should not have a pending prompt from this verification"
   );
 
