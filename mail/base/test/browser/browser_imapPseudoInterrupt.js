@@ -76,14 +76,19 @@ async function loadAndInterrupt(msgHdr, consumer, messageKeys = []) {
   const browser =
     about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
 
-  let startedAction, onStarted, onStopped;
-  const started = new Promise(resolve => (onStarted = resolve));
+  let startedAction, interrupted, onStopped;
   const stopped = new Promise(resolve => (onStopped = resolve));
   const urlListener = {
     QueryInterface: ChromeUtils.generateQI(["nsIUrlListener"]),
+    // The imap thread is blocked until this returns, so interrupting here
+    // rather than after an await guarantees the fetch has not finished yet.
     OnStartRunningUrl(url) {
       startedAction = url.QueryInterface(Ci.nsIImapUrl).imapAction;
-      onStarted();
+      interrupted = imapServerInterface.pseudoInterruptMsgLoad(
+        imapFolder,
+        consumer,
+        messageKeys
+      );
     },
     OnStopRunningUrl(url, status) {
       onStopped(status);
@@ -98,12 +103,6 @@ async function loadAndInterrupt(msgHdr, consumer, messageKeys = []) {
     false
   );
 
-  await started;
-  const interrupted = imapServerInterface.pseudoInterruptMsgLoad(
-    imapFolder,
-    consumer,
-    messageKeys
-  );
   const status = await stopped;
   return { interrupted, status, startedAction };
 }
