@@ -2871,6 +2871,24 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
         rv = GetOrCreateFolder(buffer, getter_AddRefs(virtualFolder));
         NS_ENSURE_SUCCESS(rv, rv);
 
+        // If the storage of the server is unavailable, e.g. on a drive that
+        // isn't connected, the database can't be opened or created, so don't
+        // try, not even through SetFlag(). The entry is kept as is instead, so
+        // it isn't lost.
+        nsCOMPtr<nsIMsgIncomingServer> server;
+        virtualFolder->GetServer(getter_AddRefs(server));
+        auto keepUnloaded = [&]() {
+          unloaded = m_unloadedVirtualFolders.AppendElement();
+          unloaded->server = server;
+          server->GetKey(unloaded->serverKey);
+          unloaded->uri = virtualFolderUri;
+          unloaded->entry = "uri="_ns + virtualFolderUri + "\n"_ns;
+        };
+        if (server && !IsServerStorageAvailable(server)) {
+          keepUnloaded();
+          continue;
+        }
+
         virtualFolder->SetFlag(nsMsgFolderFlags::Virtual);
 
         nsCOMPtr<nsIMsgFolder> grandParent;
@@ -2922,19 +2940,9 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
 
         if (dbFolderInfo) {
           dbFolderInfo->SetCharProperty(kUnavailableSearchFolderUriProp, ""_ns);
-        } else {
-          // Without a database, the rest of this entry can't be loaded. If
-          // that's because the storage of the server is unavailable, e.g. on
-          // a drive that isn't connected, keep the entry so it isn't lost.
-          nsCOMPtr<nsIMsgIncomingServer> server;
-          virtualFolder->GetServer(getter_AddRefs(server));
-          if (server && !IsServerStorageAvailable(server)) {
-            unloaded = m_unloadedVirtualFolders.AppendElement();
-            unloaded->server = server;
-            server->GetKey(unloaded->serverKey);
-            unloaded->uri = virtualFolderUri;
-            unloaded->entry = "uri="_ns + virtualFolderUri + "\n"_ns;
-          }
+        } else if (server && !IsServerStorageAvailable(server)) {
+          // The storage became unavailable after the check above.
+          keepUnloaded();
         }
       } else if (unloaded) {
         unloaded->entry.Append(buffer);
