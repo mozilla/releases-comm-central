@@ -125,8 +125,7 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile* aMessage,
       startOfMessageData + numberOfBytesToRead.value();
 
   uint32_t x_mozilla_flags = 0;
-  ConvertToMozillaStatusFlags(startOfXMLMetadata, endOfData,
-                              &x_mozilla_flags);
+  ConvertToMozillaStatusFlags(startOfXMLMetadata, endOfData, &x_mozilla_flags);
 
   // write the X-Mozilla-Status header according to which flags we've gathered
   // above.

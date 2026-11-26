@@ -57,9 +57,9 @@ TEST(TestMsgLineStreamBuffer, MaxLineLength)
             "0123456789abcdef"_ns);
 
   nsCOMPtr<nsIInputStream> stream;
-  EXPECT_EQ(NS_NewCStringInputStream(getter_AddRefs(stream),
-                                     "0123456789abcdef"_ns),
-            NS_OK);
+  EXPECT_EQ(
+      NS_NewCStringInputStream(getter_AddRefs(stream), "0123456789abcdef"_ns),
+      NS_OK);
   uint32_t length;
   bool pause;
   nsresult rv;
@@ -93,9 +93,9 @@ TEST(TestMsgLineStreamBuffer, MaxLineLengthSplitCRLF)
   RefPtr<nsMsgLineStreamBuffer> buffer = new nsMsgLineStreamBuffer(64, true);
   buffer->SetMaxLineLength(16);
   nsCOMPtr<nsIInputStream> stream;
-  EXPECT_EQ(NS_NewCStringInputStream(getter_AddRefs(stream),
-                                     "0123456789abcdef\r"_ns),
-            NS_OK);
+  EXPECT_EQ(
+      NS_NewCStringInputStream(getter_AddRefs(stream), "0123456789abcdef\r"_ns),
+      NS_OK);
   uint32_t length;
   bool pause;
   nsresult rv;

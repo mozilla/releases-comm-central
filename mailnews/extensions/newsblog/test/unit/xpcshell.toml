@@ -6,9 +6,9 @@ support-files = ["resources/*"]
 
 ["test_feeditem.js"]
 
-["test_getFavicon.js"]
-
 ["test_feedparser.js"]
+
+["test_getFavicon.js"]
 
 ["test_isValidScheme.js"]
 
