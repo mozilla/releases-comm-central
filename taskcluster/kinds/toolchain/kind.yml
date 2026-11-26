@@ -24,6 +24,7 @@ reference-tasks:
     - linux64-clang-mingw-x86
     - linux64-clang-tidy
     - linux64-clang-toolchain
+    - linux64-darling
     - linux64-dump_syms
     - linux64-fix-stacks
     - linux64-gcc-11
@@ -81,6 +82,7 @@ reference-tasks:
     - macosx64-fix-stacks
     - macosx64-grcov
     - macosx64-libdmg
+    - macosx64-metal
     - macosx64-minidump-stackwalk
     - macosx64-node
     - macosx64-samply

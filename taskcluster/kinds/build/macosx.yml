@@ -36,6 +36,7 @@ task-defaults:
             - linux64-cbindgen
             - linux64-cctools-port
             - linux64-clang
+            - linux64-darling
             - linux64-dump_syms
             - linux64-hfsplus
             - linux64-libdmg
@@ -43,6 +44,7 @@ task-defaults:
             - linux64-node
             - linux64-rust-macos
             - linux64-rust-size
+            - macosx64-metal
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
 
