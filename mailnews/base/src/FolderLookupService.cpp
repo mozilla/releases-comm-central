@@ -4,8 +4,6 @@
 
 #include "FolderLookupService.h"
 
-#include <regex>
-
 #include "mozilla/Components.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/StaticPrefs_mail.h"
@@ -258,20 +256,7 @@ nsresult FolderLookupService::CreateDangling(const nsACString& url,
     return NS_ERROR_UNEXPECTED;
   }
 
-  // Check that uri has an active scheme, in case this folder is from
-  // an extension that is currently disabled or hasn't started up yet.
-  const std::regex schemeRegex{R"(^([-+.\w]+):)"};
-  std::smatch match;
-  const std::string urlForRegex{url.BeginReading(), url.EndReading()};
-  if (!std::regex_search(urlForRegex, match, schemeRegex)) {
-    return nsresult::NS_ERROR_UNEXPECTED;
-  }
-
-  // The scheme consists of the second capture group in the match regex (the
-  // first group is the entire match).
-  const nsAutoCString scheme{match[1].str().c_str()};
-  nsAutoCString contractId{"@mozilla.org/mail/folder-factory;1?name="};
-  contractId.Append(scheme);
+  nsCString contractId = MOZ_TRY(GetFolderContractId(url));
 
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> newFolder = do_CreateInstance(contractId.get(), &rv);

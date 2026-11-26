@@ -5,12 +5,13 @@
 #ifndef COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_
 #define COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_
 
-#include "msgCore.h"
 #include "MailNewsTypes2.h"
-#include "nsINetUtil.h"
-#include "nsILoadInfo.h"
-#include "nsIFile.h"
+#include "mozilla/Result.h"
+#include "msgCore.h"
 #include "nsEscape.h"
+#include "nsIFile.h"
+#include "nsILoadInfo.h"
+#include "nsINetUtil.h"
 
 class nsIPrefBranch;
 class nsIMsgFolder;
@@ -572,5 +573,12 @@ nsresult MsgNewStandardURL(const nsACString& aSpec, nsIURL** aURL,
 nsresult ParseDodgyQueryURI(const char* uriString, nsIURI** outURI);
 
 nsresult RepairDodgyQueryURI(nsIURI* inURI, nsIURI** outURI);
+
+/**
+ * Given a folder URI, get the XPCOM contract id for the appropriate class,
+ * e.g. "imap://user@host/foo/bar" ->
+ * "@mozilla.org/mail/folder-factory;1?name=imap".
+ */
+mozilla::Result<nsCString, nsresult> GetFolderContractId(const nsACString& url);
 
 #endif  // COMM_MAILNEWS_BASE_SRC_NSMSGUTILS_H_

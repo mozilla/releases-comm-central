@@ -47,10 +47,7 @@ add_task(function () {
   ];
 
   for (const store of pluggableStores) {
-    Services.prefs.setCharPref(
-      "mail.serverDefaultStoreContractID",
-      pluggableStores[store]
-    );
+    Services.prefs.setCharPref("mail.serverDefaultStoreContractID", store);
     subTest();
   }
 });

@@ -2,80 +2,81 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsIMsgHdr.h"
 #include "nsMsgUtils.h"
-#include "nsIStringStream.h"
-#include "nsMsgFolderFlags.h"
-#include "nsMsgMessageFlags.h"
-#include "nsCharSeparatedTokenizer.h"
-#include "nsString.h"
-#include "nsCOMPtr.h"
-#include "nsIFolderLookupService.h"
-#include "nsIImapUrl.h"
-#include "nsMsgI18N.h"
-#include "mozilla/Utf16.h"
-#include "prprf.h"
-#include "prmem.h"
-#include "nsIIOService.h"
-#include "nsIMimeConverter.h"
-#include "nsIPrefBranch.h"
-#include "nsIPrefLocalizedString.h"
-#include "nsIRelativeFilePref.h"
-#include "mozilla/nsRelativeFilePref.h"
-#include "nsAppDirectoryServiceDefs.h"
-#include "nsISpamSettings.h"
-#include "nsDirectoryServiceUtils.h"
-#include "nsDirectoryServiceDefs.h"
-#include "nsIRssIncomingServer.h"
-#include "nsIMsgFolder.h"
-#include "nsIMsgIncomingServer.h"
-#include "nsIMsgLocalMailFolder.h"
-#include "nsIMsgAccountManager.h"
-#include "nsIUrlListener.h"
-#include "nsIMsgMailSession.h"
-#include "nsIMsgUserFeedbackListener.h"
-#include "nsIStringBundle.h"
-#include "nsIMsgMessageService.h"
-#include "nsIOutputStream.h"
-#include "nsIFileURL.h"
-#include "nsLocalFile.h"
-#include "nsNetUtil.h"
-#include "nsIMsgDatabase.h"
-#include "nsIMsgMailNewsUrl.h"
-#include "nsIMsgSearchTerm.h"
-#include "nsIStreamListener.h"
-#include "nsReadLine.h"
-#include "nsIParserUtils.h"
-#include "nsIDocumentEncoder.h"
-#include "nsURLHelper.h"
-#include "mozilla/Components.h"
-#include "nsIInputStreamPump.h"
-#include "nsIInputStream.h"
-#include "nsIStandardURL.h"
-#include "nsNetCID.h"
-#include "nsIURIMutator.h"
-#include "nsReadableUtils.h"
-#include "nsUnicharUtils.h"
-#include "mozilla/Preferences.h"
-#include "mozilla/Encoding.h"
-#include "mozilla/TextUtils.h"
-#include "mozilla/UniquePtr.h"
-#include "mozilla/Utf8.h"
-#include "mozilla/Buffer.h"
-#include "nsIPromptService.h"
-#include "mozilla/intl/Localization.h"
-#include "mozilla/intl/FormatBuffer.h"
-#include "mozilla/intl/LocaleService.h"
-#include "mozilla/intl/NumberFormat.h"
-#include "mozilla/ClearOnShutdown.h"
-#include "mozilla/StaticPtr.h"
-#include "nsTHashMap.h"
+
 #include <algorithm>
 #include <limits.h>
+#include <regex>
 
-/* for logging to Error Console */
-#include "nsIScriptError.h"
+#include "mozilla/Buffer.h"
+#include "mozilla/ClearOnShutdown.h"
+#include "mozilla/Components.h"
+#include "mozilla/Encoding.h"
+#include "mozilla/intl/FormatBuffer.h"
+#include "mozilla/intl/LocaleService.h"
+#include "mozilla/intl/Localization.h"
+#include "mozilla/intl/NumberFormat.h"
+#include "mozilla/nsRelativeFilePref.h"
+#include "mozilla/Preferences.h"
+#include "mozilla/StaticPtr.h"
+#include "mozilla/TextUtils.h"
+#include "mozilla/UniquePtr.h"
+#include "mozilla/Utf16.h"
+#include "mozilla/Utf8.h"
+#include "nsAppDirectoryServiceDefs.h"
+#include "nsCharSeparatedTokenizer.h"
+#include "nsCOMPtr.h"
+#include "nsDirectoryServiceDefs.h"
+#include "nsDirectoryServiceUtils.h"
 #include "nsIConsoleService.h"
+#include "nsIDocumentEncoder.h"
+#include "nsIFileURL.h"
+#include "nsIFolderLookupService.h"
+#include "nsIImapUrl.h"
+#include "nsIInputStream.h"
+#include "nsIInputStreamPump.h"
+#include "nsIIOService.h"
+#include "nsIMimeConverter.h"
+#include "nsIMsgAccountManager.h"
+#include "nsIMsgDatabase.h"
+#include "nsIMsgFolder.h"
+#include "nsIMsgHdr.h"
+#include "nsIMsgIncomingServer.h"
+#include "nsIMsgLocalMailFolder.h"
+#include "nsIMsgMailNewsUrl.h"
+#include "nsIMsgMailSession.h"
+#include "nsIMsgMessageService.h"
+#include "nsIMsgSearchTerm.h"
+#include "nsIMsgUserFeedbackListener.h"
+#include "nsIOutputStream.h"
+#include "nsIParserUtils.h"
+#include "nsIPrefBranch.h"
+#include "nsIPrefLocalizedString.h"
+#include "nsIPromptService.h"
+#include "nsIRelativeFilePref.h"
+#include "nsIRssIncomingServer.h"
+#include "nsIScriptError.h"
+#include "nsISpamSettings.h"
+#include "nsIStandardURL.h"
+#include "nsIStreamListener.h"
+#include "nsIStringBundle.h"
+#include "nsIStringStream.h"
+#include "nsIURIMutator.h"
+#include "nsIUrlListener.h"
+#include "nsLocalFile.h"
+#include "nsMsgFolderFlags.h"
+#include "nsMsgI18N.h"
+#include "nsMsgMessageFlags.h"
+#include "nsNetCID.h"
+#include "nsNetUtil.h"
+#include "nsReadableUtils.h"
+#include "nsReadLine.h"
+#include "nsString.h"
+#include "nsTHashMap.h"
+#include "nsUnicharUtils.h"
+#include "nsURLHelper.h"
+#include "prmem.h"
+#include "prprf.h"
 
 using mozilla::Preferences;
 
@@ -1857,4 +1858,24 @@ nsresult RepairDodgyQueryURI(nsIURI* inURI, nsIURI** outURI) {
 
   NS_ADDREF(*outURI = inURI);
   return NS_OK;
+}
+
+mozilla::Result<nsCString, nsresult> GetFolderContractId(
+    const nsACString& url) {
+  // Check that uri has an active scheme, in case this folder is from
+  // an extension that is currently disabled or hasn't started up yet.
+  const std::regex schemeRegex{R"(^([-+.\w]+):)"};
+  std::smatch match;
+  const std::string urlForRegex{url.BeginReading(), url.EndReading()};
+  if (!std::regex_search(urlForRegex, match, schemeRegex)) {
+    return mozilla::Err(NS_ERROR_UNEXPECTED);
+  }
+
+  // The scheme consists of the second capture group in the match regex (the
+  // first group is the entire match).
+  const nsAutoCString scheme{match[1].str().c_str()};
+  nsAutoCString contractId;
+  contractId.Assign("@mozilla.org/mail/folder-factory;1?name=");
+  contractId.Append(scheme);
+  return contractId;
 }

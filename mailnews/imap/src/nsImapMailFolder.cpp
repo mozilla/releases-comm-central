@@ -84,6 +84,10 @@
 #include "UrlListener.h"
 #include "nsIObserverService.h"
 #include "nsIPropertyBag2.h"
+#ifdef MOZ_PANORAMA
+#  include "FolderDatabase.h"
+#  include "DatabaseCore.h"
+#endif  // MOZ_PANORAMA
 
 using mozilla::LazyLogModule;
 using mozilla::LogLevel;
@@ -368,16 +372,46 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(const nsACString& name,
 
   bool isInbox = isServer && name.LowerCaseEqualsLiteral("inbox");
 
-  // will make sure mSubFolders does not have duplicates because of bogus msf
-  // files.
-  nsCOMPtr<nsIMsgFolder> msgFolder;
-  rv = GetChildWithURI(uri, false /*deep*/, isInbox /*case Insensitive*/,
-                       getter_AddRefs(msgFolder));
-  if (NS_SUCCEEDED(rv) && msgFolder) return NS_MSG_FOLDER_EXISTS;
-
   nsCOMPtr<nsIMsgFolder> folder;
-  rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
+#ifdef MOZ_PANORAMA
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
+    RefPtr<mozilla::mailnews::DatabaseCore> dbCore =
+        mozilla::mailnews::DatabaseCore::GetInstanceForService();
+    mozilla::mailnews::FolderDatabase& folderDB(dbCore->FolderDB());
+
+    uint64_t subFolderId =
+        MOZ_TRY(folderDB.GetFolderChildNamed(mFolderId, name));
+    if (subFolderId == 0) {
+      rv = folderDB.InsertFolder(mFolderId, name, &subFolderId);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+
+    // Set up the nsIMsgFolder.
+    folder =
+        do_CreateInstance("@mozilla.org/mail/folder-factory;1?name=imap", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = folder->InitWithFolderId(subFolderId);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // FIXME: folderPath uses MUTF7 folder names, and we don't want that.
+    nsCOMPtr<nsIMsgPluggableStore> msgStore;
+    MOZ_TRY(folder->GetMsgStore(getter_AddRefs(msgStore)));
+    MOZ_TRY(msgStore->EnsureLocalStore(folder));
+  } else {
+#endif  // MOZ_PANORAMA
+    // will make sure mSubFolders does not have duplicates because of bogus msf
+    // files.
+    nsCOMPtr<nsIMsgFolder> msgFolder;
+    rv = GetChildWithURI(uri, false /*deep*/, isInbox /*case Insensitive*/,
+                         getter_AddRefs(msgFolder));
+    if (NS_SUCCEEDED(rv) && msgFolder) return NS_MSG_FOLDER_EXISTS;
+
+    rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
+    NS_ENSURE_SUCCESS(rv, rv);
+#ifdef MOZ_PANORAMA
+  }
+#endif  // MOZ_PANORAMA
 
   folder->SetFilePath(folderPath);
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder, &rv);
@@ -925,14 +959,14 @@ static nsresult StripSummarySuffix(nsIFile* dbPath, nsIFile** out) {
 }
 
 NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
-    const nsACString& folderName, char hierarchyDelimiter, int32_t flags,
+    const nsACString& folderName, char hierarchyDelimiter, int32_t boxFlags,
     bool suppressNotification) {
   nsresult rv = NS_OK;
 
   // Get a directory based on our current path.
   nsCOMPtr<nsIFile> path;
   rv = CreateDirectoryForFolder(getter_AddRefs(path));
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   NS_ConvertUTF8toUTF16 leafName(folderName);
   nsAutoString folderNameStr;
@@ -957,21 +991,20 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
     NS_ENSURE_SUCCESS(rv, rv);
     nsAutoCString leafnameC;
     CopyUTF16toUTF8(leafName, leafnameC);
-    return imapFolder->CreateClientSubfolderInfo(leafnameC, hierarchyDelimiter,
-                                                 flags, suppressNotification);
+    return imapFolder->CreateClientSubfolderInfo(
+        leafnameC, hierarchyDelimiter, boxFlags, suppressNotification);
   }
 
   // if we get here, it's really a leaf, and "this" is the parent.
   folderNameStr = leafName;
 
   // Create an empty database for this mail folder, set its name from the user
-  nsCOMPtr<nsIMsgDatabase> mailDBFactory;
   nsCOMPtr<nsIMsgFolder> child;
+  nsCOMPtr<nsIMsgDatabase> childDB;
 
   nsCOMPtr<nsIMsgDBService> msgDBService =
       do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgDatabase> unusedDB;
   nsCOMPtr<nsIFile> dbFile;
 
   // Get db filename e.g. "foo/bar/folder.msf"
@@ -986,14 +1019,24 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
   rv = AddSubfolderWithPath(NS_ConvertUTF16toUTF8(folderNameStr), folderPath,
                             getter_AddRefs(child), true);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = msgDBService->OpenDBFromFile(dbFile, child, true, true,
-                                    getter_AddRefs(unusedDB));
-  if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING) rv = NS_OK;
 
-  if (NS_SUCCEEDED(rv) && unusedDB) {
+#ifdef MOZ_PANORAMA
+  if (mozilla::StaticPrefs::mail_panorama_enabled_AtStartup()) {
+    rv = child->GetMsgDatabase(getter_AddRefs(childDB));
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+#endif  // MOZ_PANORAMA
+    rv = msgDBService->OpenDBFromFile(dbFile, child, true, true,
+                                      getter_AddRefs(childDB));
+    if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING) rv = NS_OK;
+#ifdef MOZ_PANORAMA
+  }
+#endif  // MOZ_PANORAMA
+
+  if (NS_SUCCEEDED(rv) && childDB) {
     // need to set the folder name
     nsCOMPtr<nsIDBFolderInfo> folderInfo;
-    rv = unusedDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
+    rv = childDB->GetDBFolderInfo(getter_AddRefs(folderInfo));
     nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(child, &rv);
     if (NS_SUCCEEDED(rv)) {
       // TODO: folderNameStr is the canonical leaf, so this is the wrong online
@@ -1006,7 +1049,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
       imapFolder->SetVerifiedAsOnlineFolder(true);
       imapFolder->SetOnlineName(onlineName);
       imapFolder->SetHierarchyDelimiter(hierarchyDelimiter);
-      imapFolder->SetBoxFlags(flags);
+      imapFolder->SetBoxFlags(boxFlags);
 
       // Now that the child is created and the boxflags are set we can be sure
       // all special folder flags are known. The child may get its flags already
@@ -1052,9 +1095,9 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
       }
     }
 
-    unusedDB->SetSummaryValid(true);
-    unusedDB->Commit(nsMsgDBCommitType::kLargeCommit);
-    unusedDB->Close(true);
+    childDB->SetSummaryValid(true);
+    childDB->Commit(nsMsgDBCommitType::kLargeCommit);
+    childDB->Close(true);
     // don't want to hold onto this newly created db.
     child->SetMsgDatabase(nullptr);
   }

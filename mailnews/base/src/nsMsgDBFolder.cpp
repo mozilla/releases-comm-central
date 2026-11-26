@@ -2701,7 +2701,14 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolderId(uint64_t folderId) {
   rv = MsgEscapeString(path, nsINetUtil::ESCAPE_URL_PATH, path);
   NS_ENSURE_SUCCESS(rv, rv);
   mURI.Append(Substring(path, path.FindChar('/')));
-  mBaseMessageURI = "mailbox-message:"_ns + Substring(mURI, 8);
+
+  nsCOMPtr<nsIURI> uri;
+  MOZ_TRY(NS_NewURI(getter_AddRefs(uri), mURI));
+  nsAutoCString scheme;
+  uri->GetScheme(scheme);
+  MOZ_TRY(NS_MutateURI(uri).SetScheme(scheme + "-message"_ns).Finalize(uri));
+  uri->GetSpec(mBaseMessageURI);
+
   mHaveParsedURI = true;
   mInitializedFromCache = true;
 
@@ -2723,11 +2730,13 @@ NS_IMETHODIMP nsMsgDBFolder::InitWithFolderId(uint64_t folderId) {
   MOZ_TRY(folderDB.Reconcile(folderId, childNames));
 
   // Add the subfolders.
+
+  nsCString contractId = MOZ_TRY(GetFolderContractId(mURI));
+
   nsTArray<uint64_t> subFolderIds =
       MOZ_TRY(folderDB.GetFolderChildren(folderId));
   for (auto subFolderId : subFolderIds) {
-    nsCOMPtr<nsIMsgFolder> msgFolder =
-        do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
+    nsCOMPtr<nsIMsgFolder> msgFolder = do_CreateInstance(contractId.get(), &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = msgFolder->InitWithFolderId(subFolderId);
@@ -3476,8 +3485,8 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsACString& name,
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
-    // Set up the nsIMsgFolder.
-    folder = do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
+    nsCString contractId = MOZ_TRY(GetFolderContractId(mURI));
+    folder = do_CreateInstance(contractId.get(), &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = folder->InitWithFolderId(subFolderId);

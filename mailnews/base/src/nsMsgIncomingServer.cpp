@@ -433,8 +433,8 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
-    m_rootFolder =
-        do_CreateInstance("@mozilla.org/mail/folder;1?name=mailbox", &rv);
+    nsCString contractId = MOZ_TRY(GetFolderContractId(serverUri));
+    m_rootFolder = do_CreateInstance(contractId.get(), &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = m_rootFolder->InitWithFolderId(rootId);
@@ -793,6 +793,8 @@ nsMsgIncomingServer::GetMsgStore(nsIMsgPluggableStore** aMsgStore) {
     GetStringValue("storeContractID", storeContractID);
     if (storeContractID.IsEmpty()) {
       storeContractID.AssignLiteral("@mozilla.org/msgstore/berkeleystore;1");
+      Preferences::GetCString("mail.serverDefaultStoreContractID",
+                              storeContractID);
       SetStringValue("storeContractID", storeContractID);
     }
 
