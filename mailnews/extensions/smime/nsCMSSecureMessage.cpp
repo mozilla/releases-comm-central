@@ -9,6 +9,7 @@
 #include "cms.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefPtr.h"
+#include "mozilla/mailnews/SMimeCertEmail.h"
 #include "nsCOMPtr.h"
 #include "nsDependentSubstring.h"
 #include "nsIInterfaceRequestor.h"
@@ -95,4 +96,15 @@ NS_IMETHODIMP nsCMSSecureMessage::CanBeUsedForEmailEncryption(
 NS_IMETHODIMP nsCMSSecureMessage::CanBeUsedForEmailSigning(nsIX509Cert* aCert,
                                                            bool* aCanBeUsed) {
   return CheckUsageOk(aCert, certificateUsageEmailSigner, aCanBeUsed);
+}
+
+NS_IMETHODIMP nsCMSSecureMessage::GetIdentityEmailAddresses(
+    nsIX509Cert* cert, nsTArray<nsCString>& addresses) {
+  NS_ENSURE_ARG_POINTER(cert);
+  mozilla::UniqueCERTCertificate nssCert(cert->GetCert());
+  if (!nssCert) {
+    return NS_ERROR_FAILURE;
+  }
+  mozilla::mailnews::GetSMimeCertEmailAddresses(nssCert.get(), addresses);
+  return NS_OK;
 }

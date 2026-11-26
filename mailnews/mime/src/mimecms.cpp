@@ -11,6 +11,7 @@
 #include "mozilla/CheckedInt.h"
 #include "mozilla/Logging.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/mailnews/SMimeCertEmail.h"
 #include "mozilla/Preferences.h"
 #include "nsComponentManagerUtils.h"
 #include "nsCOMPtr.h"
@@ -254,16 +255,11 @@ bool MimeCMSHeadersAndCertsMatch(nsICMSMessage* content_info,
   } else {
     if (signerCert) {
       if (from_addr && *from_addr) {
-        NS_ConvertASCIItoUTF16 ucs2From(from_addr);
-        if (NS_FAILED(signerCert->ContainsEmailAddress(ucs2From, &foundFrom))) {
-          foundFrom = false;
-        }
+        foundFrom =
+            SMimeCertHasEmailAddress(signerCert, nsDependentCString(from_addr));
       } else if (sender_addr && *sender_addr) {
-        NS_ConvertASCIItoUTF16 ucs2Sender(sender_addr);
-        if (NS_FAILED(
-                signerCert->ContainsEmailAddress(ucs2Sender, &foundSender))) {
-          foundSender = false;
-        }
+        foundSender = SMimeCertHasEmailAddress(signerCert,
+                                               nsDependentCString(sender_addr));
       }
     }
 
