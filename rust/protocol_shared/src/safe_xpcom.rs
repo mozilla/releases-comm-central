@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+pub use account_info::*;
 pub use folder_listener::*;
 pub use message_create_listener::*;
 pub use message_fetch_listener::*;
@@ -12,6 +13,7 @@ pub use simple_operation_listener::*;
 pub use uri::*;
 pub use url_listener::*;
 
+mod account_info;
 pub mod calendar_listener;
 pub mod event_listener;
 mod folder_listener;

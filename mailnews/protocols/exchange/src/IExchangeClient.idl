@@ -17,6 +17,8 @@ interface nsIMsgCopyServiceListener;
 interface nsIURI;
 interface nsIUrlListener;
 
+interface IExchangeAccountInfo;
+
 // Forward declarations of callback classes defined later in this file.
 interface IExchangeFolderListener;
 interface IExchangeMessageSyncListener;
@@ -102,13 +104,14 @@ interface IExchangeClient : nsISupports
    * Synchronizes the local folder listing with changes made on the remote
    * Exchange server.
    *
+   * @param accountInfo - Queries for the account's current local folder state.
    * @param listener - Listener for communicating changes to the folder list and
    *   to the recorded synchronization state.
    * @param syncStateToken - A synchronization state token provided by a prior
    *   sync request, or an empty string to indicate that this is the initial
    *   sync.
    */
-  void syncFolderHierarchy(in IExchangeFolderListener listener, in AUTF8String syncStateToken);
+  void syncFolderHierarchy(in IExchangeAccountInfo accountInfo, in IExchangeFolderListener listener, in AUTF8String syncStateToken);
 
   /**
    * Creates a new folder on the Exchange server as a child of the specified

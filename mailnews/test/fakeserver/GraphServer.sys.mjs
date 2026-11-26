@@ -34,6 +34,14 @@ export class GraphServer extends MockServer {
   maxSyncItems = Infinity;
 
   /**
+   * Number of upcoming delta requests containing a state token to reject with
+   * 410 Gone. The first page of an initial sync is always unaffected.
+   *
+   * @type {number}
+   */
+  invalidateNextDeltaTokens = 0;
+
+  /**
    * The mock HTTP server to use to handle Graph requests.
    *
    * @type {HttpServer}
@@ -340,6 +348,10 @@ export class GraphServer extends MockServer {
       httpResponseData.statusCode,
       httpResponseData.statusMessage
     );
+    if (httpResponseData.statusCode == 410) {
+      // Don't replay a cached invalidation.
+      response.setHeader("Cache-Control", "no-store");
+    }
     const responseBody = CommonUtils.encodeUTF8(httpResponseData.bodyContent);
     response.bodyOutputStream.write(responseBody, responseBody.length);
   }
@@ -421,6 +433,28 @@ export class GraphServer extends MockServer {
     resourceQuery,
     requestBody
   ) {
+    const params = new URLSearchParams(resourceQuery);
+
+    // Before invoking an actual handler, check if this is a delta request set
+    // for invalidation.
+    if (
+      this.invalidateNextDeltaTokens > 0 &&
+      (params.has("$deltatoken") || params.has("$skiptoken")) &&
+      (resourcePath.endsWith("/delta") || resourcePath.endsWith("/delta()"))
+    ) {
+      this.invalidateNextDeltaTokens--;
+      return new HttpResponseData(
+        410,
+        "Gone",
+        JSON.stringify({
+          error: {
+            code: "syncStateNotFound",
+            message: "The delta token is no longer valid.",
+          },
+        })
+      );
+    }
+
     // Try to find a handler that matches the method and path for the request.
     let responseJsonObject = {};
     let pathMatch;

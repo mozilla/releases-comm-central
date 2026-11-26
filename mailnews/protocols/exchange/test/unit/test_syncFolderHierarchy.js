@@ -84,7 +84,7 @@ add_task(async function testSimpleSync() {
 
 async function runSimpleSyncTest(syncClient) {
   const listener = new EwsFolderCallbackListener();
-  syncClient.syncFolderHierarchy(listener, null);
+  syncClient.syncFolderHierarchy(listener.accountInfo, listener, null);
   await listener._deferred.promise;
 
   Assert.deepEqual(
@@ -112,7 +112,7 @@ add_task(async function testMissingArchive() {
       ewsServer.getWellKnownFolders().filter(folder => folder.id != "archive")
     );
     const listener = new EwsFolderCallbackListener();
-    ewsClient.syncFolderHierarchy(listener, null);
+    ewsClient.syncFolderHierarchy(listener.accountInfo, listener, null);
     await listener._deferred.promise;
 
     Assert.deepEqual(
@@ -138,7 +138,7 @@ add_task(async function testSyncClasslessFolder() {
   );
 
   const listener = new EwsFolderCallbackListener();
-  ewsClient.syncFolderHierarchy(listener, null);
+  ewsClient.syncFolderHierarchy(listener.accountInfo, listener, null);
   await listener._deferred.promise;
 
   Assert.deepEqual(
@@ -175,7 +175,7 @@ async function runSecondSyncRequiredTest(syncServer, syncClient) {
   syncServer.maxSyncItems = 4; // 12 items requires 3 requests.
 
   const listener = new EwsFolderCallbackListener();
-  syncClient.syncFolderHierarchy(listener, null);
+  syncClient.syncFolderHierarchy(listener.accountInfo, listener, null);
   await listener._deferred.promise;
 
   Assert.deepEqual(
@@ -222,7 +222,7 @@ async function runInitialSyncWithRemovedItemTest(syncServer, syncClient) {
   });
 
   const listener = new InitialDeleteSyncListener();
-  syncClient.syncFolderHierarchy(listener, null);
+  syncClient.syncFolderHierarchy(listener.accountInfo, listener, null);
   await listener._deferred.promise;
 
   Assert.deepEqual(
@@ -254,6 +254,10 @@ class EwsFolderCallbackListener {
 
   constructor() {
     this._createdFolderIds = new Set();
+    this.accountInfo = {
+      QueryInterface: ChromeUtils.generateQI(["IExchangeAccountInfo"]),
+      getCurrentFolderIds: () => Array.from(this._createdFolderIds),
+    };
     this._deferred = Promise.withResolvers();
   }
 
@@ -314,7 +318,7 @@ add_task(async function testSimpleSyncBusyRetry() {
   ewsServer.busyResponses = 2;
 
   const listener = new EwsFolderCallbackListener();
-  ewsClient.syncFolderHierarchy(listener, null);
+  ewsClient.syncFolderHierarchy(listener.accountInfo, listener, null);
   await listener._deferred.promise;
 
   Assert.deepEqual(

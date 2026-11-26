@@ -14,8 +14,10 @@ use std::{
 use http::{Method, Request};
 use moz_http::{Response, StatusCode};
 use ms_graph_tb::{
-    Operation,
+    Nullable, Operation,
     batching::{BatchRequest, BatchResponse},
+    notnull,
+    types::public_error_response::PublicErrorResponse,
 };
 use operation_queue::{OperationQueue, QueuedOperation};
 use protocol_shared::{
@@ -107,13 +109,85 @@ impl GraphResponseProcessor {
     }
 }
 
+/// Check if the given error response indicates we should invalidate our sync
+/// state token and try again.
+///
+/// There are two known sources of token invalidation this attempts to detect:
+///
+/// 1. Any HTTP 410 response is interpreted as a [synchronization reset], since
+///    those are not documented to have any particular body.
+///
+/// 2. Any error response whose body contains an error code value matched by
+///    [`is_expired_token_graph_code`], which detects [expired tokens].
+///
+/// [synchronization reset]: https://learn.microsoft.com/en-us/graph/delta-query-overview#synchronization-reset
+/// [expired tokens]: https://learn.microsoft.com/en-us/graph/delta-query-overview#token-duration
+fn response_invalidates_token(err: &XpComGraphError) -> bool {
+    let XpComGraphError::Protocol(ProtocolError::Http(moz_http::Error::StatusCode {
+        status,
+        response,
+    })) = err
+    else {
+        return false;
+    };
+
+    if let StatusCode(410) = status {
+        return true;
+    }
+
+    // If we encounter any errors while processing, we can just return false
+    // and expect the caller to use the original error.
+    let Ok(PublicErrorResponse { error: Some(error) }) = serde_json::from_slice(response.body())
+    else {
+        return false;
+    };
+
+    if is_expired_token_graph_code(&error.code)
+        || error
+            .details
+            .iter()
+            .flatten()
+            .any(|d| is_expired_token_graph_code(&d.code))
+    {
+        return true;
+    }
+
+    if let Some(error) = error.inner_error {
+        is_expired_token_graph_code(&error.code)
+            || error
+                .details
+                .iter()
+                .flatten()
+                .any(|d| is_expired_token_graph_code(&d.code))
+    } else {
+        false
+    }
+}
+
+/// Returns true if the given Graph error code is one of the error codes known
+/// to indicate an [expired delta sync token].
+///
+/// The docs say that `code` is "a machine-readable value that you can take a
+/// dependency on in your code", but the live docs don't document the possible
+/// values anywhere any more. The values in this function come from an archived,
+/// [prior version of the docs].
+///
+/// [expired delta sync token]: https://learn.microsoft.com/en-us/graph/delta-query-overview#token-duration
+/// [prior version of the docs]: https://github.com/microsoft/microsoft-graph-docs-1/blob/main/concepts/errors.md
+fn is_expired_token_graph_code(code: &Option<Nullable<String>>) -> bool {
+    matches!(
+        code,
+        notnull!(code) if (code == "resyncRequired" || code == "syncStateNotFound")
+    )
+}
+
 impl ResponseProcessor for GraphResponseProcessor {
     type ReturnValue = Response;
     type Error = XpComGraphError;
 
     fn handles_error_status(&self, status: StatusCode) -> bool {
-        // The only error for which we have any specific logic is rate-limiting.
-        status.0 == 429
+        // Let the graph client handle token invalidation and rate limiting.
+        matches!(status.0, 410 | 429)
     }
 
     async fn check_response_for_error(

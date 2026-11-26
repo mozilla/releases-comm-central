@@ -9,51 +9,55 @@ use ms_graph_tb::{
     paths::users::user_id::mail_folders,
 };
 use protocol_shared::{
-    EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER, ServerType, client::DoOperation,
-    safe_xpcom::SafeExchangeFolderListener,
+    EXCHANGE_DISTINGUISHED_IDS, EXCHANGE_ROOT_FOLDER, ServerType,
+    client::DoOperation,
+    safe_xpcom::{SafeExchangeAccountInfo, SafeExchangeFolderListener},
 };
-use rustc_hash::FxHashMap;
+use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::{client::Required, error::XpComGraphError};
 
 use super::XpComGraphClient;
 
 struct DoSyncFolderHierarchy<'a> {
-    pub listener: &'a SafeExchangeFolderListener,
-    pub sync_state_token: Option<String>,
+    account_info: &'a SafeExchangeAccountInfo,
+    listener: &'a SafeExchangeFolderListener,
+    sync_state_token: Option<String>,
 }
 
-impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
-    for DoSyncFolderHierarchy<'_>
-{
-    const NAME: &'static str = "sync folder hierarchy";
-    type Okay = ();
-    type Listener = SafeExchangeFolderListener;
-
-    async fn do_operation(
+impl DoSyncFolderHierarchy<'_> {
+    /// Fetch the latest hierarchy changes and perform those operations.
+    ///
+    /// If this is invoked without a sync state token, the returned set contains
+    /// all folders that are present in our local copy of the hierarchy, but
+    /// missing in the server's copy. These are ghosts of folders that were
+    /// deleted on the server, but we no longer have a valid sync state token to
+    /// fetch those deletions; they should therefore always be deleted
+    /// locally. Otherwise, the set is empty.
+    async fn sync(
         &mut self,
-        client: &XpComGraphClient<ServerT>,
-    ) -> Result<Self::Okay, XpComGraphError> {
-        // If we have received no sync state, assume that this is the first time
-        // syncing this account. In that case, we need to determine which
-        // folders are "well-known" (e.g., inbox, trash, etc.) so we can flag
-        // them.
-        let (mut response, well_known) = match self.sync_state_token {
+        client: &XpComGraphClient<impl ServerType>,
+    ) -> Result<FxHashSet<String>, XpComGraphError> {
+        // If we have received no sync state, we want to enumerate all
+        // folders. In that case, we need to determine which folders are
+        // "well-known" (e.g., inbox, trash, etc.) so we can flag them.
+        let (mut response, well_known, mut deletion_candidates) = match self.sync_state_token {
             Some(ref token) => {
                 let request = mail_folders::delta::GetDelta::try_from(token.as_str())?;
                 let response = client
                     .send_request_json_response(request, Default::default())
                     .await?;
-                (response, None)
+                (response, None, FxHashSet::default())
             }
             None => {
+                let deletion_candidates = self.account_info.get_current_folder_ids()?.collect();
                 let base_url = client.base_api_url()?.to_string();
                 let request = mail_folders::delta::Get::new(base_url, client.user_id().clone());
                 let response = client
                     .send_request_json_response(request, Default::default())
                     .await?;
                 let well_known = Some(get_well_known_folder_map(client, self.listener).await?);
-                (response, well_known)
+                (response, well_known, deletion_candidates)
             }
         };
 
@@ -68,7 +72,8 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                         log::debug!(
                             "Removing folder {folder_id} from delta sync (reason: {reason:?})"
                         );
-                        self.listener.on_folder_deleted(folder_id)?;
+                        self.listener.on_folder_deleted(&folder_id)?;
+                        deletion_candidates.remove(&folder_id);
                     }
                     DeltaItem::Present(folder) => {
                         let folder_id = folder.entity.id.required("folder id")?;
@@ -76,6 +81,8 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                             folder.display_name.required("folder display name")?;
                         let parent_folder_id: String =
                             folder.parent_folder_id.required("parent folder id")?;
+
+                        deletion_candidates.remove(&folder_id);
 
                         log::debug!(
                             "Found folder in response with ID {folder_id} ({display_name})"
@@ -115,12 +122,49 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                         .await?;
                 }
                 DeltaResponse::DeltaLink { delta_link, .. } => {
-                    self.listener.on_sync_state_token_changed(&delta_link)?;
                     self.sync_state_token = Some(delta_link);
-                    break;
+                    return Ok(deletion_candidates);
                 }
             }
         }
+    }
+}
+
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
+    for DoSyncFolderHierarchy<'_>
+{
+    const NAME: &'static str = "sync folder hierarchy";
+    type Okay = ();
+    type Listener = SafeExchangeFolderListener;
+
+    async fn do_operation(
+        &mut self,
+        client: &XpComGraphClient<ServerT>,
+    ) -> Result<Self::Okay, XpComGraphError> {
+        // Each sync gets up to two chances of completing: once handling the
+        // normal, successful case...
+        let deletion_candidates = match self.sync(client).await {
+            Err(err) if super::response_invalidates_token(&err) => {
+                // ... and once if the server invalidated the sync token.
+                self.sync_state_token = None;
+                self.listener.on_sync_state_token_changed("")?;
+
+                // From this point on, any errors are returned as-is, since
+                // additional invalidations likely indicate something gone awry.
+                self.sync(client).await?
+            }
+            result => result?,
+        };
+
+        for folder_id in deletion_candidates {
+            log::debug!(
+                "Removing folder {folder_id} because it was absent from the first valid sync after refreshing a sync state token"
+            );
+            self.listener.on_folder_deleted(&folder_id)?;
+        }
+
+        self.listener
+            .on_sync_state_token_changed(self.sync_state_token.as_deref().unwrap_or_default())?;
 
         Ok(())
     }
@@ -143,10 +187,12 @@ impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     ///     https://learn.microsoft.com/en-us/graph/api/mailfolder-delta
     pub(crate) async fn sync_folder_hierarchy(
         self: Arc<XpComGraphClient<ServerT>>,
+        account_info: SafeExchangeAccountInfo,
         listener: SafeExchangeFolderListener,
         sync_state_token: Option<String>,
     ) {
         let operation = DoSyncFolderHierarchy {
+            account_info: &account_info,
             listener: &listener,
             sync_state_token,
         };

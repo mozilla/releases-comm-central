@@ -207,7 +207,7 @@ async fn push_sync_state_to_ui<ServerT: ServerType>(
     }
 
     for id in delete_ids {
-        listener.on_folder_deleted(id)?;
+        listener.on_folder_deleted(&id)?;
     }
 
     listener.on_sync_state_token_changed(sync_state)?;

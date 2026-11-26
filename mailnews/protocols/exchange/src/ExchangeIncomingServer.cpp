@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "ExchangeAccountInfo.h"
 #include "ExchangeFolder.h"
 #include "ExchangeListeners.h"
 #include "ExchangeOAuth2CustomDetails.h"
@@ -487,7 +488,8 @@ nsresult ExchangeIncomingServer::SyncFolderList(
   // Sync the folder tree for the whole account.
   RefPtr<IExchangeClient> client;
   MOZ_TRY(GetProtocolClient(getter_AddRefs(client)));
-  return client->SyncFolderHierarchy(listener, syncStateToken);
+  RefPtr<ExchangeAccountInfo> accountInfo = new ExchangeAccountInfo(this);
+  return client->SyncFolderHierarchy(accountInfo, listener, syncStateToken);
 }
 
 nsresult ExchangeIncomingServer::SyncFolders(
@@ -582,37 +584,44 @@ NS_IMETHODIMP ExchangeIncomingServer::GetNewMessages(
   nsCOMPtr<nsIMsgFolder> folder = aFolder;
   nsCOMPtr<nsIUrlListener> urlListener = aUrlListener;
 
+  bool isServer;
+  nsresult rv = folder->GetIsServer(&isServer);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString originalExchangeId;
+  if (!isServer) {
+    rv = folder->GetStringProperty(kExchangeIdProperty, originalExchangeId);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   // Sync the folder list for the account, then sync the message list for the
   // specific folder.
-  return SyncFolderList(
-      [self = RefPtr(this), folder, interactive, urlListener]() {
-        // Check if we're getting messages for the whole
-        // folder here. If so, the intent is likely that the
-        // user wants to synchronize all the folders on the
-        // account.
-        bool isServer;
-        nsresult rv = folder->GetIsServer(&isServer);
-        NS_ENSURE_SUCCESS(rv, rv);
+  return SyncFolderList([self = RefPtr(this), interactive, urlListener,
+                         originalExchangeId, isServer]() {
+    // If this is the root folder, the intent is likely that the user wants to
+    // synchronize all the folders on the account.
+    if (isServer) {
+      return self->SyncAllFolders(interactive, urlListener);
+    }
 
-        if (isServer) {
-          return self->SyncAllFolders(interactive, urlListener);
-        }
+    // Synchronizing the folder list may have invalidated the folder that sync
+    // was selected for by deleting or moving the folder to a new location. If
+    // that is the case, then the Exchange ID and old folder object may be
+    // invalidated and we can no longer sync that folder.
+    nsCOMPtr<nsIMsgFolder> folder;
+    nsresult rv =
+        self->FindFolderWithId(originalExchangeId, getter_AddRefs(folder));
+    if (NS_FAILED(rv)) {
+      // Assume the original folder was moved or deleted and return result.
+      if (urlListener) {
+        return urlListener->OnStopRunningUrl(nullptr, rv);
+      }
+      return rv;
+    }
 
-        // Synchronizing the folder list may have invalidated the folder that
-        // sync was selected for by moving the folder to a new location. If that
-        // is the case, then the Exchange ID will be invalidated and we can no
-        // longer sync that folder.
-        nsAutoCString originalExchangeId;
-        rv = folder->GetStringProperty(kExchangeIdProperty, originalExchangeId);
-        if (NS_FAILED(rv)) {
-          // Assume the original folder moved and return success.
-          return NS_OK;
-        }
-
-        // If this is not the root folder, synchronize its
-        // message list normally.
-        return folder->GetNewMessages(interactive, urlListener);
-      });
+    // If none of the above, synchronize the folder's message list normally.
+    return folder->GetNewMessages(interactive, urlListener);
+  });
 }
 
 NS_IMETHODIMP ExchangeIncomingServer::PerformBiff(bool interactive) {

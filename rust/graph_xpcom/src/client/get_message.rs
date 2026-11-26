@@ -9,6 +9,8 @@ use protocol_shared::{
     ServerType, client::DoOperation, safe_xpcom::SafeExchangeMessageFetchListener,
 };
 
+use crate::{client::XpComGraphClient, error::XpComGraphError};
+
 struct DoGetMessage<'a> {
     listener: &'a SafeExchangeMessageFetchListener,
     message_id: String,
@@ -54,8 +56,6 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
     ) -> <Self::Listener as protocol_shared::safe_xpcom::SafeListener>::OnFailureArg {
     }
 }
-
-use crate::{client::XpComGraphClient, error::XpComGraphError};
 
 impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     pub(crate) async fn get_message(

@@ -85,7 +85,7 @@ impl SafeExchangeFolderListener {
     }
 
     /// Convert types and forward to [`IExchangeFolderListener::OnFolderDeleted`]
-    pub fn on_folder_deleted(&self, id: String) -> Result<(), nsresult> {
+    pub fn on_folder_deleted(&self, id: &str) -> Result<(), nsresult> {
         let id = nsCString::from(id);
         // SAFETY: We have converted all of the inputs into the appropriate types
         // to cross the Rust/C++ boundary.

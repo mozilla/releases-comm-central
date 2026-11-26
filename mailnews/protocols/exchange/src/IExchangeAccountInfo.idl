@@ -1,0 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * Queries about an Exchange account's local state.
+ */
+[scriptable, uuid(fdd60441-5e06-4eac-bc3d-08c022ea6e05)]
+interface IExchangeAccountInfo : nsISupports
+{
+  /**
+   * Get the server IDs of locally known folders, excluding the account root
+   * and virtual folders.
+   */
+  Array<AUTF8String> getCurrentFolderIds();
+};

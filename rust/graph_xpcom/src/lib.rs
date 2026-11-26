@@ -9,7 +9,7 @@ use nsstring::{nsACString, nsCString};
 use protocol_shared::{
     client::ProtocolClient,
     safe_xpcom::{
-        SafeExchangeFolderListener, SafeExchangeMessageCreateListener,
+        SafeExchangeAccountInfo, SafeExchangeFolderListener, SafeExchangeMessageCreateListener,
         SafeExchangeMessageFetchListener, SafeExchangeMessageSyncListener,
         SafeExchangeSimpleOperationListener, SafeUrlListener,
         calendar_listener::SafeCalendarListener, event_listener::SafeGraphCalendarEventListener,
@@ -23,10 +23,11 @@ use url::Url;
 use xpcom::{
     RefPtr,
     interfaces::{
-        IExchangeClient, IExchangeFolderListener, IExchangeMessageCreateListener,
-        IExchangeMessageFetchListener, IExchangeMessageSyncListener,
-        IExchangeSimpleOperationListener, IGraphCalendarDiscoveryListener,
-        IGraphCalendarEventListener, nsIInputStream, nsIMsgIncomingServer, nsIURI, nsIUrlListener,
+        IExchangeAccountInfo, IExchangeClient, IExchangeFolderListener,
+        IExchangeMessageCreateListener, IExchangeMessageFetchListener,
+        IExchangeMessageSyncListener, IExchangeSimpleOperationListener,
+        IGraphCalendarDiscoveryListener, IGraphCalendarEventListener, nsIInputStream,
+        nsIMsgIncomingServer, nsIURI, nsIUrlListener,
     },
     xpcom_method,
 };
@@ -123,11 +124,13 @@ impl XpcomGraphBridge {
     }
 
     xpcom_method!(sync_folder_hierarchy => SyncFolderHierarchy(
+        account_info: *const IExchangeAccountInfo,
         listener: *const IExchangeFolderListener,
         sync_state: *const nsACString
     ));
     fn sync_folder_hierarchy(
         &self,
+        account_info: &IExchangeAccountInfo,
         listener: &IExchangeFolderListener,
         sync_state: &nsACString,
     ) -> Result<(), nsresult> {
@@ -141,7 +144,11 @@ impl XpcomGraphBridge {
 
         moz_task::spawn_local(
             "sync_folder_hierarchy",
-            client.sync_folder_hierarchy(SafeExchangeFolderListener::new(listener), sync_state),
+            client.sync_folder_hierarchy(
+                SafeExchangeAccountInfo::new(account_info),
+                SafeExchangeFolderListener::new(listener),
+                sync_state,
+            ),
         )
         .detach();
 

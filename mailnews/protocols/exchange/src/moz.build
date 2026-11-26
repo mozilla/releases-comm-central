@@ -7,6 +7,7 @@ EXPORTS += [
 ]
 
 UNIFIED_SOURCES += [
+    "ExchangeAccountInfo.cpp",
     "ExchangeCopyMoveTransaction.cpp",
     "ExchangeFetchMsgsToOffline.cpp",
     "ExchangeFolder.cpp",
@@ -36,6 +37,7 @@ XPCOM_MANIFESTS += [
 XPIDL_MODULE = "msgews"
 
 XPIDL_SOURCES += [
+    "IExchangeAccountInfo.idl",
     "IExchangeClient.idl",
     "IExchangeFolder.idl",
     "IExchangeIncomingServer.idl",

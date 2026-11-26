@@ -103,7 +103,7 @@ function setupBasicGraphTestServer({
   do_get_profile();
 
   // Create a new mock Graph server, and start it.
-  const graphServer = new GraphServer();
+  const graphServer = new GraphServer({ username });
   graphServer.start();
 
   // Create and configure the Graph incoming server.
