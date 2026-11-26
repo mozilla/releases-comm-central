@@ -2064,10 +2064,8 @@ dependencies = [
 name = "filter_adult"
 version = "0.1.0"
 dependencies = [
- "base64 0.22.1",
  "error-support",
  "md-5",
- "regex",
  "thiserror 2.0.12",
  "uniffi",
 ]
