@@ -38,6 +38,7 @@ const today = {
   weekday: now.weekday,
   weekdayName: cal.dtz.formatter.weekdayNames[now.weekday],
   shortWeekdayName: cal.dtz.formatter.shortWeekdayNames[now.weekday],
+  jsDate: cal.dtz.dateTimeToJsDate(now),
   calDate: now.clone(),
 };
 now.day--;
@@ -61,9 +62,6 @@ const dayBeforeYesterday = {
   shortWeekdayName: cal.dtz.formatter.shortWeekdayNames[now.weekday],
   jsDate: cal.dtz.dateTimeToJsDate(now),
   calDate: now.clone(),
-};
-const endOfMonth = {
-  weekday: dayBeforeYesterday.calDate.endOfMonth.weekday,
 };
 
 add_setup(async function () {
@@ -244,11 +242,15 @@ async function subtestViewsWithTodaySelected(inAnotherTab) {
 }
 
 add_task(async function testViewsWithTodayNotSelected() {
-  await subtestViewsWithTodayNotSelected(false);
+  await subtestViewsWithTodayNotSelected(false, dayBeforeYesterday);
 }).skip(closeToRealMidnight);
 
 add_task(async function testViewsWithTodayNotSelectedInAnotherTab() {
-  await subtestViewsWithTodayNotSelected(true);
+  await subtestViewsWithTodayNotSelected(true, dayBeforeYesterday);
+}).skip(closeToRealMidnight);
+
+add_task(async function testViewsWithTodayAlreadySelected() {
+  await subtestViewsWithTodayNotSelected(false, today);
 }).skip(closeToRealMidnight);
 
 /**
@@ -258,22 +260,24 @@ add_task(async function testViewsWithTodayNotSelectedInAnotherTab() {
  *
  * @param {boolean} inAnotherTab - If true, switches to the mail tab before
  *   emitting the midnight event.
+ * @param {object} selectedDate - The date to keep selected across midnight.
  */
-async function subtestViewsWithTodayNotSelected(inAnotherTab) {
+async function subtestViewsWithTodayNotSelected(inAnotherTab, selectedDate) {
   // Now repeat the test, but this time don't set `mShowsToday`. The selected
   // day should not change.
   await CalendarTestUtils.openCalendarTab(window);
 
-  info("selecting the day before yesterday");
-  minimonths.sidebar.value = dayBeforeYesterday.jsDate;
+  const isTodaySelected = selectedDate == today;
+  info(isTodaySelected ? "selecting today" : "selecting the day before yesterday");
+  minimonths.sidebar.value = selectedDate.jsDate;
   checkMinimonthToday("sidebar", today);
-  checkMinimonthSelected("sidebar", dayBeforeYesterday);
-  Assert.ok(!minimonths.sidebar.showsToday);
+  checkMinimonthSelected("sidebar", selectedDate);
+  Assert.equal(minimonths.sidebar.showsToday, isTodaySelected);
 
-  await checkDayViewSelected("day", dayBeforeYesterday);
-  await checkDayViewSelected("week", dayBeforeYesterday);
-  await checkMonthViewSelected("multiweek", dayBeforeYesterday);
-  await checkMonthViewSelected("month", dayBeforeYesterday);
+  await checkDayViewSelected("day", selectedDate);
+  await checkDayViewSelected("week", selectedDate);
+  await checkMonthViewSelected("multiweek", selectedDate);
+  await checkMonthViewSelected("month", selectedDate);
 
   info("changing the UI so that it needs updating");
   clearTodayMarkers();
@@ -288,20 +292,22 @@ async function subtestViewsWithTodayNotSelected(inAnotherTab) {
   info("emitting midnight update");
   CalMetronome.emit("day");
   checkMinimonthToday("sidebar", today);
-  checkMinimonthSelected("sidebar", dayBeforeYesterday);
-  Assert.ok(!minimonths.sidebar.showsToday);
+  checkMinimonthSelected("sidebar", selectedDate);
+  Assert.equal(minimonths.sidebar.showsToday, isTodaySelected);
 
   // Check the current view.
 
+  const endOfMonth = selectedDate.calDate.endOfMonth;
   await checkMonthViewToday(
     "month",
     today,
+    // If selectedDate is today, it is always in the displayed month.
     // For today to be at the start of the week after the end of the displayed
     // month, endOfMonth.weekday has to be 5 or 6, so today.weekday is either
     // 6, 0, or 1, and we only care about the 0 or 1 cases.
-    today.month != dayBeforeYesterday.month && today.weekday < endOfMonth.weekday
+    today.month != selectedDate.month && today.weekday < endOfMonth.weekday
   );
-  await checkMonthViewSelected("month", dayBeforeYesterday);
+  await checkMonthViewSelected("month", selectedDate);
 
   // Without opening them, check the other views are marked as needing a refresh.
 
@@ -324,17 +330,18 @@ async function subtestViewsWithTodayNotSelected(inAnotherTab) {
   // Switch to the other views and check them.
 
   await checkMonthViewToday("multiweek", today);
-  await checkMonthViewSelected("multiweek", dayBeforeYesterday);
-  await checkDayViewToday("week", dayBeforeYesterday.weekday <= 4 ? today : null);
-  await checkDayViewSelected("week", dayBeforeYesterday);
-  await checkDayViewToday("day", null);
-  await checkDayViewSelected("day", dayBeforeYesterday);
+  await checkMonthViewSelected("multiweek", selectedDate);
+  const expectedWeekToday = isTodaySelected || selectedDate.weekday <= 4 ? today : null;
+  await checkDayViewToday("week", expectedWeekToday);
+  await checkDayViewSelected("week", selectedDate);
+  await checkDayViewToday("day", isTodaySelected ? today : null);
+  await checkDayViewSelected("day", selectedDate);
 
   // Repeat with multiweek view selected.
 
   info("retesting midnight update with multiweek view selected");
   await CalendarTestUtils.setCalendarView(window, "multiweek");
-  minimonths.sidebar.value = dayBeforeYesterday.jsDate;
+  minimonths.sidebar.value = selectedDate.jsDate;
   clearTodayMarkers();
   if (inAnotherTab) {
     info("switching to the mail tab");
@@ -343,13 +350,13 @@ async function subtestViewsWithTodayNotSelected(inAnotherTab) {
   info("emitting midnight update");
   CalMetronome.emit("day");
   await checkMonthViewToday("multiweek", today);
-  await checkMonthViewSelected("multiweek", dayBeforeYesterday);
+  await checkMonthViewSelected("multiweek", selectedDate);
 
   // Repeat with week view selected.
 
   info("retesting midnight update with week view selected");
   await CalendarTestUtils.setCalendarView(window, "week");
-  minimonths.sidebar.value = dayBeforeYesterday.jsDate;
+  minimonths.sidebar.value = selectedDate.jsDate;
   clearTodayMarkers();
   if (inAnotherTab) {
     info("switching to the mail tab");
@@ -359,14 +366,14 @@ async function subtestViewsWithTodayNotSelected(inAnotherTab) {
   CalMetronome.emit("day");
   // Today won't be shown if it's in the week after the selected date,
   // e.g. the selection is Saturday but today is Monday.
-  await checkDayViewToday("week", dayBeforeYesterday.weekday <= 4 ? today : null);
-  await checkDayViewSelected("week", dayBeforeYesterday);
+  await checkDayViewToday("week", expectedWeekToday);
+  await checkDayViewSelected("week", selectedDate);
 
   // Repeat with day view selected.
 
   info("retesting midnight update with day view selected");
   await CalendarTestUtils.setCalendarView(window, "day");
-  minimonths.sidebar.value = dayBeforeYesterday.jsDate;
+  minimonths.sidebar.value = selectedDate.jsDate;
   clearTodayMarkers();
   if (inAnotherTab) {
     info("switching to the mail tab");
@@ -374,9 +381,9 @@ async function subtestViewsWithTodayNotSelected(inAnotherTab) {
   }
   info("emitting midnight update");
   CalMetronome.emit("day");
-  // Today won't be shown as it's not selected.
-  await checkDayViewToday("day", null);
-  await checkDayViewSelected("day", dayBeforeYesterday);
+  // Day view only shows today when it is selected.
+  await checkDayViewToday("day", isTodaySelected ? today : null);
+  await checkDayViewSelected("day", selectedDate);
 
   EventUtils.synthesizeMouseAtCenter(minimonths.sidebar.querySelector(".today-button"), {}, window);
   await CalendarTestUtils.closeCalendarTab(window);
@@ -599,6 +606,9 @@ add_task(function () {
 function clearTodayMarkers() {
   minimonths.sidebar.querySelector("td[today]").removeAttribute("today");
   minimonths.sidebar.mToday = null;
+  document
+    .querySelectorAll("#view-box .day-column-today")
+    .forEach(e => e.classList.remove("day-column-today"));
   document.querySelectorAll("#view-box [relation]").forEach(e => e.removeAttribute("relation"));
 }
 

@@ -9,7 +9,7 @@
    TodayPane, setUpInvitationsManager, changeMode,
    prepareCalendarUnifinder, taskViewOnLoad, taskEdit, tearDownInvitationsManager,
    unloadCalendarManager, removeCalendarCommandController, finishCalendarUnifinder,
-   PanelUI, changeMenuForTask, setupDeleteMenuitem, getMinimonth, currentView,
+   PanelUI, changeMenuForTask, setupDeleteMenuitem, getMinimonth, minimonthPick, currentView,
    refreshUnifinderFilterInterval, gCurrentMode, InitMessageMenu, onViewToolbarsPopupShowing,
    onCommandCustomize */
 
@@ -209,10 +209,18 @@ function doMidnightUpdate() {
 
   const minimonth = getMinimonth();
   if (minimonth.showsToday) {
-    // Select today.
+    // If today is already selected, the mini-month won't fire a change event.
+    let changeEventFired = false;
+    const onChange = () => {
+      changeEventFired = true;
+    };
+    minimonth.addEventListener("change", onChange);
     minimonth.value = new Date();
+    minimonth.removeEventListener("change", onChange);
+    if (!changeEventFired) {
+      minimonthPick(minimonth.value);
+    }
   } else {
-    // Just update the day displayed as today.
     minimonth.showMonth(minimonth.mEditorDate);
     const view = currentView();
     if (view.isInitialized) {
