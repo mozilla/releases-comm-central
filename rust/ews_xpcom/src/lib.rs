@@ -23,7 +23,7 @@ use url::Url;
 use xpcom::{
     RefPtr,
     interfaces::{
-        IExchangeAccountInfo, IExchangeClient, IExchangeFolderListener,
+        IExchangeAccountInfo, IExchangeClient, IExchangeFolderInfo, IExchangeFolderListener,
         IExchangeMessageCreateListener, IExchangeMessageFetchListener,
         IExchangeMessageSyncListener, IExchangeSimpleOperationListener, nsIInputStream,
         nsIMsgIncomingServer, nsIURI, nsIUrlListener,
@@ -283,12 +283,14 @@ impl XpcomEwsBridge {
     }
 
     xpcom_method!(sync_messages_for_folder => SyncMessagesForFolder(
+        folder_info: *const IExchangeFolderInfo,
         listener: *const IExchangeMessageSyncListener,
         folder_id: *const nsACString,
         sync_state: *const nsACString
     ));
     fn sync_messages_for_folder(
         &self,
+        _folder_info: &IExchangeFolderInfo,
         listener: &IExchangeMessageSyncListener,
         folder_id: &nsACString,
         sync_state: &nsACString,

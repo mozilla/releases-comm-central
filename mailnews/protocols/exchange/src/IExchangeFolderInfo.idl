@@ -1,0 +1,17 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * Queries about an Exchange folder's local state.
+ */
+[scriptable, uuid(d097f19a-d3d3-4db9-b571-abfd263cfa7b)]
+interface IExchangeFolderInfo : nsISupports
+{
+  /**
+   * Get the server IDs of messages currently stored in this folder.
+   */
+  Array<AUTF8String> getCurrentMessageIds();
+};

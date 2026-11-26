@@ -12,6 +12,7 @@ UNIFIED_SOURCES += [
     "ExchangeFetchMsgsToOffline.cpp",
     "ExchangeFolder.cpp",
     "ExchangeFolderCopyHandler.cpp",
+    "ExchangeFolderInfo.cpp",
     "ExchangeIncomingServer.cpp",
     "ExchangeLanguageInteropFactory.cpp",
     "ExchangeListeners.cpp",
@@ -40,6 +41,7 @@ XPIDL_SOURCES += [
     "IExchangeAccountInfo.idl",
     "IExchangeClient.idl",
     "IExchangeFolder.idl",
+    "IExchangeFolderInfo.idl",
     "IExchangeIncomingServer.idl",
     "IExchangeLanguageInteropFactory.idl",
 ]

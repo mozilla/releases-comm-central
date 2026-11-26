@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 pub use account_info::*;
+pub use folder_info::*;
 pub use folder_listener::*;
 pub use message_create_listener::*;
 pub use message_fetch_listener::*;
@@ -16,6 +17,7 @@ pub use url_listener::*;
 mod account_info;
 pub mod calendar_listener;
 pub mod event_listener;
+mod folder_info;
 mod folder_listener;
 mod message_create_listener;
 mod message_fetch_listener;

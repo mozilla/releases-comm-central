@@ -9,9 +9,9 @@ use nsstring::{nsACString, nsCString};
 use protocol_shared::{
     client::ProtocolClient,
     safe_xpcom::{
-        SafeExchangeAccountInfo, SafeExchangeFolderListener, SafeExchangeMessageCreateListener,
-        SafeExchangeMessageFetchListener, SafeExchangeMessageSyncListener,
-        SafeExchangeSimpleOperationListener, SafeUrlListener,
+        SafeExchangeAccountInfo, SafeExchangeFolderInfo, SafeExchangeFolderListener,
+        SafeExchangeMessageCreateListener, SafeExchangeMessageFetchListener,
+        SafeExchangeMessageSyncListener, SafeExchangeSimpleOperationListener, SafeUrlListener,
         calendar_listener::SafeCalendarListener, event_listener::SafeGraphCalendarEventListener,
         uri::SafeUri,
     },
@@ -23,7 +23,7 @@ use url::Url;
 use xpcom::{
     RefPtr,
     interfaces::{
-        IExchangeAccountInfo, IExchangeClient, IExchangeFolderListener,
+        IExchangeAccountInfo, IExchangeClient, IExchangeFolderInfo, IExchangeFolderListener,
         IExchangeMessageCreateListener, IExchangeMessageFetchListener,
         IExchangeMessageSyncListener, IExchangeSimpleOperationListener,
         IGraphCalendarDiscoveryListener, IGraphCalendarEventListener, nsIInputStream,
@@ -260,12 +260,14 @@ impl XpcomGraphBridge {
     }
 
     xpcom_method!(sync_messages_for_folder => SyncMessagesForFolder(
+        folder_info: *const IExchangeFolderInfo,
         listener: *const IExchangeMessageSyncListener,
         folder_id: *const nsACString,
         sync_state: *const nsACString
     ));
     fn sync_messages_for_folder(
         &self,
+        folder_info: &IExchangeFolderInfo,
         listener: &IExchangeMessageSyncListener,
         folder_id: &nsACString,
         sync_state: &nsACString,
@@ -282,7 +284,12 @@ impl XpcomGraphBridge {
 
         moz_task::spawn_local(
             "sync_messages_for_folder",
-            client.sync_messages_for_folder(listener, folder_id, sync_state),
+            client.sync_messages_for_folder(
+                SafeExchangeFolderInfo::new(folder_info),
+                listener,
+                folder_id,
+                sync_state,
+            ),
         )
         .detach();
 

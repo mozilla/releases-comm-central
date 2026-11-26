@@ -6,6 +6,7 @@
 #include "ExchangeFolder.h"
 #include "ExchangeListeners.h"
 #include "IExchangeClient.h"
+#include "ExchangeFolderInfo.h"
 #include "IExchangeIncomingServer.h"
 #include "IHeaderBlock.h"
 #include "MailHeaderParsing.h"  // For ParseHeaderBlock().
@@ -149,7 +150,9 @@ class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
     // Start the operation!
     // We pass `this` in as the listener, so the EwsClient will hold a
     // refcount upon this object until the operation is complete.
-    rv = ewsClient->SyncMessagesForFolder(this, ewsFolderId, syncStateToken);
+    RefPtr<ExchangeFolderInfo> folderInfo = new ExchangeFolderInfo(mDB);
+    rv = ewsClient->SyncMessagesForFolder(folderInfo, this, ewsFolderId,
+                                          syncStateToken);
     if (NS_FAILED(rv)) {
       // We called onStart() so must call onStop() too.
       mOnStop(rv, {}, {});
@@ -354,7 +357,17 @@ class ExchangeMessageSyncHandler : public IExchangeMessageSyncListener,
     }
 
     // Delete from DB and from the nsIMsgPluggableStore (if present).
-    return LocalDeleteMessages(mFolder, {existingHeader});
+    nsMsgKey key;
+    MOZ_TRY(existingHeader->GetMessageKey(&key));
+    MOZ_TRY(LocalDeleteMessages(mFolder, {existingHeader}));
+
+    // If the message was also added in this sync, avoid treating it as new.
+    auto index = mNewMessages.IndexOf(key);
+    if (index != nsTArray<nsMsgKey>::NoIndex) {
+      mNewMessages.RemoveElementAt(index);
+      mNewHeaders.RemoveElementAt(index);
+    }
+    return NS_OK;
   };
 
   NS_IMETHOD OnSyncStateTokenChanged(

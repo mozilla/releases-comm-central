@@ -195,7 +195,7 @@ async function testMaxPage(mockServer, client) {
   mockServer.addMessages("inbox", messages);
 
   const listener1 = new ExchangeMessageCallbackListener();
-  client.syncMessagesForFolder(listener1, "inbox", null);
+  client.syncMessagesForFolder(listener1.folderInfo, listener1, "inbox", null);
   await listener1.deferred.promise;
 
   Assert.equal(
@@ -210,7 +210,12 @@ async function testMaxPage(mockServer, client) {
   mockServer.addMessages("inbox", messages);
 
   const listener2 = new ExchangeMessageCallbackListener();
-  client.syncMessagesForFolder(listener2, "inbox", listener1.syncStateToken);
+  client.syncMessagesForFolder(
+    listener2.folderInfo,
+    listener2,
+    "inbox",
+    listener1.syncStateToken
+  );
   await listener2.deferred.promise;
 
   Assert.equal(
@@ -224,7 +229,12 @@ async function testMaxPage(mockServer, client) {
   mockServer.addMessages("inbox", messages);
 
   const listener3 = new ExchangeMessageCallbackListener();
-  client.syncMessagesForFolder(listener3, "inbox", listener2.syncStateToken);
+  client.syncMessagesForFolder(
+    listener3.folderInfo,
+    listener3,
+    "inbox",
+    listener2.syncStateToken
+  );
   await listener3.deferred.promise;
 
   Assert.equal(
@@ -247,7 +257,7 @@ async function testMessageBatching(mockServer, client) {
   mockServer.addMessages("inbox", messages);
 
   const listener = new ExchangeMessageCallbackListener();
-  client.syncMessagesForFolder(listener, "inbox", null);
+  client.syncMessagesForFolder(listener.folderInfo, listener, "inbox", null);
   await listener.deferred.promise;
 
   Assert.deepEqual(
@@ -308,7 +318,7 @@ async function testSyncChangesWithClient(
   // Initial sync.
 
   let listener = new ExchangeMessageCallbackListener();
-  client.syncMessagesForFolder(listener, "inbox", null);
+  client.syncMessagesForFolder(listener.folderInfo, listener, "inbox", null);
   await listener.deferred.promise;
 
   Assert.equal(
@@ -393,7 +403,12 @@ async function testSyncChangesWithClient(
 
   const syncStateToken = listener.syncStateToken;
   listener.reset();
-  client.syncMessagesForFolder(listener, "inbox", syncStateToken);
+  client.syncMessagesForFolder(
+    listener.folderInfo,
+    listener,
+    "inbox",
+    syncStateToken
+  );
   await listener.deferred.promise;
 
   Assert.equal(
@@ -431,7 +446,12 @@ async function testSyncChangesWithClient(
   // Check that the moved message arrives at its destination.
 
   listener = new ExchangeMessageCallbackListener();
-  client.syncMessagesForFolder(listener, "junkemail", null);
+  client.syncMessagesForFolder(
+    listener.folderInfo,
+    listener,
+    "junkemail",
+    null
+  );
   await listener.deferred.promise;
 
   Assert.deepEqual(
@@ -478,6 +498,10 @@ class ExchangeMessageCallbackListener {
     this.syncStateToken = null;
     this.deferred = Promise.withResolvers();
     this._createdMessageIds = new Set();
+    this.folderInfo = {
+      QueryInterface: ChromeUtils.generateQI(["IExchangeFolderInfo"]),
+      getCurrentMessageIds: () => Array.from(this._createdMessageIds),
+    };
   }
 
   /**

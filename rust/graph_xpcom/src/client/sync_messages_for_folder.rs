@@ -22,8 +22,9 @@ use protocol_shared::{
     client::DoOperation,
     headerblock_xpcom::{HeaderBlock, rfc5322_header},
     headers::Mailbox,
-    safe_xpcom::SafeExchangeMessageSyncListener,
+    safe_xpcom::{SafeExchangeFolderInfo, SafeExchangeMessageSyncListener},
 };
+use rustc_hash::FxHashSet;
 use time::{
     OffsetDateTime,
     format_description::well_known::{Iso8601, Rfc2822},
@@ -38,31 +39,36 @@ use crate::{
 define_svlep!(PID_TAG_MESSAGE_SIZE, Integer, 0x0E08);
 
 struct DoSyncMessagesForFolder<'a> {
-    pub listener: &'a SafeExchangeMessageSyncListener,
-    pub folder_id: String,
-    pub sync_state_token: Option<String>,
+    folder_info: &'a SafeExchangeFolderInfo,
+    listener: &'a SafeExchangeMessageSyncListener,
+    folder_id: String,
+    sync_state_token: Option<String>,
 }
 
-impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
-    for DoSyncMessagesForFolder<'_>
-{
-    const NAME: &'static str = "sync messages for folder";
-    type Okay = ();
-    type Listener = SafeExchangeMessageSyncListener;
-
-    async fn do_operation(
+impl DoSyncMessagesForFolder<'_> {
+    /// Fetch and perform changes.
+    ///
+    /// If this is invoked without a sync state token, the returned set contains
+    /// all messages that are present in our local copy of the folder, but
+    /// missing in the server's copy. These are ghosts of messages that were
+    /// deleted on the server, but we no longer have a valid sync state token to
+    /// fetch those deletions; they should therefore always be deleted
+    /// locally. Otherwise, the set is empty.
+    async fn sync(
         &mut self,
-        client: &XpComGraphClient<ServerT>,
-    ) -> Result<Self::Okay, XpComGraphError> {
-        let mut response = match self.sync_state_token {
+        client: &XpComGraphClient<impl ServerType>,
+    ) -> Result<FxHashSet<String>, XpComGraphError> {
+        let (mut response, mut deletion_candidates) = match self.sync_state_token {
             Some(ref token) => {
                 let mut request = messages::delta::GetDelta::try_from(token.as_str())?;
                 request.set_max_page_size(EXCHANGE_MAX_PAGE_SIZE);
-                client
+                let response = client
                     .send_request_json_response(request, Default::default())
-                    .await?
+                    .await?;
+                (response, FxHashSet::default())
             }
             None => {
+                let deletion_candidates = self.folder_info.get_current_message_ids()?.collect();
                 let select_properties = vec![
                     MessageSelection::BccRecipients,
                     MessageSelection::BodyPreview,
@@ -90,9 +96,10 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                 request.set_max_page_size(EXCHANGE_MAX_PAGE_SIZE);
                 request.select(select_properties);
                 request.expand_typed_svlep([PID_TAG_MESSAGE_SIZE]);
-                client
+                let response = client
                     .send_request_json_response(request, Default::default())
-                    .await?
+                    .await?;
+                (response, deletion_candidates)
             }
         };
 
@@ -111,6 +118,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                             .and_then(|message_size| message_size.try_into().ok())
                             .unwrap_or(0);
                         let message_id = message.outlook_item.entity.id.required("message id")?;
+                        deletion_candidates.remove(&message_id);
                         let is_read = message.is_read.required("message is_read")?;
                         let is_flagged = matches!(
                             message.flag,
@@ -129,7 +137,7 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 
                         // Graph doesn't provide a way to consistently
                         // distinguish new and updated objects, so it's tracked
-                        // here by attempting to modify the folders and falling
+                        // here by attempting to modify the messages and falling
                         // back to creating them.
                         let result = self.listener.on_message_updated(
                             message_id.clone(),
@@ -159,7 +167,8 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                     DeltaItem::Removed(message) => {
                         let message_id = message.id().to_string();
                         log::debug!("Deleting message with id {message_id}");
-                        self.listener.on_message_deleted(message_id)?;
+                        self.listener.on_message_deleted(&message_id)?;
+                        deletion_candidates.remove(&message_id);
                     }
                 }
             }
@@ -172,13 +181,49 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
                         .await?;
                 }
                 DeltaResponse::DeltaLink { delta_link, .. } => {
-                    self.listener.on_sync_state_token_changed(&delta_link)?;
                     self.sync_state_token = Some(delta_link);
-                    break;
+                    return Ok(deletion_candidates);
                 }
             }
         }
+    }
+}
 
+impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError>
+    for DoSyncMessagesForFolder<'_>
+{
+    const NAME: &'static str = "sync messages for folder";
+    type Okay = ();
+    type Listener = SafeExchangeMessageSyncListener;
+
+    async fn do_operation(
+        &mut self,
+        client: &XpComGraphClient<ServerT>,
+    ) -> Result<Self::Okay, XpComGraphError> {
+        // Each sync gets up to two chances of completing: once handling the
+        // normal, successful case...
+        let deletion_candidates = match self.sync(client).await {
+            Err(err) if super::response_invalidates_token(&err) => {
+                // ... and once if the server invalidated the sync token.
+                self.sync_state_token = None;
+                self.listener.on_sync_state_token_changed("")?;
+
+                // From this point on, any errors are returned as-is, since
+                // additional invalidations likely indicate something gone awry.
+                self.sync(client).await?
+            }
+            result => result?,
+        };
+
+        for message_id in deletion_candidates {
+            log::debug!(
+                "Removing message {message_id} because it was absent from the first valid sync after refreshing a sync state token"
+            );
+            self.listener.on_message_deleted(&message_id)?;
+        }
+
+        self.listener
+            .on_sync_state_token_changed(self.sync_state_token.as_deref().unwrap_or_default())?;
         Ok(())
     }
 
@@ -190,11 +235,13 @@ impl<ServerT: ServerType> DoOperation<XpComGraphClient<ServerT>, XpComGraphError
 impl<ServerT: ServerType> XpComGraphClient<ServerT> {
     pub(crate) async fn sync_messages_for_folder(
         self: Arc<XpComGraphClient<ServerT>>,
+        folder_info: SafeExchangeFolderInfo,
         listener: SafeExchangeMessageSyncListener,
         folder_id: String,
         sync_state_token: Option<String>,
     ) {
         let operation = DoSyncMessagesForFolder {
+            folder_info: &folder_info,
             listener: &listener,
             folder_id,
             sync_state_token,

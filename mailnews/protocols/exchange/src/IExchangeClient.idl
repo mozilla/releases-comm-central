@@ -18,6 +18,7 @@ interface nsIURI;
 interface nsIUrlListener;
 
 interface IExchangeAccountInfo;
+interface IExchangeFolderInfo;
 
 // Forward declarations of callback classes defined later in this file.
 interface IExchangeFolderListener;
@@ -129,6 +130,8 @@ interface IExchangeClient : nsISupports
    * Synchronizes the local message listing for the given folder with changes
    * made on the remote Exchange server.
    *
+   * @param folderInfo - Queries for the current local state of the folder
+   *   identified by folderId.
    * @param listener - Listener for communicating changes to the message list
    *   and to the recorded synchronization state.
    * @param folderId - The ID of the folder which message list to
@@ -137,7 +140,7 @@ interface IExchangeClient : nsISupports
    *   sync request, or an empty string to indicate that this is the initial
    *   sync.
    */
-  void syncMessagesForFolder(in IExchangeMessageSyncListener listener, in AUTF8String folderId, in AUTF8String syncStateToken);
+  void syncMessagesForFolder(in IExchangeFolderInfo folderInfo, in IExchangeMessageSyncListener listener, in AUTF8String folderId, in AUTF8String syncStateToken);
 
   /**
    * Retrieves the content of a message on the Exchange server.
