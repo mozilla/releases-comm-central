@@ -49,61 +49,46 @@ extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t quantum,
   return 0;
 }
 
-static int convert_and_send_buffer(char* buf, int length,
+/* `size` is the allocated size of `buf`. It needs two bytes beyond the line:
+   one for growing the terminator from LF to CRLF and one for the final NUL.
+   XXX: Every caller of mime_LineBuffer() passes true for `convert_newlines_p`,
+   so it could be removed. */
+static int convert_and_send_buffer(char* buf, int length, int32_t size,
                                    bool convert_newlines_p,
                                    int32_t (*per_line_fn)(const char* line,
                                                           int32_t line_length,
                                                           MimeObject* closure),
                                    MimeObject* closure) {
-  /* Convert the line terminator to the native form.
-   */
-  char* newline;
-
-#if (MSG_LINEBREAK_LEN == 2)
-  /*
-   * This is a patch to support a mail DB corruption cause by earlier version
-   * that lead to a crash. What happened is that the line terminator is
-   * CR+NULL+LF. Therefore, we first process a line terminated by CR then a
-   * second line that contains only NULL+LF. We need to ignore this second line.
-   * See bug http://bugzilla.mozilla.org/show_bug.cgi?id=61412 for more
-   * information.
-   */
-  if (length == 2 && buf[0] == 0x00 && buf[1] == '\n') return 0;
-#endif
-
-  NS_ASSERTION(buf && length > 0, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
-  if (!buf || length <= 0) return -1;
-  newline = buf + length;
-  NS_ASSERTION(newline[-1] == '\r' || newline[-1] == '\n',
-               "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
-  if (newline[-1] != '\r' && newline[-1] != '\n') return -1;
-
-  if (!convert_newlines_p) {
+  /* mime_LineBuffer() only sends lines ending in LF or CRLF. Convert the line
+     terminator to the native form. */
+  NS_ASSERTION(
+      buf && length > 0 && length <= size - 2 && buf[length - 1] == '\n',
+      "line should end in LF and leave room to grow");
+  if (!buf || length <= 0 || length > size - 2 || buf[length - 1] != '\n') {
+    return -1;
   }
+
+  if (convert_newlines_p) {
 #if (MSG_LINEBREAK_LEN == 1)
-  else if ((newline - buf) >= 2 && newline[-2] == '\r' && newline[-1] == '\n') {
-    /* CRLF -> CR or LF */
-    buf[length - 2] = MSG_LINEBREAK[0];
-    length--;
-  } else if (newline > buf + 1 && newline[-1] != MSG_LINEBREAK[0]) {
-    /* CR -> LF or LF -> CR */
-    buf[length - 1] = MSG_LINEBREAK[0];
-  }
+    if (length >= 2 && buf[length - 2] == '\r') {
+      /* CRLF -> LF */
+      buf[length - 2] = MSG_LINEBREAK[0];
+      length--;
+    }
 #else
-  else if (((newline - buf) >= 2 && newline[-2] != '\r') ||
-           ((newline - buf) >= 1 && newline[-1] != '\n')) {
-    /* LF -> CRLF or CR -> CRLF */
-    length++;
-    buf[length - 2] = MSG_LINEBREAK[0];
-    buf[length - 1] = MSG_LINEBREAK[1];
-  }
+    if (length >= 2 && buf[length - 2] != '\r') {
+      /* LF -> CRLF */
+      buf[length - 1] = MSG_LINEBREAK[0];
+      buf[length] = MSG_LINEBREAK[1];
+      length++;
+    }
 #endif
+  }
 
   /* The conversion above moves the end of the line, so the NUL that
      mime_LineBuffer() placed at the old end is now either stale data inside
      the line or gone entirely. Re-terminate, so that a per_line_fn scanning
-     forward from `buf` cannot walk past `buf + length`. mime_LineBuffer()
-     reserves the extra byte this needs. */
+     forward from `buf` cannot walk past `buf + length`. */
   buf[length] = '\0';
 
   return (*per_line_fn)(buf, length, closure);
@@ -117,42 +102,16 @@ extern "C" int mime_LineBuffer(const char* net_buffer, int32_t net_buffer_size,
                                                       MimeObject* closure),
                                MimeObject* closure) {
   int status = 0;
-  if (*buffer_fpP > 0 && *bufferP && (*buffer_fpP < *buffer_sizeP) &&
-      (*bufferP)[*buffer_fpP - 1] == '\r' && net_buffer_size > 0 &&
-      net_buffer[0] != '\n') {
-    /* The last buffer ended with a CR.  The new buffer does not start
-       with a LF.  This old buffer should be shipped out and discarded. */
-    if (*buffer_sizeP <= *buffer_fpP) return -1;
-    status = convert_and_send_buffer(*bufferP, *buffer_fpP, convert_newlines_p,
-                                     per_line_fn, closure);
-    if (status < 0) return status;
-    *buffer_fpP = 0;
-  }
   while (net_buffer_size > 0) {
     const char* net_buffer_end = net_buffer + net_buffer_size;
     const char* newline = 0;
     const char* s;
 
+    /* A line ends at LF, which also covers CRLF. A bare CR is not a line
+       break (RFC 5322 section 2.2), so a header can't be split by one. */
     for (s = net_buffer; s < net_buffer_end; s++) {
-      /* Move forward in the buffer until the first newline.
-       Stop when we see CRLF, CR, or LF, or the end of the buffer.
-       *But*, if we see a lone CR at the *very end* of the buffer,
-       treat this as if we had reached the end of the buffer without
-       seeing a line terminator.  This is to catch the case of the
-       buffers splitting a CRLF pair, as in "FOO\r\nBAR\r" "\nBAZ\r\n".
-       */
-      if (*s == '\r' || *s == '\n') {
-        newline = s;
-        if (newline[0] == '\r') {
-          if (s == net_buffer_end - 1) {
-            /* CR at end - wait for the next character. */
-            newline = 0;
-            break;
-          } else if (newline[1] == '\n')
-            /* CRLF seen; swallow both. */
-            newline++;
-        }
-        newline++;
+      if (*s == '\n') {
+        newline = s + 1;
         break;
       }
     }
@@ -186,8 +145,8 @@ extern "C" int mime_LineBuffer(const char* net_buffer, int32_t net_buffer_size,
      */
     if (!newline) return 0;
 
-    status = convert_and_send_buffer(*bufferP, *buffer_fpP, convert_newlines_p,
-                                     per_line_fn, closure);
+    status = convert_and_send_buffer(*bufferP, *buffer_fpP, *buffer_sizeP,
+                                     convert_newlines_p, per_line_fn, closure);
     if (status < 0) return status;
 
     net_buffer_size -= (newline - net_buffer);

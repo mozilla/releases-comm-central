@@ -88,7 +88,8 @@ int MimeHeaders_parse_line(const char* buffer, int32_t size,
   NS_ASSERTION(!hdrs->done_p, "1.22 <rhp@netscape.com> 22 Aug 1999 08:48");
   if (hdrs->done_p) return -1;
 
-  if (!buffer || size == 0 || *buffer == '\r' || *buffer == '\n') {
+  if (!buffer || size == 0 || *buffer == '\n' ||
+      (*buffer == '\r' && size >= 2 && buffer[1] == '\n')) {
     /* If this is a blank line, we're done.
      */
     hdrs->done_p = true;
@@ -241,6 +242,15 @@ int MimeHeaders_build_heads_list(MimeHeaders* hdrs) {
     {
       hdrs->all_headers = ls; /* in case it got relocated */
       hdrs->all_headers_size = hdrs->all_headers_fp;
+    }
+  }
+
+  // A bare CR is not a line break in a header (RFC 5322 section 2.2), so make
+  // it a space before it can be taken as one.
+  for (int32_t i = 0; i < hdrs->all_headers_fp; i++) {
+    if (hdrs->all_headers[i] == '\r' &&
+        (i + 1 == hdrs->all_headers_fp || hdrs->all_headers[i + 1] != '\n')) {
+      hdrs->all_headers[i] = ' ';
     }
   }
 

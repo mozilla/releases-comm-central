@@ -315,7 +315,7 @@ static int MimeHandleDecryptedOutputLine(const char* line, int32_t length,
   /* If this line is blank, we're now done parsing headers, and should
    examine our content-type to create our "body" part.
    */
-  if (*line == '\r' || *line == '\n') {
+  if (enc->hdrs->done_p) {
     status = MimeEncrypted_close_headers(obj);
     if (status < 0) return status;
   }

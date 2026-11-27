@@ -246,7 +246,7 @@ static int MimeMultipart_parse_line(const char* line, int32_t length,
         // If this line is blank, we're now done parsing headers, and should
         // now examine the content-type to create this "body" part.
         //
-        if (*line == '\r' || *line == '\n') {
+        if (mult->hdrs->done_p) {
           if (obj->options && obj->options->state &&
               obj->options->state->strippingPart) {
             stripping = true;

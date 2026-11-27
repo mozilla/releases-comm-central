@@ -154,11 +154,15 @@ static int MimeMessage_parse_line(const char* aLine, int32_t aLength,
         obj->headers->munged_subject = (char*)PL_strndup(line + 9, length - 9);
         char* tPtr = obj->headers->munged_subject;
         while (*tPtr) {
-          if ((*tPtr == '\r') || (*tPtr == '\n')) {
+          if (*tPtr == '\n' || (*tPtr == '\r' && tPtr[1] == '\n')) {
             *tPtr = '\0';
             break;
           }
+          if (*tPtr == '\r') *tPtr = ' ';
           tPtr++;
+        }
+        while (tPtr > obj->headers->munged_subject && tPtr[-1] == ' ') {
+          *--tPtr = '\0';
         }
       }
     }
@@ -247,7 +251,7 @@ static int MimeMessage_parse_line(const char* aLine, int32_t aLength,
   /* If this line is blank, we're now done parsing headers, and should
    examine our content-type to create our "body" part.
    */
-  if (*line == '\r' || *line == '\n') {
+  if (msg->hdrs->done_p) {
     status = MimeMessage_close_headers(obj);
     if (status < 0) return status;
   }
