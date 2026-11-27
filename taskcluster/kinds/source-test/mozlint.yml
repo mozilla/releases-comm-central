@@ -21,6 +21,7 @@ task-defaults:
               path: /builds/worker/mozlint.json
         env:
             MOZLINT_NO_SUITE: '1'
+            MOZLINT_WARNINGS: soft
     run:
         using: mach
         comm-checkout: true
