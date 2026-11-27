@@ -23,6 +23,13 @@ interface nsIMsgParseMailMsgState : nsISupports {
     void SetBackupMailDB(in nsIMsgDatabase aDatabase);
     void Clear();
 
+    /**
+     * Feed one line of the message to the parser.
+     *
+     * @param line - A whole line, including its CRLF or LF. Only the last line
+     *   of the message may lack one.
+     * @param lineLength - The length of line in bytes.
+     */
     void ParseAFolderLine(in string line, in unsigned long lineLength);
     /// db header for message we're currently parsing
     attribute nsIMsgDBHdr newMsgHdr;

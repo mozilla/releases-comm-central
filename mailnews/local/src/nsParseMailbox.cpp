@@ -235,7 +235,9 @@ nsresult nsParseMailMessageState::ParseFolderLine(const char* line,
       mozilla::MakeScopeExit([&] { m_position += lineLength; });
 
   if (m_state == nsIMsgParseMailMsgState::ParseHeadersState) {
-    if (EMPTY_MESSAGE_LINE(line)) {
+    // A bare CR at the start of a line doesn't make it blank.
+    if (lineLength == 0 || line[0] == '\0' || line[0] == '\n' ||
+        (line[0] == '\r' && lineLength >= 2 && line[1] == '\n')) {
       /* End of headers.  Now parse them. */
       nsresult rv = ParseHeaders();
       NS_ASSERTION(NS_SUCCEEDED(rv), "error parsing headers parsing mailbox");
@@ -458,25 +460,28 @@ nsresult nsParseMailMessageState::ParseHeaders() {
     char* bufWrite = buf;
 
   SEARCH_NEWLINE:
-    // move past any non terminating characters, rewriting them if folding white
-    // space exists
-    while (buf < buf_end && *buf != '\r' && *buf != '\n') {
-      if (buf != bufWrite) *bufWrite = *buf;
+    // Move past any non terminating characters, rewriting them if folding white
+    // space exists. A line ends at CRLF or LF only. A bare CR is not allowed in
+    // a field body (RFC 5322 section 2.2), so turn it into a space rather than
+    // letting it start a header that other software doesn't see.
+    while (buf < buf_end && *buf != '\n' &&
+           !(*buf == '\r' && (buf + 1 == buf_end || buf[1] == '\n'))) {
+      *bufWrite = *buf == '\r' ? ' ' : *buf;
       buf++;
       bufWrite++;
     }
 
-    // Look for folding, so CRLF, CR or LF followed by space or tab.
+    // Look for folding, so CRLF or LF followed by space or tab.
     if ((buf + 2 < buf_end && (buf[0] == '\r' && buf[1] == '\n') &&
          (buf[2] == ' ' || buf[2] == '\t')) ||
-        (buf + 1 < buf_end && (buf[0] == '\r' || buf[0] == '\n') &&
+        (buf + 1 < buf_end && buf[0] == '\n' &&
          (buf[1] == ' ' || buf[1] == '\t'))) {
       // Remove trailing spaces at the "write position" and add a single
       // folding space.
       while (*(bufWrite - 1) == ' ' || *(bufWrite - 1) == '\t') bufWrite--;
       *(bufWrite++) = ' ';
 
-      // Skip CRLF, CR+space or LF+space ...
+      // Skip CRLF or LF+space ...
       buf += 2;
 
       // ... and skip leading spaces in that line.
