@@ -493,21 +493,9 @@ define(function (require) {
           mpart_complex1
         ),
         make_body_test(
-          "CR-based messages",
-          "multipart-complex1",
-          { _eol: "\r" },
-          mpart_complex1
-        ),
-        make_body_test(
           "LF-based pathological splitting",
           "multipart-complex1",
           { _eol: "\n", _split: "" },
-          mpart_complex1
-        ),
-        make_body_test(
-          "CR-based pathological splitting",
-          "multipart-complex1",
-          { _eol: "\r", _split: "" },
           mpart_complex1
         ),
       ];

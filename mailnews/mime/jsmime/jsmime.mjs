@@ -1779,8 +1779,9 @@ const JsMIMEmimeparser = function () {
   function StructuredHeaders(rawHeaderText, options) {
     // An individual header is terminated by a CRLF, except if the CRLF is
     // followed by a SP or TAB. Use negative lookahead to capture the latter case,
-    // and don't capture the strings or else split results get nasty.
-    const values = rawHeaderText.split(/(?:\r\n|\n)(?![ \t])|\r(?![ \t\n])/);
+    // and don't capture the strings or else split results get nasty. A bare CR
+    // is not a line break (RFC 5322 section 2.2).
+    const values = rawHeaderText.split(/\r?\n(?![ \t])/);
 
     // Ignore the first "header" if it begins with an mbox delimiter
     if (values.length > 0 && values[0].substring(0, 5) == "From ") {
@@ -1797,18 +1798,19 @@ const JsMIMEmimeparser = function () {
 
     const headers = new Map();
     for (let i = 0; i < values.length; i++) {
+      const line = values[i].replace(/\r(?!\n)/g, " ");
       // Look for a colon. If it's not present, this header line is malformed,
       // perhaps by premature EOF or similar.
-      const colon = values[i].indexOf(":");
+      const colon = line.indexOf(":");
       let header, val;
       if (colon >= 0) {
-        header = values[i].substring(0, colon);
-        val = values[i].substring(colon + 1).trim();
+        header = line.substring(0, colon);
+        val = line.substring(colon + 1).trim();
         if (options.stripcontinuations) {
           val = val.replace(/[\r\n]/g, "");
         }
       } else {
-        header = values[i];
+        header = line;
         val = "";
       }
 
@@ -2188,21 +2190,16 @@ const JsMIMEmimeparser = function () {
     // at once. To ensure this, we start by conditioning the packet by
     // withholding data to make sure that the internal deliveries have the
     // guarantees. This implies that we need to do the following steps:
-    // 1. We don't know if a `\r' comes from `\r\n' or the old mac line ending
-    // until we see the next character. So withhold the last `\r'.
-    // 2. Ensure that every packet ends on a newline. So scan for the end of the
-    // line and withhold until the \r\n comes through.
-    // [Note that this means that an input message that uses \r line endings and
-    // is being passed to us via a line-buffered input is going to have most of
-    // its data being withhold until the next buffer. Since \r is so uncommon of
-    // a line ending in modern times, this is acceptable lossage.]
-    // 3. Eliminate empty packets.
+    // 1. Ensure that every packet ends on a newline. So scan for the end of the
+    // line and withhold until the \n comes through. A bare \r is not a line
+    // ending (RFC 5322 section 2.2).
+    // 2. Eliminate empty packets.
 
-    // Add in previously saved data. That has no line break, except possibly
-    // a final \r, so if the new data has none either, there's nothing to
-    // deliver yet. Don't search the saved data again then.
+    // Add in previously saved data. That has no line break, so if the new data
+    // has none either, there's nothing to deliver yet. Don't search the saved
+    // data again then.
     if (this._holdData) {
-      if (!this._holdData.endsWith("\r") && !/[\r\n]/.test(buffer)) {
+      if (!buffer.includes("\n")) {
         this._holdData += buffer;
         return;
       }
@@ -2240,13 +2237,7 @@ const JsMIMEmimeparser = function () {
    *   following the first string.
    */
   function conditionToEndOnCRLF(buffer) {
-    // Find the last occurrence of '\r' or '\n' to split the string. However, we
-    // don't want to consider '\r' if it is the very last character, as we need
-    // the next packet to tell if the '\r' is the beginning of a CRLF or a line
-    // ending by itself.
-    const lastCR = buffer.lastIndexOf("\r", buffer.length - 2);
-    const lastLF = buffer.lastIndexOf("\n");
-    const end = lastLF > lastCR ? lastLF : lastCR;
+    const end = buffer.lastIndexOf("\n");
     return [buffer.substring(0, end + 1), buffer.substring(end + 1)];
   }
 
@@ -2392,7 +2383,7 @@ const JsMIMEmimeparser = function () {
     if (this._state == PARSING_HEADERS) {
       // The previous data had no end of headers, so only search from where one
       // could start: at most 3 characters before the new data.
-      const endOfHeadersRe = /(?:^(?:\r\n|[\r\n]))|(\r\n|[\r\n])\1/g;
+      const endOfHeadersRe = /^\r?\n|(\r?\n)\1/g;
       endOfHeadersRe.lastIndex = Math.max(0, this._headerData.length - 3);
       this._headerData += buffer;
       // Find the end of the headers--either it's a CRLF at the beginning (in
@@ -2648,9 +2639,9 @@ const JsMIMEmimeparser = function () {
       // distinguishing the parts, they are not included in the subparts, so we
       // need to capture them in the regex as well to prevent them leaking out.
       this._splitRegex = new RegExp(
-        "(\r\n|[\r\n]|^)--" +
+        "(\r?\n|^)--" +
           contentType.get("boundary").replace(/[\\^$*+?.()|{}[\]]/g, "\\$&") +
-          "(--)?[ \t]*(?:\r\n|[\r\n]|$)"
+          "(--)?[ \t]*(?:\r?\n|$)"
       );
       this._handleSplit = this._whenMultipart;
       this._subparser = new MimeParser(this._emitter, this._options);
@@ -2673,11 +2664,9 @@ const JsMIMEmimeparser = function () {
       // how we do this, even though we're not really converting any data.
       this._convertData = function (buffer, more) {
         let splitPoint = buffer.length;
-        if (more) {
-          if (buffer.charAt(splitPoint - 1) == "\n") {
-            splitPoint--;
-          }
-          if (splitPoint >= 0 && buffer.charAt(splitPoint - 1) == "\r") {
+        if (more && buffer.charAt(splitPoint - 1) == "\n") {
+          splitPoint--;
+          if (buffer.charAt(splitPoint - 1) == "\r") {
             splitPoint--;
           }
         }
@@ -2778,9 +2767,9 @@ const JsMIMEmimeparser = function () {
         let useEnd = this._savedBuffer.length - 1;
         if (this._savedBuffer[useEnd] == "\n") {
           useEnd--;
-        }
-        if (useEnd >= 0 && this._savedBuffer[useEnd] == "\r") {
-          useEnd--;
+          if (useEnd >= 0 && this._savedBuffer[useEnd] == "\r") {
+            useEnd--;
+          }
         }
         this._savedBuffer = this._savedBuffer.substring(0, useEnd + 1);
       }
