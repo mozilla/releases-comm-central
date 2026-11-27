@@ -288,6 +288,9 @@ pref("extensions.webextOptionalPermissionPrompts", true);
 // This does not work for S/MIME. See bug 1726442.
 pref("security.osclientcerts.autoload", false);
 
+// We should reenable CRLite when we're ready, see bug 2096679.
+pref("security.pki.crlite_mode", 0);
+
 // Refer to Firefox file browser/app/profile/firefox.js
 // for meaning of the security.sandbox.content prefs.
 #if defined(XP_WIN) && defined(MOZ_SANDBOX)
