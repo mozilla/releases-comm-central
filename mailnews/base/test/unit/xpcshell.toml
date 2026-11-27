@@ -170,6 +170,9 @@ tags = ["oauth"]
 ["test_oAuth2Providers.js"]
 tags = ["oauth"]
 
+["test_ocspRevocation.js"]
+tags = ["smime"]
+
 ["test_postPluginFilters.js"]
 
 ["test_recursiveDeleteVirtualFolder.js"]
