@@ -45,3 +45,5 @@ support-files = ["../../../components/compose/test/browser/data/attachment.pdf"]
 ["browser_pluginsPolicy.js"]
 
 ["browser_senderDomain.js"]
+
+["browser_svgResourcePolicy.js"]

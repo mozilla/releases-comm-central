@@ -19,6 +19,7 @@
 #include "nsMsgUtils.h"
 #include "nsThreadUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/dom/Document.h"
 #include "mozilla/dom/HTMLImageElement.h"
 #include "nsILoadInfo.h"
 #include "nsSandboxFlags.h"
@@ -346,6 +347,22 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   NS_ENSURE_SUCCESS(rv, NS_OK);
 
   if (!targetContext) {
+    // External resource documents, like an SVG referenced by a CSS filter,
+    // have no browsing context of their own. Use their display document's.
+    nsINode* loadingNode = aLoadInfo->LoadingNode();
+    if (dom::Document* displayDocument =
+            loadingNode ? loadingNode->OwnerDoc()->GetDisplayDocument()
+                        : nullptr) {
+      targetContext = displayDocument->GetBrowsingContext();
+    }
+  }
+
+  if (!targetContext) {
+    nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
+        do_QueryInterface(aRequestingLocation);
+    if (mailnewsUrl) {
+      return NS_OK;
+    }
     return acceptContent();
   }
 
