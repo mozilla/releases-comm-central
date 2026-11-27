@@ -1133,7 +1133,6 @@ add_task(async function test_deleteReminder() {
   const dialog = document.getElementById("calendarDialog");
   const eventId = dialog.getAttribute("event-id");
   const remindersRow = dialog.querySelector("calendar-dialog-reminders-row");
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", remindersRow);
 
   // Check the reminders are ordered correctly.
   const remindersList = remindersRow.querySelector("#reminderList");
@@ -1189,7 +1188,6 @@ add_task(async function test_deleteReminder() {
   // listed.
   dialog.close();
   const eventBox = await openAndShowEvent();
-  await BrowserTestUtils.waitForAttributeRemoval("hidden", remindersRow);
 
   firstReminder = remindersList.childNodes[0];
   Assert.equal(
@@ -1201,6 +1199,89 @@ add_task(async function test_deleteReminder() {
     remindersList.childNodes.length,
     1,
     "There should be the correct number of reminder elements"
+  );
+
+  await cleanUp(dialog, eventBox);
+});
+
+add_task(async function test_addReminder() {
+  const sixDayReminder = createAlarmFromDuration("-P6D");
+  const alarms = [sixDayReminder];
+  await createEvent({ calendar, alarms });
+  await openAndShowEvent();
+
+  const dialog = document.getElementById("calendarDialog");
+  const eventId = dialog.getAttribute("event-id");
+  const remindersRow = dialog.querySelector("calendar-dialog-reminders-row");
+  const remindersList = remindersRow.querySelector("#reminderList");
+
+  EventUtils.synthesizeMouseAtCenter(
+    remindersRow.querySelector("#addReminder"),
+    {}
+  );
+  await BrowserTestUtils.waitForAttributeRemoval(
+    "hidden",
+    remindersRow.querySelector(".create-reminder-form")
+  );
+
+  const duration = remindersRow.querySelector(
+    ".create-reminder-form select"
+  ).value;
+  Assert.greaterOrEqual(
+    parseInt(duration),
+    0,
+    "Should have a positive number value selected"
+  );
+  const expectedReminder = createAlarmFromDuration(`-PT${duration}M`);
+
+  // Clicking submit should request creation of a new reminder.
+  const updateRemindersPromise = BrowserTestUtils.waitForEvent(
+    remindersRow,
+    "new-reminder"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    remindersRow.querySelector('.create-reminder-form button[type="submit"]'),
+    {}
+  );
+  await updateRemindersPromise;
+
+  await BrowserTestUtils.waitForMutationCondition(
+    remindersList,
+    {
+      childList: true,
+      subtree: true,
+    },
+    () => remindersList.childNodes.length == 2,
+    "Reminders list should update after reminder creation"
+  );
+
+  Assert.deepEqual(
+    Array.from(remindersList.childNodes, node => node.textContent),
+    [sixDayReminder.toString(), expectedReminder.toString()],
+    "Should display the reminders in add order"
+  );
+
+  const updatedEvent = await calendar.getItem(eventId);
+  Assert.equal(
+    updatedEvent.getAlarms().length,
+    2,
+    "Should have two reminders on the event"
+  );
+
+  // Close the dialog and reopen it to confirm the correct reminder is
+  // listed.
+  dialog.close();
+  const eventBox = await openAndShowEvent();
+
+  Assert.equal(
+    remindersList.childNodes.length,
+    2,
+    "There should be the correct number of reminder elements"
+  );
+  Assert.deepEqual(
+    Array.from(remindersList.childNodes, node => node.textContent),
+    [expectedReminder.toString(), sixDayReminder.toString()],
+    "Should sort reminders in time order when reopening"
   );
 
   await cleanUp(dialog, eventBox);

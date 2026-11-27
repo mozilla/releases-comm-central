@@ -39,6 +39,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   openLinkExternally: "resource:///modules/LinkHelper.sys.mjs",
   getAttachmentIcon:
     "moz-src:///comm/mail/components/calendar/modules/CalendarAttachmentUtils.sys.mjs",
+  CalAlarm: "resource:///modules/CalAlarm.sys.mjs",
 });
 
 /**
@@ -151,6 +152,7 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
       this.addEventListener("cancel", this);
 
       this.addEventListener("update-reminders", this);
+      this.addEventListener("new-reminder", this);
 
       this.container = document.getElementById("calendarDisplayBox");
       this.#title = this.querySelector(".calendar-dialog-title");
@@ -271,6 +273,9 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
         break;
       case "update-reminders":
         this.#updateReminders(event.detail.reminders);
+        break;
+      case "new-reminder":
+        this.#addReminder(event.detail.minutesBefore);
         break;
     }
   }
@@ -837,6 +842,48 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
         this.#reminders
       );
     }
+  }
+
+  /**
+   * Add a new reminder to this event. Updates the displayed state after
+   * modifying the event.
+   *
+   * @param {number} minutesBefore - Minutes before the event that the reminder
+   *   should happen.
+   */
+  async #addReminder(minutesBefore) {
+    const alarm = new lazy.CalAlarm();
+    const alarmOffset = cal.createDuration();
+    alarmOffset.minutes = minutesBefore;
+    alarmOffset.normalize();
+    alarmOffset.isNegative = true;
+    alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
+    alarm.offset = alarmOffset;
+    const actionValues = this.#event.calendar?.getProperty(
+      "capabilities.alarms.actionValues"
+    ) || ["DISPLAY"];
+    alarm.action = actionValues.includes("DISPLAY")
+      ? "DISPLAY"
+      : actionValues[0];
+    const newEvent = this.#event.clone();
+    newEvent.addAlarm(alarm);
+    try {
+      if (
+        !(await this.#applyNewEvent(newEvent)) ||
+        this.#event?.hashId != newEvent.hashId
+      ) {
+        // The event that's being displayed has changed during the transaction.
+        return;
+      }
+    } catch {
+      // Okay, save failed. Optimally we wouldn't have closed the form yet, but
+      // alas.
+      return;
+    }
+    this.#reminders.push(alarm);
+    this.querySelector("calendar-dialog-reminders-row").setReminders(
+      this.#reminders
+    );
   }
 }
 

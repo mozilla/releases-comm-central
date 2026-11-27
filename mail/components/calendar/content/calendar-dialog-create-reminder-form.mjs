@@ -11,8 +11,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
 //TODO should this only offer reminder times that aren't already used in the
 // event?
 //TODO possibly initialize to some sane value every time the form is shown.
-//TODO observe the preferences for the default reminder and update when they
-// change.
+//TODO bug 2066481: observe the preferences for the default reminder and update
+// when they change.
 
 const MINUTES_PER_DAY = 1440;
 const MINUTES_PER_HOUR = 60;
