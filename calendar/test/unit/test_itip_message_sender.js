@@ -413,3 +413,37 @@ add_task(async function testEventDeleted() {
     "current user's participation status should be 'DECLINED'"
   );
 });
+
+add_task(async function testNoMessagesForEncryptedInvitation() {
+  const item = createIncomingEvent(eventOrganizerEmail, identityEmail);
+  item.setProperty("X-MOZ-RECEIVED-ENCRYPTED", "TRUE");
+  const savedItem = await calendar.addItem(item);
+  const attendeeId = cal.email.prependMailTo(identityEmail);
+  const transport = {
+    sentCount: 0,
+    sendItems() {
+      this.sentCount++;
+      return true;
+    },
+  };
+
+  const targetItem = savedItem.clone();
+  const currentUserAsAttendee = targetItem.getAttendeeById(attendeeId);
+  currentUserAsAttendee.participationStatus = "DECLINED";
+  const modifiedItem = await calendar.modifyItem(targetItem, savedItem);
+
+  const sender = new CalItipMessageSender(savedItem, currentUserAsAttendee);
+  sender.buildOutgoingMessages(Ci.calIOperationListener.MODIFY, modifiedItem);
+  Assert.equal(sender.pendingMessageCount, 1, "there should be one pending REPLY");
+  Assert.ok(!sender.send(transport), "sending should be refused");
+  Assert.equal(transport.sentCount, 0, "nothing should be passed to the transport");
+
+  const unmarkedItem = modifiedItem.clone();
+  unmarkedItem.deleteProperty("X-MOZ-RECEIVED-ENCRYPTED");
+  const unencryptedSender = new CalItipMessageSender(savedItem, currentUserAsAttendee);
+  unencryptedSender.buildOutgoingMessages(Ci.calIOperationListener.MODIFY, unmarkedItem);
+  Assert.ok(unencryptedSender.send(transport), "sending should succeed without the marker");
+  Assert.equal(transport.sentCount, 1, "the REPLY should be passed to the transport");
+
+  await calendar.deleteItem(modifiedItem);
+});

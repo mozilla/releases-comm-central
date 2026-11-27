@@ -199,6 +199,50 @@ add_task(async function testDeclineWithoutResponse() {
 });
 
 /**
+ * Tests that no response is sent for an invitation from an encrypted message.
+ */
+add_task(async function testAcceptEncryptedInvitation() {
+  transport.reset();
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
+  const aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  const encryptedURIService = Cc["@mozilla.org/messenger/encrypted-msg-uris-service;1"].getService(
+    Ci.nsIEncryptedMsgURIsService
+  );
+  const msgURI = aboutMessage.gMessageURI;
+  encryptedURIService.rememberEncrypted(msgURI, true);
+  let event;
+  try {
+    const imipBar = aboutMessage.document.getElementById("imip-bar");
+    const loaded = BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+    aboutMessage.ReloadMessage();
+    await loaded;
+    await TestUtils.waitForCondition(() => !imipBar.collapsed, "imip-bar shown after reload");
+    await clickAction(win, "imipAcceptButton");
+
+    event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+    Assert.equal(
+      event.getProperty("X-MOZ-RECEIVED-ENCRYPTED"),
+      "TRUE",
+      "the stored event should be marked as received encrypted"
+    );
+    await doImipBarActionTest(
+      {
+        calendar,
+        transport,
+        identity,
+        partStat: "ACCEPTED",
+        noReply: true,
+      },
+      event
+    );
+  } finally {
+    encryptedURIService.forgetEncrypted(msgURI);
+  }
+  await calendar.deleteItem(event);
+  await BrowserTestUtils.closeWindow(win);
+});
+
+/**
  * Tests that the accept/decline buttons are still shown when the event is
  * already present in the calendar with a newer DTSTAMP (but the same SEQUENCE)
  * and the user's own participation status is still NEEDS-ACTION. This is the
