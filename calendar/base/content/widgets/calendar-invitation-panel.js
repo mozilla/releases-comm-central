@@ -314,7 +314,7 @@
                   command: () =>
                     this.dispatchEvent(
                       new CustomEvent("calendar-invitation-panel-action", {
-                        details: { type: "x-savecopy" },
+                        detail: { type: "x-savecopy" },
                         bubbles: true,
                         composed: true,
                       })

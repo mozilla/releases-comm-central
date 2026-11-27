@@ -35,6 +35,10 @@ export class CalItipOutgoingMessage {
    * @returns {boolean} - True, if the message could be sent
    */
   send(transport) {
+    if (this.item.getProperty("X-MOZ-RECEIVED-ENCRYPTED") == "TRUE") {
+      console.warn(`Not sending ${this.method} for an event received in an encrypted message.`);
+      return false;
+    }
     if (this.item.calendar && this.item.calendar.supportsScheduling) {
       const calendar = this.item.calendar.getSchedulingSupport();
       if (calendar.canNotify(this.method, this.item)) {

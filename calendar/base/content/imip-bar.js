@@ -4,6 +4,7 @@
 
 /* import-globals-from ../../../mail/base/content/msgHdrView.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
+/* global gEncryptedURIService */ // From mailCommon.js
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
@@ -97,6 +98,9 @@ var calImipBar = {
     // 4. msgHdrView.js gathers `itipItem` and `imipMethod` from the channel.
 
     cal.itip.initItemFromMsgData(itipItem, imipMethod, gMessage);
+    if (gEncryptedURIService.isEncrypted(gMessageURI)) {
+      cal.itip.markReceivedEncrypted(itipItem);
+    }
 
     if (Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
       window.dispatchEvent(new CustomEvent("onItipItemCreation", { detail: itipItem }));
@@ -378,18 +382,34 @@ var calImipBar = {
   },
 
   /**
-   * Executes an action triggered by an imip bar button
+   * Executes an action triggered by an imip bar button.
    *
-   * @param   {string}  aParticipantStatus  A partstat string as per RfC 5545
-   * @param   {string}  aResponse           Either 'AUTO', 'NONE' or 'USER',
-   *                                          see calItipItem interface
-   * @returns {boolean} true, if the action succeeded
+   * @param {"ACCEPTED"|"TENTATIVE"|"DECLINED"|"X-SHOWDETAILS"|"X-DECLINECOUNTER"|"X-RESCHEDULE"|"X-SAVECOPY"} [participantStatus]
+   *   A participation status as per RFC 5545, or one of the X- actions. If
+   *   not given, the received changes are applied without changing the
+   *   participation status.
+   * @param {"AUTO"|"NONE"|"USER"} [response] - Whether to send a response
+   *   without asking, not at all, or after asking the user. See calIItipItem.
+   * @returns {boolean} true if the action succeeded.
    */
-  executeAction(aParticipantStatus, aResponse) {
+  executeAction(participantStatus, response) {
+    // These actions only show or store the event, they don't send a response.
+    if (
+      !["X-SHOWDETAILS", "X-RESCHEDULE", "X-SAVECOPY"].includes(participantStatus) &&
+      gEncryptedURIService.isEncrypted(gMessageURI)
+    ) {
+      console.warn("Not sending a response to an encrypted invitation.");
+      // Declining a counterproposal does nothing but send a DECLINECOUNTER
+      // message, so there is nothing left to do.
+      if (participantStatus == "X-DECLINECOUNTER") {
+        return false;
+      }
+      response = "NONE";
+    }
     return cal.itip.executeAction(
       window,
-      aParticipantStatus,
-      aResponse,
+      participantStatus,
+      response,
       calImipBar.actionFunc,
       calImipBar.itipItem,
       calImipBar.foundItems,

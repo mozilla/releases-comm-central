@@ -265,6 +265,22 @@ export var itip = {
   /**
    * Scope: iTIP message receiver
    *
+   * Marks the items of an iTIP item as received in an encrypted message.
+   *
+   * @param {calIItipItem} itipItem
+   */
+  markReceivedEncrypted(itipItem) {
+    for (const item of itipItem.getItemList()) {
+      const { stampTime, lastModifiedTime } = item;
+      item.setProperty("X-MOZ-RECEIVED-ENCRYPTED", "TRUE");
+      item.setProperty("DTSTAMP", stampTime);
+      item.setProperty("LAST-MODIFIED", lastModifiedTime);
+    }
+  },
+
+  /**
+   * Scope: iTIP message receiver
+   *
    * Given an nsIMsgDBHdr and an imipMethod, set up the given itip item.
    *
    * @param {calIItemBase} itipItem - The item to set up
@@ -1610,6 +1626,9 @@ function updateItem(item, itipItemItem) {
 
   const newItem = item.clone();
   newItem.icalComponent = itipItemItem.icalComponent;
+  if (item.getProperty("X-MOZ-RECEIVED-ENCRYPTED") == "TRUE") {
+    newItem.setProperty("X-MOZ-RECEIVED-ENCRYPTED", "TRUE");
+  }
   setReceivedInfo(newItem, itipItemItem);
   updateUserData(newItem, item);
 
