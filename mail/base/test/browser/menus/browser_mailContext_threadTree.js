@@ -33,6 +33,11 @@ add_setup(async function () {
   });
 
   const generator = new MessageGenerator();
+  // Gloda keeps records of deleted messages, and a new message with the same
+  // Message-ID joins the old record's conversation. Avoid the IDs used by
+  // other tests so the thread ends up as a single conversation.
+  let nextId = 0;
+  generator.makeMessageId = () => `${nextId++}@mailContext.threadTree.invalid`;
 
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
