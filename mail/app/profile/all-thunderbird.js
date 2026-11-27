@@ -484,6 +484,7 @@ pref("offline.autoDetect", true);
 
 // Disable preconnect and friends due to privacy concerns. They are not
 // sent through content policies.
+pref("network.preconnect", false);
 pref("network.http.speculative-parallel-limit", 0);
 
 pref("network.proxy.share_proxy_settings", false); // use the same proxy settings for all protocols
