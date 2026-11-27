@@ -33,6 +33,70 @@ function run_test() {
   test_recurring_todo_properties();
   test_recurring_event_exception_properties();
   test_recurring_todo_exception_properties();
+  test_scalar_ical_text_property();
+  test_scalar_ical_date_property();
+  test_clear_repeated_ical_property_value_type();
+}
+
+function test_scalar_ical_text_property() {
+  const event = new CalEvent();
+  const value = "A\\nB\\,C\\;D";
+
+  event.setProperty("X-DETAIL", value);
+  event.setPropertyParameter("X-DETAIL", "VALUE", "text");
+
+  const [property] = event.getIcalProperties("X-DETAIL");
+
+  Assert.strictEqual(property.value, value, "The copied text should keep its literal backslashes");
+  Assert.strictEqual(property.getParameter("VALUE"), "TEXT", "The copied property should be text");
+}
+
+function test_scalar_ical_date_property() {
+  const event = new CalEvent(CalendarTestUtils.dedent`
+    BEGIN:VEVENT
+    UID:scalar-ical-date
+    DTSTART:20250101T000000Z
+    X-DETAIL;VALUE=DATE;LABEL=Deadline:20250101
+    END:VEVENT
+  `);
+
+  const [property] = event.getIcalProperties("X-DETAIL");
+
+  Assert.strictEqual(property.value, "20250101", "The copied property should keep the date");
+  Assert.strictEqual(property.getParameter("VALUE"), "DATE", "The copy should keep its date type");
+
+  Assert.strictEqual(
+    property.getParameter("LABEL"),
+    "Deadline",
+    "The copied property should keep its label"
+  );
+}
+
+function test_clear_repeated_ical_property_value_type() {
+  const event = new CalEvent(CalendarTestUtils.dedent`
+    BEGIN:VEVENT
+    UID:repeated-ical-value-type
+    DTSTART:20250101T000000Z
+    X-DETAIL;VALUE=TEXT:first
+    X-DETAIL;VALUE=BOOLEAN:FALSE
+    END:VEVENT
+  `);
+
+  event.setPropertyParameter("X-DETAIL", "VALUE", "");
+
+  const properties = event.getIcalProperties("X-DETAIL");
+
+  Assert.deepEqual(
+    properties.map(property => property.icalString),
+    ["X-DETAIL;VALUE=TEXT:first\r\n", "X-DETAIL:FALSE\r\n"],
+    "Clearing VALUE should remove the type from the last entry and keep both values"
+  );
+
+  Assert.strictEqual(
+    event.getPropertyParameter("X-DETAIL", "VALUE"),
+    null,
+    "The scalar getter should report that VALUE is absent"
+  );
 }
 
 function test_aclmanager() {

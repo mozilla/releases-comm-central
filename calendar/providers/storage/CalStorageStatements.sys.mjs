@@ -471,7 +471,7 @@ export class CalStorageStatements {
             AND recurrence_id_tz = :recurrence_id_tz`
     );
     this.mSelectAllProperties = db.createAsyncStatement(
-      `SELECT item_id, key, value FROM cal_properties
+      `SELECT item_id, key, value, icalStringList FROM cal_properties
           WHERE cal_id = :cal_id
             AND recurrence_id IS NULL`
     );
@@ -601,8 +601,9 @@ export class CalStorageStatements {
                  :recurrence_id, :recurrence_id_tz, :alarm_last_ack)`
     );
     this.mInsertProperty = db.createAsyncStatement(
-      `INSERT INTO cal_properties (cal_id, item_id, recurrence_id, recurrence_id_tz, key, value)
-         VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key, :value)`
+      `INSERT INTO cal_properties
+           (cal_id, item_id, recurrence_id, recurrence_id_tz, key, value, icalStringList)
+         VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key, :value, :icalStringList)`
     );
     this.mInsertParameter = db.createAsyncStatement(
       `INSERT INTO cal_parameters (cal_id, item_id, recurrence_id, recurrence_id_tz, key1, key2, value)

@@ -14,6 +14,7 @@ interface calICalendar;
 interface calIDateTime;
 interface calIDuration;
 interface calIIcalComponent;
+interface calIIcalProperty;
 interface calIRecurrenceInfo;
 interface calIRelation;
 
@@ -227,6 +228,21 @@ interface calIItemBase : nsISupports
 
   // will not throw an error if you delete a property that doesn't exist
   void deleteProperty(in AString name);
+
+  /**
+   * Returns independent copies of the specified unpromoted iCalendar property.
+   * Returns an empty array if the property is absent, has a dedicated API, or is DURATION.
+   */
+  Array<calIIcalProperty> getIcalProperties(in AString name);
+
+  /**
+   * Replaces the named unpromoted iCalendar property with copies of aProperties.
+   * Pass an empty array to delete the property, including on an occurrence.
+   * Throws if the name has a dedicated API, is DURATION, or differs from an entry's name.
+   * The single-value getters read the last entry and its parameters.
+   * The single-value setter replaces the list with one value.
+   */
+  void setIcalProperties(in AString name, in Array<calIIcalProperty> aProperties);
 
   // returns true if the given property is promoted to some
   // top-level attribute (e.g. id or title)

@@ -81,6 +81,9 @@ export function calItemBase() {
 calItemBase.prototype = {
   mProperties: null,
   mPropertyParams: null,
+  // Complete iCalendar lines in order, grouped by property name.
+  // mProperties and mPropertyParams keep the last entry for single-value callers.
+  mIcalPropertyLists: null,
 
   mIsProxy: false,
   mHashId: null,
@@ -109,6 +112,7 @@ calItemBase.prototype = {
     this.wrappedJSObject = this;
     this.mProperties = new Map();
     this.mPropertyParams = {};
+    this.mIcalPropertyLists = new Map();
     this.setProperty("CREATED", cal.dtz.jsDateToDateTime(new Date()));
   },
 
@@ -355,6 +359,8 @@ calItemBase.prototype = {
       cloned.mAttendees.push(att.clone());
     }
 
+    // The clone gets its own map and shares the frozen arrays of lines.
+    cloned.mIcalPropertyLists = new Map(this.mIcalPropertyLists);
     cloned.mProperties = new Map();
     for (let [name, value] of this.mProperties.entries()) {
       if (value instanceof lazy.CalDateTime || value instanceof Ci.calIDateTime) {
@@ -525,6 +531,8 @@ calItemBase.prototype = {
   setProperty(aName, aValue) {
     this.modify();
     aName = aName.toUpperCase();
+    this.mIcalPropertyLists.delete(aName);
+
     if (aValue || !isNaN(parseInt(aValue, 10))) {
       this.mProperties.set(aName, aValue);
       if (!(aName in this.mPropertyParams)) {
@@ -543,6 +551,8 @@ calItemBase.prototype = {
   deleteProperty(aName) {
     this.modify();
     aName = aName.toUpperCase();
+    this.mIcalPropertyLists.delete(aName);
+
     if (this.mIsProxy) {
       // deleting a proxy's property will mark the bag's item as null, so we could
       // distinguish it when enumerating/getting properties from the undefined ones.
@@ -551,6 +561,123 @@ calItemBase.prototype = {
       this.mProperties.delete(aName);
     }
     delete this.mPropertyParams[aName];
+  },
+
+  /**
+   * Returns the complete iCalendar lines for a property stored as a list.
+   * A generated occurrence inherits the series list until it sets or deletes
+   * the property. A null entry in mProperties records a deletion.
+   *
+   * @param {string} name - Uppercase property name.
+   * @returns {ReadonlyArray<string>|null} The lines, or null for a scalar or absent property.
+   */
+  getStoredIcalPropertyList(name) {
+    if (this.mIsProxy && !this.mProperties.has(name)) {
+      return this.mParentItem.getStoredIcalPropertyList(name);
+    }
+
+    return this.mIcalPropertyLists.get(name) ?? null;
+  },
+
+  /**
+   * Returns copies of the entries for an iCalendar property in order.
+   *
+   * A property stored as a single value has one entry. The caller can edit the
+   * copies before passing them to `setIcalProperties`.
+   *
+   * @param {string} name - The case-insensitive property name.
+   * @returns {calIIcalProperty[]} The entries, or an empty array if the property
+   *   is absent, uses a dedicated API, or is `DURATION`.
+   */
+  getIcalProperties(name) {
+    name = name.toUpperCase();
+    if (name == "DURATION" || this.isPropertyPromoted(name)) {
+      return [];
+    }
+
+    const lines = this.getStoredIcalPropertyList(name);
+    if (lines) {
+      return lines.map(line => cal.icsService.createIcalPropertyFromString(line, true));
+    }
+
+    const value = this.getProperty(name);
+    if (value == null) {
+      return [];
+    }
+
+    const valueType = this.getPropertyParameter(name, "VALUE");
+    const isText = valueType?.toLowerCase() == "text";
+    let property;
+
+    if (valueType) {
+      // The scalar API already decoded TEXT. Set its type before assigning the text.
+      const icalValue = isText ? "" : value;
+
+      property = cal.icsService.createIcalPropertyFromString(
+        `${name};VALUE=${valueType}:${icalValue}`,
+        true
+      );
+    } else {
+      property = cal.icsService.createIcalProperty(name);
+    }
+
+    if (!valueType || isText) {
+      property.value = value;
+    }
+
+    for (const paramName of this.getParameterNames(name)) {
+      if (paramName == "VALUE") {
+        continue;
+      }
+
+      property.setParameter(paramName, this.getPropertyParameter(name, paramName));
+    }
+
+    return [property];
+  },
+
+  /**
+   * Replaces the entries for an iCalendar property with copies in the given order.
+   *
+   * An empty array clears the property, including an inherited value on an
+   * occurrence. Single-value reads and parameter edits use the last entry.
+   *
+   * @param {string} name - The case-insensitive property name.
+   * @param {calIIcalProperty[]} properties - The entries to copy.
+   * @throws {nsIException} `NS_ERROR_INVALID_ARG` if the property uses a dedicated
+   *   API, is `DURATION`, or has an entry with a different name.
+   * @throws {nsIException} `NS_ERROR_OBJECT_IS_IMMUTABLE` if the item is immutable.
+   */
+  setIcalProperties(name, properties) {
+    name = name.toUpperCase();
+    if (name == "DURATION" || this.isPropertyPromoted(name)) {
+      throw Components.Exception("Use the dedicated property API", Cr.NS_ERROR_INVALID_ARG);
+    }
+
+    if (!properties.length) {
+      this.deleteProperty(name);
+      return;
+    }
+
+    const lines = properties.map(property => {
+      if (property.propertyName != name) {
+        throw Components.Exception("Property name does not match", Cr.NS_ERROR_INVALID_ARG);
+      }
+
+      return property.icalString;
+    });
+
+    // Keep the scalar value and its parameters together for existing callers.
+    const lastProperty = properties.at(-1);
+    const parameters = {};
+    for (const [paramName, paramValue] of cal.iterate.icalParameter(lastProperty)) {
+      parameters[paramName] = String(paramValue);
+    }
+
+    this.modify();
+    this.mProperties.set(name, lastProperty.value);
+    this.mPropertyParams[name] = parameters;
+    this.mIcalPropertyLists.set(name, Object.freeze(lines));
   },
 
   // AString getPropertyParameter(in AString aPropertyName,
@@ -582,6 +709,19 @@ calItemBase.prototype = {
     const propName = aPropName.toUpperCase();
     const paramName = aParamName.toUpperCase();
     this.modify();
+    if (this.getStoredIcalPropertyList(propName)) {
+      const properties = this.getIcalProperties(propName);
+      const lastProperty = properties.at(-1);
+      if (aParamValue || !isNaN(parseInt(aParamValue, 10))) {
+        lastProperty.setParameter(paramName, aParamValue);
+      } else {
+        lastProperty.removeParameter(paramName);
+      }
+      // Replace the list so the single-value getter sees the updated parameter.
+      this.setIcalProperties(propName, properties);
+      return aParamValue;
+    }
+
     if (!(propName in this.mPropertyParams)) {
       if (this.hasProperty(propName)) {
         this.mPropertyParams[propName] = {};
@@ -947,6 +1087,7 @@ calItemBase.prototype = {
     this.mIsProxy = false;
     this.mProperties = new Map();
     this.mPropertyParams = {};
+    this.mIcalPropertyLists = new Map();
 
     this.mapPropsFromICS(icalcomp, this.icsBasePropMap);
 
@@ -1041,23 +1182,44 @@ calItemBase.prototype = {
   },
 
   /**
-   * Import all properties not in the promoted map into this item's extended
-   * properties bag.
+   * Imports properties that use the item's general property API.
+   * Stores single entries in the maps used by the single-value API.
+   * For properties that can use a list, keeps repeated entries in order
+   * and exposes the last entry through that API.
    *
    * @param {calIIcalComponent} icalcomp - The ical component to read.
    * @param {object} promoted - The map of promoted properties.
    */
   importUnpromotedProperties(icalcomp, promoted) {
-    for (const prop of cal.iterate.icalProperty(icalcomp)) {
-      const propName = prop.propertyName;
-      if (!promoted[propName]) {
-        this.setProperty(propName, prop.value);
-        for (const [paramName, paramValue] of cal.iterate.icalParameter(prop)) {
-          if (!(propName in this.mPropertyParams)) {
-            this.mPropertyParams[propName] = {};
-          }
-          this.mPropertyParams[propName][paramName] = paramValue;
+    // The iterator can reuse the same parser data for several values of one
+    // property. Save each line before the next value changes that data.
+    const propertyLists = new Map();
+    for (const property of cal.iterate.icalProperty(icalcomp)) {
+      const name = property.propertyName;
+      if (promoted[name]) {
+        continue;
+      }
+
+      // Storage handles DURATION through the item's end or due date.
+      if (name != "DURATION") {
+        const lines = propertyLists.get(name);
+        if (lines) {
+          lines.push(property.icalString);
+          continue;
         }
+        propertyLists.set(name, [property.icalString]);
+      }
+
+      this.setProperty(name, property.value);
+      this.mPropertyParams[name] = Object.fromEntries(cal.iterate.icalParameter(property));
+    }
+
+    for (const [name, lines] of propertyLists) {
+      if (lines.length > 1) {
+        const properties = lines.map(line =>
+          cal.icsService.createIcalPropertyFromString(line, true)
+        );
+        this.setIcalProperties(name, properties);
       }
     }
   },

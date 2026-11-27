@@ -143,65 +143,73 @@ export class CalIcalProperty {
     return this.innerObject.getParameter(name.toLowerCase());
   }
   setParameter(name, value) {
-    // Similar problems for setting the value parameter. Calendar code
-    // expects setting the value parameter to just change the value type
-    // and attempt to use the previous value as the new one. To do this in
-    // ICAL.js we need to save the value, reset the type and then try to
-    // set the value again.
-    if (name == "VALUE") {
-      if (!/^[A-Za-z0-9-]+$/.test(value)) {
-        lazy.log.warn(`Ignoring invalid VALUE parameter for ${this.propertyName}`);
-        return;
-      }
-      let oldValues;
-      const type = this.innerObject.type;
-      const designSet = this.innerObject._designSet;
-
-      const wasMultiValue = this.innerObject.isMultiValue;
-      if (wasMultiValue) {
-        oldValues = this.innerObject.getValues();
-      } else {
-        const oldValue = this.innerObject.getFirstValue();
-        oldValues = oldValue ? [oldValue] : [];
-      }
-
-      this.innerObject.resetType(value.toLowerCase());
-      try {
-        oldValues = oldValues.map(oldValue => {
-          const strvalue = ICAL.stringify.value(oldValue.toString(), type, designSet);
-          return ICAL.parse._parseValue(strvalue, value, designSet);
-        });
-      } catch (e) {
-        // If there was an error reparsing the value, then just keep it
-        // empty.
-        oldValues = null;
-      }
-
-      if (oldValues && oldValues.length) {
-        if (wasMultiValue && this.innerObject.isMultiValue) {
-          this.innerObject.setValues(oldValues);
-        } else {
-          this.innerObject.setValue(oldValues.join(","));
-        }
-      }
-    } else {
+    if (name != "VALUE") {
       this.innerObject.setParameter(name.toLowerCase(), value);
+
+      return;
     }
+
+    if (!/^[A-Za-z0-9-]+$/.test(value)) {
+      lazy.log.warn(`Ignoring invalid VALUE parameter for ${this.propertyName}`);
+
+      return;
+    }
+
+    // ICAL.js clears the values when it changes the type. Save them before the reset.
+    const oldType = this.innerObject.type;
+    const newType = value.toLowerCase();
+    const designSet = this.innerObject._designSet;
+    const wasMultiValue = this.innerObject.isMultiValue;
+    let oldValues;
+    let newValues;
+
+    if (wasMultiValue) {
+      oldValues = this.innerObject.getValues();
+    } else {
+      const oldValue = this.innerObject.getFirstValue();
+      oldValues = oldValue == null ? [] : [oldValue];
+    }
+
+    this.innerObject.resetType(newType);
+
+    try {
+      newValues = oldValues.map(oldValue => {
+        // Keep Boolean values so ICAL.js can serialize false as FALSE.
+        const valueToSerialize = typeof oldValue == "object" ? oldValue.toString() : oldValue;
+        const icalValue = String(ICAL.stringify.value(valueToSerialize, oldType, designSet));
+
+        return ICAL.parse._parseValue(icalValue, newType, designSet);
+      });
+    } catch {
+      // Leave the property empty if a value cannot be converted.
+      return;
+    }
+
+    if (!newValues.length) {
+      return;
+    }
+
+    if (wasMultiValue && this.innerObject.isMultiValue) {
+      this.innerObject.setValues(newValues);
+
+      return;
+    }
+
+    // Joining a single Boolean false would turn it into a non-empty string.
+    this.innerObject.setValue(newValues.length == 1 ? newValues[0] : newValues.join(","));
   }
   removeParameter(name) {
-    // Again, VALUE needs special handling. Removing the value parameter is
-    // kind of like resetting it to the default type. So find out the
-    // default type and then set the value parameter to it.
-    if (name == "VALUE") {
-      const propname = this.innerObject.name.toLowerCase();
-      if (propname in ICAL.design.icalendar.property) {
-        const details = ICAL.design.icalendar.property[propname];
-        if ("defaultType" in details) {
-          this.setParameter("VALUE", details.defaultType);
-        }
-      }
-    } else {
+    if (name != "VALUE") {
       this.innerObject.removeParameter(name.toLowerCase());
+
+      return;
+    }
+
+    // ICAL.js stores VALUE as a type and supplies the default for custom properties.
+    const defaultType = this.innerObject.getDefaultType();
+
+    if (this.innerObject.type != defaultType) {
+      this.setParameter("VALUE", defaultType);
     }
   }
 
@@ -615,8 +623,19 @@ export const CalICSService = new (class {
     return new CalIcalProperty(new ICAL.Property(kind.toLowerCase()));
   }
 
-  createIcalPropertyFromString(str) {
-    return new CalIcalProperty(ICAL.Property.fromString(str.trim(), ICAL.design.icalendar));
+  /**
+   * Parses one unfolded iCalendar property line.
+   *
+   * @param {string} str - The property line, with an optional line ending.
+   * @param {boolean} [preserveWhitespace=false] - When true, removes only a final
+   *   LF or CRLF so spaces at the end of a text value are preserved. Otherwise,
+   *   trims whitespace from both ends of the line.
+   * @returns {calIIcalProperty} The parsed property.
+   * @throws {Error} If the property line cannot be parsed.
+   */
+  createIcalPropertyFromString(str, preserveWhitespace = false) {
+    const line = preserveWhitespace ? str.replace(/\r?\n$/, "") : str.trim();
+    return new CalIcalProperty(ICAL.Property.fromString(line, ICAL.design.icalendar));
   }
 })();
 export { CalICSService as icsService };

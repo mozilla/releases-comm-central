@@ -268,3 +268,54 @@ add_task(async function testDeleteCalendarKeepsOfflineFlagsReadable() {
     "the offline flag of a series should still be readable after the wipe"
   );
 });
+
+add_task(async function testRepeatableExtensionProperty() {
+  const storage = getStorageCal();
+  const item = createEventFromIcalString(
+    [
+      "BEGIN:VEVENT",
+      "UID:repeatable-extension-property",
+      "DTSTART:20250101T010101Z",
+      "X-DETAIL;LABEL=First:one",
+      "X-DETAIL;VALUE=TEXT:two  ",
+      "END:VEVENT",
+    ].join("\r\n")
+  );
+
+  equal(item.getProperty("X-DETAIL"), "two  ", "The scalar getter should read the last entry");
+  equal(
+    item.getPropertyParameter("X-DETAIL", "LABEL"),
+    null,
+    "The scalar getter should read parameters from the same entry"
+  );
+
+  item.setPropertyParameter("X-DETAIL", "LABEL", "Second");
+  const properties = item.getIcalProperties("x-detail");
+  properties[0].value = "updated";
+  item.setIcalProperties("x-detail", properties);
+
+  const saved = await storage.addItem(item);
+  storage.wrappedJSObject.mItemModel.itemCache.delete(saved.id);
+  const reloaded = await storage.getItem(saved.id);
+
+  deepEqual(
+    reloaded
+      .getIcalProperties("X-DETAIL")
+      .map(property => [property.value, property.getParameter("LABEL")]),
+    [
+      ["updated", "First"],
+      ["two  ", "Second"],
+    ],
+    "Both extension entries should retain their own values and labels after storage reload"
+  );
+
+  const clone = reloaded.clone();
+  clone.setProperty("X-DETAIL", "replacement");
+  deepEqual(
+    clone.getIcalProperties("X-DETAIL").map(property => property.value),
+    ["replacement"],
+    "A scalar setter should replace the property list"
+  );
+  clone.deleteProperty("X-DETAIL");
+  equal(clone.getIcalProperties("X-DETAIL").length, 0, "Deletion should remove the property");
+});

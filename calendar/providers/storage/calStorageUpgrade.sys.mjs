@@ -96,7 +96,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
 // The current database version. Be sure to increment this when you create a new
 // updater.
-export var DB_SCHEMA_VERSION = 23;
+export var DB_SCHEMA_VERSION = 24;
 
 /**
  * Gets the SQL for the given table data and table name. This can be both a real
@@ -1887,6 +1887,19 @@ upgrade.v23 = function (db, version) {
     const allIds = ["cal_id", "item_id", "recurrence_id", "recurrence_id_tz"];
     createIndex(tbl, "cal_parameters", allIds, db);
     setDbVersionAndCommit(db, 23);
+  } catch (e) {
+    throw reportErrorAndRollback(db, e);
+  }
+  return tbl;
+};
+
+upgrade.v24 = function (db, version) {
+  const tbl = upgrade.v23(version < 23 && db, version);
+  LOGdb(db, "Storage: Upgrading to v24");
+  beginTransaction(db);
+  try {
+    addColumn(tbl, "cal_properties", "icalStringList", "TEXT", db);
+    setDbVersionAndCommit(db, 24);
   } catch (e) {
     throw reportErrorAndRollback(db, e);
   }

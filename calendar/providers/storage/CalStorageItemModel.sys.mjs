@@ -567,22 +567,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
         return;
       }
 
-      const name = row.getResultByName("key");
-      switch (name) {
-        case "DURATION":
-          // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
-          break;
-        case "CATEGORIES": {
-          const cats = cal.category.stringToArray(row.getResultByName("value"));
-          item.setCategories(cats);
-          break;
-        }
-        default: {
-          const value = row.getResultByName("value");
-          item.setProperty(name, value);
-          break;
-        }
-      }
+      this.#loadProperty(item, row);
     });
 
     this.db.prepareStatement(this.statements.mSelectAllParameters);
@@ -831,22 +816,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
         this.db.prepareStatement(selectItem);
         selectItem.params.item_id = item.id;
         await this.db.executeAsync(selectItem, row => {
-          const name = row.getResultByName("key");
-          switch (name) {
-            case "DURATION":
-              // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
-              break;
-            case "CATEGORIES": {
-              const cats = cal.category.stringToArray(row.getResultByName("value"));
-              item.setCategories(cats);
-              break;
-            }
-            default: {
-              const value = row.getResultByName("value");
-              item.setProperty(name, value);
-              break;
-            }
-          }
+          this.#loadProperty(item, row);
         });
 
         this.db.prepareStatement(selectParam);
@@ -889,9 +859,8 @@ export class CalStorageItemModel extends CalStorageModelBase {
     }
 
     if (flags & CAL_ITEM_FLAG.HAS_EXCEPTIONS) {
-      // it's safe that we don't run into this branch again for exceptions
-      // (getAdditionalDataForItem->get[Event|Todo]FromRow->getAdditionalDataForItem):
-      // every excepton has a recurrenceId and isn't flagged as CAL_ITEM_FLAG.HAS_EXCEPTIONS
+      // Load each exception's own properties before adding it to the series.
+      // An exception has a recurrence ID and has no exceptions of its own.
       if (item.recurrenceId) {
         throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
       }
@@ -903,7 +872,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
         this.statements.mSelectEventExceptions.params.id = item.id;
         try {
           await this.db.executeAsync(this.statements.mSelectEventExceptions, async row => {
-            const exc = await this.getEventFromRow(row, false);
+            const exc = await this.getEventFromRow(row);
             rec.modifyException(exc, true);
           });
         } catch (e) {
@@ -917,7 +886,7 @@ export class CalStorageItemModel extends CalStorageModelBase {
         this.statements.mSelectTodoExceptions.params.id = item.id;
         try {
           await this.db.executeAsync(this.statements.mSelectTodoExceptions, async row => {
-            const exc = await this.getTodoFromRow(row, false);
+            const exc = await this.getTodoFromRow(row);
             rec.modifyException(exc, true);
           });
         } catch (e) {
@@ -1194,10 +1163,56 @@ export class CalStorageItemModel extends CalStorageModelBase {
     return 0;
   }
 
-  #prepareProperty(stmts, item, propName, propValue) {
+  /**
+   * Loads a property row into an event or task.
+   *
+   * If the row contains a list, loads each entry with its own parameters.
+   *
+   * @param {calIItemBase} item - The event or task to update.
+   * @param {mozIStorageRow} row - A row from `cal_properties`.
+   * @throws {Error|nsIException} If a stored property list cannot be read or applied.
+   */
+  #loadProperty(item, row) {
+    const name = row.getResultByName("key");
+    const icalStringList = row.getResultByName("icalStringList");
+    if (icalStringList) {
+      const properties = JSON.parse(icalStringList).map(line =>
+        cal.icsService.createIcalPropertyFromString(line, true)
+      );
+      item.setIcalProperties(name, properties);
+      return;
+    }
+
+    // For scalar rows, the caller reads the parameters from cal_parameters.
+    const value = row.getResultByName("value");
+    switch (name) {
+      case "DURATION":
+        // Events and tasks store their end or due date directly.
+        break;
+      case "CATEGORIES":
+        item.setCategories(cal.category.stringToArray(value));
+        break;
+      default:
+        item.setProperty(name, value);
+    }
+  }
+
+  /**
+   * Adds the bindings for one property row to the pending inserts.
+   *
+   * @param {Map<mozIStorageAsyncStatement, mozIStorageBindingParamsArray>} stmts
+   *   - The pending inserts, keyed by statement.
+   * @param {calIItemBase} item - The item that owns the property.
+   * @param {string} propName - The property name to store.
+   * @param {nsIVariant|null} propValue - The single value, or `null` for a list.
+   * @param {string|null} [icalStringList=null] - The ordered property lines as JSON,
+   *   or `null` for a single value.
+   */
+  #prepareProperty(stmts, item, propName, propValue, icalStringList = null) {
     const array = this.db.prepareAsyncStatement(stmts, this.statements.mInsertProperty);
     const params = this.db.prepareAsyncParams(array);
     params.bindByName("key", propName);
+    params.bindByName("icalStringList", icalStringList);
     if (propValue instanceof Ci.calIDateTime) {
       params.bindByName("value", propValue.nativeTime);
     } else {
@@ -1243,6 +1258,18 @@ export class CalStorageItemModel extends CalStorageModelBase {
     array.addParams(params);
   }
 
+  /**
+   * Adds pending inserts for an item's property and parameter rows.
+   *
+   * List rows include their own parameters. Single values have separate
+   * parameter rows.
+   *
+   * @param {Map<mozIStorageAsyncStatement, mozIStorageBindingParamsArray>} stmts
+   *   - The pending inserts, keyed by statement.
+   * @param {calIItemBase} item - The item whose properties are stored.
+   * @returns {number} `HAS_PROPERTIES` if the item has property entries or
+   *   categories, or 0 otherwise.
+   */
   #prepareProperties(stmts, item) {
     let ret = 0;
     for (let [name, value] of item.properties) {
@@ -1250,6 +1277,13 @@ export class CalStorageItemModel extends CalStorageModelBase {
       if (item.isPropertyPromoted(name)) {
         continue;
       }
+      const lines = item.wrappedJSObject.getStoredIcalPropertyList(name);
+      if (lines) {
+        // Store the ordered list in one row. Each line includes its own parameters.
+        this.#prepareProperty(stmts, item, name, null, JSON.stringify(lines));
+        continue;
+      }
+
       this.#prepareProperty(stmts, item, name, value);
       // Overridden parameters still enumerate even if their value is now empty.
       if (item.hasProperty(name)) {

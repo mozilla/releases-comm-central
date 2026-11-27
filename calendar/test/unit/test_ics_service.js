@@ -18,6 +18,7 @@ function run_test() {
   test_icsservice();
   test_icalstring();
   test_param();
+  test_boolean_value_parameter();
   test_icalproperty();
 }
 
@@ -232,6 +233,20 @@ function test_param() {
   equal(prop.icalString, "DTSTART;X-FOO=BAR:20120101T010101\r\n");
   prop.removeParameter("X-FOO", "BAR");
   equal(prop.icalString, "DTSTART:20120101T010101\r\n");
+}
+
+function test_boolean_value_parameter() {
+  for (const type of ["BOOLEAN", "boolean"]) {
+    const property = cal.icsService.createIcalPropertyFromString("X-DETAIL:FALSE");
+
+    property.setParameter("VALUE", type);
+
+    Assert.strictEqual(
+      property.icalString,
+      "X-DETAIL;VALUE=BOOLEAN:FALSE\r\n",
+      `Setting VALUE to ${type} should preserve FALSE`
+    );
+  }
 }
 
 function test_iterator() {

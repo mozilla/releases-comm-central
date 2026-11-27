@@ -118,6 +118,14 @@ CalEvent.prototype = {
 
     for (const [name, value] of this.properties) {
       try {
+        const lines = this.getStoredIcalPropertyList(name);
+        if (lines) {
+          for (const line of lines) {
+            icalcomp.addProperty(cal.icsService.createIcalPropertyFromString(line, true));
+          }
+          continue;
+        }
+
         // When deleting a property of an occurrence, the property is not deleted
         // but instead set to null, so we need to prevent adding those properties.
         const wasReset = this.mIsProxy && value === null;
