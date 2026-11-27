@@ -306,6 +306,12 @@ NS_IMETHODIMP nsPop3Sink::IncorporateBegin(const char* uidlString,
   if (uidlString) printf("uidl string: %s\n", uidlString);
 #endif
 
+  // A line break in the UIDL would inject headers before our own
+  // X-Mozilla-Status line.
+  if (uidlString && strpbrk(uidlString, "\r\n")) {
+    return NS_ERROR_ILLEGAL_VALUE;
+  }
+
   nsresult rv;
 
   nsCOMPtr<nsIMsgDatabase> db;

@@ -237,3 +237,62 @@ add_task(async function testBareLFHeaderSeparator() {
   delete handler.postCommand;
   MailServices.accounts.removeIncomingServer(incomingServer, false);
 });
+
+/**
+ * Test that messages with an empty UIDL or a UIDL containing characters outside
+ * 0x21-0x7E are not downloaded, so the UIDL can't inject headers such as
+ * X-Mozilla-Status.
+ */
+add_task(async function testInvalidUidl() {
+  const { PromiseTestUtils } = ChromeUtils.importESModule(
+    "resource://testing-common/mailnews/PromiseTestUtils.sys.mjs"
+  );
+  const invalidUidls = {
+    "empty uidl": "",
+    "bare CR uidl": "real-uidl-1\rX-Mozilla-Status:0040",
+    "tab uidl": "real-uidl-2\treal-uidl-3",
+    "DEL uidl": "real-uidl-4\x7F",
+    "8-bit uidl": "real-uidl-\xE9",
+  };
+  const makeMessage = subject => ({
+    fileData:
+      "From: sender@example.com\r\n" +
+      `Subject: ${subject}\r\n` +
+      "\r\n" +
+      "Body\r\n",
+  });
+  server.resetTest();
+  daemon.setMessages([
+    makeMessage("valid uidl"),
+    ...Object.keys(invalidUidls).map(makeMessage),
+  ]);
+  Object.values(invalidUidls).forEach((uidl, i) => {
+    daemon._messages[i + 1].uidl = uidl;
+  });
+
+  const incomingServer = createPop3ServerAndLocalFolders(server.port);
+  const inbox = localAccountUtils.inboxFolder;
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
+  MailServices.pop3.GetNewMail(false, urlListener, inbox, incomingServer);
+  await urlListener.promise;
+
+  const subjects = [...inbox.messages].map(hdr => hdr.subject);
+  Assert.ok(
+    subjects.includes("valid uidl"),
+    "the message with a valid UIDL should be downloaded"
+  );
+  for (const subject of Object.keys(invalidUidls)) {
+    Assert.ok(
+      !subjects.includes(subject),
+      `the message with an invalid UIDL (${subject}) should not be downloaded`
+    );
+  }
+  for (const hdr of inbox.messages) {
+    Assert.ok(
+      !(hdr.flags & Ci.nsMsgMessageFlags.FeedMsg),
+      "no message should be flagged as a feed message"
+    );
+  }
+
+  MailServices.accounts.removeIncomingServer(incomingServer, false);
+});

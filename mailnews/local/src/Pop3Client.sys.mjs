@@ -1283,7 +1283,15 @@ export class Pop3Client {
       data,
       line => {
         let [messageNumber, uidl] = line.split(" ");
-        uidl = uidl.trim();
+        uidl = uidl?.trim();
+        // RFC 1939 section 7: a unique-id consists of characters 0x21-0x7E.
+        if (!uidl || /[^\x21-\x7E]/.test(uidl)) {
+          this._logger.warn(
+            `Ignoring message ${messageNumber} with invalid UIDL: ${JSON.stringify(uidl)}`
+          );
+          this._sendNoopIfInactive();
+          return;
+        }
         const uidlState = this._uidlMap.get(uidl);
         if (uidlState) {
           if (
