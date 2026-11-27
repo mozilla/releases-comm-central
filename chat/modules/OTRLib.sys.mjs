@@ -6,7 +6,7 @@ const otrl_version = [4, 1, 1];
 
 import { CLib } from "resource:///modules/CLib.sys.mjs";
 
-import { ctypes } from "resource://gre/modules/ctypes.sys.mjs";
+import { ctypes } from "moz-src:///toolkit/components/ctypes/ctypes.sys.mjs";
 
 var systemOS = Services.appinfo.OS.toLowerCase();
 

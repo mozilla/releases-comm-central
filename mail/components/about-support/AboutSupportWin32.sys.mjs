@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // JS ctypes are needed to get at the data we need
-import { ctypes } from "resource://gre/modules/ctypes.sys.mjs";
+import { ctypes } from "moz-src:///toolkit/components/ctypes/ctypes.sys.mjs";
 
 var BOOL = ctypes.int32_t;
 var DRIVE_UNKNOWN = 0;

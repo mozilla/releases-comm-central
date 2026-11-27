@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { BasePromiseWorker } from "resource://gre/modules/PromiseWorker.sys.mjs";
-import { ctypes } from "resource://gre/modules/ctypes.sys.mjs";
+import { ctypes } from "moz-src:///toolkit/components/ctypes/ctypes.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { CLib } from "resource:///modules/CLib.sys.mjs";
 import { OTRLibLoader } from "resource:///modules/OTRLib.sys.mjs";

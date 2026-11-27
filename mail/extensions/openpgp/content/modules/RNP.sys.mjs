@@ -13,7 +13,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.sys.mjs",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.sys.mjs",
   RNPLibLoader: "chrome://openpgp/content/modules/RNPLib.sys.mjs",
-  ctypes: "resource://gre/modules/ctypes.sys.mjs",
+  ctypes: "moz-src:///toolkit/components/ctypes/ctypes.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(lazy, "log", () => {
   return console.createInstance({

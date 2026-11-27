@@ -6,7 +6,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.sys.mjs",
   GPGMELibLoader: "chrome://openpgp/content/modules/GPGMELib.sys.mjs",
-  ctypes: "resource://gre/modules/ctypes.sys.mjs",
+  ctypes: "moz-src:///toolkit/components/ctypes/ctypes.sys.mjs",
 });
 
 var GPGMELib;
