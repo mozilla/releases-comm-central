@@ -8,10 +8,10 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2026-06-11T12:34:29.734562+00:00'
+updated_at: '2026-11-25T18:50:03.954339+00:00'
 hashes:
-  config: ad812b65af480cffc09409a76943bbb446ea7cc8
-  export: 74e97d3cf27cdc840a23a246beb5bfc419779862
+  config: 3a5fc63b0555171ab0381641f81f5c890ba73d75
+  export: 44be56f2624326e2d3eb7df0d0ef850d167bb489
 export:
   path: ./docs/mots/index.md
   format: md
@@ -303,6 +303,10 @@ people:
     bmo_id: 257029
     name: Tobias Markus
     nick: Tobbi
+  - &tobyp
+    bmo_id: 754499
+    name: Toby Pilling
+    nick: tobyp
   - &tomprince
     bmo_id: 461658
     name: Tom Prince
@@ -334,7 +338,7 @@ modules:
       - third_party/**
       - tools/**
     owners: [*thunderbirdcouncil]
-    peers: [*mkmelin, *darktrojan, *Paenglab, *aleca]
+    peers: [*mkmelin, *darktrojan, *Paenglab, *aleca, *tobyp]
     meta:
       group: https://thunderbird.topicbox.com/groups/developers
       owners_emeritus:

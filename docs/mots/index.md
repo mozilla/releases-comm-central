@@ -84,6 +84,7 @@ widths: 30 70
     * [Geoff Lankow (darktrojan)](https://people.mozilla.org/s?query=darktrojan)
     * [Richard Marti (Paenglab)](https://people.mozilla.org/s?query=Paenglab)
     * [Alessandro Castellani (aleca)](https://people.mozilla.org/s?query=aleca)
+    * [Toby Pilling (tobyp)](https://people.mozilla.org/s?query=tobyp)
 * - Owner(s) Emeritus
   - Mark Banner, David Bienvenu, Scott MacGregor
 * - Peer(s) Emeritus
