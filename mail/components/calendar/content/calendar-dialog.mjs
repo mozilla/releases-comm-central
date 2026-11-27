@@ -442,7 +442,7 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
     }
     this.querySelector("#attachmentsRow").hidden = !attachments.length;
 
-    this.#setJoinMeetingButton(event.descriptionText || "");
+    this.#setJoinMeetingButton(event);
 
     const acceptanceWidget = this.querySelector("calendar-dialog-acceptance");
     const hasAttendees = event.getAttendees().length > 0;
@@ -660,14 +660,33 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
   }
 
   /**
-   * Sets the join meeting button link in the event dialog by parsing the
-   * description for any meeting links.
+   * Sets the join meeting button link in the event dialog. Uses the event's
+   * CONFERENCE property if it is a valid URL whose scheme Thunderbird can open
+   * externally, otherwise parses the description for any meeting links.
    *
-   * @param {string} eventDescription - The event plain text description.
+   * @param {calIEvent} event - The event to read.
    */
-  #setJoinMeetingButton(eventDescription) {
+  #setJoinMeetingButton(event) {
     const joinMeetingRow = this.querySelector("#joinMeetingRow");
-    const meetingUrl = extractJoinLink(eventDescription);
+    const conference = event.getProperty("CONFERENCE")?.trim() ?? "";
+    const scheme = URL.parse(conference)?.protocol.slice(0, -1);
+    const canOpenConference =
+      scheme &&
+      Services.prefs.getBoolPref(
+        `network.protocol-handler.external.${scheme}`,
+        Services.prefs.getBoolPref(
+          "network.protocol-handler.external-default",
+          false
+        )
+      ) &&
+      (scheme == "http" ||
+        scheme == "https" ||
+        Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+          .getService(Ci.nsIExternalProtocolService)
+          .externalProtocolHandlerExists(scheme));
+    const meetingUrl = canOpenConference
+      ? conference
+      : extractJoinLink(event.descriptionText || "");
     joinMeetingRow.hidden = !meetingUrl;
     this.#meetingUrl = meetingUrl;
   }

@@ -980,6 +980,113 @@ add_task(async function test_joinMeetingButton() {
   resetDialog();
 });
 
+add_task(async function test_joinMeetingButtonUsesConference() {
+  const conferenceUrl = "https://meet.example.com/room-1";
+  const zoomUrl = "https://test.zoom.us/wc/join/12345";
+  const phoneConference = "tel:+1-412-555-0123";
+  const invalidConference = "not a url";
+  const protocolService = Cc[
+    "@mozilla.org/uriloader/external-protocol-service;1"
+  ].getService(Ci.nsIExternalProtocolService);
+  const handlerStub = sinon
+    .stub(protocolService.wrappedJSObject, "externalProtocolHandlerExists")
+    .callsFake(scheme => scheme == "tel");
+  const cases = [
+    {
+      name: "a CONFERENCE URL",
+      conference: conferenceUrl,
+      description: "",
+      expected: conferenceUrl,
+    },
+    {
+      name: "a CONFERENCE URL over a description link",
+      conference: conferenceUrl,
+      description: zoomUrl,
+      expected: conferenceUrl,
+    },
+    {
+      name: "a tel: CONFERENCE over a description link",
+      conference: phoneConference,
+      description: zoomUrl,
+      expected: phoneConference,
+    },
+    {
+      name: "a description link for a CONFERENCE scheme without a handler",
+      conference: "zoommtg://zoom.us/join?confno=123456789",
+      description: zoomUrl,
+      expected: zoomUrl,
+    },
+    {
+      name: "a description link for an invalid CONFERENCE",
+      conference: invalidConference,
+      description: zoomUrl,
+      expected: zoomUrl,
+    },
+    {
+      name: "a description link for a data: CONFERENCE",
+      conference: "data:text/plain,Dial in on 555-0123",
+      description: zoomUrl,
+      expected: zoomUrl,
+    },
+    {
+      name: "a description link for a blocked CONFERENCE scheme",
+      conference: "webcal://meet.example.com/calendar.ics",
+      description: zoomUrl,
+      expected: zoomUrl,
+    },
+    {
+      name: "no link",
+      conference: invalidConference,
+      description: "",
+      expected: null,
+    },
+  ];
+  const joinMeetingButton = dialog.querySelector("#joinMeeting");
+
+  for (const { name, conference, description, expected } of cases) {
+    const original = await createEvent({
+      name: "Conference Event",
+      calendar,
+      description,
+    });
+    const event = original.clone();
+    event.setProperty("CONFERENCE", conference);
+    await calendar.modifyItem(event, original);
+    dialog.setCalendarEvent(event);
+    await dialog.show();
+
+    if (!expected) {
+      Assert.ok(
+        BrowserTestUtils.isHidden(joinMeetingButton),
+        `The join meeting button should be hidden for ${name}`
+      );
+    } else {
+      Assert.ok(
+        BrowserTestUtils.isVisible(joinMeetingButton),
+        `The join meeting button should be visible for ${name}`
+      );
+
+      const loadPromise = MockExternalProtocolService.promiseLoad();
+      EventUtils.synthesizeMouseAtCenter(
+        joinMeetingButton,
+        {},
+        browser.contentWindow
+      );
+      const loadedUrl = await loadPromise;
+
+      Assert.equal(
+        loadedUrl,
+        expected,
+        `The join meeting button should open the expected URL for ${name}`
+      );
+    }
+
+    resetDialog();
+  }
+
+  handlerStub.restore();
+});
+
 add_task(async function test_dialogAttachmentsSubview() {
   const subviewManager = dialog.querySelector(
     "calendar-dialog-subview-manager"
