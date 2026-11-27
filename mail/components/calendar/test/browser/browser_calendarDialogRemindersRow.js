@@ -190,3 +190,38 @@ add_task(async function test_deleteReminders() {
 
   row.setReminders([]);
 });
+
+add_task(function test_disableRow() {
+  row.disabled = false;
+
+  const dayReminder = createAlarmFromDuration("-P1D");
+  row.setReminders([dayReminder]);
+
+  Assert.ok(BrowserTestUtils.isVisible(row), "Row should be visible");
+
+  const addButton = row.querySelector("#addReminder");
+  const deleteButton = row.querySelector("#reminderList .delete-button");
+
+  Assert.ok(
+    BrowserTestUtils.isVisible(addButton),
+    "Should show add reminder button"
+  );
+  Assert.ok(
+    BrowserTestUtils.isVisible(deleteButton),
+    "Reminder should have a delete button"
+  );
+
+  row.disabled = true;
+
+  Assert.ok(
+    BrowserTestUtils.isHidden(addButton),
+    "Should hide add reminder button when disabled"
+  );
+  Assert.ok(
+    BrowserTestUtils.isHidden(deleteButton),
+    "Reminder should not have a delete button when disabled"
+  );
+
+  row.disabled = false;
+  row.setReminders([]);
+});

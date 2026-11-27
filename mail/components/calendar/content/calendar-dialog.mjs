@@ -392,9 +392,8 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
           .compare(cal.alarms.calculateAlarmDate(event, a))
       );
 
-    this.querySelector("calendar-dialog-reminders-row").setReminders(
-      this.#reminders
-    );
+    const remindersRow = this.querySelector("calendar-dialog-reminders-row");
+    remindersRow.setReminders(this.#reminders);
 
     const attendees = event.getAttendees();
     const organizer = event.organizer;
@@ -470,6 +469,7 @@ export class CalendarDialog extends CalendarEventDialogSourceMixin(
       ) &&
       event.calendar.getProperty("capabilities.events.supported") !== false;
     this.querySelector("#edit").hidden = !canEdit;
+    remindersRow.disabled = !canEdit;
   }
 
   onCalendarEventRouteCleared() {

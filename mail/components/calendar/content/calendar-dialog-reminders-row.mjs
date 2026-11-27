@@ -9,6 +9,7 @@ import "./calendar-dialog-create-reminder-form.mjs"; // eslint-disable-line impo
  * Template ID: #calendarDialogRemindersRowTemplate
  *
  * @tagname calendar-dialog-reminders-row
+ * @attribute {boolean} disabled - If reminders can be added and removed.
  */
 class CalendarDialogRemindersRow extends HTMLElement {
   /**
@@ -134,6 +135,14 @@ class CalendarDialogRemindersRow extends HTMLElement {
     } else {
       this.querySelector("#addReminder").focus();
     }
+  }
+
+  set disabled(val) {
+    this.toggleAttribute("disabled", val);
+  }
+
+  get disabled() {
+    return this.hasAttribute("disabled");
   }
 }
 

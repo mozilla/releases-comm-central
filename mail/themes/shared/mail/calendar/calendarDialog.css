@@ -270,6 +270,10 @@ calendar-dialog-date-row {
   }
 }
 
+calendar-dialog-reminders-row[disabled] :is(calendar-dialog-create-reminder-form, .delete-button) {
+  display: none;
+}
+
 calendar-dialog-subview-manager {
   display: block;
   overflow-y: auto;

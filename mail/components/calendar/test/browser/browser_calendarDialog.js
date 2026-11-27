@@ -1885,3 +1885,84 @@ add_task(async function test_calendarDialogNewReminder() {
 
   resetDialog();
 });
+
+add_task(async function test_editButtonDisabledState() {
+  // Create stubs for cal.acl functions.
+  const isCalendarWritableStub = sinon.stub(cal.acl, "isCalendarWritable");
+  const userCanModifyItemStub = sinon.stub(cal.acl, "userCanModifyItem");
+
+  const originalCapability = calendar.getProperty(
+    "capabilities.events.supported"
+  );
+
+  const editButtonCases = [
+    {
+      writable: true,
+      canModify: true,
+      supported: true,
+      expectedHidden: false,
+      message: "Reminders should be editable",
+    },
+    {
+      writable: false,
+      canModify: true,
+      supported: true,
+      expectedHidden: true,
+      message: "Reminders aren't editable when not writable",
+    },
+    {
+      writable: true,
+      canModify: false,
+      supported: true,
+      expectedHidden: true,
+      message: "Reminders aren't editable when not modifiable",
+    },
+    {
+      writable: true,
+      canModify: true,
+      supported: false,
+      expectedHidden: true,
+      message: "Reminders aren't editable when events are not supported",
+    },
+  ];
+
+  const remindersRow = dialog.querySelector("calendar-dialog-reminders-row");
+
+  const hourReminder = createAlarmFromDuration("-PT1H");
+  const alarms = [hourReminder];
+  const event = await createEvent({
+    name: "One Alarm",
+    calendar,
+    offset: 7,
+    alarms,
+  });
+  dialog.setCalendarEvent(event);
+
+  // Loop through each test case to test the hidden state of edit button.
+  for (const testCase of editButtonCases) {
+    isCalendarWritableStub.returns(testCase.writable);
+    userCanModifyItemStub.returns(testCase.canModify);
+
+    calendar.setProperty("capabilities.events.supported", testCase.supported);
+
+    await dialog.show();
+
+    Assert.equal(
+      remindersRow.disabled,
+      testCase.expectedHidden,
+      `Reminder row disabled: ${testCase.message}`
+    );
+
+    resetDialog();
+  }
+
+  // Clean up.
+  isCalendarWritableStub.restore();
+  userCanModifyItemStub.restore();
+
+  if (originalCapability === null) {
+    calendar.deleteProperty("capabilities.events.supported");
+  } else {
+    calendar.setProperty("capabilities.events.supported", originalCapability);
+  }
+});
