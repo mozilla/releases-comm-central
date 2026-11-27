@@ -2448,7 +2448,7 @@ parse._handleContentLine = function(line, state) {
 
   // attempt to determine value
   if (!valueType) {
-    if (!('value' in params)) {
+    if (!('value' in params) || !/^[A-Za-z0-9-]+$/.test(params.value)) {
       if (propertyDetails) {
         valueType = propertyDetails.defaultType;
       } else {
@@ -7654,7 +7654,9 @@ stringify.property = function(property, designSet, noFold) {
   // push the VALUE property if type is not the default
   // for the current property.
   if (!isDefault) {
-    // value will never contain ;/:/, so we don't escape it here.
+    if (!/^[A-Za-z0-9-]+$/.test(valueType)) {
+      throw new Error(`Invalid value type: ${valueType}`);
+    }
     line += ';VALUE=' + valueType.toUpperCase();
   }
 

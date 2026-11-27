@@ -109,6 +109,8 @@ tags = ["caldav"]
 
 ["test_freebusy_service.js"]
 
+["test_ical_value_param.js"]
+
 ["test_ics.js"]
 
 ["test_icsCalendar_invalidFile.js"]

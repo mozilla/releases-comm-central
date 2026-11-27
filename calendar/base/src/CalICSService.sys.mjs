@@ -149,6 +149,10 @@ export class CalIcalProperty {
     // ICAL.js we need to save the value, reset the type and then try to
     // set the value again.
     if (name == "VALUE") {
+      if (!/^[A-Za-z0-9-]+$/.test(value)) {
+        lazy.log.warn(`Ignoring invalid VALUE parameter for ${this.propertyName}`);
+        return;
+      }
       let oldValues;
       const type = this.innerObject.type;
       const designSet = this.innerObject._designSet;
