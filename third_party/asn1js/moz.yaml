@@ -37,6 +37,13 @@ origin:
   # optional
   license-file: LICENSE
 
+updatebot:
+  maintainer-bz: ebaginski@thunderbird.net
+  maintainer-phab: "#thunderbird-reviewers"
+  tasks:
+    - type: vendoring
+      enabled: true
+
 # Configuration for the automated vendoring system.
 # optional
 vendoring:
@@ -61,17 +68,14 @@ vendoring:
   # Implicitly contains ".git", and ".gitignore"
   # optional
   exclude:
-    - .eslintrc.json
-    - .github/
-    - .gitignore
-    - .mocharc.yaml
-    - .npmrc
-    - .nycrc
-    - CNAME
-    - README.md
-    - rollup.config.js
-    - test/
-    - typedoc.json
+    - "**"
+    - ".*"
+
+  include:
+    - LICENSE
+    - package.json
+    - src/
+    - tsconfig.json
 
   keep:
     - make_bundle.sh
